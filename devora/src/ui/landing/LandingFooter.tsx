@@ -3,7 +3,7 @@ import { LandingReveal } from "./LandingReveal";
 
 export default function LandingFooter() {
   return (
-    <footer id="join" className="grid-bg relative overflow-hidden bg-[#08040f] pb-10 pt-32 sm:pt-40">
+    <footer id="join" className="landing-footer grid-bg relative overflow-hidden pb-10 pt-32 sm:pt-40">
       <div className="glow-line absolute inset-x-0 top-0 h-px" />
       <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[720px] -translate-x-1/2 rounded-full bg-[#ff2bd6]/10 blur-[120px]" />
 
@@ -14,7 +14,7 @@ export default function LandingFooter() {
           </h2>
         </LandingReveal>
         <LandingReveal delay={0.15}>
-          <p className="mx-auto mt-6 max-w-lg text-base text-white/60 md:text-lg">
+          <p className="theme-muted mx-auto mt-6 max-w-lg text-base md:text-lg">
             Your next collaborator is already on campus. Come find them.
           </p>
         </LandingReveal>
@@ -30,10 +30,10 @@ export default function LandingFooter() {
 
       <div className="relative mx-auto mt-28 flex max-w-6xl flex-col items-center justify-between gap-5 border-t border-[#ff5ca8]/15 px-6 pt-8 sm:flex-row">
         <span className="logo-gradient font-pixel text-[10px]">DEVORA</span>
-        <p className="text-xs uppercase tracking-[0.25em] text-white/40">
+        <p className="theme-faint text-xs uppercase tracking-[0.25em]">
           CECS · University of Michigan–Dearborn
         </p>
-        <p className="text-xs text-white/30">© 2026 Devora</p>
+        <p className="theme-faint text-xs">© 2026 Devora</p>
       </div>
     </footer>
   );

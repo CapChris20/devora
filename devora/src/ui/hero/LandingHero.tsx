@@ -58,7 +58,7 @@ export default function LandingHero() {
       </div>
 
       <div
-        className="absolute inset-x-0 bottom-[12%] z-[2] flex justify-center"
+        className="absolute bottom-[12%] right-[6%] z-[2] sm:right-[8%] md:right-[10%] lg:right-[12%]"
         aria-hidden="true"
       >
         <motion.div style={{ x: sunX, y: sunY }} className="sun">
@@ -111,22 +111,16 @@ export default function LandingHero() {
       </motion.div>
 
       <div className="grid-floor z-[10]" aria-hidden="true" />
-      <div
-        className="pointer-events-none absolute left-1/2 top-[38%] z-[12] h-[560px] w-[1000px] max-w-[95vw] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#0b0518]/55 blur-[110px]"
-        aria-hidden="true"
-      />
-      <div className="scanlines pointer-events-none absolute inset-0 z-[30] opacity-40" aria-hidden="true" />
+      <div className="scanlines pointer-events-none absolute inset-0 z-[30]" aria-hidden="true" />
       <div className="vignette pointer-events-none absolute inset-0 z-[15]" aria-hidden="true" />
 
-      <div className="relative z-40 flex min-h-screen flex-col px-5 pb-24 pt-24 sm:px-8 sm:pb-28 sm:pt-28 md:px-10 md:pt-32 lg:px-12">
-        <div className="flex w-full shrink-0 justify-center">
-          <h1 className="hero-devora-title logo-gradient font-pixel">DEVORA</h1>
-        </div>
+      <div className="relative z-40 grid min-h-screen grid-rows-[auto_1fr] px-5 pb-28 pt-24 sm:px-8 sm:pb-32 sm:pt-28 md:px-10 md:pt-32 lg:px-12">
+        <h1 className="hero-devora-title logo-gradient font-pixel justify-self-center">DEVORA</h1>
 
-        <div className="mt-4 flex w-full flex-1 items-center justify-center sm:mt-6">
-          <article className="hero-info-card hero-info-card-horizontal mx-auto w-full max-w-[52rem]">
+        <div className="flex items-start justify-center pt-6 sm:pt-8 md:justify-start md:pl-2 lg:pl-6">
+          <article className="hero-info-card hero-info-card-horizontal w-full max-w-[48rem]">
             <div className="hero-info-card-content">
-              <p className="text-[10px] uppercase tracking-[0.45em] text-white/60 sm:text-[11px]">
+              <p className="theme-muted text-[10px] uppercase tracking-[0.45em] sm:text-[11px]">
                 CECS · University of Michigan–Dearborn
               </p>
 

@@ -33,7 +33,7 @@ const COMPARISONS = [
 
 export default function LandingWhyDevora() {
   return (
-    <section className="relative bg-[#08040f] py-28 sm:py-36">
+    <section className="landing-section relative py-28 sm:py-36">
       <div className="mx-auto max-w-6xl px-6">
         <LandingReveal>
           <LandingChapter num="04" title="Why Devora" />
@@ -49,25 +49,25 @@ export default function LandingWhyDevora() {
             <LandingReveal key={c.vs} delay={0.08 * i}>
               <div className="neon-card overflow-hidden rounded-2xl">
                 <div className="border-b border-[#ff5ca8]/15 px-8 py-5">
-                  <span className="font-display text-sm font-semibold uppercase tracking-[0.25em] text-white">
+                  <span className="theme-heading font-display text-sm font-semibold uppercase tracking-[0.25em]">
                     Devora <span className="text-[#ff5ca8]">vs</span>{" "}
-                    <span className="text-white/40">{c.vs}</span>
+                    <span className="theme-faint">{c.vs}</span>
                   </span>
                 </div>
                 <div className="grid md:grid-cols-2">
                   <div className="border-b border-[#ff5ca8]/15 p-8 md:border-b-0 md:border-r">
                     <ul className="space-y-4">
                       {c.devora.map((d) => (
-                        <li key={d} className="flex items-start gap-3 text-sm text-white/90">
+                        <li key={d} className="theme-body flex items-start gap-3 text-sm">
                           <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#ff5ca8] [filter:drop-shadow(0_0_6px_rgba(255,92,168,0.8))]" />
                           {d}
                         </li>
                       ))}
                     </ul>
                   </div>
-                  <div className="bg-white/[0.015] p-8">
-                    <div className="flex items-start gap-3 text-sm leading-relaxed text-white/40">
-                      <X className="mt-0.5 h-4 w-4 shrink-0 text-white/30" />
+                  <div className="theme-panel-alt p-8">
+                    <div className="theme-faint flex items-start gap-3 text-sm leading-relaxed">
+                      <X className="theme-faint mt-0.5 h-4 w-4 shrink-0" />
                       {c.alt}
                     </div>
                   </div>

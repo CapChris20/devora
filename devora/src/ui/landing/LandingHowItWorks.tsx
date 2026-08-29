@@ -26,7 +26,7 @@ const STEPS = [
 
 export default function LandingHowItWorks() {
   return (
-    <section className="grid-bg relative bg-[#0a0512] py-28 sm:py-36">
+    <section className="landing-section-alt grid-bg relative py-28 sm:py-36">
       <div className="mx-auto max-w-6xl px-6">
         <LandingReveal>
           <LandingChapter num="03" title="How It Works" />
@@ -54,8 +54,8 @@ export default function LandingHowItWorks() {
                       <span
                         className={`font-pixel text-xs ${
                           last
-                            ? "text-[#22d3ee] [text-shadow:0_0_14px_rgba(34,211,238,0.9)]"
-                            : "text-[#ff5ca8] [text-shadow:0_0_14px_rgba(255,92,168,0.9)]"
+                            ? "step-num-cyan text-[#22d3ee] [text-shadow:0_0_14px_rgba(34,211,238,0.9)]"
+                            : "step-num-pink text-[#ff5ca8] [text-shadow:0_0_14px_rgba(255,92,168,0.9)]"
                         }`}
                       >
                         0{i + 1}
@@ -68,10 +68,10 @@ export default function LandingHowItWorks() {
                         }`}
                       />
                     </div>
-                    <h3 className="font-display mt-6 text-base font-semibold text-white">
+                    <h3 className="theme-heading font-display mt-6 text-base font-semibold">
                       {s.title}
                     </h3>
-                    <p className="mt-3 text-sm leading-relaxed text-white/55">{s.desc}</p>
+                    <p className="theme-muted mt-3 text-sm leading-relaxed">{s.desc}</p>
                   </div>
                 </LandingReveal>
               );

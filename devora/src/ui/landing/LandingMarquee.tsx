@@ -7,7 +7,7 @@ function MarqueeRow() {
         <span key={item} className="flex items-center">
           <span
             className={`font-display whitespace-nowrap px-10 text-2xl font-bold uppercase tracking-wider sm:text-3xl ${
-              i % 2 === 0 ? "text-white" : "text-outline"
+              i % 2 === 0 ? "theme-heading" : "text-outline"
             }`}
           >
             {item}
@@ -23,7 +23,7 @@ function MarqueeRow() {
 
 export default function LandingMarquee() {
   return (
-    <div id="more" className="relative scroll-mt-24 overflow-hidden border-y border-[#ff5ca8]/25 bg-[#0a0512] py-6">
+    <div id="more" className="landing-marquee relative scroll-mt-24 overflow-hidden border-y border-[#ff5ca8]/25 py-6">
       <div className="glow-line absolute inset-x-0 top-0 h-px" />
       <div className="glow-line absolute inset-x-0 bottom-0 h-px" />
       <div className="marquee-track">

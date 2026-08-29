@@ -32,11 +32,11 @@ type LandingChapterProps = {
 export function LandingChapter({ num, title }: LandingChapterProps) {
   return (
     <div className="flex items-center gap-4">
-      <span className="font-pixel text-[10px] text-[#ff5ca8] [text-shadow:0_0_14px_rgba(255,92,168,0.9)]">
+      <span className="landing-chapter-num font-pixel text-[10px] text-[#ff5ca8] [text-shadow:0_0_14px_rgba(255,92,168,0.9)]">
         {num}
       </span>
       <span className="h-px w-16 bg-gradient-to-r from-[#ff5ca8] to-transparent" />
-      <span className="text-xs uppercase tracking-[0.4em] text-white/50">{title}</span>
+      <span className="theme-faint text-xs uppercase tracking-[0.4em]">{title}</span>
     </div>
   );
 }

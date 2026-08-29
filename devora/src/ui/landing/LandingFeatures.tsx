@@ -1,43 +1,46 @@
-import {
-  BarChart3,
-  Building2,
-  Calendar,
-  MessagesSquare,
-  Search,
-  Users,
-} from "lucide-react";
+import Image, { type StaticImageData } from "next/image";
 import everythingBuilderNeedsAnimation from "@/ui/lottie-animations/Everything a Builder Needs.json";
+import fileManagerIcon from "@/ui/small-assets/file-manager.png";
+import increaseIcon from "@/ui/small-assets/increase.png";
+import partyCardIcon from "@/ui/small-assets/party-card.png";
+import searchIcon from "@/ui/small-assets/search.png";
+import shareIcon from "@/ui/small-assets/share.png";
+import userIcon from "@/ui/small-assets/user.png";
 import LandingLottie from "./LandingLottie";
 import { LandingChapter, LandingReveal } from "./LandingReveal";
 
-const FEATURES = [
+const FEATURES: {
+  icon: StaticImageData;
+  title: string;
+  desc: string;
+}[] = [
   {
-    icon: Search,
+    icon: searchIcon,
     title: "Skill Search",
     desc: "Find CECS students by language, framework, class, or interest in seconds.",
   },
   {
-    icon: Building2,
+    icon: fileManagerIcon,
     title: "Project Hubs",
     desc: "Spin up a team for your capstone, hackathon, or side project — all in one place.",
   },
   {
-    icon: Calendar,
+    icon: partyCardIcon,
     title: "Events & Meetups",
     desc: "Never miss a CECS workshop, career fair, or late-night build session again.",
   },
   {
-    icon: Users,
+    icon: userIcon,
     title: "Real Profiles",
     desc: "Student-verified profiles that show what you build, not just where you work.",
   },
   {
-    icon: BarChart3,
+    icon: increaseIcon,
     title: "Skill Graph",
     desc: "Watch your stack grow and see exactly where you fit in the network.",
   },
   {
-    icon: MessagesSquare,
+    icon: shareIcon,
     title: "Direct Chat",
     desc: "No cold LinkedIn DMs. Message classmates where they already are.",
   },
@@ -45,7 +48,7 @@ const FEATURES = [
 
 export default function LandingFeatures() {
   return (
-    <section className="relative bg-[#08040f] py-28 sm:py-36">
+    <section className="landing-section relative py-28 sm:py-36">
       <div className="mx-auto max-w-6xl px-6">
         <LandingReveal>
           <LandingChapter num="02" title="Key Features" />
@@ -68,9 +71,15 @@ export default function LandingFeatures() {
           {FEATURES.map((f, i) => (
             <LandingReveal key={f.title} delay={0.08 * i}>
               <div className="neon-card group h-full rounded-2xl p-8">
-                <f.icon className="icon-glow h-10 w-10 transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110" />
-                <h3 className="font-display mt-6 text-lg font-semibold text-white">{f.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/55">{f.desc}</p>
+                <Image
+                  src={f.icon}
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="feature-card-icon h-12 w-12 object-contain transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110"
+                />
+                <h3 className="theme-heading font-display mt-6 text-lg font-semibold">{f.title}</h3>
+                <p className="theme-muted mt-3 text-sm leading-relaxed">{f.desc}</p>
               </div>
             </LandingReveal>
           ))}

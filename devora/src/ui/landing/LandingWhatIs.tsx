@@ -6,7 +6,7 @@ const STATS = ["100% CECS Verified", "Every Major & Track", "Zero Recruiter Nois
 
 export default function LandingWhatIs() {
   return (
-    <section className="grid-bg relative bg-[#0a0512] py-28 sm:py-36">
+    <section className="landing-section-alt grid-bg relative py-28 sm:py-36">
       <div className="mx-auto max-w-6xl px-6">
         <LandingReveal>
           <LandingChapter num="01" title="The Platform" />
@@ -27,13 +27,13 @@ export default function LandingWhatIs() {
             </LandingReveal>
           </div>
           <LandingReveal delay={0.2} className="space-y-6">
-            <p className="text-base leading-relaxed text-white/85 md:text-lg">
+            <p className="theme-body text-base leading-relaxed md:text-lg">
               Devora is the private network built exclusively for Computer Engineering &amp;
               Computer Science students at the University of Michigan–Dearborn. It&apos;s where
               classmates become collaborators — find teammates by skill, join project hubs, and
               turn hallway conversations into shipped work.
             </p>
-            <p className="text-base leading-relaxed text-white/60">
+            <p className="theme-muted text-base leading-relaxed">
               No recruiters. No noise. Just the people building the future of CECS, one
               connection at a time.
             </p>
@@ -41,7 +41,7 @@ export default function LandingWhatIs() {
               {STATS.map((s) => (
                 <span
                   key={s}
-                  className="rounded-full border border-[#ff5ca8]/40 px-5 py-2 text-xs uppercase tracking-[0.18em] text-[#ff5ca8] [text-shadow:0_0_10px_rgba(255,92,168,0.5)]"
+                  className="landing-stat-badge rounded-full border border-[#ff5ca8]/40 px-5 py-2 text-xs uppercase tracking-[0.18em] text-[#ff5ca8] [text-shadow:0_0_10px_rgba(255,92,168,0.5)]"
                 >
                   {s}
                 </span>

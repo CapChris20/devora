@@ -39,9 +39,9 @@ export default function LandingPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-[#08040f]">
+    <main className="page-shell min-h-screen">
       <SplashCursor />
-      <div className="noise pointer-events-none fixed inset-0 z-[60] opacity-[0.05]" />
+      <div className="noise pointer-events-none fixed inset-0 z-[1] opacity-[0.05]" />
       <SiteNavBar activeItem="Home" />
       <LandingHero />
       <LandingMarquee />

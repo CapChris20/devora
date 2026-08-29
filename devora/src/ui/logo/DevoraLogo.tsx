@@ -7,13 +7,13 @@ type DevoraLogoProps = {
 
 const sizeClasses = {
   nav: "h-11 w-11 md:h-14 md:w-14",
-  card: "h-28 w-28 sm:h-32 sm:w-32",
+  card: "h-36 w-36 sm:h-40 sm:w-40 md:h-44 md:w-44",
   hero: "h-44 w-44 sm:h-52 sm:w-52 md:h-64 md:w-64 lg:h-72 lg:w-72",
 } as const;
 
 const sizePixels = {
   nav: 56,
-  card: 128,
+  card: 176,
   hero: 288,
 } as const;
 

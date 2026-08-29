@@ -36,7 +36,7 @@ const BENEFITS = [
 
 export default function LandingBenefits() {
   return (
-    <section className="grid-bg relative bg-[#0a0512] py-28 sm:py-36">
+    <section className="landing-section-alt grid-bg relative py-28 sm:py-36">
       <div className="mx-auto max-w-6xl px-6">
         <LandingReveal>
           <LandingChapter num="05" title="Benefits" />
@@ -51,8 +51,8 @@ export default function LandingBenefits() {
             <LandingReveal key={b.title} delay={0.08 * i}>
               <div className="neon-card group h-full rounded-2xl p-8">
                 <b.icon className="icon-glow h-9 w-9 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110" />
-                <h3 className="font-display mt-6 text-lg font-semibold text-white">{b.title}</h3>
-                <p className="mt-3 text-sm leading-relaxed text-white/55">{b.desc}</p>
+                <h3 className="theme-heading font-display mt-6 text-lg font-semibold">{b.title}</h3>
+                <p className="theme-muted mt-3 text-sm leading-relaxed">{b.desc}</p>
               </div>
             </LandingReveal>
           ))}

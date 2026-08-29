@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, Space_Mono, Unbounded } from "next/font/google";
+import AppProviders from "@/ui/theme/AppProviders";
 import "@/ui/globals.css";
 
 const spaceMono = Space_Mono({
@@ -31,11 +32,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{var t=localStorage.getItem("devora-theme");document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();`,
+          }}
+        />
+      </head>
       <body
         className={`${spaceMono.variable} ${unbounded.variable} ${pressStart.variable} font-mono antialiased`}
       >
-        {children}
+        <AppProviders>{children}</AppProviders>
       </body>
     </html>
   );
