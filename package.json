@@ -1,0 +1,11 @@
+{
+  "name": "devora-workspace",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix devora",
+    "build": "npm run build --prefix devora",
+    "start": "npm run start --prefix devora",
+    "lint": "npm run lint --prefix devora",
+    "install:app": "npm install --prefix devora"
+  }
+}
