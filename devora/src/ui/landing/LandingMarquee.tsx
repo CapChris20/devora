@@ -1,4 +1,6 @@
-const ITEMS = ["CONNECT", "COLLABORATE", "CREATE", "CECS · UM-DEARBORN", "BUILD THE NETWORK"];
+import LandingGridSection from "./LandingGridSection";
+
+const ITEMS = ["CONNECT", "BE MORE CONFIDENT","COLLABORATE", "CREATE", "MEET NEW PEERS" , "DEVELOPER FURTHER BONDS", "SPONSERED BY CECS · UM-DEARBORN", "BUILD THE NETWORK"];
 
 function MarqueeRow() {
   return (
@@ -23,13 +25,17 @@ function MarqueeRow() {
 
 export default function LandingMarquee() {
   return (
-    <div id="more" className="landing-marquee relative scroll-mt-24 overflow-hidden border-y border-[#ff5ca8]/25 py-6">
+    <LandingGridSection
+      as="div"
+      id="more"
+      className="landing-marquee scroll-mt-28 overflow-hidden border-y border-[#ff5ca8]/25 py-5 sm:scroll-mt-32 sm:py-6"
+    >
       <div className="glow-line absolute inset-x-0 top-0 h-px" />
       <div className="glow-line absolute inset-x-0 bottom-0 h-px" />
       <div className="marquee-track">
         <MarqueeRow />
         <MarqueeRow />
       </div>
-    </div>
+    </LandingGridSection>
   );
 }

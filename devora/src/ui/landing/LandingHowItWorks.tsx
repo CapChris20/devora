@@ -1,4 +1,5 @@
 import { Network, Radar, Sparkles, UserRoundPlus } from "lucide-react";
+import LandingGridSection from "./LandingGridSection";
 import { LandingChapter, LandingReveal } from "./LandingReveal";
 
 const STEPS = [
@@ -26,7 +27,7 @@ const STEPS = [
 
 export default function LandingHowItWorks() {
   return (
-    <section className="landing-section-alt grid-bg relative py-28 sm:py-36">
+    <LandingGridSection className="landing-section-alt">
       <div className="mx-auto max-w-6xl px-6">
         <LandingReveal>
           <LandingChapter num="03" title="How It Works" />
@@ -79,6 +80,6 @@ export default function LandingHowItWorks() {
           </div>
         </div>
       </div>
-    </section>
+    </LandingGridSection>
   );
 }

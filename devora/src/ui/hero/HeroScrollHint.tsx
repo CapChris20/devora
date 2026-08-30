@@ -22,12 +22,15 @@ export default function HeroScrollHint({ targetId = "more" }: HeroScrollHintProp
   const scrollToMore = () => {
     const target = document.getElementById(targetId);
     if (!target) return;
-    if (window.__lenis) window.__lenis.scrollTo(target, { duration: 1.8 });
-    else target.scrollIntoView({ behavior: "smooth" });
+    if (window.__lenis) {
+      window.__lenis.scrollTo(target, { offset: -96, duration: 1.4 });
+      return;
+    }
+    target.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <div className="hero-scroll-hint pointer-events-none absolute inset-x-0 bottom-6 z-20 flex justify-center px-6 sm:bottom-8">
+    <div className="hero-scroll-hint">
       <button
         type="button"
         onClick={scrollToMore}

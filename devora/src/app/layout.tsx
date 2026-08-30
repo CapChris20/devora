@@ -32,7 +32,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${spaceMono.variable} ${unbounded.variable} ${pressStart.variable}`}
+    >
       <head>
         <script
           dangerouslySetInnerHTML={{
@@ -40,9 +44,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body
-        className={`${spaceMono.variable} ${unbounded.variable} ${pressStart.variable} font-mono antialiased`}
-      >
+      <body className="font-mono antialiased">
         <AppProviders>{children}</AppProviders>
       </body>
     </html>

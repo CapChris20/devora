@@ -1,4 +1,5 @@
 import { Check, X } from "lucide-react";
+import LandingGridSection from "./LandingGridSection";
 import { LandingChapter, LandingReveal } from "./LandingReveal";
 
 const COMPARISONS = [
@@ -33,7 +34,7 @@ const COMPARISONS = [
 
 export default function LandingWhyDevora() {
   return (
-    <section className="landing-section relative py-28 sm:py-36">
+    <LandingGridSection className="landing-section">
       <div className="mx-auto max-w-6xl px-6">
         <LandingReveal>
           <LandingChapter num="04" title="Why Devora" />
@@ -77,6 +78,6 @@ export default function LandingWhyDevora() {
           ))}
         </div>
       </div>
-    </section>
+    </LandingGridSection>
   );
 }

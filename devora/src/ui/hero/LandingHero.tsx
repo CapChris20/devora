@@ -38,7 +38,7 @@ export default function LandingHero() {
   };
 
   return (
-    <section onMouseMove={onMove} className="relative min-h-screen overflow-hidden">
+    <section onMouseMove={onMove} className="relative min-h-[100dvh] overflow-x-hidden">
       <div className="hero-sky absolute inset-0" />
 
       <div className="absolute inset-0" aria-hidden="true">
@@ -114,10 +114,10 @@ export default function LandingHero() {
       <div className="scanlines pointer-events-none absolute inset-0 z-[30]" aria-hidden="true" />
       <div className="vignette pointer-events-none absolute inset-0 z-[15]" aria-hidden="true" />
 
-      <div className="relative z-40 grid min-h-screen grid-rows-[auto_1fr] px-5 pb-28 pt-24 sm:px-8 sm:pb-32 sm:pt-28 md:px-10 md:pt-32 lg:px-12">
-        <h1 className="hero-devora-title logo-gradient font-pixel justify-self-center">DEVORA</h1>
+      <div className="hero-layout">
+        <h1 className="hero-devora-title logo-gradient font-pixel">DEVORA</h1>
 
-        <div className="flex items-start justify-center pt-6 sm:pt-8 md:justify-start md:pl-2 lg:pl-6">
+        <div className="hero-layout-content">
           <article className="hero-info-card hero-info-card-horizontal w-full max-w-[48rem]">
             <div className="hero-info-card-content">
               <p className="theme-muted text-[10px] uppercase tracking-[0.45em] sm:text-[11px]">

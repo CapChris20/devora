@@ -6,10 +6,11 @@ import { peaksScene } from "@/ui/backgrounds/peaks-scene";
 export default function DiscoveryGridPage() {
   return (
     <RetroPageShell
+      wide
       scene={peaksScene}
       activeItem="Discovery Grid"
       title="Discovery Grid"
-      description="Browse and connect with CECS students — coming soon."
+      description="Browse CECS students by major, interests, and skills — coming soon."
     />
   );
 }

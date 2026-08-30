@@ -21,18 +21,17 @@ declare global {
 
 export default function LandingPage() {
   useEffect(() => {
-    const lenis = new Lenis({ duration: 1.15, smoothWheel: true });
+    const lenis = new Lenis({
+      duration: 1.1,
+      smoothWheel: true,
+      syncTouch: true,
+      touchMultiplier: 1.15,
+      autoRaf: true,
+    });
+
     window.__lenis = lenis;
 
-    let raf = 0;
-    const loop = (time: number) => {
-      lenis.raf(time);
-      raf = requestAnimationFrame(loop);
-    };
-    raf = requestAnimationFrame(loop);
-
     return () => {
-      cancelAnimationFrame(raf);
       lenis.destroy();
       window.__lenis = undefined;
     };

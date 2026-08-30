@@ -6,6 +6,7 @@ import partyCardIcon from "@/ui/small-assets/party-card.png";
 import searchIcon from "@/ui/small-assets/search.png";
 import shareIcon from "@/ui/small-assets/share.png";
 import userIcon from "@/ui/small-assets/user.png";
+import LandingGridSection from "./LandingGridSection";
 import LandingLottie from "./LandingLottie";
 import { LandingChapter, LandingReveal } from "./LandingReveal";
 
@@ -48,7 +49,7 @@ const FEATURES: {
 
 export default function LandingFeatures() {
   return (
-    <section className="landing-section relative py-28 sm:py-36">
+    <LandingGridSection className="landing-section">
       <div className="mx-auto max-w-6xl px-6">
         <LandingReveal>
           <LandingChapter num="02" title="Key Features" />
@@ -85,6 +86,6 @@ export default function LandingFeatures() {
           ))}
         </div>
       </div>
-    </section>
+    </LandingGridSection>
   );
 }

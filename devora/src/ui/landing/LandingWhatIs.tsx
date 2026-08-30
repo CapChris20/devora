@@ -1,4 +1,5 @@
 import whatIsDevoraAnimation from "@/ui/lottie-animations/What is Devora.json";
+import LandingGridSection from "./LandingGridSection";
 import LandingLottie from "./LandingLottie";
 import { LandingChapter, LandingReveal } from "./LandingReveal";
 
@@ -6,7 +7,7 @@ const STATS = ["100% CECS Verified", "Every Major & Track", "Zero Recruiter Nois
 
 export default function LandingWhatIs() {
   return (
-    <section className="landing-section-alt grid-bg relative py-28 sm:py-36">
+    <LandingGridSection className="landing-section-alt">
       <div className="mx-auto max-w-6xl px-6">
         <LandingReveal>
           <LandingChapter num="01" title="The Platform" />
@@ -50,6 +51,6 @@ export default function LandingWhatIs() {
           </LandingReveal>
         </div>
       </div>
-    </section>
+    </LandingGridSection>
   );
 }

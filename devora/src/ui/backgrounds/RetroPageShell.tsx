@@ -11,7 +11,8 @@ type RetroPageShellProps = {
   scene: RetroScene;
   activeItem: string;
   title: string;
-  description: string;
+  description?: string;
+  wide?: boolean;
   children?: ReactNode;
 };
 
@@ -38,6 +39,7 @@ export default function RetroPageShell({
   activeItem,
   title,
   description,
+  wide = false,
   children,
 }: RetroPageShellProps) {
   return (
@@ -46,14 +48,20 @@ export default function RetroPageShell({
       <RetroBackground scene={scene} />
       <div className="noise pointer-events-none fixed inset-0 z-[1] opacity-[0.05]" />
       <SiteNavBar activeItem={activeItem} />
-      <div className="relative z-10 mx-auto max-w-6xl px-6 pb-24 pt-28">
+      <div
+        className={`relative z-10 mx-auto px-4 pb-24 pt-28 sm:px-6 ${
+          wide ? "max-w-[1400px]" : "max-w-6xl"
+        }`}
+      >
         <PageReveal>
           <h1 className="font-display pink-grad text-3xl font-bold sm:text-4xl">{title}</h1>
         </PageReveal>
-        <PageReveal delay={0.12}>
-          <p className="theme-muted mt-4 max-w-xl text-sm leading-relaxed sm:text-base">{description}</p>
-        </PageReveal>
-        {children ? <PageReveal delay={0.2}>{children}</PageReveal> : null}
+        {description ? (
+          <PageReveal delay={0.12}>
+            <p className="theme-muted mt-4 max-w-xl text-sm leading-relaxed sm:text-base">{description}</p>
+          </PageReveal>
+        ) : null}
+        {children ? <PageReveal delay={description ? 0.2 : 0.12}>{children}</PageReveal> : null}
       </div>
     </main>
   );

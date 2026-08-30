@@ -9,7 +9,7 @@ export default function FaqsPage() {
       scene={peaksScene}
       activeItem="FAQs"
       title="FAQs"
-      description="Frequently asked questions — coming soon."
+      description="Common questions about Devora — coming soon."
     />
   );
 }
