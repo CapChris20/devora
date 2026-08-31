@@ -7,7 +7,7 @@ import {
   type UserCredential,
 } from "firebase/auth";
 
-import { auth } from "./client";
+import { auth } from "./start-firebase";
 
 export const ALLOWED_EMAIL_DOMAIN = "@umich.edu";
 

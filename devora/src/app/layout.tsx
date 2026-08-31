@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Press_Start_2P, Space_Mono, Unbounded } from "next/font/google";
-import AppProviders from "@/ui/theme/AppProviders";
+import AppWrapper from "@/ui/theme/AppWrapper";
 import "@/ui/globals.css";
 
 const spaceMono = Space_Mono({
@@ -45,7 +45,7 @@ export default function RootLayout({
         />
       </head>
       <body className="font-mono antialiased">
-        <AppProviders>{children}</AppProviders>
+        <AppWrapper>{children}</AppWrapper>
       </body>
     </html>
   );

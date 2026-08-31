@@ -69,18 +69,22 @@ Devora enables CECS students to:
 
 ## Design System
 
-Color Palette:
-- Background: #1a0a2e (Deep Purple)
-- Primary Accent: #FFD700 (Gold)
-- Secondary Accent: #FF006E (Neon Pink)
-- Interactive: #00D9FF (Cyan)
-- Text: #ffffff (White)
-
-See devora-design-system.md for full design specifications.
+See **`src/docs/DESIGN_SCOPE.md`** for colors, gradients, and page specs. Styles live in `src/ui/globals.css`.
 
 ---
 
-## Features (Planned)
+## Documentation
+
+All project docs are in **`src/docs/`** — start at [src/docs/README.md](src/docs/README.md).
+
+| Doc | Purpose |
+|-----|---------|
+| `DESIGN_SCOPE.md` | UI design bible |
+| `landing-sections-spec.md` | Homepage copy |
+| `firestore-schema.md` | Database plan |
+| `naming-and-structure.md` | Folders, routes, file names |
+
+---
 
 ### Fall 2026 (ENGR 492)
 - Infrastructure & setup

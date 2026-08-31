@@ -1,11 +1,11 @@
 "use client";
 
-import RetroPageShell from "@/ui/backgrounds/RetroPageShell";
-import { pyramidsScene } from "@/ui/backgrounds/pyramids-scene";
+import PageLayout from "@/ui/backgrounds/PageLayout";
+import { pyramidsScene } from "@/ui/backgrounds/pyramids";
 
 export default function AccountPage() {
   return (
-    <RetroPageShell
+    <PageLayout
       scene={pyramidsScene}
       activeItem="Account"
       title="Account"

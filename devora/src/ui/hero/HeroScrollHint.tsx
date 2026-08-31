@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { landingHeroCopy } from "./landing-hero.copy";
+import { topSectionText } from "./top-section-text";
 
 type HeroScrollHintProps = {
   targetId?: string;
@@ -35,10 +35,10 @@ export default function HeroScrollHint({ targetId = "more" }: HeroScrollHintProp
         type="button"
         onClick={scrollToMore}
         className="hero-scroll-hint-btn pointer-events-auto"
-        aria-label={landingHeroCopy.scrollHint}
+        aria-label={topSectionText.scrollHint}
       >
         <ScrollArrow />
-        <span className="hero-scroll-hint-label">{landingHeroCopy.scrollHint}</span>
+        <span className="hero-scroll-hint-label">{topSectionText.scrollHint}</span>
         <ScrollArrow />
       </button>
     </div>

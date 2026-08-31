@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { landingHeroCopy } from "./landing-hero.copy";
+import { topSectionText } from "./top-section-text";
 
 type HeroCardActionsProps = {
   variant?: "card";
@@ -9,7 +9,7 @@ export default function HeroCardActions({ variant }: HeroCardActionsProps) {
   if (variant === "card") {
     return (
       <div className="hero-action-wrap">
-        {landingHeroCopy.cardActions.map((action) => (
+        {topSectionText.cardActions.map((action) => (
           <Link
             key={action.label}
             href={action.href}
@@ -26,7 +26,7 @@ export default function HeroCardActions({ variant }: HeroCardActionsProps) {
     );
   }
 
-  const { label, href } = landingHeroCopy.cta;
+  const { label, href } = topSectionText.cta;
 
   return (
     <div className="mt-1 sm:mt-2">

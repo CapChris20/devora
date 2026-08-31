@@ -1,14 +1,15 @@
 "use client";
 
-import RetroPageShell from "@/ui/backgrounds/RetroPageShell";
-import { peaksScene } from "@/ui/backgrounds/peaks-scene";
+import PageLayout from "@/ui/backgrounds/PageLayout";
+import { mountainsScene } from "@/ui/backgrounds/mountains";
 
 export default function FaqsPage() {
   return (
-    <RetroPageShell
-      scene={peaksScene}
+    <PageLayout
+      scene={mountainsScene}
       activeItem="FAQs"
       title="FAQs"
+      titleClassName="pink-grad"
       description="Common questions about Devora — coming soon."
     />
   );

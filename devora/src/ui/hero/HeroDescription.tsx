@@ -1,4 +1,4 @@
-import { landingHeroCopy } from "./landing-hero.copy";
+import { topSectionText } from "./top-section-text";
 
 type HeroDescriptionProps = {
   variant?: "card";
@@ -11,7 +11,7 @@ export default function HeroDescription({ variant }: HeroDescriptionProps) {
         variant === "card" ? "hero-description text-left" : "text-center"
       }`}
     >
-      {landingHeroCopy.subheading}
+      {topSectionText.subheading}
     </p>
   );
 }

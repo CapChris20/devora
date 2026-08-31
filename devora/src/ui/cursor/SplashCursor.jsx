@@ -2,6 +2,18 @@
 'use client';
 import { useEffect, useRef } from 'react';
 
+/** Matches DEVORA title / devora-gradient-text color stops */
+const DEVORA_PALETTE = [
+  '#ffd76f',
+  '#ff9a3d',
+  '#ff9a2e',
+  '#ff5ca8',
+  '#ff006e',
+  '#ff2bd6',
+  '#a855f7',
+  '#6b21a8',
+];
+
 function SplashCursor({
   SIM_RESOLUTION = 128,
   DYE_RESOLUTION = 1440,
@@ -17,7 +29,7 @@ function SplashCursor({
   COLOR_UPDATE_SPEED = 10,
   BACK_COLOR = { r: 0.5, g: 0, b: 0 },
   TRANSPARENT = true,
-  RAINBOW_MODE = true,
+  RAINBOW_MODE = false,
   COLOR = '#ff5ca8'
 }) {
   const canvasRef = useRef(null);
@@ -894,14 +906,16 @@ function SplashCursor({
     }
 
     function generateColor() {
-      if (!config.RAINBOW_MODE) {
-        return hexToRGB(config.COLOR);
+      if (config.RAINBOW_MODE) {
+        let c = HSVtoRGB(Math.random(), 1.0, 1.0);
+        c.r *= 0.15;
+        c.g *= 0.15;
+        c.b *= 0.15;
+        return c;
       }
-      let c = HSVtoRGB(Math.random(), 1.0, 1.0);
-      c.r *= 0.15;
-      c.g *= 0.15;
-      c.b *= 0.15;
-      return c;
+      const hex =
+        DEVORA_PALETTE[Math.floor(Math.random() * DEVORA_PALETTE.length)] ?? config.COLOR;
+      return hexToRGB(hex);
     }
 
     function HSVtoRGB(h, s, v) {
