@@ -18,6 +18,14 @@ Devora enables CECS students to:
 
 ---
 
+## Homepage (current)
+
+Live landing page at `/home` — hero, nav, synthwave background, and homepage sections below the fold.
+
+![Devora homepage — hero section with nav, title, credits, and call-to-action](assets/homepage-screenshot.png)
+
+---
+
 ## Tech Stack
 
 - **Frontend:** Next.js 14, TypeScript, Tailwind CSS, React
@@ -123,4 +131,4 @@ All project docs are in **`devora/src/docs/`** — start at [devora/src/docs/REA
 
 ---
 
-Last Updated: August 29, 2026
+Last Updated: August 31, 2026
