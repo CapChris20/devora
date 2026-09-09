@@ -11,7 +11,10 @@ All project docs live in **`src/docs/`**. Start here.
 | [DESIGN_SCOPE.md](./DESIGN_SCOPE.md) | **UI design bible** — colors, gradients, page layouts, what’s live vs shell |
 | [landing-sections-spec.md](./landing-sections-spec.md) | Homepage copy below the hero (features, steps, benefits, join text) |
 | [firestore-schema.md](./firestore-schema.md) | Database plan — users, projects, chats, messages, notifications |
+| [mobile-app-roadmap.md](./mobile-app-roadmap.md) | **Weeks 10–13+** — PWA, Capacitor iOS, push, App Store (web-first) |
 | [naming-and-structure.md](./naming-and-structure.md) | Folder layout, routes, plain-English file naming |
+| [reading-the-code.md](./reading-the-code.md) | Symbol glossary — `??`, `?.`, Firestore terms, etc. |
+| [comment-style.md](./comment-style.md) | **How we write comments** in `src/` code files |
 
 ---
 
@@ -41,7 +44,11 @@ Copy `.env.example` → `.env.local` and fill in Firebase keys (`NEXT_PUBLIC_FIR
 | FAQs | `/faqs-page` |
 | Activity Center | `/messages-page` |
 | Account | `/account-page` |
-| Login (planned) | `/auth` |
+| Login | `/auth/login` |
+| Sign up | `/auth/signup` |
+| Deactivated | `/auth/deactivated` |
+| Onboarding | `/onboarding` |
+| Welcome | `/onboarding/welcome` |
 
 ### Code layout
 
@@ -55,12 +62,12 @@ src/docs/             → You are here
 ### Firebase
 
 - Config: `firebase.json`, `firestore.rules`, `functions/` (run CLI from **`devora/`** folder)
-- Client code: `src/backend/firebase/` (`auth.ts`, `start-firebase.ts`, `env-keys.ts`)
-- Auth: `@umich.edu` only; not wired to UI yet
+- Client code: `src/backend/firebase/` (`auth.ts`, `start-firebase.ts`, `user-profile.ts`)
+- Auth: Google only, `@umich.edu`; routes `/auth/login`, `/auth/signup`, `/onboarding`
 
 ### Cursor rules
 
-Agents also read `.cursor/rules/devora-design-scope.mdc` and `devora-naming-structure.mdc` — they point back to this folder.
+Agents also read `.cursor/rules/devora-design-scope.mdc`, `devora-naming-structure.mdc`, and `learning-comments.mdc` — they point back to this folder.
 
 ---
 

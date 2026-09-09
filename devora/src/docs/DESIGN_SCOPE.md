@@ -15,8 +15,8 @@
 | Retro backgrounds | **Live** — Peaks, City, Pyramids via `PageLayout` |
 | Nav + theme toggle | **Live** — right-aligned glass pill, full-link hit targets |
 | Discovery Grid, Settings, FAQs, Activity Center | **Shell only** — gradient title + retro background + coming-soon copy |
-| Account | **Shell only** |
-| Firebase / auth / real data | **Not started** |
+| Account (`/account-page`) | **Live** — view + edit own profile from Firestore |
+| Firebase / auth / real data | **Live** — Google sign-in (`@umich.edu`), onboarding, Firestore profiles |
 
 ### Nav links (current)
 
@@ -28,6 +28,17 @@
 | Settings | `/settings` | City |
 | FAQs | `/faqs-page` | Peaks |
 | Activity Center | `/messages-page` | Pyramids |
+
+### Auth routes
+
+| Page | Route |
+|------|-------|
+| Login | `/auth/login` |
+| Sign up | `/auth/signup` |
+| Onboarding | `/onboarding` |
+| Welcome (post-onboarding) | `/onboarding/welcome` |
+
+Sign-in is **Google only** with `@umich.edu` emails. Profile data shape: [firestore-schema.md](firestore-schema.md).
 
 ### Shell page titles (per-route gradient)
 
@@ -48,7 +59,11 @@ Match the **homepage synthwave glass aesthetic**. Do **not** make everything pin
 
 ### Core principle
 
-Pink (`#ff5ca8`) is a **gradient accent** — titles, marquee, hero glow. Day-to-day UI uses **cyan, purple, gold**, neutral glass borders, and Devora gradient text **sparingly** on names, active pills, and primary buttons.
+**No flat cyan (`#22d3ee`) or basic single-color pink (`#ff5ca8`) for account page accents, settings toggles, or primary CTAs.** Those read cheap and generic — not Devora.
+
+Use the **four Devora gradient classes** (`.logo-gradient`, `.devora-gradient-text`, `.pink-grad`, `.headline-grad`) and **warm neon stops** (gold `#ffd76f`, orange `#ff9a3d`, magenta `#ff2bd6`, purple `#a855f7`) — each UI element type gets its **own** mapped gradient, not one accent color everywhere.
+
+Pink is still a **gradient accent** on the homepage — marquee, hero glow, titles. Day-to-day UI elsewhere may use purple, gold, and neutral glass borders; **account + settings lean on multi-stop gradients per section**, not cyan outlines.
 
 ### Devora gradient text (four variants)
 
@@ -65,16 +80,34 @@ Use these classes from `globals.css` — same as landing / How It Works:
 
 ### Color palette (UI accents)
 
-| Token | Hex | Use |
-|-------|-----|-----|
-| Cyan | `#22d3ee` | Search icons, toggles, online dots, button borders |
-| Purple | `#a855f7` | Unread badges, secondary pills |
-| Gold | `#ffd76f` | Event / niche accent pills |
-| Pink | `#ff5ca8` | Marquee, hero — **not** every border |
+| Token | Hex / class | Use |
+|-------|-------------|-----|
+| Gold / orange neon | `#ffd76f`, `#ff9a3d`, `.logo-gradient` | Verified badges, avatar rings, event tags, warm CTAs |
+| Magenta / pink neon | `#ff5ca8`, `#ff2bd6`, `.pink-grad` | Public badges, social URLs, interest sections |
+| Purple synth | `#a855f7`, `#7b2ff7`, `.devora-gradient-text` | Profile strength, career focus, settings title |
+| White→pink→purple | `.headline-grad` | Account page title, bio/social section labels |
+| Cyan | `#22d3ee` | **Discovery Grid search icons only** — not account, settings, or profile accents |
 | Page bg (dark) | `#08040f` | `--page-bg` |
 | Glass panel | `rgba(10, 4, 20, 0.28)` | Sidebars, panels |
 | Glass card | `rgba(10, 4, 20, 0.38)` | Floating cards over background |
 | Border | `rgba(255, 255, 255, 0.08–0.10)` | Neutral glass borders |
+
+### Account page color rule (required)
+
+**Keep the account page calm.** The retro background already has color — the profile UI should not rainbow every label.
+
+| Element | Treatment |
+|---------|-----------|
+| Page title (`My Profile`) | One gradient via `titleClassName` on `PageLayout` only |
+| Display name, section titles, body | `theme-heading` / `theme-muted` — **no per-section gradients** |
+| Eyebrow labels (Major, Profile strength, Discovery preview) | `.account-section-eyebrow` muted uppercase |
+| Badges (Verified, Public, Joined) | Neutral glass pills — same family as `.account-meta-chip` |
+| Tags | Neutral glass border, no pink/orange fill |
+| Profile strength bar | Single pink→purple gradient on the **fill only** |
+| Edit profile CTA | `.devora-btn-outline` (one accent button) |
+| Sign out | `.page-btn-danger` |
+
+**Never on account:** cycling gradient text on every section title, stat card, and link. Reserve gradients for the page title and primary CTA.
 
 ### Typography
 
@@ -91,7 +124,7 @@ Use these classes from `globals.css` — same as landing / How It Works:
 
 ### Interactions
 
-- `SplashCursor` on all pages (`z-index: 5`, `pointer-events: none`)
+- `SplashCursor` on homepage only (`/home`, `z-index: 5`, `pointer-events: none`)
 - Lenis smooth scroll on homepage only
 - `ThemeProvider` — dark/light, `localStorage` key `devora-theme`
 - Nav links: text directly on `<Link>`, no nested clickable spans; min 48px hit height
@@ -194,10 +227,16 @@ Freshman, Sophomore, Junior, Senior, Graduate
 
 #### Profile card fields
 
-- Avatar circle with accent border + glow (initials until photo upload)
-- **Name:** `.page-card-name` + cycling gradient
-- Major, class year, stack, interest tags: **muted** (no gradient)
+Maps to [firestore-schema.md](firestore-schema.md) — Discovery Grid card:
+
+- Avatar circle with accent border + glow (`photoURL` or initials)
+- **Name:** `displayName` — `.page-card-name` + cycling gradient
+- **Major · class rank:** muted line (`major`, `classRank`)
+- **Tags:** top items from `careerNiche` + `casualInterests` (max 3–4, muted)
+- **Bio:** truncated ~80 chars (optional line)
 - "View profile": `.page-btn-outline.page-btn-grad-logo`
+
+**Not on card:** `email`, `gender`, `age`, `religion`, `signupReason`, full `experienceDetails`, social links.
 
 #### Sample profiles (mock reference)
 
@@ -234,9 +273,9 @@ Freshman, Sophomore, Junior, Senior, Graduate
 | **Appearance** | Dark / Light mode — **wire to `ThemeProvider`**; active mode label gets gradient text |
 | **Privacy & Safety** | Online status, read receipts, blocked users, data export |
 | **Account & Security** | Change email, reset password, 2FA, GitHub/Google connect, sign out all devices |
-| **Danger Zone** | Deactivate, delete (`.page-btn-danger` — no gradient) |
+| **Danger Zone** | **Deactivate** (`isDeactivated` + hide from Discovery, reversible). **Delete** (Google reauth → wipe Storage + Firestore + Auth). |
 
-Toggle switches: cyan when on (purple OK for privacy). Outline actions use `.page-btn-outline` with gradient variants.
+Toggle switches: **Devora gradient** when on (`.devora-toggle`) — not cyan. Outline actions use `.devora-btn-outline` with gradient variants.
 
 ---
 
@@ -309,11 +348,65 @@ Single `.page-panel` with vertical tab sidebar (desktop) / horizontal tabs (mobi
 
 ---
 
-### 5. Account (not yet designed)
+### 5. Account
 
-**Route:** `/account-page` · **Background:** Pyramids
+**Route:** `/account-page` · **Background:** Pyramids · **Title:** `headline-grad` ("My Profile")
 
-Full profile editor: avatar, bio, stack tags, interest tags, projects, clubs, looking-for tags. Reuse Discovery Grid pill components.
+#### Layout
+
+50/50 split on desktop (`account-split-layout`), stacked on mobile:
+
+| Column | Content |
+|--------|---------|
+| **Left** | Avatar (gold/magenta ring), display name (`headline-grad`), subtitle, school, verified + joined badges, **Edit profile** (`devora-btn-outline`), profile strength bar (if &lt;100%), discovery preview card, stat grid (Major, Class rank, Age, Gender — each label uses a different gradient) |
+| **Right** | Glass details card: Bio, Looking for, Experience & projects, Career focus, Interests (with "+N more"), Social links — each section title uses its mapped gradient + Public badge. Collapsible **Private details** (email, school). |
+
+Sign out sits below the split (`page-btn-danger`). Edit mode replaces view with `AccountProfileEditor`.
+
+#### Color
+
+Follow **Account page color rule** above — calm neutrals; gradient only on page title + primary CTA.
+
+#### Data source
+
+All fields from Firestore `users/{uid}` — same as onboarding. No mock data.
+
+| UI section | Schema fields |
+|------------|---------------|
+| Avatar | `photoURL` or initials from `firstName`/`lastName` |
+| Quick facts | `major`, `classRank`, `age`, `gender` |
+| Profile strength | Derived via `getProfileCompleteness()` |
+| Discovery preview | `getDiscoveryTags()` + truncated bio |
+| Looking for | `aboutYou` |
+| Career focus | `careerNiche`, `careerNicheOther` |
+| Interests | `casualInterests` |
+| Socials | `links.github`, `links.linkedin`, `links.instagram` |
+| Bio | `bio` |
+| Experience | `experienceDetails` when `hasExperience` |
+| Private | `email`, `school` |
+
+**Deferred:** skills/tech stack, `users/{uid}/projects` subcollection, clubs.
+
+#### Edit profile
+
+- Toggle via **Edit profile** → full editor with onboarding pill options
+- Saves via `updateAccountProfile()` — merge write, `updatedAt` only
+- Photo upload reuses Storage `users/{uid}/avatar.{ext}`
+- Bio rule: 20–150 characters (same as onboarding)
+
+#### Components
+
+```
+src/ui/account/
+  AccountPageContent.tsx
+  AccountProfileView.tsx
+  AccountDiscoveryPreview.tsx
+  AccountProfileEditor.tsx
+  AccountInfoCard.tsx
+  account-helpers.ts
+```
+
+Reuse `PillGroup` from `src/ui/shared/PillGroup.tsx` and options from `onboarding-options.ts`.
 
 ---
 
@@ -375,6 +468,9 @@ users/{uid}/blocked/{blockedUid}
 
 ## Anti-patterns (learned from concept passes)
 
+- ❌ Flat cyan (`#22d3ee`) on account page — borders, badges, links, strength bar, avatar ring
+- ❌ Flat basic pink (`#ff5ca8`) as the only accent on account/settings — use full gradient classes instead
+- ❌ One accent color on every account element (all cyan or all pink)
 - ❌ All-pink borders, icons, pills, toggles, chevrons
 - ❌ Gradient text on every line of body copy, majors, or stack strings
 - ❌ Opaque black panel behind entire profile grid (hides retro background)
@@ -396,4 +492,4 @@ users/{uid}/blocked/{blockedUid}
 
 ---
 
-*Last updated: Aug 31, 2026 — second concept pass removed after gradient/nav validation. Shell pages keep per-route title gradients. Rebuild inner UI when Firebase phase begins.*
+*Last updated: Aug 31, 2026 — account page uses per-element Devora gradients (no flat cyan/pink). Settings toggles use devora gradient. Shell pages keep per-route title gradients.*

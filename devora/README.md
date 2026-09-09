@@ -42,8 +42,13 @@ Live landing page at `/home` — hero, nav, synthwave background, and homepage s
 - We 1: Infrastructure setup (in progress)
 - Week 2: Database schema design
 - Week 3: UI/Design system
-- Week 4-10: Core features (auth, profiles, discovery, messaging)
-- Week 11-13: Testing, documentation, final submission
+- Week 4–9: Core web features (auth, profiles, discovery, messaging)
+- Week 10: Mobile-ready web + PWA (installable from browser)
+- Week 11: Capacitor iOS shell + TestFlight
+- Week 12: Push notifications (Firebase Cloud Messaging)
+- Week 13: App Store submission, testing, final documentation
+
+See **`src/docs/mobile-app-roadmap.md`** for the full mobile plan.
 
 **Next Milestone:** Dec 9, 2026 (Final submission)
 
@@ -90,6 +95,7 @@ All project docs are in **`src/docs/`** — start at [src/docs/README.md](src/do
 | `DESIGN_SCOPE.md` | UI design bible |
 | `landing-sections-spec.md` | Homepage copy |
 | `firestore-schema.md` | Database plan |
+| `mobile-app-roadmap.md` | Mobile app plan (Weeks 10–13+, Capacitor + push) |
 | `naming-and-structure.md` | Folders, routes, file names |
 
 ---

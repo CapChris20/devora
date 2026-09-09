@@ -12,6 +12,7 @@
 # next.js
 /.next/
 /out/
+.next-dev.lock
 
 # production
 /build
@@ -39,3 +40,4 @@ next-env.d.ts
 functions/lib
 firebase-debug.log
 firebase-debug.*.log
+pglite-debug.log

@@ -50,8 +50,12 @@ src/docs/             → Project documentation
 | `/faqs-page` | `faqs-page/` | **Kept** `-page` suffix (user choice) |
 | `/messages-page` | `messages-page/` | Activity Center shell; nav label **Activity Center** |
 | `/account-page` | `account-page/` | Account shell |
+| `/auth/login` | `auth/login/` | Google sign-in |
+| `/auth/signup` | `auth/signup/` | First/last name + Google |
+| `/onboarding` | `onboarding/` | 5-step profile setup |
+| `/onboarding/welcome` | `onboarding/welcome/` | Post-onboarding welcome |
 
-Do not rename these routes without asking. `/auth` will be added later for login.
+Do not rename these routes without asking.
 
 ---
 
@@ -61,6 +65,7 @@ Do not rename these routes without asking. `/auth` will be added later for login
 |--------|---------|-----------|
 | `hero/` | Top of homepage only | `TopSection.tsx`, `top-section-text.ts`, `Credits.tsx`, `Logo.tsx`, other `Hero*` pieces user kept |
 | `homepage-sections/` | Homepage sections below hero | `ScrollingTextStrip`, `WhatIsDevora`, `FeatureCards`, `FourSteps`, `WhyNot`, `GoodReasons`, `JoinNowSection`, `FadeInWhenScrolling`, `MouseGridBackground`, `MovingAnimation` |
+| `auth/` | Sign-in + onboarding UI | `SignInPageLayout`, `LoginCard`, `SignupCard`, `GoogleButton`, `OnboardingForm`, `WelcomeScreen` |
 | `navbar/` | Top menu | `NavBar.tsx` |
 | `footer/` | Bottom links | `Footer.tsx` |
 | `backgrounds/` | App-page synthwave scenes | `PageLayout.tsx`, `BackgroundPicture.tsx`, `mountains.tsx`, `city.tsx`, `pyramids.tsx`, `background-helpers.tsx` |

@@ -39,11 +39,13 @@ Live landing page at `/home` — hero, nav, synthwave background, and homepage s
 
 **Current Phase:** Fall 2026 (ENGR 492 - Capstone Development)
 
-- Week 1: Infrastructure setup (in progress)
-- Week 2: Database schema design
-- Week 3: UI/Design system
-- Week 4-10: Core features (auth, profiles, discovery, messaging)
-- Week 11-13: Testing, documentation, final submission
+- Week 4–9: Core web features (auth, profiles, discovery, messaging)
+- Week 10: Mobile-ready web + PWA
+- Week 11: Capacitor iOS + TestFlight
+- Week 12: Push notifications (FCM)
+- Week 13: App Store + final submission
+
+Full mobile plan: **`devora/src/docs/mobile-app-roadmap.md`**
 
 **Next Milestone:** Dec 9, 2026 (Final submission)
 

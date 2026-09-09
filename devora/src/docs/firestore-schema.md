@@ -1,231 +1,281 @@
-# Firestore Schema: Student Networking Platform (Devora)
+# Firestore Schema: Devora
+
+> **Source of truth** for user profiles, onboarding data, and Discovery Grid profile cards.  
+> Auth is **Google only** with `@umich.edu` emails.
+
+---
 
 ## Overview
 
-Use **top-level collections** for data you query across many users (profiles, conversations). Use **subcollections** for data that belongs to one user or one conversation and grows over time (projects, messages, notifications).
+- **Top-level `users`** — profiles, onboarding answers, browse/filter data
+- **Subcollections** — projects, notifications (unchanged from v1 plan)
+- **Firebase Storage** — `users/{uid}/avatar.{ext}` for optional profile photos
 
 ---
 
-## 1. Collections You Need
+## Auth + signup fields
 
-| Collection | Level | Purpose |
-|---|---|---|
-| `users` | Top-level | Profiles and browse/filter data |
-| `users/{userId}/projects` | Subcollection | A user's portfolio projects |
-| `conversations` | Top-level | Chat threads between users |
-| `conversations/{conversationId}/messages` | Subcollection | Messages inside a thread |
-| `users/{userId}/notifications` | Subcollection | Per-user alerts |
-| `users/{userId}/notificationSettings` | Subcollection (optional) | Notification preferences |
+Collected on `/auth/signup` before Google sign-in:
 
-**Optional (later):** `reports`, `blocks`, `connectionRequests`
+| Field | Type | Required | Notes |
+|-------|------|----------|-------|
+| `firstName` | string | yes | Signup form |
+| `lastName` | string | yes | Signup form |
+| `email` | string | yes | From Google; `@umich.edu` only |
+| `displayName` | string | yes | `{firstName} {lastName}` |
+| `onboardingComplete` | boolean | yes | `false` until step 5 finishes |
+| `school` | string | yes | `"University of Michigan-Dearborn"` |
+| `isPublic` | boolean | yes | `false` until onboarding done; then `true` |
+| `createdAt` | timestamp | yes | |
+| `updatedAt` | timestamp | yes | |
 
----
-
-## 2. `users` (Top-Level)
-
-**Document ID:** Firebase Auth UID (same as `userId`)
-
-**One document per registered user.**
-
-### Fields
-
-| Field | Type | Notes |
-|---|---|---|
-| `email` | string | From auth; may be private |
-| `displayName` | string | Full name |
-| `photoURL` | string | Profile photo |
-| `major` | string | Filterable |
-| `school` | string | Filterable |
-| `graduationYear` | number | Filterable |
-| `bio` | string | Short intro |
-| `skills` | array of strings | Filter with `array-contains` / `array-contains-any` |
-| `interests` | array of strings | Optional extra filters |
-| `links` | map | e.g. `github`, `linkedin`, `portfolio` |
-| `isPublic` | boolean | Only public profiles appear in browse |
-| `lastActiveAt` | timestamp | Sort by activity |
-| `createdAt` | timestamp | |
-| `updatedAt` | timestamp | |
-
-### Example Document
-
-- **Path:** `users/abc123`
-- **Contains:** display name, major, skills (`["React", "Python"]`), public profile flag, etc.
+Login (`/auth/login`) uses Google only — no extra fields. If no profile exists, names fall back from Google `displayName`.
 
 ---
 
-## 3. `users/{userId}/projects` (Subcollection)
+## Onboarding field map (5 steps)
 
-**Document ID:** Auto-generated or custom project ID
+### Step 1 — Who you are
 
-**One document per project on a user's profile.**
+| Field | Type | Required | On card? | Filterable? |
+|-------|------|----------|----------|-------------|
+| `classRank` | string | yes | yes (with major) | yes |
+| `gender` | string | yes | no | no |
+| `age` | string | yes | no | no |
 
-### Fields
+### Step 2 — Career path & major
 
-| Field | Type | Notes |
-|---|---|---|
-| `title` | string | |
-| `description` | string | |
-| `technologies` | array of strings | Optional filter/display |
-| `url` | string | Live demo or repo |
-| `imageURL` | string | Thumbnail |
-| `startDate` | timestamp | |
-| `endDate` | timestamp | Nullable if ongoing |
-| `createdAt` | timestamp | |
-| `updatedAt` | timestamp | |
+| Field | Type | Required | On card? | Filterable? |
+|-------|------|----------|----------|-------------|
+| `major` | string | yes | yes | yes |
+| `careerNiche` | string[] | yes | yes (top 1–2 tags) | yes |
+| `careerNicheOther` | string | no | no | no |
+| `hasExperience` | boolean | yes | no | no |
+| `experienceDetails` | string | if `hasExperience` | profile only | no |
 
-### Why Subcollection?
+### Step 3 — About you & interests
 
-Projects belong to one user, can grow without bloating the profile doc, and are easy to list with `users/{userId}/projects`.
+| Field | Type | Required | On card? | Filterable? |
+|-------|------|----------|----------|-------------|
+| `casualInterests` | string[] | yes | yes (2–3 tags) | yes |
+| `aboutYou` | string[] | yes | no | yes (v1) |
+| `religion` | string | no | **never** | **never** |
 
----
+**Religion disclaimer (UI):** Optional — shared only to help classmates connect personally. Never used for discrimination or judgment.
 
-## 4. `conversations` (Top-Level)
+### Step 4 — Why Devora
 
-**Document ID:** Stable ID for the thread (e.g. sorted pair of user IDs: `userA_userB`)
+| Field | Type | Required | On card? | Filterable? |
+|-------|------|----------|----------|-------------|
+| `signupReason` | string[] | yes | no | no (internal/analytics) |
 
-**One document per 1:1 chat (extend later for groups).**
+### Step 5 — Bio & socials
 
-### Fields
+| Field | Type | Required | On card? | Filterable? |
+|-------|------|----------|----------|-------------|
+| `bio` | string | yes (20–150 chars) | yes (truncated ~80 chars) | no |
+| `photoURL` | string | no | yes (avatar) | no |
+| `links` | map | no | profile only | no |
+| `links.github` | string | no | profile only | no |
+| `links.linkedin` | string | no | profile only | no |
+| `links.instagram` | string | no | profile only | no |
 
-| Field | Type | Notes |
-|---|---|---|
-| `participantIds` | array of strings | Exactly 2 user IDs for DMs |
-| `participants` | map | Denormalized preview data per user: `displayName`, `photoURL` |
-| `lastMessage` | map | `{ text, senderId, createdAt }` for inbox preview |
-| `lastMessageAt` | timestamp | Sort inbox by recency |
-| `createdAt` | timestamp | |
-| `updatedAt` | timestamp | |
-
-### Example Document
-
-- **Path:** `conversations/abc123_xyz789`
-- **Contains:** both users, last message preview, timestamp for sorting
-
----
-
-## 5. `conversations/{conversationId}/messages` (Subcollection)
-
-**Document ID:** Auto-generated message ID
-
-**One document per message.**
-
-### Fields
-
-| Field | Type | Notes |
-|---|---|---|
-| `senderId` | string | Who sent it |
-| `text` | string | Message body |
-| `type` | string | e.g. `text`, `image` |
-| `readBy` | map | `{ userId: readTimestamp }` per participant |
-| `createdAt` | timestamp | Order messages |
-
-### Why Subcollection?
-
-Messages grow quickly; subcollections keep conversation metadata separate and support real-time listeners on one thread.
+On completion: `onboardingComplete: true`, `isPublic: true`.
 
 ---
 
-## 6. `users/{userId}/notifications` (Subcollection)
+## Discovery Grid profile card
 
-**Document ID:** Auto-generated notification ID
-
-**One document per notification for that user.**
-
-### Fields
-
-| Field | Type | Notes |
-|---|---|---|
-| `type` | string | e.g. `new_message`, `profile_view` |
-| `title` | string | Short headline |
-| `body` | string | Detail text |
-| `data` | map | Related IDs: `conversationId`, `senderId`, etc. |
-| `read` | boolean | Unread badge count |
-| `createdAt` | timestamp | Sort newest first |
-
-### Why Subcollection?
-
-Each user only reads their own notifications; security rules are simple (`userId` in path).
-
----
-
-## 7. Optional: `users/{userId}/notificationSettings`
-
-**One doc** (fixed ID like `preferences`) if you want granular control.
-
-### Fields
-
-| Field | Type |
-|---|---|
-| `emailEnabled` | boolean |
-| `pushEnabled` | boolean |
-| `messageAlerts` | boolean |
-| `updatedAt` | timestamp |
-
----
-
-## 8. Relationships Between Collections
+What renders on each `.glass-card` in `/find-students`:
 
 ```
-users (profile)
-  │
-  ├── projects (1 user → many projects)
-  │
-  └── notifications (1 user → many notifications)
-
-conversations (thread)
-  │
-  ├── participantIds → references users
-  │
-  └── messages (1 conversation → many messages)
-        └── senderId → references users
+┌─────────────────────────────┐
+│  [avatar]  Alex Chen        │  photoURL or initials; displayName (gradient)
+│            CIS · Junior     │  major · classRank (muted)
+│  Frontend · Hackathons      │  careerNiche + casualInterests (max 3–4, muted)
+│  "Building a capstone..."   │  bio truncated ~80 chars
+│  [ View profile ]           │
+└─────────────────────────────┘
 ```
 
-### How They Connect
+### Privacy tiers
 
-| From | To | Relationship |
-|---|---|---|
-| `users` | `projects` | Parent → child subcollection |
-| `users` | `notifications` | Parent → child subcollection |
-| `conversations.participantIds` | `users` | Many-to-many (2 users per DM) |
-| `messages.senderId` | `users` | Many-to-one |
-| `notifications.data.senderId` | `users` | Optional reference |
-| `notifications.data.conversationId` | `conversations` | Optional reference |
+| Tier | Fields | Where shown |
+|------|--------|-------------|
+| **Public (card + browse)** | `displayName`, `photoURL`, `major`, `classRank`, `careerNiche`, `casualInterests`, `bio` (snippet) | Discovery Grid |
+| **Profile only** | `experienceDetails`, `links`, `gender`, `age`, `careerNicheOther` | Account page + future View profile |
+| **Private** | `email`, `religion`, `signupReason` | Never on cards; not in browse queries |
 
-**Denormalization:** Store `displayName` and `photoURL` on `conversations.participants` and `lastMessage` so the inbox loads without extra user reads.
+`isPublic: false` excludes user from Discovery Grid queries (Settings toggle).
+
+`isDeactivated: true` (Settings → Danger zone) also forces `isPublic: false`. Profile data stays. Login sends them to `/auth/deactivated` until they reactivate. Delete account removes Storage files, `users/{uid}` (plus `projects` / `notifications` subcollections), and the Firebase Auth user.
+
+### Account page (`/account-page`)
+
+Signed-in user views and edits their own `users/{uid}` document.
+
+| Shown on Account | Fields |
+|------------------|--------|
+| Sidebar + details | `displayName`, `photoURL`, `school`, `email`, `createdAt`, `major`, `classRank`, `age`, `casualInterests`, `careerNiche`, `careerNicheOther`, `aboutYou`, `links`, `bio`, `experienceDetails` |
+| Editable in editor | Same as above except `email` and `createdAt` (read-only) |
+| Hidden on Account | `religion`, `signupReason`, `gender` (editable but not in sidebar summary) |
+
+Updates use `updateAccountProfile()` — partial merge, does not reset `onboardingComplete` or `isPublic`.
 
 ---
 
-## 9. Top-Level vs Subcollection Decisions
+## Full `users/{uid}` document
 
-| Data | Choice | Reason |
-|---|---|---|
-| User profiles | **Top-level `users`** | Browse/filter across all users |
-| Projects | **Subcollection** | Owned by one user; unbounded growth |
-| Conversations | **Top-level** | Both participants need access; query "my conversations" |
-| Messages | **Subcollection** | High volume; scoped to one thread |
-| Notifications | **Subcollection under user** | Private; easy security rules |
+**Document ID:** Firebase Auth UID
+
+```ts
+{
+  // Auth + signup
+  email: string,
+  firstName: string,
+  lastName: string,
+  displayName: string,
+
+  // Step 1
+  classRank: string,
+  gender: string,
+  age: string,
+
+  // Step 2
+  major: string,
+  careerNiche: string[],
+  careerNicheOther?: string,
+  hasExperience: boolean,
+  experienceDetails?: string,
+
+  // Step 3
+  casualInterests: string[],
+  aboutYou: string[],
+  religion?: string,
+
+  // Step 4
+  signupReason: string[],
+
+  // Step 5
+  bio: string,
+  photoURL?: string,
+  links?: {
+    github?: string,
+    linkedin?: string,
+    instagram?: string,
+  },
+
+  // Meta
+  school: "University of Michigan-Dearborn",
+  isPublic: boolean,
+  isDeactivated?: boolean,
+  deactivatedAt?: timestamp | null,
+  onboardingComplete: boolean,
+  lastActiveAt?: timestamp,
+  createdAt: timestamp,
+  updatedAt: timestamp,
+}
+```
 
 ---
 
-## 10. Query Patterns
+## Example documents
+
+### Alex Chen (Discovery card)
+
+```json
+{
+  "displayName": "Alex Chen",
+  "firstName": "Alex",
+  "lastName": "Chen",
+  "major": "Computer & Information Science",
+  "classRank": "Junior",
+  "careerNiche": ["Frontend", "Full Stack"],
+  "casualInterests": ["Hackathons", "Anime", "Open Source"],
+  "bio": "Building a capstone app with React and looking for a backend partner.",
+  "isPublic": true,
+  "onboardingComplete": true
+}
+```
+
+### Maya Hassan
+
+```json
+{
+  "displayName": "Maya Hassan",
+  "major": "Computer Engineering",
+  "classRank": "Sophomore",
+  "careerNiche": ["Embedded Systems", "Robotics"],
+  "casualInterests": ["IEEE", "Robotics", "Sci-Fi"],
+  "bio": "Interested in embedded systems and robotics club projects.",
+  "isPublic": true,
+  "onboardingComplete": true
+}
+```
+
+---
+
+## Filter alignment (Discovery Grid v1)
+
+| DESIGN_SCOPE filter section | Schema field | v1 onboarding? |
+|----------------------------|--------------|----------------|
+| CECS Major | `major` | yes |
+| Class Year | `classRank` | yes |
+| Technical Niche | `careerNiche` | yes |
+| Hobbies & Activities | `casualInterests` | yes |
+| Looking For | `aboutYou` | yes |
+| CIS Concentration | — | future |
+| Clubs & Orgs | — | future |
+| Media & Entertainment | — | future |
+
+---
+
+## Query patterns
 
 | Feature | Query |
-|---|---|
-| Browse profiles | `users` where `isPublic == true`, filter `major`, `school`, `graduationYear`, `skills` |
-| View one profile | `users/{userId}` + `users/{userId}/projects` |
-| Inbox | `conversations` where `participantIds` `array-contains` currentUserId, order by `lastMessageAt` |
-| Chat thread | `conversations/{id}/messages` order by `createdAt` |
-| Notifications | `users/{userId}/notifications` where `read == false` or order by `createdAt` |
+|---------|-------|
+| Discovery Grid browse | `users` where `isPublic == true` && `onboardingComplete == true` |
+| Filter by major | `where("major", "==", value)` + `isPublic` |
+| Filter by class rank | `where("classRank", "==", value)` |
+| Filter by niche | `where("careerNiche", "array-contains", value)` |
+| Filter by interests | `where("casualInterests", "array-contains-any", [...])` |
+| Search by name | Client filter or Algolia later; v1: prefix on `displayName` |
+| View full profile | `users/{uid}` + `users/{uid}/projects` |
 
-You'll need **composite indexes** for combinations like `isPublic + major + lastActiveAt` or `participantIds + lastMessageAt`.
+**Composite indexes** needed for: `isPublic + major`, `isPublic + classRank`, `isPublic + careerNiche` (array), `isPublic + casualInterests` (array).
 
 ---
 
-## 11. Privacy Split (Recommended)
+## Storage
 
-Keep sensitive fields only on `users` and never expose them in browse queries:
+| Path | Purpose |
+|------|---------|
+| `users/{uid}/avatar.{ext}` | Optional profile photo from onboarding step 5 |
 
-- **Private:** `email`, notification prefs
-- **Public (browse):** `displayName`, `photoURL`, `major`, `school`, `skills`, `bio`, projects summary
+Rules: user can write only their own `users/{uid}/*`; any signed-in user can read.
 
-If browse queries get heavy, add a slim top-level `publicProfiles/{userId}` mirroring only filter/display fields — optional until scale demands it.
+---
+
+## Other collections (unchanged)
+
+| Collection | Purpose |
+|------------|---------|
+| `users/{userId}/projects` | Portfolio projects |
+| `conversations` | DM threads |
+| `conversations/{id}/messages` | Messages |
+| `users/{userId}/notifications` | Alerts |
+
+See original relationship diagrams in git history if needed.
+
+---
+
+## Redirect flow
+
+```
+/auth/signup → Google → /onboarding (steps 1–5) → /onboarding/welcome → /find-students
+/auth/login  → Google → /onboarding (if incomplete) OR /auth/deactivated (if isDeactivated) OR /find-students
+```
+
+---
+
+*Last updated: Aug 31, 2026 — aligned with Google-only auth and 5-step onboarding.*

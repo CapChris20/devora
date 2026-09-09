@@ -2,14 +2,27 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isUmichEmail(email) {
+      return email is string
+        && (
+          email.matches('.*@umich\\.edu$')
+          || email.matches('.*@umd\\.umich\\.edu$')
+        );
+    }
+
     function isUmichUser() {
-      return request.auth != null
-        && request.auth.token.email.matches('.*@umich\\.edu$');
+      return request.auth != null && isUmichEmail(request.auth.token.email);
+    }
+
+    function isOwner(userId) {
+      return request.auth != null && request.auth.uid == userId;
     }
 
     match /users/{userId} {
-      allow read: if isUmichUser();
-      allow create, update, delete: if isUmichUser() && request.auth.uid == userId;
+      allow read: if isUmichUser() || isOwner(userId);
+      allow create, update: if isOwner(userId)
+        && isUmichEmail(request.resource.data.email);
+      allow delete: if isOwner(userId) && isUmichUser();
     }
 
     match /conversations/{conversationId} {
@@ -23,12 +36,12 @@ service cloud.firestore {
     }
 
     match /users/{userId}/notifications/{notificationId} {
-      allow read, write: if isUmichUser() && request.auth.uid == userId;
+      allow read, write: if isUmichUser() && isOwner(userId);
     }
 
     match /users/{userId}/projects/{projectId} {
       allow read: if isUmichUser();
-      allow write: if isUmichUser() && request.auth.uid == userId;
+      allow write: if isUmichUser() && isOwner(userId);
     }
   }
 }

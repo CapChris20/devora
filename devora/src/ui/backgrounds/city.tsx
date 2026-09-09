@@ -1,5 +1,12 @@
+// SVG art for the city skyline retro background scene.
+// Towers with lit windows + neon ridge; exported as back/front layers.
+// Legacy art — hero now uses Voronoi; keep this if you revive a retro scene picker.
+// Manipulate here: edit TOWERS (x/w/h) to reshape the skyline; SPIRE_TOWERS picks which get spires.
+
 import { NeonRidge, type RetroScene } from "./background-helpers";
 
+// Building footprints — x position, width, height (drawn up from the ground line y=320).
+// vocab: y = 320 - h so the base sits on y=320 and the roof is higher on screen (SVG y grows down)
 const TOWERS = [
   { x: 10, w: 90, h: 130 },
   { x: 105, w: 60, h: 200 },
@@ -19,13 +26,19 @@ const TOWERS = [
   { x: 1375, w: 60, h: 235 },
 ];
 
+// Tower indexes that get a pink spire on top (0-based into TOWERS).
+// Manipulate here: add/remove indexes to change which buildings get antennas
 const SPIRE_TOWERS = [3, 7, 11];
 
+// Front layer — every tower, windows, spires, and neon roof line
 const CityFront = (
   <>
+    {/* vocab: <g> = SVG group — one building's body + edges + windows together */}
     {TOWERS.map((b, i) => (
       <g key={i}>
+        {/* Solid building body — y = 320 - height so the base sits on the ground line */}
         <rect x={b.x} y={320 - b.h} width={b.w} height={b.h} fill="#0d0618" />
+        {/* Left edge glow (pink) */}
         <line
           x1={b.x}
           y1={320 - b.h}
@@ -35,6 +48,7 @@ const CityFront = (
           strokeWidth="1.5"
           opacity="0.3"
         />
+        {/* Right edge glow (cyan) */}
         <line
           x1={b.x + b.w}
           y1={320 - b.h}
@@ -44,6 +58,7 @@ const CityFront = (
           strokeWidth="1.5"
           opacity="0.18"
         />
+        {/* Wide towers get a couple of horizontal accent lines */}
         {b.w >= 90 &&
           [24, 46].map((dy) => (
             <line
@@ -57,9 +72,13 @@ const CityFront = (
               opacity="0.16"
             />
           ))}
+        {/* Window grid — skip some cells so it looks lived-in, not uniform */}
         {Array.from({ length: Math.floor((b.w - 12) / 15) }, (_, c) =>
           Array.from({ length: Math.floor((b.h - 20) / 19) }, (_, r) => {
+            // Pseudo-random skip: leave some windows dark.
+            // vocab/symbol: % = remainder — deterministic “random” pattern without Math.random
             if ((i * 13 + r * 7 + c * 5) % 6 < 2) return null;
+            // Pick pink / cyan / amber for lit windows
             const color =
               (r + c + i) % 8 === 0 ? "#ff2bd6" : (r * 2 + c) % 5 === 0 ? "#22d3ee" : "#ffd76f";
             return (
@@ -75,6 +94,8 @@ const CityFront = (
             );
           }),
         )}
+        {/* Optional spire + tip light on selected towers */}
+        {/* vocab/symbol: && = only render the spire JSX when this tower index is in the list */}
         {SPIRE_TOWERS.includes(i) && (
           <>
             <rect
@@ -90,6 +111,7 @@ const CityFront = (
         )}
       </g>
     ))}
+    {/* Neon line tracing every roof top */}
     <NeonRidge
       points={TOWERS.map((b) => `${b.x},${320 - b.h} ${b.x + b.w},${320 - b.h}`).join(" ")}
       color="#ff2bd6"
@@ -97,6 +119,7 @@ const CityFront = (
   </>
 );
 
+// Back layer — simpler distant skyline silhouette
 const CityBack = (
   <path
     fill="#3d1160"

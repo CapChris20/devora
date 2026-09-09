@@ -3,6 +3,7 @@ node_modules/
 .env
 .env.local
 .env*.local
+pglite-debug.log
 
 # Cursor IDE
 .cursor/
