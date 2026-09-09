@@ -415,12 +415,14 @@ html[data-theme="light"] {
     box-shadow: none;
   }
 
-  .nav-link-default:hover,
+  /* vocab: hover = user's pointer is over the link (not clicked yet)
+     Manipulate here: tweak the gradient colors for a different hover effect */
   .nav-link-default:hover .nav-link-text {
-    color: rgba(255, 255, 255, 0.88);
-    background: none;
-    -webkit-text-fill-color: unset;
-    filter: none;
+    background: linear-gradient(135deg, #ff6ec7 0%, #ff9068 50%, #ffd058 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: saturate(1.1) brightness(1.15);
   }
 
   .nav-link-default:hover::before {
@@ -2914,11 +2916,14 @@ html[data-theme="light"] .hero-logo-ring {
   box-shadow: var(--card-3d-stack-pink);
 }
 
-html[data-theme="light"] .nav-link-default:hover,
+/* Light mode hover — same gradient style but optimized for light backgrounds
+   Manipulate here: adjust gradient stops for light mode hover appearance */
 html[data-theme="light"] .nav-link-default:hover .nav-link-text {
-  color: rgba(26, 10, 46, 0.82);
-  background: none;
-  -webkit-text-fill-color: unset;
+  background: linear-gradient(135deg, #e91e8c 0%, #ff6b35 50%, #ff9500 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: saturate(1.15) brightness(0.95);
 }
 
 html[data-theme="light"] .nav-link-default:hover::before {
