@@ -1,5 +1,5 @@
 // Shared page shell for inner pages — Voronoi shader background, navbar, title, footer.
-// Flow: BackgroundPicture (fixed shader) → NavBar → title/description fade in → children → Footer.
+// Flow: BackgroundPicture (fixed shader) → NavBar → centered 3D title/description → children → Footer.
 // Used by account, settings, FAQs, discovery, etc. Homepage uses TopSection instead.
 
 "use client";
@@ -15,10 +15,10 @@ import NavBar from "@/ui/navbar/NavBar";
 type PageLayoutProps = {
   // Passed to NavBar so the correct link is highlighted
   activeItem: string;
-  // Big page heading
+  // Big page heading (My Profile, Settings, …)
   title: string;
-  // Gradient / color class for the title — default pink-grad
-  // Manipulate here: pass titleClassName="headline-grad" (etc.) to recolor a page title
+  // Soft page-title fill class — default page-title-grad (calm white→rose)
+  // Manipulate here: pass titleClassName only if you need a one-off tint; prefer page-title-grad
   titleClassName?: string;
   // Optional blurb under the title
   description?: string;
@@ -55,7 +55,7 @@ function PageReveal({
 export default function PageLayout({
   activeItem,
   title,
-  titleClassName = "pink-grad",
+  titleClassName = "page-title-grad",
   description,
   wide = false,
   children,
@@ -77,24 +77,35 @@ export default function PageLayout({
           wide ? "max-w-[1400px]" : "max-w-6xl"
         }`}
       >
-        {/* Page title — first thing to fade in (delay 0) */}
+        {/* Centered page header — glass rectangle + title (+ optional description).
+            Styles: .page-header / .page-header-glass / .page-title-* in globals.css */}
         <PageReveal>
-          <h1 className={`font-display text-3xl font-bold sm:text-4xl ${titleClassName}`}>{title}</h1>
+          <header className="page-header">
+            {/* Soft glow behind the glass panel */}
+            <div className="page-header-glow" aria-hidden="true" />
+
+            {/* Glass rectangle — readable over Voronoi; rectangle not a pill.
+                Manipulate here: .page-header-glass padding/radius in globals.css */}
+            <div className="page-header-glass">
+              {/* Back = extruded shadow letters; front = readable gradient.
+                  vocab: aria-hidden on depth = screen readers only hear the fill once */}
+              <h1 className="page-title-stack font-display">
+                <span className="page-title-depth" aria-hidden="true">
+                  {title}
+                </span>
+                <span className={`page-title-fill ${titleClassName}`}>{title}</span>
+              </h1>
+
+              {description ? (
+                <p className="page-header-desc">{description}</p>
+              ) : null}
+            </div>
+          </header>
         </PageReveal>
 
-        {/* Optional short description under the title — only when the page passed one.
-            vocab/symbol: ? : / ternary-ish via && style — {description ? (…) : null} */}
-        {description ? (
-          <PageReveal delay={0.12}>
-            <p className="surface-panel theme-muted mt-4 max-w-xl text-left text-sm leading-relaxed sm:text-base">
-              {description}
-            </p>
-          </PageReveal>
-        ) : null}
-
-        {/* Page body — delay depends on whether a description was shown so the cascade stays even.
+        {/* Page body — slight delay so the header lands first, then content rises under it.
             vocab/symbol: ? : = ternary — longer delay if a description already animated */}
-        {children ? <PageReveal delay={description ? 0.2 : 0.12}>{children}</PageReveal> : null}
+        {children ? <PageReveal delay={description ? 0.16 : 0.1}>{children}</PageReveal> : null}
       </div>
 
       {/* Footer pinned to the bottom of the flex column (mt-auto pushes it down) */}

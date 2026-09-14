@@ -60,7 +60,7 @@ export default function AccountProfileDetails({ profile }: AccountProfileDetails
 
       {/* Bio card */}
       <div className="glass-card flex flex-col gap-3 rounded-2xl p-5">
-        <p className="page-section-label headline-grad text-xs font-semibold uppercase tracking-[0.12em]">
+        <p className="page-section-label soft-pink text-xs font-semibold uppercase tracking-[0.12em]">
           Bio
         </p>
         {profile.bio?.trim() ? (
@@ -73,7 +73,7 @@ export default function AccountProfileDetails({ profile }: AccountProfileDetails
       {/* Experience card — only when they listed projects */}
       {profile.hasExperience && profile.experienceDetails?.trim() ? (
         <div className="glass-card flex flex-col gap-3 rounded-2xl p-5">
-          <p className="page-section-label pink-grad text-xs font-semibold uppercase tracking-[0.12em]">
+          <p className="page-section-label soft-peach text-xs font-semibold uppercase tracking-[0.12em]">
             Experience & projects
           </p>
           <p className="theme-body whitespace-pre-wrap text-sm leading-relaxed">
@@ -84,7 +84,7 @@ export default function AccountProfileDetails({ profile }: AccountProfileDetails
 
       {/* Interests tags — vocab / profile field: casualInterests */}
       <div className="glass-card flex flex-col gap-3 rounded-2xl p-4">
-        <p className="page-section-label pink-grad text-xs font-semibold uppercase tracking-[0.12em]">
+        <p className="page-section-label soft-violet text-xs font-semibold uppercase tracking-[0.12em]">
           Interests
         </p>
         <TagList items={profile.casualInterests ?? []} emptyLabel="No interests yet" />
@@ -92,7 +92,7 @@ export default function AccountProfileDetails({ profile }: AccountProfileDetails
 
       {/* Career focus tags + optional free-text note — vocab: careerNiche */}
       <div className="glass-card flex flex-col gap-3 rounded-2xl p-4">
-        <p className="page-section-label logo-gradient text-xs font-semibold uppercase tracking-[0.12em]">
+        <p className="page-section-label soft-peach text-xs font-semibold uppercase tracking-[0.12em]">
           Career focus
         </p>
         <TagList items={profile.careerNiche ?? []} emptyLabel="No career focus yet" />
@@ -103,7 +103,7 @@ export default function AccountProfileDetails({ profile }: AccountProfileDetails
 
       {/* Looking-for tags — vocab / profile field: aboutYou */}
       <div className="glass-card flex flex-col gap-3 rounded-2xl p-4">
-        <p className="page-section-label devora-gradient-text text-xs font-semibold uppercase tracking-[0.12em]">
+        <p className="page-section-label soft-pink text-xs font-semibold uppercase tracking-[0.12em]">
           Looking for
         </p>
         <TagList items={profile.aboutYou ?? []} emptyLabel="Nothing added yet" />
@@ -112,7 +112,7 @@ export default function AccountProfileDetails({ profile }: AccountProfileDetails
       {/* Social links — only render the card if at least one URL exists */}
       {socialEntries.length > 0 ? (
         <div className="glass-card flex flex-col gap-3 rounded-2xl p-4">
-          <p className="page-section-label headline-grad text-xs font-semibold uppercase tracking-[0.12em]">
+          <p className="page-section-label soft-violet text-xs font-semibold uppercase tracking-[0.12em]">
             Socials
           </p>
           <ul className="flex flex-col gap-2">
@@ -122,7 +122,7 @@ export default function AccountProfileDetails({ profile }: AccountProfileDetails
                   href={entry.href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="account-social-url pink-grad text-sm transition-opacity hover:opacity-80"
+                  className="account-social-url soft-pink text-sm transition-opacity hover:opacity-80"
                 >
                   {/* vocab/symbol: ! = TypeScript non-null assertion — we already filtered empties */}
                   {entry.label} · {formatLinkLabel(entry.href!)}

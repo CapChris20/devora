@@ -39,11 +39,12 @@ type SettingsCardProps = {
 // Glass card wrapper for a settings section (title + body rows).
 function SettingsCard({
   title,
-  titleClassName = "devora-gradient-text",
+  titleClassName = "soft-pink",
   children,
 }: SettingsCardProps) {
   return (
     <section className="settings-card glass-card">
+      {/* soft-pink = brand tint without rainbow multi-hues */}
       <h2 className={`settings-card-title ${titleClassName}`}>{title}</h2>
       <div className="settings-card-body">{children}</div>
     </section>
@@ -328,7 +329,7 @@ export default function SettingsPageContent() {
       <div className="settings-grid">
         {/* Discovery visibility + what fields show on the public profile */}
         {/* Manipulate here: wire new privacy toggles via updatePreference("showX", value) */}
-        <SettingsCard title="Profile & Discovery" titleClassName="logo-gradient">
+        <SettingsCard title="Profile & Discovery">
           <SettingsRow
             label="Show profile on Discovery Grid"
             description={
@@ -362,7 +363,7 @@ export default function SettingsPageContent() {
         </SettingsCard>
 
         {/* Notification toggles + who may message you */}
-        <SettingsCard title="Notifications" titleClassName="headline-grad">
+        <SettingsCard title="Notifications">
           <SettingsRow
             label="New messages"
             checked={preferences.notifyMessages}
@@ -416,7 +417,7 @@ export default function SettingsPageContent() {
         </SettingsCard>
 
         {/* Dark / light theme for this device */}
-        <SettingsCard title="Appearance" titleClassName="devora-gradient-text">
+        <SettingsCard title="Appearance">
           <p className="settings-row-desc mb-4">Pick how Devora looks on this device.</p>
           <div className="settings-mode-row">
             {(["dark", "light"] as const).map((mode) => {
@@ -428,7 +429,7 @@ export default function SettingsPageContent() {
                   className={`devora-mode-btn ${active ? "devora-mode-btn--active" : ""}`}
                   onClick={() => setTheme(mode)}
                 >
-                  <span className={active ? "devora-gradient-text" : "theme-muted"}>
+                  <span className={active ? "soft-pink font-semibold" : "theme-muted"}>
                     {mode === "dark" ? "Dark mode" : "Light mode"}
                   </span>
                 </button>
@@ -438,7 +439,7 @@ export default function SettingsPageContent() {
         </SettingsCard>
 
         {/* Online status + read receipts */}
-        <SettingsCard title="Privacy & Safety" titleClassName="pink-grad">
+        <SettingsCard title="Privacy & Safety">
           <SettingsRow
             label="Show online status"
             checked={preferences.showOnlineStatus}
@@ -457,7 +458,7 @@ export default function SettingsPageContent() {
         </SettingsCard>
 
         {/* Quick links to profile edit and sign out */}
-        <SettingsCard title="Account" titleClassName="headline-grad">
+        <SettingsCard title="Account">
           <p className="settings-row-desc">{profile.email}</p>
           <div className="settings-action-row">
             <Link href="/account-page" className="devora-btn-outline">
@@ -474,7 +475,7 @@ export default function SettingsPageContent() {
         </SettingsCard>
 
         {/* Deactivate (hide) or permanently delete the account — confirm panels below */}
-        <SettingsCard title="Danger zone" titleClassName="theme-heading">
+        <SettingsCard title="Danger zone">
           {isDeactivated ? (
             <p className="settings-row-desc">
               Your account is deactivated. Classmates can&apos;t find you on

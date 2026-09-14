@@ -1,8 +1,7 @@
 // Bouncing "Scroll for more" button on the homepage hero.
 // Click → find the target section by id → Lenis smoothScroller.scrollTo if present,
-// else native scrollIntoView. Default targetId is "more" (ScrollingTextStrip).
+// else native scrollIntoView. Default target is the What is Devora platform card.
 
-// vocab: "use client" = this file runs in the browser (needs click handlers / window APIs)
 "use client";
 
 import { topSectionText } from "./top-section-text";
@@ -38,22 +37,38 @@ function ChevronDown({ className }: { className?: string }) {
   );
 }
 
-// vocab/symbol: targetId = "more" = default if the parent doesn't pass a targetId
-export default function HeroScrollHint({ targetId = "more" }: HeroScrollHintProps) {
-  // Find the target section and scroll to it (Lenis smoothScroller if present).
+// vocab/symbol: targetId = "what-is-devora" = default landing for “Scroll for more”
+export default function HeroScrollHint({ targetId = "what-is-devora" }: HeroScrollHintProps) {
+  // Find the What is Devora card (or any targetId) and scroll so its top sits under the navbar.
   // vocab: Lenis = smooth-scroll library; window.smoothScroller is set on the homepage
   const scrollToMore = () => {
+    // Prefer the platform panel itself when scrolling to What is Devora —
+    // lands on the glass card / “What is Devora” title, not the chapter label above it.
     // vocab: getElementById = find the first element whose id attribute matches
-    const target = document.getElementById(targetId);
+    const panel =
+      targetId === "what-is-devora"
+        ? document.querySelector(".what-is-panel")
+        : null;
+    const target =
+      (panel as HTMLElement | null) ?? document.getElementById(targetId);
+
     // Nothing to scroll to — leave quietly (typo’d id, or section not mounted yet)
     // vocab/symbol: ! means NOT — runs when target was not found
     if (!target) return;
 
-    // Homepage uses Lenis smooth scroll when available.
-    // offset: -96 = stop a bit above the target so the fixed navbar doesn't cover it.
-    // Manipulate here: change offset (px) or duration (seconds) to retune the scroll feel
+    // Navbar clearance — stop a bit above the card so the title isn’t hidden under the pill.
+    // Manipulate here: more negative = leave more space under the navbar
+    const NAV_OFFSET = -110;
+
+    // Homepage uses Lenis — compute absolute Y from Lenis’s scroll + the target’s on-screen top.
+    // Why not only scrollTo(element)? Element targeting can undershoot with nested layouts / Lenis.
+    // vocab: getBoundingClientRect().top = distance from viewport top to the element’s top edge
+    // vocab: lenis.scroll = how far Lenis has already scrolled the page (px)
     if (window.smoothScroller) {
-      window.smoothScroller.scrollTo(target, { offset: -96, duration: 1.4 });
+      const lenis = window.smoothScroller;
+      const absoluteY = target.getBoundingClientRect().top + lenis.scroll + NAV_OFFSET;
+      // Manipulate here: duration (seconds) — higher = slower / floatier scroll
+      lenis.scrollTo(absoluteY, { duration: 1.35 });
       return;
     }
 

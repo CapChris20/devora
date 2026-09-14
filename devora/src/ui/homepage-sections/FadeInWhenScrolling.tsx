@@ -50,12 +50,12 @@ type SectionNumberProps = {
 };
 
 // Chapter row: pixel number, short line, then uppercase section title.
-// Manipulate here: change num/title at each call site (WhatIsDevora, FourSteps, …)
+// Manipulate here: change num/title at each call site (WhatIsDevora, BestUseCases, …)
 export function SectionNumber({ num, title }: SectionNumberProps) {
   return (
     <div className="flex items-center gap-4">
-      {/* logo-gradient = brand fill on the pixel chapter number */}
-      <span className="landing-chapter-num font-pixel logo-gradient text-[10px]">{num}</span>
+      {/* Soft pink chapter number — brand tint without neon overload */}
+      <span className="landing-chapter-num font-pixel soft-pink text-[10px]">{num}</span>
       {/* Decorative hairline between number and title — hidden from assistive tech */}
       <span className="landing-chapter-line h-px w-16" aria-hidden="true" />
       <span className="theme-faint text-xs uppercase tracking-[0.4em]">{title}</span>

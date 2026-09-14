@@ -44,8 +44,8 @@ export default function TopSection() {
           </div>
           <div className="hero-credits-column">
             <Credits />
-            {/* targetId="more" matches ScrollingTextStrip’s id — click scrolls to the marquee */}
-            <HeroScrollHint targetId="more" />
+            {/* targetId="what-is-devora" → scrolls to the What is Devora platform card */}
+            <HeroScrollHint targetId="what-is-devora" />
           </div>
         </div>
 

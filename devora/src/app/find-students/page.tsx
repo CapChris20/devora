@@ -15,7 +15,7 @@ export default function DiscoveryGridPage() {
       wide
       activeItem="Discovery Grid"
       title="Discovery Grid"
-      titleClassName="logo-gradient"
+      titleClassName="page-title-grad"
       description="Browse CECS students by major, interests, and skills — coming soon."
     />
   );

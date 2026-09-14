@@ -18,8 +18,8 @@ export default function AccountPage() {
       // vocab: activeItem = which NavBar link looks selected
       activeItem="Account"
       title="My Profile"
-      // Manipulate here: titleClassName = gradient style class from globals.css
-      titleClassName="headline-grad"
+      // Manipulate here: titleClassName = page title fill (page-title-grad = calm brand tint)
+      titleClassName="page-title-grad"
     >
       {/* Real logic (load profile, edit, save) lives in AccountPageContent */}
       <AccountPageContent />

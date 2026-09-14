@@ -15,7 +15,7 @@ export default function MessagesPage() {
       wide
       activeItem="Activity Center"
       title="Activity Center"
-      titleClassName="headline-grad"
+      titleClassName="page-title-grad"
       description="Messages, connections, events, and activity — coming soon."
     />
   );

@@ -7,12 +7,12 @@ export default function HeroCredits() {
     // Block under the glass DEVORA wordmark
     <div className="hero-credits-block">
       <p className="hero-credits-label">Sponsored by</p>
-      {/* Sponsor name — "CECS Department" gets the brand gradient */}
+      {/* Sponsor name — "CECS Department" uses the same gradient as Connect / Collaborate / Create */}
       {/* vocab: font-display = the display typeface from globals.css (not the pixel font) */}
       <p className="hero-credits-sponsor font-display">
         <span className="hero-credits-body">University of Michigan-Dearborn </span>
-        {/* vocab: devora-gradient-text = CSS class that paints the brand orange→pink→purple fill */}
-        <span className="devora-gradient-text font-bold">CECS Department</span>
+        {/* vocab: headline-grad = white → pink → purple fill (same as the hero tagline words) */}
+        <span className="headline-grad font-bold">CECS Department</span>
       </p>
       {/* Creator + proctor on one line, separated by a middle dot.
           Manipulate here: edit the names/labels if credits change */}

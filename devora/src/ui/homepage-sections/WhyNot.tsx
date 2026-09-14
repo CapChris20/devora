@@ -1,6 +1,8 @@
 // Section 04 — “Why Devora” matchups vs GitHub, LinkedIn, and Discord.
-// Each card: recolored Lottie, KO header, win bullets, punchline footer.
+// Flow: mouse-grid → chapter label → signal header → stacked matchup panels (Lottie + win rails).
 // Manipulate here: edit COMPARISONS for rivals/copy; presets drive recolor-lottie palettes.
+
+"use client";
 
 import githubAnimation from "@/ui/lottie-animations/why-devora-github.json";
 import linkedinAnimation from "@/ui/lottie-animations/why-devora-linkedin.json";
@@ -12,7 +14,7 @@ import WhyMatchupLottie from "./WhyMatchupLottie";
 
 // One comparison object per rival platform.
 // preset picks which Devora palette recolorLottie applies to the Lottie JSON.
-// Manipulate here: add another rival object (and a matching Lottie + preset) to grow the list
+// Manipulate here: rewrite any bullet / punchline (alt) — keep 4–5 punchy lines per rival
 const COMPARISONS: Array<{
   vs: string;
   preset: DevoraLottiePreset;
@@ -24,107 +26,141 @@ const COMPARISONS: Array<{
     vs: "GitHub",
     preset: "github",
     animation: githubAnimation,
-    alt: "Great for hosting code. Terrible for finding the junior who knows Unity and sits two rows behind you.",
+    alt: "Great for hosting code. Terrible for finding the junior who knows Unity and sits two rows behind you in CIS 350.",
+    // Manipulate here: keep bullets concrete (course / skill / scenario) — avoid vague “better networking”
     devora: [
-      "Find classmates by skill, course, or interest",
-      "Profiles designed for teaming up, not just commits",
-      "Warm intros — no cold DMs to strangers",
+      "Find React + Unity classmates for a hackathon in seconds — not by stalking commit histories",
+      "Profiles built for teaming up (skills, courses, projects), not just green contribution squares",
+      "Ask “who’s taking DSA this semester?” and get real people — not silent repos and READMEs",
+      "Warm intros between verified CECS peers — no cold DMs to random GitHub usernames",
+      "Side projects, study crews, and collabs start here; GitHub stays where the code lives",
     ],
   },
   {
     vs: "LinkedIn",
     preset: "linkedin",
     animation: linkedinAnimation,
-    alt: "A sea of recruiters and strangers. Nobody there cares about your ECE 270 study group.",
+    alt: "A sea of recruiters, strangers, and “open to work” banners. Nobody there cares about your ECE 270 study group.",
     devora: [
-      "Everyone here is CECS @ UM-Dearborn — zero noise",
-      "Student-first, not recruiter-first",
-      "Real collaboration, not performative posting",
+      "Everyone here is CECS @ UM-Dearborn — zero recruiter spam, zero out-of-school noise",
+      "Find React devs taking DSA this semester in seconds — not scrolling LinkedIn for hours",
+      "Build actual projects with verified peers, not collect endorsements from randos",
+      "Student-first discovery for hackathons, study groups, and side projects — not job-hunt theater",
+      "Message people who share your major and goals — not “Hi, I saw your profile” templates",
     ],
   },
   {
     vs: "Discord / Slack",
     preset: "discord",
     animation: discordAnimation,
-    alt: "Forty fragmented servers, dead channels, and no way to know who actually knows React.",
+    alt: "Forty fragmented servers, dead #general channels, and no way to know who actually knows React.",
     devora: [
-      "One directory for the whole school, not 40 dead servers",
-      "Verified identities — no anonymous lurkers",
-      "Search by skill, not by scrolling chat history",
+      "One searchable directory for the whole school — not 40 half-dead Discord servers",
+      "Verified UM-Dearborn identities — no anonymous lurkers or “who is this?” moments",
+      "Filter by skill, course, or interest — not scrolling chat history hoping someone replies",
+      "Profiles answer “can they help on my project?” before you even open a DM",
+      "Built for finding teammates fast; Discord stays for the group chat once you’ve found them",
     ],
   },
 ];
 
-// Gradient class for each rival name in the “vs …” line.
+// Soft brand accents for rival names — cool color without neon overload.
 const COMPARISON_NAME_GRAD = [
-  "logo-gradient",
-  "devora-gradient-text",
-  "pink-grad",
+  "soft-peach",
+  "soft-pink",
+  "soft-violet",
 ] as const;
 
 export default function WhyNot() {
   return (
     <MouseGridBackground className="landing-section">
-      <div className="mx-auto max-w-6xl px-6">
-        {/* Chapter label + section headline */}
+      <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
+        {/* Chapter label */}
         <FadeIn>
           <SectionNumber num="04" title="Why Devora" />
         </FadeIn>
-        <FadeIn delay={0.1}>
-          <h2 className="font-display headline-grad mt-12 max-w-2xl text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-            Not another platform. The platform.
-          </h2>
+
+        {/* Signal header — matches What is Devora / Key Info energy */}
+        <FadeIn delay={0.08}>
+          <div className="why-header mt-12 sm:mt-14">
+            <p className="why-eyebrow font-pixel">
+              <span className="soft-pink">MATCHUP</span>
+              <span className="why-eyebrow-sep" aria-hidden="true">
+                /
+              </span>
+              <span className="theme-faint">THREE KOs</span>
+            </p>
+            <h2 className="why-title font-display soft-headline">
+              Not another platform.
+              <br />
+              The platform.
+            </h2>
+            <p className="why-lead">
+              GitHub hosts code. LinkedIn hosts résumés. Discord hosts chaos. Devora hosts the
+              CECS people you actually need to ship with.
+            </p>
+          </div>
         </FadeIn>
 
-        {/* Stack of matchup cards — one per COMPARISONS entry */}
-        <div className="why-matchups mt-16 lg:mt-20">
-          {/* vocab: one FadeIn card per rival platform in COMPARISONS */}
-          {COMPARISONS.map((c, i) => (
-            <FadeIn key={c.vs} delay={0.08 * i}>
-              <article className="why-matchup landing-surface-card">
-                {/* Lottie recolored to match this rival’s Devora palette via WhyMatchupLottie */}
-                <WhyMatchupLottie
-                  animationData={c.animation}
-                  preset={c.preset}
-                  ariaLabel={`${c.vs} animation`}
-                />
+        {/* Stack of matchup panels — one per COMPARISONS entry */}
+        <div className="why-matchups mt-12 sm:mt-14">
+          {COMPARISONS.map((c, i) => {
+            const accent = COMPARISON_NAME_GRAD[i % COMPARISON_NAME_GRAD.length];
+            // vocab: padStart(2,"0") = turn 1 into "01"
+            const code = String(i + 1).padStart(2, "0");
 
-                {/* “KO” badge + “vs GitHub” (etc.) header */}
-                <div className="why-matchup-top">
-                  <span className="why-matchup-ko font-pixel logo-gradient">KO</span>
-                  <span className="why-matchup-vs theme-faint">
-                    vs{" "}
-                    {/* vocab/symbol: % wraps the gradient index so we never go past the list */}
-                    <span className={`why-matchup-name font-pixel ${COMPARISON_NAME_GRAD[i % COMPARISON_NAME_GRAD.length]}`}>
-                      {c.vs}
-                    </span>
-                  </span>
-                </div>
-
-                {/* Devora win list for this matchup — each bullet is a string in c.devora */}
-                <div className="why-matchup-winner">
-                  <span className="why-matchup-devora font-pixel logo-gradient">DEVORA</span>
-                  <ul className="why-matchup-wins">
-                    {c.devora.map((d) => (
-                      <li key={d} className="why-matchup-win">
-                        {/* Fake “code comment” marker — {"//"} so JSX doesn’t treat // as a comment */}
-                        <span className="why-matchup-marker font-pixel" aria-hidden="true">
-                          {"//"}
+            return (
+              <FadeIn key={c.vs} delay={0.08 * i}>
+                <article className="why-matchup">
+                  <div className="why-matchup-inner">
+                    {/* Copy column — KO header, win rails, punchline */}
+                    <div className="why-matchup-copy">
+                      <div className="why-matchup-top">
+                        <span className={`why-matchup-code font-pixel ${accent}`}>{code}</span>
+                        <span className="why-matchup-ko font-pixel">KO</span>
+                        <span className="why-matchup-vs">
+                          vs{" "}
+                          <span className={`why-matchup-name font-display ${accent}`}>{c.vs}</span>
                         </span>
-                        {d}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+                      </div>
 
-                {/* Glow divider + punchline about the rival platform */}
-                <div className="why-matchup-footer">
-                  <div className="glow-line h-px w-full" aria-hidden="true" />
-                  <p className="why-matchup-punchline">{c.alt}</p>
-                </div>
-              </article>
-            </FadeIn>
-          ))}
+                      <div className="why-matchup-winner">
+                        <span className="why-matchup-devora font-pixel soft-peach">DEVORA</span>
+                        <ul className="why-matchup-wins">
+                          {c.devora.map((d) => (
+                            <li key={d} className="why-matchup-win">
+                              {/* Fake “code comment” marker — {"//"} so JSX doesn’t treat // as a comment */}
+                              <span className="why-matchup-marker font-pixel" aria-hidden="true">
+                                {"//"}
+                              </span>
+                              <span className="why-matchup-win-text">{d}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+
+                      <div className="why-matchup-footer">
+                        <div className="glow-line h-px w-full" aria-hidden="true" />
+                        <p className="why-matchup-punchline">{c.alt}</p>
+                      </div>
+                    </div>
+
+                    {/* Lottie sits in a glass frame — not a tiny floating watermark */}
+                    <div className="why-matchup-media">
+                      <div className="why-matchup-lottie-frame">
+                        <div className="why-matchup-lottie-glow" aria-hidden="true" />
+                        <WhyMatchupLottie
+                          animationData={c.animation}
+                          preset={c.preset}
+                          ariaLabel={`${c.vs} animation`}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </article>
+              </FadeIn>
+            );
+          })}
         </div>
       </div>
     </MouseGridBackground>

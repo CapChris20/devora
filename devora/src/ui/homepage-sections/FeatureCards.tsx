@@ -1,6 +1,8 @@
-// Section 02 — six feature cards (icon + title + blurb).
-// Chapter label → headline + Lottie → 3-column card grid.
-// Manipulate here: edit FEATURES for copy/icons; FEATURE_TITLE_GRAD rotates title colors.
+// Section 02 — six “Key Info” feature cards (icon + title + blurb).
+// Flow: mouse-grid → chapter label → header (headline + Lottie frame) → 3-col card grid.
+// Manipulate here: edit FEATURES for copy/icons; FEATURE_ACCENT rotates title gradient colors.
+
+"use client";
 
 // vocab: StaticImageData = typed import of a local PNG/JPG used by next/image
 import Image, { type StaticImageData } from "next/image";
@@ -16,6 +18,7 @@ import MovingAnimation from "./MovingAnimation";
 import { SectionNumber, FadeIn } from "./FadeInWhenScrolling";
 
 // Data for each card: PNG icon, title, and short description.
+// Same six icons as before — only chrome/copy density changed.
 // Manipulate here: reorder / rewrite / swap icon imports to change the grid
 const FEATURES: {
   icon: StaticImageData;
@@ -24,97 +27,123 @@ const FEATURES: {
 }[] = [
   {
     icon: searchIcon,
-    title: "Finding your People!",
-    desc: "Avoid the awkward moments and cold approaches by simply finding your peers knowing their interests, their niche, their field, their projects, their goals, etc..",
+    title: "Finding your People",
+    desc: "Skip the awkward cold approach. Browse peers by interest, niche, field, projects, and goals — then reach out knowing you already line up.",
   },
   {
     icon: fileManagerIcon,
     title: "Potential Opportunities",
-    desc: "These opportunities include, but are not limited to meeting new peers and collaborators, finding a study group, finding hackathon partners, better networking, and so on.",
+    desc: "Study groups, hackathon partners, mentors, and collaborators — the openings that actually matter for CECS students, in one place.",
   },
   {
     icon: partyCardIcon,
-    title: "Discovering Events and Addtional CECS Info",
-    desc: "Devora Was created for the sole purpose of being the official hub for the CES department in terms of networking, showcasing events/opportunities , job discovery, career advice, and so on. ",
+    title: "Events & CECS Intel",
+    desc: "The hub for department networking: events, opportunities, job discovery, career advice, and the stuff that usually dies in Discord.",
   },
   {
     icon: userIcon,
     title: "Real Profiles",
-    desc: "These profiles are not people pretending to be students or bots. These profiles consist of verified U of M Dearborn students with interests, major/experience, a goal in mind, and a reason to be on this platform.",
+    desc: "Verified UM-Dearborn students only — major, experience, interests, and a real reason to be here. No bots. No fake accounts.",
   },
   {
     icon: increaseIcon,
     title: "Skill Graph",
-    desc: "The goal for this platform is to create a network of people who are interested in the same things as you are. This is achieved by the skill graph, which is a graph of the skills of the people on the platform.",
+    desc: "See who shares your stack and ambitions at a glance. Match on skills, not vibes from a random group chat.",
   },
   {
     icon: shareIcon,
     title: "Direct Chat",
-    desc: "Instead of cold LinkedIn DMs, Not only do you have the opportunity to find the socials of said user if they provide them, but you can also have the ability to message them on the platform.",
+    desc: "Message peers on-platform, or jump to the socials they share. No more cold LinkedIn templates into the void.",
   },
 ];
 
-// Rotate gradient classes so card titles don’t all look the same.
-// Index i picks FEATURE_TITLE_GRAD[i % length] — wraps if you add more cards.
-const FEATURE_TITLE_GRAD = [
-  "logo-gradient",
-  "devora-gradient-text",
-  "pink-grad",
-  "headline-grad",
-  "logo-gradient",
-  "pink-grad",
+// Soft brand accents — cool color without loud neon multi-hues.
+const FEATURE_ACCENT = [
+  "soft-peach",
+  "soft-pink",
+  "soft-violet",
+  "soft-headline",
+  "soft-peach",
+  "soft-pink",
 ] as const;
 
 export default function FeatureCards() {
   return (
     <MouseGridBackground className="landing-section">
-      <div className="mx-auto max-w-6xl px-6">
+      <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
         {/* Chapter label: “02 · Key Info About Devora” */}
         <FadeIn>
           <SectionNumber num="02" title="Key Info About Devora" />
         </FadeIn>
 
-        {/* Headline beside the “everything a builder needs” Lottie */}
-        <FadeIn delay={0.1}>
-          <div className="mt-12 flex flex-col items-center gap-8 md:flex-row md:items-center md:justify-between md:gap-10">
-            <h2 className="font-display headline-grad max-w-2xl text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-              Everything a builder needs.
-            </h2>
-            <MovingAnimation
-              animationData={everythingBuilderNeedsAnimation}
-              ariaLabel="What to know about Devora!"
-              className="landing-lottie-builder w-full max-w-[380px] shrink-0 sm:max-w-[420px]"
-            />
+        {/* Header band — big headline + Lottie in a HUD frame (matches What is Devora energy) */}
+        <FadeIn delay={0.08}>
+          <div className="key-info-header mt-12 sm:mt-14">
+            <div className="key-info-header-copy">
+              <p className="key-info-eyebrow font-pixel">
+                <span className="soft-pink">BUILD</span>
+                <span className="key-info-eyebrow-sep" aria-hidden="true">
+                  /
+                </span>
+                <span className="theme-faint">SIX SIGNALS</span>
+              </p>
+              <h2 className="key-info-title font-display soft-headline">
+                Everything a
+                <br />
+                builder needs.
+              </h2>
+              <p className="key-info-lead">
+                The pieces that make Devora feel like a real CECS network — not another feed
+                you forget about after onboarding.
+              </p>
+            </div>
+
+            <div className="key-info-lottie-frame">
+              <div className="key-info-lottie-glow" aria-hidden="true" />
+              <MovingAnimation
+                animationData={everythingBuilderNeedsAnimation}
+                ariaLabel="What to know about Devora!"
+                className="landing-lottie-builder key-info-lottie"
+              />
+            </div>
           </div>
         </FadeIn>
 
         {/* One card per FEATURES entry; stagger fade-in by index.
             sm: 2 cols, lg: 3 cols */}
-        <div className="mt-16 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="key-info-grid mt-12 sm:mt-14">
           {/* vocab: delay={0.08 * i} = stagger each card's fade-in by index
               Manipulate here: change 0.08 to tighten/loosen the cascade */}
-          {FEATURES.map((f, i) => (
-            <FadeIn key={f.title} delay={0.08 * i}>
-              {/* group = enables group-hover: scale/rotate on the icon */}
-              <div className="landing-surface-card group h-full rounded-2xl p-8">
-                <Image
-                  src={f.icon}
-                  alt=""
-                  width={48}
-                  height={48}
-                  className="feature-card-icon h-12 w-12 object-contain transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110"
-                />
-                {/* Pick a gradient by card index (wraps with %).
-                    vocab/symbol: % means remainder — index 6 would reuse gradient 0 */}
-                <h3
-                  className={`landing-card-title font-pixel mt-6 ${FEATURE_TITLE_GRAD[i % FEATURE_TITLE_GRAD.length]}`}
-                >
-                  {f.title}
-                </h3>
-                <p className="theme-muted mt-3 text-sm leading-relaxed">{f.desc}</p>
-              </div>
-            </FadeIn>
-          ))}
+          {FEATURES.map((f, i) => {
+            const accent = FEATURE_ACCENT[i % FEATURE_ACCENT.length];
+            // vocab: padStart(2,"0") = turn 1 into "01", 2 into "02", etc.
+            const code = String(i + 1).padStart(2, "0");
+
+            return (
+              <FadeIn key={f.title} delay={0.08 * i}>
+                {/* group = enables group-hover: scale/rotate on the icon */}
+                <article className="key-info-card group">
+                  <div className="key-info-card-top">
+                    {/* Icon sits in a glass well so it reads as a beacon, not a tiny orphan PNG */}
+                    <div className="key-info-icon-well">
+                      <Image
+                        src={f.icon}
+                        alt=""
+                        width={56}
+                        height={56}
+                        className="key-info-icon transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110"
+                      />
+                    </div>
+                    <span className={`key-info-code font-pixel ${accent}`}>{code}</span>
+                  </div>
+
+                  {/* Display titles — soft brand fills (peach / pink / violet) */}
+                  <h3 className={`key-info-card-title font-display ${accent}`}>{f.title}</h3>
+                  <p className="key-info-card-desc">{f.desc}</p>
+                </article>
+              </FadeIn>
+            );
+          })}
         </div>
       </div>
     </MouseGridBackground>

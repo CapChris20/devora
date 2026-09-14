@@ -64,7 +64,7 @@ Do not rename these routes without asking.
 | Folder | Purpose | Key files |
 |--------|---------|-----------|
 | `hero/` | Top of homepage only | `TopSection.tsx`, `top-section-text.ts`, `Credits.tsx`, `Logo.tsx`, other `Hero*` pieces user kept |
-| `homepage-sections/` | Homepage sections below hero | `ScrollingTextStrip`, `WhatIsDevora`, `FeatureCards`, `FourSteps`, `WhyNot`, `GoodReasons`, `JoinNowSection`, `FadeInWhenScrolling`, `MouseGridBackground`, `MovingAnimation` |
+| `homepage-sections/` | Homepage sections below hero | `ScrollingTextStrip`, `WhatIsDevora`, `FeatureCards`, `BestUseCases`, `WhyNot`, `GoodReasons`, `JoinNowSection`, `FadeInWhenScrolling`, `MouseGridBackground`, `MovingAnimation` |
 | `auth/` | Sign-in + onboarding UI | `SignInPageLayout`, `LoginCard`, `SignupCard`, `GoogleButton`, `OnboardingForm`, `WelcomeScreen` |
 | `navbar/` | Top menu | `NavBar.tsx` |
 | `footer/` | Bottom links | `Footer.tsx` |

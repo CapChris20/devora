@@ -154,8 +154,8 @@ export default function NavBar({ activeItem }: NavBarProps) {
                   <li key={item.label} className="shrink-0">
                     {/* vocab: prefetch = Next.js preloads the route in the background for faster nav */}
                     <Link href={item.href} className={linkClass(active)} prefetch>
-                      {/* Active links get the brand gradient on the label text */}
-                      <span className={`nav-link-text ${active ? "devora-gradient-text" : ""}`}>
+                      {/* Active links use soft pink — brand color without neon overload */}
+                      <span className={`nav-link-text ${active ? "soft-pink" : ""}`}>
                         {item.label}
                       </span>
                     </Link>
@@ -227,7 +227,7 @@ export default function NavBar({ activeItem }: NavBarProps) {
                         active ? "nav-link-active" : "nav-link-default"
                       }`}
                     >
-                      <span className={`nav-link-text ${active ? "devora-gradient-text" : ""}`}>
+                      <span className={`nav-link-text ${active ? "soft-pink" : ""}`}>
                         {item.label}
                       </span>
                     </Link>

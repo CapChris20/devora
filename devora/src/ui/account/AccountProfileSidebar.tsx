@@ -54,10 +54,10 @@ export default function AccountProfileSidebar({
           )}
         </div>
         <div>
-          <h2 className="page-card-name headline-grad text-xl font-bold">
+          <p className="page-card-name account-hero-name text-xl font-bold">
             {profile.displayName}
-          </h2>
-          <p className="theme-muted mt-1 text-sm">{profile.school}</p>
+          </p>
+          <p className="account-school mt-1">{profile.school}</p>
         </div>
         <button
           type="button"

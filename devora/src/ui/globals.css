@@ -1262,7 +1262,8 @@ html[data-theme="light"] {
     color: var(--text-body);
   }
 
-  .hero-credits-block .devora-gradient-text {
+  /* Soft glow on “CECS Department” — same headline-grad as Connect / Collaborate / Create */
+  .hero-credits-block .headline-grad {
     filter: drop-shadow(0 0 12px rgba(255, 92, 168, 0.25));
   }
 
@@ -1315,9 +1316,9 @@ html[data-theme="light"] .hero-credits-block {
     color: rgba(26, 10, 46, 0.28);
   }
 
-  html[data-theme="light"] .hero-credits-block .devora-gradient-text {
-    filter: saturate(1.08) brightness(0.94);
-  }
+html[data-theme="light"] .hero-credits-block .headline-grad {
+  filter: saturate(1.08) brightness(0.94);
+}
 
   .hero-layout {
     position: relative;
@@ -1325,46 +1326,50 @@ html[data-theme="light"] .hero-credits-block {
     display: flex;
     min-height: 100dvh;
     flex-direction: column;
-    padding: 5.5rem 1.25rem 7rem;
+    /* Manipulate here: last value = bottom padding — lower = Connect card sits higher */
+    padding: 5.5rem 1.25rem 3.5rem;
   }
 
   @media (min-width: 640px) {
     .hero-layout {
-      padding: 6.5rem 2rem 8rem;
+      padding: 6.5rem 2rem 4rem;
     }
   }
 
   @media (min-width: 768px) {
     .hero-layout {
-      padding: 7rem 2.5rem 8.5rem;
+      padding: 7rem 2.5rem 4.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .hero-layout {
-      padding: 7.5rem 3rem 8rem;
+      padding: 7.5rem 3rem 4.5rem;
     }
   }
 
   .hero-layout-content {
     display: flex;
-    flex: 1;
+    /* Don’t stretch this column to fill the viewport — keeps the Connect card under the title */
+    flex: 0 0 auto;
     flex-direction: column;
     justify-content: flex-start;
-    padding-top: 0.10rem;
+    /* Manipulate here: more negative margin-top = card moves further up toward DEVORA */
+    margin-top: -0.5rem;
+    padding-top: 0;
   }
 
   @media (min-width: 768px) {
     .hero-layout-content {
       align-items: flex-start;
-      padding-top: 0.5rem;
+      margin-top: -1.25rem;
       padding-left: 0.5rem;
     }
   }
 
   @media (min-width: 1024px) {
     .hero-layout-content {
-      padding-top: 0.65rem;
+      margin-top: -2rem;
       padding-left: 1.5rem;
     }
   }
@@ -1659,6 +1664,657 @@ body.nav-menu-open {
   touch-action: pan-y;
 }
 
+/* ── Inner-page headers (My Profile, Settings, Discovery Grid, …) ──
+   Centered block + soft extruded title. Fill stays calm (not rainbow-loud).
+   Manipulate here: .page-title-stack size; .page-title-grad stops for tint */
+
+.page-header {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 0.5rem;
+  padding: 0.5rem 0 0.75rem;
+}
+
+/* Soft bloom behind the glass panel */
+.page-header-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  width: min(28rem, 92vw);
+  height: 5rem;
+  transform: translate(-50%, -50%);
+  border-radius: 1.25rem;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 92, 168, 0.14) 0%,
+    rgba(123, 47, 247, 0.06) 48%,
+    transparent 74%
+  );
+  filter: blur(22px);
+  pointer-events: none;
+}
+
+/* Glass rectangle behind nav-page titles (FAQs, My Profile, Settings, …).
+   Manipulate here: padding / max-width / radius — keep rectangular (not rounded-full) */
+.page-header-glass {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 42rem;
+  padding: 1.15rem 1.75rem 1.25rem;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(255, 92, 168, 0.28);
+  background: var(--surface-glass-strong);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: var(--card-3d-stack);
+}
+
+html[data-theme="light"] .page-header-glass {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(255, 92, 168, 0.3);
+  box-shadow: var(--card-3d-stack);
+}
+
+html[data-theme="light"] .page-header-glow {
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 255, 255, 0.55) 0%,
+    rgba(255, 214, 232, 0.25) 45%,
+    transparent 72%
+  );
+}
+
+.page-title-stack {
+  position: relative;
+  z-index: 1;
+  display: inline-block;
+  margin: 0;
+  /* Manipulate here: clamp min / preferred / max to resize all nav page titles */
+  font-size: clamp(2.05rem, 4.8vw, 3.05rem);
+  font-weight: 800;
+  line-height: 1.08;
+  letter-spacing: 0.015em;
+}
+
+.page-title-depth,
+.page-title-fill {
+  display: block;
+}
+
+/* Quiet depth slab — enough 3D to feel raised, not a heavy comic outline */
+.page-title-depth {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  color: transparent;
+  -webkit-text-stroke: 3px rgba(90, 70, 128, 0.55);
+  paint-order: stroke fill;
+  text-shadow:
+    1px 1px 0 rgba(70, 55, 95, 0.55),
+    2px 2px 0 rgba(45, 35, 65, 0.5),
+    3px 3px 0 rgba(28, 20, 42, 0.45),
+    4px 4px 0 rgba(16, 12, 26, 0.4);
+  pointer-events: none;
+  user-select: none;
+}
+
+.page-title-fill {
+  position: relative;
+  z-index: 1;
+}
+
+/* Shared calm page-title fill — mostly white, soft rose finish (not multi-hue neon).
+   Use this on PageLayout instead of loud homepage gradient classes. */
+.page-title-grad {
+  background: linear-gradient(
+    105deg,
+    #ffffff 0%,
+    #fff5fa 38%,
+    #ffb3d4 78%,
+    #f472b6 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ffe4ef;
+  /* Kill inherited neon drop-shadows from logo-gradient / headline-grad if reused */
+  filter: none;
+}
+
+/* Soft brand text family — cool color without loud multi-stop neon.
+   soft-headline = big section titles; soft-pink / soft-peach / soft-violet = accents.
+   Manipulate here: tweak stops to shift warmth; keep 2–3 stops max so it stays calm */
+
+.soft-headline {
+  background: linear-gradient(105deg, #ffffff 0%, #ffd0e6 55%, #ff7eb3 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ffc2dc;
+  filter: none;
+}
+
+.soft-pink {
+  background: linear-gradient(100deg, #ff9ec8 0%, #ff5ca8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ff5ca8;
+  filter: none;
+}
+
+.soft-peach {
+  background: linear-gradient(100deg, #ffd9a8 0%, #ff9a6b 55%, #ff7a9a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ff9a6b;
+  filter: none;
+}
+
+.soft-violet {
+  background: linear-gradient(100deg, #e2c6ff 0%, #c084fc 55%, #a78bfa 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #c084fc;
+  filter: none;
+}
+
+/* Light-mode soft-* overrides live with .page-title-* below (bright fills for neon Voronoi) */
+
+/* If a page still passes an old gradient class, tone it down inside the title stack only */
+.page-title-fill.headline-grad,
+.page-title-fill.pink-grad,
+.page-title-fill.logo-gradient,
+.page-title-fill.devora-gradient-text {
+  background: linear-gradient(
+    105deg,
+    #ffffff 0%,
+    #fff5fa 38%,
+    #ffb3d4 78%,
+    #f472b6 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ffe4ef;
+  filter: none;
+}
+
+.page-header-desc {
+  position: relative;
+  z-index: 1;
+  margin: 0.65rem 0 0;
+  max-width: 34rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  text-align: center;
+  color: var(--text-muted);
+}
+
+@media (min-width: 640px) {
+  .page-header-desc {
+    font-size: 1.02rem;
+  }
+}
+
+@media (max-width: 639px) {
+  .page-title-depth {
+    -webkit-text-stroke-width: 2.5px;
+    text-shadow:
+      1px 1px 0 rgba(70, 55, 95, 0.5),
+      2px 2px 0 rgba(40, 30, 58, 0.45),
+      3px 3px 0 rgba(20, 14, 32, 0.4);
+  }
+}
+
+/* Light mode: no extrude slab — keeps the title clean, not busy */
+html[data-theme="light"] .page-title-depth {
+  display: none;
+}
+
+/* Light mode nav titles — clean dark magenta (not neon white, not multi-hue busy) */
+html[data-theme="light"] .page-title-stack .page-title-fill.page-title-grad,
+html[data-theme="light"] .page-title-stack .page-title-fill.headline-grad,
+html[data-theme="light"] .page-title-stack .page-title-fill.pink-grad,
+html[data-theme="light"] .page-title-stack .page-title-fill.logo-gradient,
+html[data-theme="light"] .page-title-stack .page-title-fill.devora-gradient-text,
+html[data-theme="light"] .page-title-grad {
+  background: linear-gradient(105deg, #4a0e2e 0%, #9d174d 55%, #be185d 100%) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: #9d174d !important;
+  filter: none !important;
+}
+
+/* Plain dark subtitle — readable, no pill */
+html[data-theme="light"] .page-header-desc {
+  color: rgba(26, 10, 46, 0.78);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.55);
+}
+
+/* Soft accents in light mode — same clean dark magenta family */
+html[data-theme="light"] .soft-headline {
+  background: linear-gradient(105deg, #4a0e2e 0%, #9d174d 50%, #be185d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #9d174d;
+  filter: none;
+}
+
+html[data-theme="light"] .soft-pink {
+  background: linear-gradient(100deg, #9d174d 0%, #be185d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #be185d;
+  filter: none;
+}
+
+html[data-theme="light"] .soft-peach {
+  background: linear-gradient(100deg, #9a3412 0%, #c2410c 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #c2410c;
+  filter: none;
+}
+
+html[data-theme="light"] .soft-violet {
+  background: linear-gradient(100deg, #5b21b6 0%, #7c3aed 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #7c3aed;
+  filter: none;
+}
+
+/* ── FAQs accordion (theme-aware glass) ──
+   Uses --surface-glass / --text-* so light mode is bright, not stuck on #1a0a2e.
+   Manipulate here: .faq-item border/radius; search focus glow; .faq-answer-shell tint
+   NEVER add a left vertical accent rail (see .cursor/rules/no-left-accent-rails.mdc) */
+
+.faq-root {
+  margin-top: 2rem;
+  width: 100%;
+  max-width: 48rem;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.faq-search {
+  position: relative;
+  display: block;
+}
+
+.faq-search-icon {
+  position: absolute;
+  left: 1.05rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  display: flex;
+}
+
+.faq-search-input {
+  width: 100%;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(255, 92, 168, 0.35);
+  background: var(--surface-glass-strong);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  padding: 0.95rem 1.1rem 0.95rem 3.1rem;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  outline: none;
+  box-shadow: var(--control-3d-stack);
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.25s ease;
+}
+
+.faq-search-input::placeholder {
+  color: var(--text-faint, var(--text-muted));
+  opacity: 0.85;
+}
+
+.faq-search-input:focus {
+  border-color: rgba(255, 92, 168, 0.65);
+  box-shadow: var(--control-3d-stack-focus);
+}
+
+.faq-empty {
+  border-radius: 1.15rem;
+  border: 1px solid rgba(255, 92, 168, 0.22);
+  background: var(--surface-glass);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 2rem 1.25rem;
+  text-align: center;
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  box-shadow: var(--raised-3d-stack);
+}
+
+.faq-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.faq-item {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.15rem;
+  border: 1px solid rgba(255, 92, 168, 0.22);
+  background: var(--surface-glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--card-3d-stack);
+  transition:
+    border-color 0.25s ease,
+    box-shadow 0.25s var(--card-3d-ease),
+    transform 0.25s var(--card-3d-ease),
+    background-color 0.25s ease;
+}
+
+.faq-item:hover {
+  border-color: rgba(255, 92, 168, 0.4);
+  transform: translateY(-2px);
+  box-shadow: var(--card-3d-stack-hover);
+}
+
+.faq-item-open {
+  border-color: rgba(255, 92, 168, 0.55);
+  background: var(--surface-glass-strong);
+  box-shadow: var(--card-3d-stack-pink);
+}
+
+.faq-item-open:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--card-3d-stack-pink-hover);
+}
+
+.faq-trigger {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.05rem 1.1rem 1.05rem 1.25rem;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  color: var(--heading-color);
+  transition: background-color 0.2s ease;
+}
+
+.faq-trigger:hover {
+  background: rgba(255, 92, 168, 0.06);
+}
+
+.faq-item-open .faq-trigger {
+  background: rgba(255, 92, 168, 0.08);
+}
+
+.faq-trigger-main {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  min-width: 0;
+  flex: 1;
+}
+
+.faq-code {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.08em;
+  color: #ff5ca8;
+  opacity: 0.9;
+}
+
+.faq-question {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--heading-color);
+}
+
+@media (min-width: 640px) {
+  .faq-question {
+    font-size: 1.08rem;
+  }
+}
+
+.faq-chevron-wrap {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(255, 92, 168, 0.35);
+  background: rgba(255, 92, 168, 0.08);
+  color: #ff5ca8;
+  box-shadow: var(--raised-3d-stack);
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+}
+
+.faq-item-open .faq-chevron-wrap {
+  background: rgba(255, 92, 168, 0.18);
+  border-color: rgba(255, 92, 168, 0.55);
+  box-shadow: var(--raised-3d-stack-hover);
+}
+
+.faq-chevron {
+  display: block;
+  transition: transform 0.3s ease;
+  transform: rotate(0deg);
+}
+
+.faq-chevron-open {
+  transform: rotate(180deg);
+}
+
+.faq-panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.3s ease;
+}
+
+.faq-panel-open {
+  grid-template-rows: 1fr;
+}
+
+.faq-panel-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Nested answer card — soft inset glass under the question row.
+   Manipulate here: padding / radius / tint to restyle the open answer block */
+.faq-answer-shell {
+  position: relative;
+  margin: 0 0.85rem 0.95rem 1.05rem;
+  padding: 0.95rem 1.05rem 1.1rem;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(255, 92, 168, 0.2);
+  background: linear-gradient(
+    160deg,
+    rgba(255, 92, 168, 0.1) 0%,
+    rgba(123, 47, 247, 0.06) 45%,
+    rgba(10, 4, 20, 0.22) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.faq-answer-shell::before {
+  content: "";
+  position: absolute;
+  left: 1.05rem;
+  right: 1.05rem;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 92, 168, 0.55),
+    rgba(255, 154, 61, 0.35),
+    transparent
+  );
+  opacity: 0.9;
+  pointer-events: none;
+}
+
+.faq-answer-label {
+  margin: 0 0 0.55rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.28em;
+  color: #ff5ca8;
+  opacity: 0.85;
+}
+
+.faq-answer {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 0.98rem;
+  line-height: 1.7;
+  color: rgba(244, 238, 252, 0.86);
+}
+
+@media (min-width: 640px) {
+  .faq-answer {
+    font-size: 1.05rem;
+    line-height: 1.72;
+  }
+}
+
+.faq-answer strong {
+  font-weight: 700;
+  color: #ffe0ef;
+  background: linear-gradient(
+    180deg,
+    transparent 62%,
+    rgba(255, 92, 168, 0.28) 62%,
+    rgba(255, 92, 168, 0.28) 100%
+  );
+  padding: 0 0.1em;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
+.faq-answer a {
+  font-weight: 650;
+  color: #ff8fc4;
+  text-underline-offset: 3px;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 143, 196, 0.45);
+  transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+
+.faq-answer a:hover {
+  color: #ffb3d4;
+  text-decoration-color: rgba(255, 179, 212, 0.85);
+}
+
+html[data-theme="light"] .faq-search-input,
+html[data-theme="light"] .faq-item,
+html[data-theme="light"] .faq-empty {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(255, 92, 168, 0.28);
+}
+
+html[data-theme="light"] .faq-item-open {
+  background: rgba(255, 255, 255, 0.96);
+  border-color: rgba(255, 92, 168, 0.42);
+}
+
+html[data-theme="light"] .faq-trigger:hover,
+html[data-theme="light"] .faq-item-open .faq-trigger {
+  background: rgba(255, 92, 168, 0.05);
+}
+
+html[data-theme="light"] .faq-code {
+  color: #be185d;
+}
+
+html[data-theme="light"] .faq-chevron-wrap {
+  background: rgba(255, 92, 168, 0.1);
+  border-color: rgba(190, 24, 93, 0.35);
+  color: #be185d;
+}
+
+html[data-theme="light"] .faq-answer-shell {
+  border-color: rgba(255, 92, 168, 0.22);
+  background: linear-gradient(
+    160deg,
+    rgba(255, 92, 168, 0.08) 0%,
+    rgba(255, 255, 255, 0.95) 40%,
+    rgba(248, 240, 255, 0.98) 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(26, 10, 46, 0.04);
+}
+
+html[data-theme="light"] .faq-answer-label {
+  color: #be185d;
+}
+
+html[data-theme="light"] .faq-answer {
+  color: rgba(26, 10, 46, 0.78);
+}
+
+html[data-theme="light"] .faq-answer strong {
+  color: #1a0a2e;
+  background: linear-gradient(
+    180deg,
+    transparent 62%,
+    rgba(255, 92, 168, 0.22) 62%,
+    rgba(255, 92, 168, 0.22) 100%
+  );
+}
+
+html[data-theme="light"] .faq-answer a {
+  color: #be185d;
+  text-decoration-color: rgba(190, 24, 93, 0.35);
+}
+
+html[data-theme="light"] .faq-answer a:hover {
+  color: #9d174d;
+  text-decoration-color: rgba(157, 23, 77, 0.7);
+}
+
 .landing-section {
   background-color: var(--section-bg);
   transition: background-color 0.45s ease;
@@ -1671,6 +2327,495 @@ body.nav-menu-open {
   transition: background-color 0.45s ease;
   padding-top: 5rem;
   padding-bottom: 5rem;
+}
+
+/* ── What is Devora — signal panel (section 01) ──
+   Manipulate here: border/glow alphas on .what-is-panel; claim rail gaps; lottie tilt */
+.what-is-panel {
+  position: relative;
+  border-radius: 1.75rem;
+  /* scroll-margin = leave room under the fixed navbar when jumping here via scrollIntoView */
+  /* Manipulate here: raise if the What is Devora title still sits under the nav after jump */
+  scroll-margin-top: 6.5rem;
+  border: 1px solid rgba(255, 92, 168, 0.28);
+  background: linear-gradient(
+    145deg,
+    rgba(255, 215, 111, 0.1) 0%,
+    rgba(255, 92, 168, 0.08) 35%,
+    rgba(123, 47, 247, 0.12) 70%,
+    rgba(10, 4, 20, 0.55) 100%
+  );
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow:
+    var(--card-3d-stack),
+    0 0 60px rgba(255, 92, 168, 0.08),
+    inset 0 1px 0 rgba(255, 215, 111, 0.14);
+  overflow: hidden;
+}
+
+.what-is-corner {
+  position: absolute;
+  width: 1.25rem;
+  height: 1.25rem;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.what-is-corner-tl {
+  top: 1rem;
+  left: 1rem;
+  border-top: 2px solid rgba(255, 215, 111, 0.7);
+  border-left: 2px solid rgba(255, 215, 111, 0.7);
+}
+
+.what-is-corner-br {
+  right: 1rem;
+  bottom: 1rem;
+  border-right: 2px solid rgba(255, 92, 168, 0.65);
+  border-bottom: 2px solid rgba(255, 92, 168, 0.65);
+}
+
+.what-is-panel-inner {
+  display: grid;
+  gap: 2.5rem;
+  padding: 2rem 1.35rem 2.25rem;
+}
+
+@media (min-width: 640px) {
+  .what-is-panel-inner {
+    padding: 2.5rem 2rem 2.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .what-is-panel-inner {
+    grid-template-columns: 1.05fr 1fr;
+    gap: 3rem;
+    align-items: center;
+    padding: 3rem 3rem 3.25rem;
+  }
+}
+
+.what-is-media {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.what-is-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.what-is-eyebrow-sep {
+  color: rgba(255, 92, 168, 0.55);
+}
+
+.what-is-title {
+  margin-top: 0.65rem;
+  font-size: clamp(2.6rem, 7vw, 4.6rem);
+  font-weight: 800;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
+}
+
+.what-is-lottie-frame {
+  position: relative;
+  margin-top: 0.5rem;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(255, 154, 61, 0.35);
+  background: rgba(10, 4, 20, 0.45);
+  padding: 0.75rem;
+  /* Slight tilt — reads like a HUD panel, not a stock marketing mock */
+  /* Manipulate here: change rotate to 0 for a flat frame */
+  transform: rotate(-1.5deg);
+  box-shadow:
+    var(--raised-3d-stack),
+    0 0 40px rgba(255, 154, 61, 0.12);
+  transition: transform 0.35s var(--card-3d-ease);
+}
+
+.what-is-lottie-frame:hover {
+  transform: rotate(0deg) translateY(-3px);
+}
+
+.what-is-lottie-glow {
+  position: absolute;
+  inset: -20%;
+  background: radial-gradient(
+    circle at 50% 40%,
+    rgba(255, 92, 168, 0.22) 0%,
+    rgba(255, 154, 61, 0.1) 35%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.what-is-lottie {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 520px;
+  margin-inline: auto;
+  min-height: 260px !important;
+}
+
+@media (min-width: 640px) {
+  .what-is-lottie {
+    min-height: 340px !important;
+  }
+}
+
+.what-is-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 1.35rem;
+  min-width: 0;
+}
+
+.what-is-prompt {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.what-is-manifesto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.what-is-lead {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text-primary);
+}
+
+.what-is-body {
+  font-size: 1.02rem;
+  line-height: 1.7;
+  color: var(--text-body);
+}
+
+.what-is-claims {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 0.35rem;
+  list-style: none;
+  padding: 0;
+}
+
+.what-is-claim {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.9rem;
+  align-items: start;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(10, 4, 20, 0.4);
+  padding: 0.9rem 1rem;
+  box-shadow: var(--raised-3d-stack);
+  transition:
+    transform 0.22s var(--btn-3d-ease),
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.what-is-claim:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 92, 168, 0.4);
+  box-shadow: var(--raised-3d-stack-hover);
+}
+
+.what-is-claim-code {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  padding-top: 0.2rem;
+}
+
+.what-is-claim-title {
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.what-is-claim-desc {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--text-body);
+}
+
+.what-is-footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  margin-top: 0.35rem;
+}
+
+.what-is-footer-line {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.what-is-arrow {
+  letter-spacing: 0.08em;
+}
+
+html[data-theme="light"] .what-is-panel {
+  background: linear-gradient(
+    145deg,
+    rgba(255, 215, 111, 0.18) 0%,
+    rgba(255, 255, 255, 0.88) 40%,
+    rgba(255, 92, 168, 0.1) 100%
+  );
+  border-color: rgba(190, 24, 93, 0.22);
+  box-shadow: var(--card-3d-stack);
+}
+
+html[data-theme="light"] .what-is-lottie-frame {
+  background: rgba(255, 255, 255, 0.72);
+  border-color: rgba(190, 24, 93, 0.25);
+}
+
+html[data-theme="light"] .what-is-claim {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(26, 10, 46, 0.12);
+}
+
+html[data-theme="light"] .what-is-claim-desc,
+html[data-theme="light"] .what-is-body {
+  color: rgba(26, 10, 46, 0.78);
+}
+
+html[data-theme="light"] .what-is-lead {
+  color: #1a0a2e;
+}
+
+/* ── Key Info About Devora (section 02) ──
+   Bigger type, brighter copy, icon wells — keeps the same six PNGs.
+   Manipulate here: card padding, icon well size, title clamp */
+.key-info-header {
+  display: grid;
+  gap: 2rem;
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .key-info-header {
+    grid-template-columns: 1.15fr 0.85fr;
+    gap: 2.5rem;
+  }
+}
+
+.key-info-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.key-info-eyebrow-sep {
+  color: rgba(255, 92, 168, 0.55);
+}
+
+.key-info-title {
+  margin-top: 0.7rem;
+  font-size: clamp(2.4rem, 6.5vw, 4.25rem);
+  font-weight: 800;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+}
+
+.key-info-lead {
+  margin-top: 1rem;
+  max-width: 34rem;
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--text-body);
+}
+
+.key-info-lottie-frame {
+  position: relative;
+  justify-self: center;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(255, 92, 168, 0.35);
+  background: rgba(10, 4, 20, 0.45);
+  padding: 0.75rem;
+  transform: rotate(1.25deg);
+  box-shadow:
+    var(--raised-3d-stack),
+    0 0 40px rgba(255, 92, 168, 0.12);
+  transition: transform 0.35s var(--card-3d-ease);
+}
+
+.key-info-lottie-frame:hover {
+  transform: rotate(0deg) translateY(-3px);
+}
+
+.key-info-lottie-glow {
+  position: absolute;
+  inset: -18%;
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(255, 215, 111, 0.18) 0%,
+    rgba(255, 92, 168, 0.12) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.key-info-lottie {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-height: 220px !important;
+}
+
+@media (min-width: 640px) {
+  .key-info-lottie {
+    min-height: 280px !important;
+  }
+}
+
+.key-info-grid {
+  display: grid;
+  gap: 1.15rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 640px) {
+  .key-info-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .key-info-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.35rem;
+  }
+}
+
+.key-info-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  border-radius: 1.35rem;
+  border: 1px solid rgba(255, 154, 61, 0.32);
+  background: linear-gradient(
+    155deg,
+    rgba(255, 215, 111, 0.12) 0%,
+    rgba(10, 4, 20, 0.62) 42%,
+    rgba(255, 92, 168, 0.1) 100%
+  );
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  padding: 1.35rem 1.35rem 1.5rem;
+  box-shadow:
+    var(--card-3d-stack),
+    inset 0 1px 0 rgba(255, 215, 111, 0.12);
+  transform: translateY(0);
+  transition:
+    transform 0.25s var(--card-3d-ease),
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.key-info-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 92, 168, 0.5);
+  box-shadow: var(--card-3d-stack-hover);
+}
+
+.key-info-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.key-info-icon-well {
+  display: grid;
+  place-items: center;
+  width: 4.25rem;
+  height: 4.25rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 4, 20, 0.55);
+  box-shadow: var(--chip-3d-stack);
+}
+
+.key-info-icon {
+  width: 2.65rem !important;
+  height: 2.65rem !important;
+  object-fit: contain;
+}
+
+.key-info-code {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
+}
+
+.key-info-card-title {
+  /* Manipulate here: raise clamp max if titles still feel small */
+  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.key-info-card-desc {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.86);
+  flex: 1;
+}
+
+html[data-theme="light"] .key-info-lead,
+html[data-theme="light"] .key-info-card-desc {
+  color: rgba(26, 10, 46, 0.82);
+}
+
+html[data-theme="light"] .key-info-lottie-frame {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(190, 24, 93, 0.25);
+}
+
+html[data-theme="light"] .key-info-card {
+  background: linear-gradient(
+    155deg,
+    rgba(255, 215, 111, 0.16) 0%,
+    rgba(255, 255, 255, 0.9) 45%,
+    rgba(255, 92, 168, 0.1) 100%
+  );
+  border-color: rgba(190, 24, 93, 0.22);
+}
+
+html[data-theme="light"] .key-info-icon-well {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(26, 10, 46, 0.12);
 }
 
 @media (min-width: 640px) {
@@ -1859,55 +3004,42 @@ body.nav-menu-open {
 .step-beacon {
   display: grid;
   place-items: center;
-  width: 3rem;
-  height: 3rem;
+  /* Manipulate here: raise width/height if custom PNG icons feel cramped */
+  width: 3.75rem;
+  height: 3.75rem;
   transform: rotate(45deg);
+  /* No fill behind icons — just the diamond frame */
   border: 2px solid rgba(255, 154, 61, 0.55);
-  background: linear-gradient(
-    145deg,
-    rgba(255, 215, 111, 0.14) 0%,
-    rgba(10, 4, 20, 0.55) 55%,
-    rgba(123, 47, 247, 0.12) 100%
-  );
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  box-shadow:
-    var(--chip-3d-stack),
-    0 0 20px rgba(255, 154, 61, 0.18),
-    inset 0 0 12px rgba(255, 215, 111, 0.06);
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
+  overflow: visible;
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .step-accent-logo .step-beacon {
   border-color: rgba(255, 154, 61, 0.55);
-  box-shadow:
-    var(--chip-3d-stack),
-    0 0 20px rgba(255, 154, 61, 0.18),
-    inset 0 0 12px rgba(255, 215, 111, 0.06);
+  background: transparent;
+  box-shadow: none;
 }
 
 .step-accent-devora .step-beacon {
   border-color: rgba(255, 92, 168, 0.55);
-  box-shadow:
-    var(--chip-3d-stack),
-    0 0 20px rgba(255, 92, 168, 0.18),
-    inset 0 0 12px rgba(255, 0, 110, 0.06);
+  background: transparent;
+  box-shadow: none;
 }
 
 .step-accent-pink .step-beacon {
   border-color: rgba(255, 43, 214, 0.5);
-  box-shadow:
-    var(--chip-3d-stack),
-    0 0 20px rgba(255, 43, 214, 0.16),
-    inset 0 0 12px rgba(255, 92, 168, 0.06);
+  background: transparent;
+  box-shadow: none;
 }
 
 .step-accent-headline .step-beacon {
   border-color: rgba(123, 47, 247, 0.5);
-  box-shadow:
-    var(--chip-3d-stack),
-    0 0 22px rgba(123, 47, 247, 0.18),
-    inset 0 0 12px rgba(255, 92, 168, 0.06);
+  background: transparent;
+  box-shadow: none;
 }
 
 .step-beacon-icon {
@@ -1916,6 +3048,16 @@ body.nav-menu-open {
   transform: rotate(-45deg);
   color: #ff9a3d;
   filter: drop-shadow(0 0 8px rgba(255, 154, 61, 0.65));
+}
+
+/* Custom PNG use-case icons — counter-rotate so they read upright in the diamond beacon.
+   Manipulate here: width/height = how large the artwork appears inside the beacon */
+.step-beacon-icon-img {
+  width: 2.15rem !important;
+  height: 2.15rem !important;
+  object-fit: contain;
+  transform: rotate(-45deg);
+  filter: drop-shadow(0 1px 4px rgba(0, 0, 0, 0.35));
 }
 
 .step-accent-logo .step-beacon-icon {
@@ -2033,6 +3175,14 @@ body.nav-menu-open {
   filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.35));
 }
 
+/* Smaller title for long labels (e.g. “Looking for Events/Opportunities”).
+   Manipulate here: lower clamp values if a long title still wraps too hard */
+.step-stop-title-compact {
+  font-size: clamp(0.58rem, 0.95vw, 0.74rem);
+  letter-spacing: 0.04em;
+  line-height: 1.35;
+}
+
 .step-stop-desc {
   margin-top: 0.75rem;
   font-size: 1.0625rem;
@@ -2046,6 +3196,10 @@ body.nav-menu-open {
     font-size: clamp(0.75rem, 1.15vw, 0.95rem);
   }
 
+  .step-stop-title.step-stop-title-compact {
+    font-size: clamp(0.6rem, 0.9vw, 0.78rem);
+  }
+
   .step-stop-desc {
     font-size: 1.125rem;
   }
@@ -2054,6 +3208,10 @@ body.nav-menu-open {
 @media (min-width: 1024px) {
   .step-stop-title {
     font-size: clamp(0.8rem, 1.05vw, 1rem);
+  }
+
+  .step-stop-title.step-stop-title-compact {
+    font-size: clamp(0.64rem, 0.85vw, 0.8rem);
   }
 
   .step-stop-desc {
@@ -2198,13 +3356,18 @@ body.nav-menu-open {
   }
 
   .step-beacon {
-    width: 3.35rem;
-    height: 3.35rem;
+    width: 4.1rem;
+    height: 4.1rem;
   }
 
   .step-beacon-icon {
     width: 1.35rem;
     height: 1.35rem;
+  }
+
+  .step-beacon-icon-img {
+    width: 2.45rem !important;
+    height: 2.45rem !important;
   }
 
   .step-stop-card {
@@ -2225,17 +3388,64 @@ body.nav-menu-open {
   }
 }
 
-/* ── Why Devora: arcade matchup cards ── */
+/* ── Why Devora: matchup panels (section 04) ──
+   Matches Key Info / What is Devora chrome — bigger type, brighter bullets, framed Lottie.
+   Manipulate here: why-matchup padding; lottie frame size; punchline opacity */
+.why-header {
+  max-width: 44rem;
+}
+
+.why-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.why-eyebrow-sep {
+  color: rgba(255, 92, 168, 0.55);
+}
+
+.why-title {
+  margin-top: 0.7rem;
+  font-size: clamp(2.4rem, 6.5vw, 4.25rem);
+  font-weight: 800;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+}
+
+.why-lead {
+  margin-top: 1rem;
+  max-width: 38rem;
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--text-body);
+}
+
 .why-matchups {
   display: flex;
   flex-direction: column;
-  gap: 2.5rem;
+  gap: 1.35rem;
 }
 
 .why-matchup {
   position: relative;
-  padding: 2rem 1.5rem 1.75rem;
-  border-radius: 1.25rem;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 154, 61, 0.32);
+  background: linear-gradient(
+    155deg,
+    rgba(255, 215, 111, 0.12) 0%,
+    rgba(10, 4, 20, 0.62) 42%,
+    rgba(255, 92, 168, 0.1) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    var(--card-3d-stack),
+    inset 0 1px 0 rgba(255, 215, 111, 0.12);
   overflow: hidden;
   transform: translateY(0);
   transition:
@@ -2246,97 +3456,84 @@ body.nav-menu-open {
 
 .why-matchup:hover {
   transform: translateY(-4px);
+  border-color: rgba(255, 92, 168, 0.48);
   box-shadow: var(--card-3d-stack-hover);
 }
 
-.why-matchup-ghost {
-  position: absolute;
-  right: 0.5rem;
-  top: 50%;
-  transform: translateY(-52%);
-  font-size: clamp(3.5rem, 14vw, 6.5rem);
-  font-weight: 800;
-  line-height: 0.9;
-  letter-spacing: -0.03em;
-  -webkit-text-stroke: 1px rgba(255, 154, 61, 0.35);
-  color: transparent;
-  opacity: 0.45;
-  pointer-events: none;
-  user-select: none;
-  max-width: 55%;
-  text-align: right;
-}
-
-.why-matchup-lottie {
-  position: absolute;
-  right: 0.25rem;
-  top: 50%;
-  z-index: 0;
-  width: clamp(7.5rem, 28vw, 11.5rem);
-  max-width: 42%;
-  transform: translateY(-50%);
-  opacity: 0.92;
-  filter: drop-shadow(0 0 22px rgba(255, 92, 168, 0.28));
+.why-matchup-inner {
+  display: grid;
+  gap: 1.75rem;
+  padding: 1.5rem 1.25rem 1.6rem;
 }
 
 @media (min-width: 768px) {
-  .why-matchup-lottie {
-    right: 1.25rem;
-    width: clamp(8.5rem, 16vw, 12.5rem);
-    max-width: 38%;
+  .why-matchup-inner {
+    grid-template-columns: 1.35fr 0.75fr;
+    align-items: center;
+    gap: 2rem;
+    padding: 2rem 2rem 2.1rem;
   }
+}
+
+.why-matchup-copy {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
 }
 
 .why-matchup-top {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 0.85rem;
-  margin-bottom: 1.5rem;
-  position: relative;
-  z-index: 1;
+  gap: 0.65rem 0.85rem;
+  margin-bottom: 1.35rem;
+}
+
+.why-matchup-code {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
 }
 
 .why-matchup-ko {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0.35rem 0.55rem;
-  font-size: 0.55rem;
-  letter-spacing: 0.18em;
-  background: linear-gradient(180deg, #ffd76f 0%, #ff9a3d 45%, #ff2bd6 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  border: 1px solid rgba(255, 154, 61, 0.45);
+  padding: 0.35rem 0.65rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: #ffd76f;
+  border: 1px solid rgba(255, 154, 61, 0.5);
+  border-radius: 0.4rem;
+  background: rgba(10, 4, 20, 0.45);
   box-shadow: var(--chip-3d-stack);
 }
 
 .why-matchup-vs {
-  font-size: 0.7rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
-  letter-spacing: 0.28em;
+  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.55);
 }
 
 .why-matchup-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: none;
   text-decoration: line-through;
-  text-decoration-color: rgba(255, 154, 61, 0.55);
-  opacity: 0.72;
-  font-size: 0.65rem;
-  letter-spacing: 0.08em;
+  text-decoration-color: rgba(255, 92, 168, 0.55);
+  text-decoration-thickness: 2px;
 }
 
 .why-matchup-winner {
-  position: relative;
-  z-index: 1;
-  max-width: 36rem;
-  padding-right: clamp(5.5rem, 30vw, 9rem);
+  max-width: 40rem;
 }
 
 .why-matchup-devora {
   display: block;
   font-size: 0.85rem;
   letter-spacing: 0.28em;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.1rem;
   filter: drop-shadow(0 0 14px rgba(255, 154, 61, 0.35));
 }
 
@@ -2346,66 +3543,179 @@ body.nav-menu-open {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.9rem;
+  gap: 0.75rem;
 }
 
 .why-matchup-win {
   display: flex;
   align-items: flex-start;
   gap: 0.85rem;
-  font-size: 0.95rem;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(10, 4, 20, 0.35);
+  padding: 0.75rem 0.9rem;
+  box-shadow: var(--raised-3d-stack);
+}
+
+.why-matchup-win-text {
+  font-size: 1.02rem;
   line-height: 1.55;
-  color: rgba(255, 255, 255, 0.92);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .why-matchup-marker {
   flex-shrink: 0;
-  font-size: 0.55rem;
+  font-size: 0.65rem;
   letter-spacing: 0.05em;
   background: linear-gradient(100deg, #ffffff 0%, #ff5ca8 55%, #7b2ff7 110%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
-  margin-top: 0.35rem;
+  margin-top: 0.2rem;
   filter: drop-shadow(0 0 8px rgba(255, 92, 168, 0.45));
 }
 
 .why-matchup-footer {
-  margin-top: 1.75rem;
-  position: relative;
-  z-index: 1;
-  max-width: 34rem;
+  margin-top: 1.5rem;
+  max-width: 38rem;
 }
 
 .why-matchup-punchline {
-  margin: 1rem 0 0;
-  font-size: 0.82rem;
+  margin: 0.95rem 0 0;
+  font-size: 0.98rem;
   line-height: 1.65;
-  color: rgba(255, 255, 255, 0.38);
+  color: rgba(255, 255, 255, 0.72);
   font-style: italic;
 }
 
+.why-matchup-media {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.why-matchup-lottie-frame {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 92, 168, 0.35);
+  background: rgba(10, 4, 20, 0.5);
+  padding: 0.65rem;
+  box-shadow:
+    var(--raised-3d-stack),
+    0 0 36px rgba(255, 92, 168, 0.12);
+}
+
 @media (min-width: 768px) {
-  .why-matchup {
-    padding: 2.25rem 2.5rem 2rem;
-  }
-
-  .why-matchup-winner {
-    padding-right: clamp(7rem, 18vw, 11rem);
-  }
-
-  .why-matchup-ghost {
-    right: 2rem;
-    font-size: clamp(4.5rem, 10vw, 7.5rem);
-    max-width: 48%;
-  }
-
-  .why-matchup-win {
-    font-size: 1rem;
+  .why-matchup-lottie-frame {
+    max-width: 320px;
+    justify-self: end;
   }
 }
 
-/* ── Benefits: staggered bento grid ── */
+.why-matchup-lottie-glow {
+  position: absolute;
+  inset: -18%;
+  background: radial-gradient(
+    circle at 50% 45%,
+    rgba(255, 215, 111, 0.16) 0%,
+    rgba(255, 92, 168, 0.14) 40%,
+    transparent 70%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+.why-matchup-lottie {
+  position: relative;
+  z-index: 1;
+  width: 100% !important;
+  max-width: none !important;
+  opacity: 1;
+  filter: drop-shadow(0 0 18px rgba(255, 92, 168, 0.28));
+  /* Override old absolute watermark positioning */
+  right: auto;
+  top: auto;
+  transform: none;
+}
+
+html[data-theme="light"] .why-lead,
+html[data-theme="light"] .why-matchup-win-text {
+  color: rgba(26, 10, 46, 0.84);
+}
+
+html[data-theme="light"] .why-matchup-vs {
+  color: rgba(26, 10, 46, 0.5);
+}
+
+html[data-theme="light"] .why-matchup {
+  background: linear-gradient(
+    155deg,
+    rgba(255, 215, 111, 0.16) 0%,
+    rgba(255, 255, 255, 0.9) 45%,
+    rgba(255, 92, 168, 0.1) 100%
+  );
+  border-color: rgba(190, 24, 93, 0.22);
+}
+
+html[data-theme="light"] .why-matchup-win {
+  background: rgba(255, 255, 255, 0.82);
+  border-color: rgba(26, 10, 46, 0.1);
+}
+
+html[data-theme="light"] .why-matchup-punchline {
+  color: rgba(26, 10, 46, 0.68);
+}
+
+html[data-theme="light"] .why-matchup-lottie-frame {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(190, 24, 93, 0.25);
+}
+
+html[data-theme="light"] .why-matchup-ko {
+  background: rgba(255, 255, 255, 0.85);
+  color: #c2410c;
+  border-color: rgba(194, 65, 12, 0.35);
+}
+
+/* ── Benefits / Good Reasons (section 05) ──
+   Signal header + clearer bento cards (bigger type, glass icon wells).
+   Manipulate here: benefit-card padding; icon well size; title clamp */
+.benefits-header {
+  max-width: 44rem;
+}
+
+.benefits-eyebrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.benefits-eyebrow-sep {
+  color: rgba(255, 92, 168, 0.55);
+}
+
+.benefits-title {
+  margin-top: 0.7rem;
+  font-size: clamp(2.4rem, 6.5vw, 4.25rem);
+  font-weight: 800;
+  line-height: 0.96;
+  letter-spacing: -0.03em;
+}
+
+.benefits-lead {
+  margin-top: 1rem;
+  max-width: 38rem;
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--text-body);
+}
+
 .benefits-section-intro {
   position: relative;
   max-width: 42rem;
@@ -2414,7 +3724,7 @@ body.nav-menu-open {
 .benefits-bento {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: 1.15rem;
 }
 
 .benefits-bento-cell {
@@ -2424,8 +3734,12 @@ body.nav-menu-open {
 .benefit-card {
   position: relative;
   height: 100%;
-  border-radius: 1.25rem;
-  padding: 1.75rem 1.5rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  border-radius: 1.35rem;
+  border: 1px solid transparent;
+  padding: 1.35rem 1.35rem 1.5rem;
   overflow: hidden;
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -2438,30 +3752,28 @@ body.nav-menu-open {
 
 .benefit-card-logo {
   background: linear-gradient(
-    145deg,
-    rgba(255, 215, 111, 0.18) 0%,
-    rgba(255, 154, 61, 0.12) 42%,
-    rgba(255, 43, 214, 0.06) 68%,
-    rgba(10, 4, 20, 0.1) 100%
+    155deg,
+    rgba(255, 215, 111, 0.14) 0%,
+    rgba(10, 4, 20, 0.62) 42%,
+    rgba(255, 154, 61, 0.1) 100%
   );
-  border-color: rgba(255, 154, 61, 0.42);
+  border-color: rgba(255, 154, 61, 0.38);
   box-shadow:
     var(--card-3d-stack),
-    inset 0 1px 0 rgba(255, 215, 111, 0.18);
+    inset 0 1px 0 rgba(255, 215, 111, 0.14);
 }
 
 .benefit-card-headline {
   background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.07) 0%,
-    rgba(255, 92, 168, 0.14) 38%,
-    rgba(123, 47, 247, 0.14) 58%,
-    rgba(10, 4, 20, 0.1) 100%
+    155deg,
+    rgba(255, 92, 168, 0.12) 0%,
+    rgba(10, 4, 20, 0.62) 42%,
+    rgba(123, 47, 247, 0.12) 100%
   );
-  border-color: rgba(255, 92, 168, 0.38);
+  border-color: rgba(255, 92, 168, 0.36);
   box-shadow:
     var(--card-3d-stack-pink),
-    inset 0 1px 0 rgba(255, 92, 168, 0.14);
+    inset 0 1px 0 rgba(255, 92, 168, 0.12);
 }
 
 .benefit-card:hover {
@@ -2470,67 +3782,77 @@ body.nav-menu-open {
 }
 
 .benefit-card-logo:hover {
-  border-color: rgba(255, 154, 61, 0.5);
-  box-shadow:
-    var(--card-3d-stack-hover),
-    0 0 24px rgba(255, 154, 61, 0.14);
+  border-color: rgba(255, 154, 61, 0.55);
 }
 
 .benefit-card-headline:hover {
-  border-color: rgba(255, 92, 168, 0.48);
-  box-shadow:
-    var(--card-3d-stack-pink-hover),
-    0 0 24px rgba(123, 47, 247, 0.14);
+  border-color: rgba(255, 92, 168, 0.52);
 }
 
 .benefit-card-featured {
-  padding: 2rem 1.75rem 1.75rem;
+  padding: 1.6rem 1.5rem 1.7rem;
 }
 
 .benefit-card-logo.benefit-card-featured {
   border-color: rgba(255, 154, 61, 0.55);
   background: linear-gradient(
-    145deg,
-    rgba(255, 215, 111, 0.24) 0%,
-    rgba(255, 154, 61, 0.16) 35%,
-    rgba(255, 43, 214, 0.08) 55%,
-    rgba(10, 4, 20, 0.08) 100%
+    155deg,
+    rgba(255, 215, 111, 0.2) 0%,
+    rgba(10, 4, 20, 0.55) 45%,
+    rgba(255, 43, 214, 0.1) 100%
   );
 }
 
 .benefit-card-headline.benefit-card-featured {
   border-color: rgba(255, 92, 168, 0.52);
   background: linear-gradient(
-    145deg,
-    rgba(255, 255, 255, 0.1) 0%,
-    rgba(255, 92, 168, 0.18) 38%,
-    rgba(123, 47, 247, 0.16) 58%,
-    rgba(10, 4, 20, 0.08) 100%
+    155deg,
+    rgba(255, 92, 168, 0.16) 0%,
+    rgba(10, 4, 20, 0.55) 45%,
+    rgba(123, 47, 247, 0.14) 100%
   );
+}
+
+.benefit-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.benefit-code {
+  font-size: 0.78rem;
+  letter-spacing: 0.16em;
 }
 
 .benefit-icon-wrap {
   display: grid;
   place-items: center;
-  width: 3.25rem;
-  height: 3.25rem;
-  border: 1px solid rgba(255, 154, 61, 0.38);
-  background: rgba(255, 154, 61, 0.06);
-  clip-path: polygon(10% 0, 100% 0, 100% 90%, 90% 100%, 0 100%, 0 10%);
+  width: 4rem;
+  height: 4rem;
+  border-radius: 1.1rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 4, 20, 0.55);
   box-shadow: var(--chip-3d-stack);
+  clip-path: none;
   transition:
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
     box-shadow 0.35s ease;
 }
 
 .benefit-card-featured .benefit-icon-wrap {
-  width: 3.75rem;
-  height: 3.75rem;
+  width: 4.5rem;
+  height: 4.5rem;
+}
+
+.benefit-icon-wrap-logo {
+  border-color: rgba(255, 154, 61, 0.4);
+  background: rgba(255, 154, 61, 0.08);
 }
 
 .benefit-icon-wrap-headline {
-  border-color: rgba(255, 92, 168, 0.35);
-  background: rgba(123, 47, 247, 0.06);
+  border-color: rgba(255, 92, 168, 0.4);
+  background: rgba(123, 47, 247, 0.08);
 }
 
 .benefit-icon {
@@ -2539,6 +3861,25 @@ body.nav-menu-open {
   color: #ff9a3d;
   filter: drop-shadow(0 0 12px rgba(255, 154, 61, 0.55));
   transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.benefit-icon-img,
+.benefit-gemini-star {
+  width: 2.35rem !important;
+  height: 2.35rem !important;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 6px rgba(0, 0, 0, 0.35));
+  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.benefit-card-featured .benefit-icon-img,
+.benefit-card-featured .benefit-gemini-star {
+  width: 2.65rem !important;
+  height: 2.65rem !important;
+}
+
+.benefit-gemini-star {
+  filter: drop-shadow(0 0 10px rgba(255, 92, 168, 0.45));
 }
 
 .benefit-card-featured .benefit-icon {
@@ -2556,8 +3897,25 @@ body.nav-menu-open {
   box-shadow: var(--raised-3d-stack-hover);
 }
 
-.benefit-card:hover .benefit-icon {
+.benefit-card:hover .benefit-icon,
+.benefit-card:hover .benefit-icon-img,
+.benefit-card:hover .benefit-gemini-star {
   transform: scale(1.08);
+}
+
+.benefit-card-title {
+  /* Manipulate here: raise clamp max if titles still feel small */
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.benefit-card-desc {
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: rgba(255, 255, 255, 0.86);
+  flex: 1;
 }
 
 .benefit-card-accent {
@@ -2579,10 +3937,30 @@ body.nav-menu-open {
   opacity: 1;
 }
 
+html[data-theme="light"] .benefits-lead,
+html[data-theme="light"] .benefit-card-desc {
+  color: rgba(26, 10, 46, 0.82);
+}
+
+html[data-theme="light"] .benefit-card-logo,
+html[data-theme="light"] .benefit-card-headline {
+  background: linear-gradient(
+    155deg,
+    rgba(255, 215, 111, 0.14) 0%,
+    rgba(255, 255, 255, 0.9) 45%,
+    rgba(255, 92, 168, 0.1) 100%
+  );
+}
+
+html[data-theme="light"] .benefit-icon-wrap {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(26, 10, 46, 0.12);
+}
+
 @media (min-width: 640px) {
   .benefits-bento {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
 
   .benefits-bento-cell-2 {
@@ -2641,7 +4019,7 @@ body.nav-menu-open {
   }
 
   .benefit-card-featured {
-    padding: 2.25rem 2rem 2rem;
+    padding: 1.85rem 1.75rem 2rem;
   }
 }
 
@@ -2982,25 +4360,12 @@ html[data-theme="light"] .step-accent-headline .step-stop-card {
   background: rgba(255, 255, 255, 0.92);
 }
 
-html[data-theme="light"] .why-matchup-win {
-  color: rgba(26, 10, 46, 0.92);
-}
-
 html[data-theme="light"] .why-matchup-name {
-  opacity: 0.85;
   filter: saturate(1.1) brightness(0.82);
-}
-
-html[data-theme="light"] .why-matchup-punchline {
-  color: rgba(26, 10, 46, 0.45);
 }
 
 html[data-theme="light"] .why-matchup-lottie {
   filter: drop-shadow(0 0 18px rgba(190, 24, 93, 0.2));
-}
-
-html[data-theme="light"] .why-matchup-ghost {
-  -webkit-text-stroke: 1px rgba(194, 65, 12, 0.35);
 }
 
 html[data-theme="light"] .btn-neon {
@@ -4163,6 +5528,16 @@ html[data-theme="light"] .account-avatar-ring {
   margin-top: 1.5rem;
 }
 
+/* Stronger card fill so busy Voronoi bg doesn’t wash out body text.
+   Manipulate here: raise alpha (last number) if text still feels washed out */
+.account-page-content .glass-card {
+  background: rgba(10, 4, 20, 0.72);
+}
+
+html[data-theme="light"] .account-page-content .glass-card {
+  background: rgba(255, 255, 255, 0.9);
+}
+
 .account-success-banner {
   border-radius: 0.75rem;
   border: 1px solid rgba(255, 154, 61, 0.35);
@@ -4247,13 +5622,69 @@ html[data-theme="light"] .account-avatar-ring {
   font-size: clamp(1.5rem, 3vw, 2rem);
   font-weight: 700;
   line-height: 1.15;
-  color: var(--text-primary);
+  /* Soft rose headline — brand color without neon multi-hues */
+  background: linear-gradient(105deg, #ffffff 0%, #ffd0e6 55%, #ff7eb3 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ffc2dc;
+}
+
+html[data-theme="light"] .account-hero-name {
+  background: linear-gradient(105deg, #2a1238 0%, #9d174d 55%, #be185d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #9d174d;
+}
+
+.account-section-title {
+  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: linear-gradient(100deg, #ff9ec8 0%, #ff5ca8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #ff5ca8;
+}
+
+html[data-theme="light"] .account-section-title {
+  background: linear-gradient(100deg, #db2777 0%, #be185d 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: #be185d;
 }
 
 .account-hero-subtitle {
   margin-top: 0.35rem;
+  /* Manipulate here: bump font-size if subtitle still feels small */
+  font-size: 1.05rem;
+  line-height: 1.45;
+  /* vocab: --text-body = high-contrast secondary text (brighter than --text-dim) */
+  color: var(--text-body);
+}
+
+.account-school {
+  font-size: 0.98rem;
+  line-height: 1.4;
+  color: rgba(255, 255, 255, 0.84);
+}
+
+html[data-theme="light"] .account-school {
+  color: rgba(26, 10, 46, 0.78);
+}
+
+/* School line under the subtitle (legacy theme-muted usages on this page) */
+.account-page-content .theme-muted {
+  color: rgba(255, 255, 255, 0.82);
   font-size: 0.95rem;
-  color: var(--text-dim);
+}
+
+html[data-theme="light"] .account-page-content .theme-muted {
+  color: rgba(26, 10, 46, 0.78);
 }
 
 .account-hero-badges {
@@ -4277,8 +5708,9 @@ html[data-theme="light"] .account-avatar-ring {
   display: inline-flex;
   align-items: center;
   border-radius: 9999px;
-  padding: 0.25rem 0.65rem;
-  font-size: 0.68rem;
+  /* Manipulate here: padding / font-size = badge pill size */
+  padding: 0.4rem 0.85rem;
+  font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -4288,13 +5720,13 @@ html[data-theme="light"] .account-avatar-ring {
 .account-verified-badge {
   border: 1px solid var(--border-chip);
   background: var(--surface-elevated);
-  color: var(--text-body);
+  color: var(--text-primary);
 }
 
 .account-meta-chip {
   border: 1px solid var(--border-chip);
   background: var(--surface-elevated);
-  color: var(--text-dim);
+  color: var(--text-body);
   text-transform: none;
   letter-spacing: 0.02em;
   font-weight: 500;
@@ -4303,13 +5735,13 @@ html[data-theme="light"] .account-avatar-ring {
 .account-visibility-badge {
   border: 1px solid var(--border-chip);
   background: var(--surface-elevated);
-  color: var(--text-muted);
+  color: var(--text-body);
 }
 
 .account-private-badge {
   border: 1px solid var(--border-chip);
   background: var(--surface-elevated);
-  color: var(--text-muted);
+  color: var(--text-body);
 }
 
 .account-edit-btn {
@@ -4377,17 +5809,31 @@ html[data-theme="light"] .account-avatar-ring {
 }
 
 .account-section-eyebrow {
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.14em;
+  /* Manipulate here: eyebrow = tiny ALL-CAPS labels (MAJOR, PROFILE STRENGTH…) */
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-dim);
+  color: rgba(255, 255, 255, 0.78);
+}
+
+html[data-theme="light"] .account-section-eyebrow {
+  color: rgba(26, 10, 46, 0.72);
+}
+
+/* Value text under Major / Class rank / Age / Gender mini-cards */
+.account-info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--text-primary);
 }
 
 .account-discovery-card {
   border-radius: 1rem;
   border: 1px solid var(--border-subtle);
-  background: var(--surface-glass-mid);
+  /* Stronger fill so bio/tags stay readable over the shader */
+  background: rgba(10, 4, 20, 0.78);
   padding: 1.25rem;
   transform: translateY(0);
   box-shadow: var(--card-3d-stack);
@@ -4435,22 +5881,22 @@ html[data-theme="light"] .account-avatar-ring {
 
 .account-discovery-name {
   font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--text-primary);
 }
 
 .account-discovery-meta {
   margin-top: 0.15rem;
-  font-size: 0.8rem;
-  color: var(--text-soft);
+  font-size: 0.92rem;
+  color: var(--text-body);
 }
 
 .account-discovery-bio {
   margin-top: 0.85rem;
-  font-size: 0.85rem;
-  line-height: 1.55;
-  color: var(--text-dim);
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: var(--text-body);
 }
 
 .account-content-grid {
@@ -4487,45 +5933,44 @@ html[data-theme="light"] .account-avatar-ring {
   margin-bottom: 0.85rem;
 }
 
-.account-section-title {
-  font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.95rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  letter-spacing: 0.02em;
-}
-
 .account-bio-text {
-  font-size: 1rem;
+  font-size: 1.08rem;
   line-height: 1.65;
   color: var(--text-primary);
 }
 
 .account-body-text {
-  font-size: 0.9rem;
-  line-height: 1.6;
-  color: var(--text-body);
+  font-size: 1.02rem;
+  line-height: 1.65;
+  color: var(--text-primary);
 }
 
 .account-empty-hint {
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--text-faint);
+  /* Empty-state / helper lines — still secondary, but readable */
+  font-size: 0.98rem;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+html[data-theme="light"] .account-empty-hint {
+  color: rgba(26, 10, 46, 0.72);
 }
 
 .account-tag-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.55rem;
 }
 
 .account-tag {
   border-radius: 9999px;
   border: 1px solid var(--border-chip);
   background: var(--surface-elevated);
-  padding: 0.3rem 0.7rem;
-  font-size: 0.75rem;
-  color: var(--text-body);
+  /* Manipulate here: padding + font-size = career/interest pill size */
+  padding: 0.45rem 0.9rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
   box-shadow: var(--btn-3d-stack);
 }
 
@@ -4534,10 +5979,10 @@ html[data-theme="light"] .account-avatar-ring {
   border-radius: 9999px;
   border: 1px solid var(--border-subtle);
   background: var(--surface-elevated);
-  padding: 0.35rem 0.75rem;
-  font-size: 0.78rem;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
-  color: var(--text-dim);
+  color: var(--text-body);
   cursor: pointer;
   user-select: none;
   transform: translateY(0);
@@ -4594,14 +6039,14 @@ html[data-theme="light"] .account-avatar-ring {
 }
 
 .account-social-label {
-  font-size: 0.8rem;
+  font-size: 0.95rem;
   font-weight: 600;
   color: var(--text-primary);
 }
 
 .account-social-url {
-  font-size: 0.75rem;
-  color: var(--text-dim);
+  font-size: 0.9rem;
+  color: var(--text-body);
 }
 
 .account-private-panel {
@@ -4650,16 +6095,20 @@ html[data-theme="light"] .account-avatar-ring {
 }
 
 .account-private-list dt {
-  font-size: 0.68rem;
-  font-weight: 600;
+  font-size: 0.8rem;
+  font-weight: 700;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--text-subtle);
+  color: rgba(255, 255, 255, 0.75);
+}
+
+html[data-theme="light"] .account-private-list dt {
+  color: rgba(26, 10, 46, 0.7);
 }
 
 .account-private-list dd {
-  margin-top: 0.2rem;
-  font-size: 0.9rem;
+  margin-top: 0.25rem;
+  font-size: 1rem;
   color: var(--text-primary);
 }
 
@@ -4851,9 +6300,13 @@ html[data-theme="light"] .app-secondary-btn:hover {
 
 html[data-theme="light"] .account-hero-subtitle,
 html[data-theme="light"] .account-discovery-meta,
-html[data-theme="light"] .account-body-text,
-html[data-theme="light"] .account-empty-hint {
-  color: rgba(26, 10, 46, 0.62);
+html[data-theme="light"] .account-discovery-bio,
+html[data-theme="light"] .account-body-text {
+  color: rgba(26, 10, 46, 0.82);
+}
+
+html[data-theme="light"] .account-social-url {
+  color: rgba(26, 10, 46, 0.72);
 }
 
 html[data-theme="light"] .landing-stat-badge {
@@ -4872,22 +6325,22 @@ html[data-theme="light"] .account-private-badge {
   box-shadow: var(--btn-3d-stack);
 }
 
-html[data-theme="light"] .account-tag {
+html[data-theme="light"] .account-meta-chip {
+  color: rgba(26, 10, 46, 0.82);
   background: rgba(255, 255, 255, 0.85);
-  color: #1a0a2e;
-  border-color: rgba(14, 116, 144, 0.25);
+  border-color: rgba(26, 10, 46, 0.14);
   box-shadow: var(--btn-3d-stack);
 }
 
-html[data-theme="light"] .account-meta-chip {
-  color: rgba(26, 10, 46, 0.65);
-  background: rgba(255, 255, 255, 0.7);
-  border-color: rgba(26, 10, 46, 0.1);
+html[data-theme="light"] .account-tag {
+  background: rgba(255, 255, 255, 0.92);
+  color: #1a0a2e;
+  border-color: rgba(26, 10, 46, 0.18);
   box-shadow: var(--btn-3d-stack);
 }
 
 html[data-theme="light"] .account-discovery-card {
-  background: rgba(255, 255, 255, 0.72);
+  background: rgba(255, 255, 255, 0.92);
   border-color: rgba(14, 116, 144, 0.2);
   box-shadow: var(--card-3d-stack);
 }
@@ -4933,6 +6386,7 @@ html[data-theme="light"] .account-social-missing {
   font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
   font-size: 1.05rem;
   font-weight: 700;
+  letter-spacing: 0.01em;
 }
 
 .settings-card-body {
@@ -5480,15 +6934,4 @@ html[data-theme="light"] .surface-panel {
     inset 0 -1px 0 rgba(107, 33, 168, 0.28);
 }
 
-/* Why Devora — arcade cards, thick solid depth */
-.why-matchup,
-.why-matchup.landing-surface-card {
-  box-shadow: var(--card-3d-stack);
-  transform: translateY(0);
-}
-
-.why-matchup:hover,
-.why-matchup.landing-surface-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--card-3d-stack-hover);
-}
+/* Why Devora hover already defined above on .why-matchup */

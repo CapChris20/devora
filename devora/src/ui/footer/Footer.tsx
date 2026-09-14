@@ -40,21 +40,20 @@ export default function Footer() {
           ))}
         </nav>
 
-        {/* Copyright + sponsor / proctor credits.
-            theme-muted / theme-faint / gradient spans are theme-aware text utilities. */}
+        {/* Copyright + sponsor / proctor credits — calm solid text (wordmark above keeps brand fill). */}
         <div className="site-footer-copy space-y-2 font-display text-[11px] leading-relaxed sm:text-xs">
           <p>
             <span className="theme-muted">© {year} </span>
-            <span className="devora-gradient-text font-bold">Devora</span>
+            <span className="soft-pink font-bold">Devora</span>
             <span className="theme-faint"> · </span>
-            <span className="headline-grad font-bold">Chris Shina</span>
+            <span className="soft-peach font-bold">Chris Shina</span>
           </p>
           <p className="theme-muted">
             Sponsored by{" "}
             <span className="theme-muted">UM-Dearborn </span>
-            <span className="devora-gradient-text font-bold">CECS</span>
+            <span className="soft-violet font-bold">CECS</span>
             <span className="theme-faint"> · </span>
-            Proctored by <span className="headline-grad font-bold">Dr. Bruce Maxim</span>
+            Proctored by <span className="soft-pink font-bold">Dr. Bruce Maxim</span>
           </p>
         </div>
       </div>

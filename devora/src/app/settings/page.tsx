@@ -17,7 +17,7 @@ export default function SettingsPage() {
       activeItem="Settings"
       title="Settings"
       // Manipulate here: titleClassName / description = page header look + subtitle copy
-      titleClassName="devora-gradient-text"
+      titleClassName="page-title-grad"
       description="Control how you show up on Devora, what you get notified about, and how the app looks."
     >
       {/* Privacy, notifications, theme, deactivate/delete — logic is in SettingsPageContent */}

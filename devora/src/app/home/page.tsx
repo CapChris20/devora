@@ -12,7 +12,7 @@ import TopSection from "@/ui/hero/TopSection";
 import GoodReasons from "@/ui/homepage-sections/GoodReasons";
 import FeatureCards from "@/ui/homepage-sections/FeatureCards";
 import JoinNowSection from "@/ui/homepage-sections/JoinNowSection";
-import FourSteps from "@/ui/homepage-sections/FourSteps";
+import BestUseCases from "@/ui/homepage-sections/BestUseCases";
 import ScrollingTextStrip from "@/ui/homepage-sections/ScrollingTextStrip";
 import WhatIsDevora from "@/ui/homepage-sections/WhatIsDevora";
 import WhyNot from "@/ui/homepage-sections/WhyNot";
@@ -75,7 +75,7 @@ export default function LandingPage() {
       {/* Feature highlights grid/cards */}
       <FeatureCards />
       {/* How it works in four steps */}
-      <FourSteps />
+      <BestUseCases />
       {/* Counter-argument / “why not” section */}
       <WhyNot />
       {/* Social-proof style reasons to join */}

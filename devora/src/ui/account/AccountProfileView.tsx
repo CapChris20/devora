@@ -127,7 +127,8 @@ export default function AccountProfileView({ profile, onEdit }: AccountProfileVi
           <div>
             <h2 className="account-hero-name">{profile.displayName}</h2>
             <p className="account-hero-subtitle mt-1">{getProfileSubtitle(profile)}</p>
-            <p className="theme-muted mt-1 text-sm">{profile.school}</p>
+            {/* School uses account-school so contrast stays high in both themes */}
+            <p className="account-school mt-1">{profile.school}</p>
           </div>
           <div className="account-hero-badges justify-center">
             {isUmichVerified(profile.email) ? (
