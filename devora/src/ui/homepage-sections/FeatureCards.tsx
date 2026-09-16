@@ -78,7 +78,7 @@ export default function FeatureCards() {
 
         {/* Header band — big headline + Lottie in a HUD frame (matches What is Devora energy) */}
         <FadeIn delay={0.08}>
-          <div className="key-info-header mt-12 sm:mt-14">
+          <div className="key-info-header mt-6 lg:mt-7">
             <div className="key-info-header-copy">
               <p className="key-info-eyebrow font-pixel">
                 <span className="soft-pink">BUILD</span>
@@ -111,7 +111,7 @@ export default function FeatureCards() {
 
         {/* One card per FEATURES entry; stagger fade-in by index.
             sm: 2 cols, lg: 3 cols */}
-        <div className="key-info-grid mt-12 sm:mt-14">
+        <div className="key-info-grid mt-6 lg:mt-7">
           {/* vocab: delay={0.08 * i} = stagger each card's fade-in by index
               Manipulate here: change 0.08 to tighten/loosen the cascade */}
           {FEATURES.map((f, i) => {

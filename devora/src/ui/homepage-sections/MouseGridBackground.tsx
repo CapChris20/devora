@@ -82,7 +82,8 @@ export default function MouseGridBackground({
   const content = (
     <>
       <div className="interactive-grid-bg pointer-events-none absolute inset-0" aria-hidden="true" />
-      <div className="relative z-[1]">{children}</div>
+      {/* landing-section-body lets viewport-fit chapters (100dvh) center this inner stack */}
+      <div className="landing-section-body relative z-[1]">{children}</div>
     </>
   );
 

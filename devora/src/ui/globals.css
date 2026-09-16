@@ -1262,11 +1262,6 @@ html[data-theme="light"] {
     color: var(--text-body);
   }
 
-  /* Soft glow on “CECS Department” — same headline-grad as Connect / Collaborate / Create */
-  .hero-credits-block .headline-grad {
-    filter: drop-shadow(0 0 12px rgba(255, 92, 168, 0.25));
-  }
-
   .hero-credits-meta {
     margin-top: 0.625rem;
     font-size: 0.8125rem;
@@ -1315,10 +1310,6 @@ html[data-theme="light"] .hero-credits-block {
   html[data-theme="light"] .hero-credits-sep {
     color: rgba(26, 10, 46, 0.28);
   }
-
-html[data-theme="light"] .hero-credits-block .headline-grad {
-  filter: saturate(1.08) brightness(0.94);
-}
 
   .hero-layout {
     position: relative;
@@ -1633,22 +1624,22 @@ html[data-theme="light"] .hero-credits-block .headline-grad {
   }
 
   .landing-lottie-what-is {
-    min-height: 360px;
+    min-height: 200px;
   }
 
   @media (min-width: 640px) {
     .landing-lottie-what-is {
-      min-height: 480px;
+      min-height: 240px;
     }
   }
 
   .landing-lottie-builder {
-    min-height: 240px;
+    min-height: 160px;
   }
 
   @media (min-width: 640px) {
     .landing-lottie-builder {
-      min-height: 300px;
+      min-height: 180px;
     }
   }
 }
@@ -2318,15 +2309,17 @@ html[data-theme="light"] .faq-answer a:hover {
 .landing-section {
   background-color: var(--section-bg);
   transition: background-color 0.45s ease;
-  padding-top: 5rem;
-  padding-bottom: 5rem;
+  /* Tight padding so a chapter can sit in one viewport (navbar still cleared).
+     Manipulate here: padding-top must stay ≥ sticky nav height */
+  padding-top: 4.75rem;
+  padding-bottom: 2.25rem;
 }
 
 .landing-section-alt {
   background-color: var(--section-bg-alt);
   transition: background-color 0.45s ease;
-  padding-top: 5rem;
-  padding-bottom: 5rem;
+  padding-top: 4.75rem;
+  padding-bottom: 2.25rem;
 }
 
 /* ── What is Devora — signal panel (section 01) ──
@@ -2377,30 +2370,49 @@ html[data-theme="light"] .faq-answer a:hover {
 }
 
 .what-is-panel-inner {
-  display: grid;
-  gap: 2.5rem;
-  padding: 2rem 1.35rem 2.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  /* Padding clears the corner stamps (1rem inset + 1.25rem stamp) */
+  padding: 1.65rem 1.35rem 1.5rem;
 }
 
 @media (min-width: 640px) {
   .what-is-panel-inner {
-    padding: 2.5rem 2rem 2.75rem;
+    padding: 1.75rem 1.75rem 1.6rem;
+    gap: 1.25rem;
   }
 }
 
 @media (min-width: 1024px) {
   .what-is-panel-inner {
-    grid-template-columns: 1.05fr 1fr;
-    gap: 3rem;
-    align-items: center;
-    padding: 3rem 3rem 3.25rem;
+    padding: 1.6rem 1.85rem 1.5rem;
+  }
+}
+
+.what-is-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.what-is-split {
+  display: grid;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .what-is-split {
+    grid-template-columns: 0.82fr 1.18fr;
+    align-items: start;
+    gap: 1.75rem;
   }
 }
 
 .what-is-media {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
   min-width: 0;
 }
 
@@ -2419,23 +2431,21 @@ html[data-theme="light"] .faq-answer a:hover {
 }
 
 .what-is-title {
-  margin-top: 0.65rem;
-  font-size: clamp(2.6rem, 7vw, 4.6rem);
+  margin: 0;
+  font-size: clamp(1.85rem, 4.2vw, 2.7rem);
   font-weight: 800;
-  line-height: 0.95;
+  line-height: 1;
   letter-spacing: -0.03em;
 }
 
 .what-is-lottie-frame {
   position: relative;
-  margin-top: 0.5rem;
-  border-radius: 1.35rem;
+  margin: 0;
+  border-radius: 1.2rem;
   border: 1px solid rgba(255, 154, 61, 0.35);
   background: rgba(10, 4, 20, 0.45);
-  padding: 0.75rem;
-  /* Slight tilt — reads like a HUD panel, not a stock marketing mock */
-  /* Manipulate here: change rotate to 0 for a flat frame */
-  transform: rotate(-1.5deg);
+  padding: 0.55rem;
+  transform: none;
   box-shadow:
     var(--raised-3d-stack),
     0 0 40px rgba(255, 154, 61, 0.12);
@@ -2443,7 +2453,7 @@ html[data-theme="light"] .faq-answer a:hover {
 }
 
 .what-is-lottie-frame:hover {
-  transform: rotate(0deg) translateY(-3px);
+  transform: translateY(-3px);
 }
 
 .what-is-lottie-glow {
@@ -2465,20 +2475,26 @@ html[data-theme="light"] .faq-answer a:hover {
   width: 100%;
   max-width: 520px;
   margin-inline: auto;
-  min-height: 260px !important;
+  min-height: 180px !important;
 }
 
 @media (min-width: 640px) {
   .what-is-lottie {
-    min-height: 340px !important;
+    min-height: 210px !important;
   }
 }
 
 .what-is-copy {
   display: flex;
   flex-direction: column;
-  gap: 1.35rem;
+  gap: 0.9rem;
   min-width: 0;
+}
+
+.what-is-intro {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .what-is-prompt {
@@ -2488,31 +2504,23 @@ html[data-theme="light"] .faq-answer a:hover {
   word-break: break-word;
 }
 
-.what-is-manifesto {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-}
-
+/* One tight pitch — soft accent words only; claims below do the structure.
+   Manipulate here: size/weight if the lead still feels heavy */
 .what-is-lead {
+  max-width: none;
   font-family: var(--font-display), ui-sans-serif, system-ui, sans-serif;
-  font-size: clamp(1.15rem, 2.2vw, 1.45rem);
-  font-weight: 700;
+  font-size: clamp(0.98rem, 1.35vw, 1.12rem);
+  font-weight: 600;
   line-height: 1.45;
+  letter-spacing: -0.015em;
   color: var(--text-primary);
-}
-
-.what-is-body {
-  font-size: 1.02rem;
-  line-height: 1.7;
-  color: var(--text-body);
 }
 
 .what-is-claims {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 0.35rem;
+  gap: 0.45rem;
+  margin: 0;
   list-style: none;
   padding: 0;
 }
@@ -2520,12 +2528,12 @@ html[data-theme="light"] .faq-answer a:hover {
 .what-is-claim {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 0.9rem;
+  gap: 0.7rem;
   align-items: start;
-  border-radius: 1rem;
+  border-radius: 0.85rem;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background: rgba(10, 4, 20, 0.4);
-  padding: 0.9rem 1rem;
+  padding: 0.55rem 0.8rem;
   box-shadow: var(--raised-3d-stack);
   transition:
     transform 0.22s var(--btn-3d-ease),
@@ -2561,8 +2569,8 @@ html[data-theme="light"] .faq-answer a:hover {
 .what-is-footer {
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  margin-top: 0.35rem;
+  gap: 0.55rem;
+  margin: 0;
 }
 
 .what-is-footer-line {
@@ -2596,8 +2604,7 @@ html[data-theme="light"] .what-is-claim {
   border-color: rgba(26, 10, 46, 0.12);
 }
 
-html[data-theme="light"] .what-is-claim-desc,
-html[data-theme="light"] .what-is-body {
+html[data-theme="light"] .what-is-claim-desc {
   color: rgba(26, 10, 46, 0.78);
 }
 
@@ -2616,8 +2623,8 @@ html[data-theme="light"] .what-is-lead {
 
 @media (min-width: 900px) {
   .key-info-header {
-    grid-template-columns: 1.15fr 0.85fr;
-    gap: 2.5rem;
+    grid-template-columns: 1.15fr 0.75fr;
+    gap: 1.5rem;
   }
 }
 
@@ -2636,18 +2643,18 @@ html[data-theme="light"] .what-is-lead {
 }
 
 .key-info-title {
-  margin-top: 0.7rem;
-  font-size: clamp(2.4rem, 6.5vw, 4.25rem);
+  margin-top: 0.45rem;
+  font-size: clamp(1.85rem, 4.4vw, 2.75rem);
   font-weight: 800;
   line-height: 0.96;
   letter-spacing: -0.03em;
 }
 
 .key-info-lead {
-  margin-top: 1rem;
+  margin-top: 0.65rem;
   max-width: 34rem;
-  font-size: 1.08rem;
-  line-height: 1.65;
+  font-size: 0.95rem;
+  line-height: 1.5;
   color: var(--text-body);
 }
 
@@ -2688,32 +2695,32 @@ html[data-theme="light"] .what-is-lead {
   position: relative;
   z-index: 1;
   width: 100%;
-  min-height: 220px !important;
+  min-height: 140px !important;
 }
 
 @media (min-width: 640px) {
   .key-info-lottie {
-    min-height: 280px !important;
+    min-height: 160px !important;
   }
 }
 
 .key-info-grid {
   display: grid;
-  gap: 1.15rem;
+  gap: 0.75rem;
   grid-template-columns: 1fr;
 }
 
 @media (min-width: 640px) {
   .key-info-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem;
+    gap: 0.85rem;
   }
 }
 
 @media (min-width: 1024px) {
   .key-info-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.35rem;
+    gap: 0.85rem;
   }
 }
 
@@ -2721,8 +2728,8 @@ html[data-theme="light"] .what-is-lead {
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  border-radius: 1.35rem;
+  gap: 0.5rem;
+  border-radius: 1.15rem;
   border: 1px solid rgba(255, 154, 61, 0.32);
   background: linear-gradient(
     155deg,
@@ -2732,7 +2739,7 @@ html[data-theme="light"] .what-is-lead {
   );
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  padding: 1.35rem 1.35rem 1.5rem;
+  padding: 0.9rem 1rem 1rem;
   box-shadow:
     var(--card-3d-stack),
     inset 0 1px 0 rgba(255, 215, 111, 0.12);
@@ -2759,17 +2766,17 @@ html[data-theme="light"] .what-is-lead {
 .key-info-icon-well {
   display: grid;
   place-items: center;
-  width: 4.25rem;
-  height: 4.25rem;
-  border-radius: 1.1rem;
+  width: 3.15rem;
+  height: 3.15rem;
+  border-radius: 0.9rem;
   border: 1px solid rgba(255, 255, 255, 0.14);
   background: rgba(10, 4, 20, 0.55);
   box-shadow: var(--chip-3d-stack);
 }
 
 .key-info-icon {
-  width: 2.65rem !important;
-  height: 2.65rem !important;
+  width: 1.9rem !important;
+  height: 1.9rem !important;
   object-fit: contain;
 }
 
@@ -2780,15 +2787,15 @@ html[data-theme="light"] .what-is-lead {
 
 .key-info-card-title {
   /* Manipulate here: raise clamp max if titles still feel small */
-  font-size: clamp(1.2rem, 2vw, 1.45rem);
+  font-size: clamp(1.05rem, 1.6vw, 1.22rem);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.01em;
 }
 
 .key-info-card-desc {
-  font-size: 1.02rem;
-  line-height: 1.65;
+  font-size: 0.88rem;
+  line-height: 1.45;
   color: rgba(255, 255, 255, 0.86);
   flex: 1;
 }
@@ -2821,16 +2828,38 @@ html[data-theme="light"] .key-info-icon-well {
 @media (min-width: 640px) {
   .landing-section,
   .landing-section-alt {
-    padding-top: 7rem;
-    padding-bottom: 7rem;
+    padding-top: 5.25rem;
+    padding-bottom: 2rem;
   }
 }
 
 @media (min-width: 1024px) {
   .landing-section,
   .landing-section-alt {
-    padding-top: 9rem;
-    padding-bottom: 9rem;
+    /* One chapter = one screen. Content is vertically centered in the leftover space. */
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: 5.25rem;
+    padding-bottom: 1.35rem;
+  }
+
+  .landing-section-body {
+    width: 100%;
+  }
+}
+
+/* Short laptop screens — drop the extra Lottie so Key Info still fits one viewport.
+   Manipulate here: raise max-height if a 14" screen still clips the 6-card grid */
+@media (min-width: 1024px) and (max-height: 860px) {
+  .key-info-lottie-frame {
+    display: none;
+  }
+
+  .key-info-header {
+    grid-template-columns: 1fr;
+    gap: 0;
   }
 }
 
@@ -2905,6 +2934,90 @@ html[data-theme="light"] .key-info-icon-well {
 .landing-surface-card-headline:hover {
   transform: translateY(-4px);
   box-shadow: var(--card-3d-stack-pink-hover);
+}
+
+/* ── Best Use Cases: one vertical glass panel, four stops at a time ──
+   Dots in the bottom-right swap pages (01–04 then 05–08).
+   Manipulate here: panel padding on .use-cases-track; pager lives with Why Devora dots */
+.use-cases-panel {
+  position: relative;
+  border-radius: 1.5rem;
+  border: 1px solid rgba(255, 154, 61, 0.32);
+  background: linear-gradient(
+    155deg,
+    rgba(255, 215, 111, 0.12) 0%,
+    rgba(10, 4, 20, 0.62) 42%,
+    rgba(255, 92, 168, 0.1) 100%
+  );
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow:
+    var(--card-3d-stack),
+    inset 0 1px 0 rgba(255, 215, 111, 0.12);
+  overflow: hidden;
+}
+
+.use-cases-track {
+  list-style: none;
+  margin: 0;
+  /* Extra top padding for the cycle bar; extra bottom padding for the pager dots */
+  padding: 1.65rem 1.15rem 2.6rem;
+  display: flex;
+  flex-direction: column;
+}
+
+@media (min-width: 768px) {
+  .use-cases-track {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem 1.15rem;
+    padding: 1.85rem 1.5rem 2.7rem;
+  }
+}
+
+/* Keep the beacon + card row even on desktop — do not fall back to the old zigzag grid */
+.use-cases-panel .step-stop {
+  display: grid;
+  grid-template-columns: 3.6rem minmax(0, 1fr);
+  gap: 0.7rem 0.85rem;
+  align-items: start;
+  text-align: left;
+  padding-bottom: 1.35rem;
+}
+
+.use-cases-panel .step-stop:last-child {
+  padding-bottom: 0;
+}
+
+@media (min-width: 768px) {
+  .use-cases-panel .step-stop {
+    padding-bottom: 0;
+  }
+
+  .use-cases-panel .step-stop::after {
+    display: none;
+  }
+}
+
+.use-cases-panel .step-stop-card {
+  min-height: 0;
+  padding: 0.85rem 1rem;
+}
+
+.use-cases-panel .step-stop-desc {
+  margin-top: 0.35rem;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+html[data-theme="light"] .use-cases-panel {
+  background: linear-gradient(
+    155deg,
+    rgba(255, 215, 111, 0.16) 0%,
+    rgba(255, 255, 255, 0.9) 45%,
+    rgba(255, 92, 168, 0.1) 100%
+  );
+  border-color: rgba(190, 24, 93, 0.22);
 }
 
 /* ── How It Works: circuit-board step path ── */
@@ -3410,25 +3523,19 @@ html[data-theme="light"] .key-info-icon-well {
 }
 
 .why-title {
-  margin-top: 0.7rem;
-  font-size: clamp(2.4rem, 6.5vw, 4.25rem);
+  margin-top: 0.45rem;
+  font-size: clamp(1.85rem, 4.4vw, 2.75rem);
   font-weight: 800;
   line-height: 0.96;
   letter-spacing: -0.03em;
 }
 
 .why-lead {
-  margin-top: 1rem;
+  margin-top: 0.65rem;
   max-width: 38rem;
-  font-size: 1.08rem;
-  line-height: 1.65;
+  font-size: 0.95rem;
+  line-height: 1.5;
   color: var(--text-body);
-}
-
-.why-matchups {
-  display: flex;
-  flex-direction: column;
-  gap: 1.35rem;
 }
 
 .why-matchup {
@@ -3462,17 +3569,119 @@ html[data-theme="light"] .key-info-icon-well {
 
 .why-matchup-inner {
   display: grid;
-  gap: 1.75rem;
-  padding: 1.5rem 1.25rem 1.6rem;
+  gap: 1.25rem;
+  /* Extra top padding for the cycle bar; extra bottom padding for the pager dots */
+  padding: 1.65rem 1.15rem 2.6rem;
 }
 
 @media (min-width: 768px) {
   .why-matchup-inner {
-    grid-template-columns: 1.35fr 0.75fr;
+    grid-template-columns: 1.4fr 0.7fr;
     align-items: center;
-    gap: 2rem;
-    padding: 2rem 2rem 2.1rem;
+    gap: 1.35rem;
+    padding: 1.85rem 1.5rem 2.7rem;
   }
+}
+
+/* Three dots, bottom-right of the single matchup card.
+   Manipulate here: size / gap / active pill width */
+.why-matchup-pager,
+.use-cases-pager {
+  position: absolute;
+  right: 1.15rem;
+  bottom: 1.05rem;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.why-matchup-dot,
+.use-cases-dot {
+  width: 0.62rem;
+  height: 0.62rem;
+  padding: 0;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 92, 168, 0.5);
+  background: rgba(255, 255, 255, 0.16);
+  cursor: pointer;
+  transition:
+    width 0.22s var(--card-3d-ease),
+    background 0.22s ease,
+    border-color 0.22s ease,
+    transform 0.22s var(--card-3d-ease);
+}
+
+.why-matchup-dot:hover,
+.use-cases-dot:hover {
+  transform: scale(1.12);
+  border-color: rgba(255, 92, 168, 0.85);
+}
+
+.why-matchup-dot-active,
+.use-cases-dot-active {
+  width: 1.4rem;
+  background: linear-gradient(100deg, #ff5ca8 0%, #7b2ff7 100%);
+  border-color: transparent;
+}
+
+/* Auto-cycle progress — one segment per card state (fills, then the page switches).
+   Manipulate here: height / gap / gradient on .card-cycle-fill */
+.card-cycle-bar {
+  position: absolute;
+  top: 0.75rem;
+  left: 1.15rem;
+  right: 1.15rem;
+  z-index: 4;
+  display: flex;
+  gap: 0.35rem;
+  pointer-events: none;
+}
+
+.card-cycle-seg {
+  flex: 1;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.card-cycle-fill {
+  height: 100%;
+  width: 100%;
+  border-radius: inherit;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: linear-gradient(90deg, #ffd76f 0%, #ff5ca8 55%, #7b2ff7 100%);
+}
+
+.card-cycle-fill-done {
+  transform: scaleX(1);
+}
+
+.card-cycle-fill-active {
+  animation-name: cardCycleFill;
+  animation-timing-function: linear;
+  animation-fill-mode: forwards;
+}
+
+@keyframes cardCycleFill {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-cycle-bar {
+    display: none;
+  }
+}
+
+html[data-theme="light"] .card-cycle-seg {
+  background: rgba(26, 10, 46, 0.12);
 }
 
 .why-matchup-copy {
@@ -3485,8 +3694,8 @@ html[data-theme="light"] .key-info-icon-well {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 0.65rem 0.85rem;
-  margin-bottom: 1.35rem;
+  gap: 0.5rem 0.75rem;
+  margin-bottom: 0.75rem;
 }
 
 .why-matchup-code {
@@ -3533,7 +3742,7 @@ html[data-theme="light"] .key-info-icon-well {
   display: block;
   font-size: 0.85rem;
   letter-spacing: 0.28em;
-  margin-bottom: 1.1rem;
+  margin-bottom: 0.65rem;
   filter: drop-shadow(0 0 14px rgba(255, 154, 61, 0.35));
 }
 
@@ -3543,23 +3752,23 @@ html[data-theme="light"] .key-info-icon-well {
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.4rem;
 }
 
 .why-matchup-win {
   display: flex;
   align-items: flex-start;
-  gap: 0.85rem;
-  border-radius: 0.85rem;
+  gap: 0.65rem;
+  border-radius: 0.7rem;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(10, 4, 20, 0.35);
-  padding: 0.75rem 0.9rem;
+  padding: 0.45rem 0.7rem;
   box-shadow: var(--raised-3d-stack);
 }
 
 .why-matchup-win-text {
-  font-size: 1.02rem;
-  line-height: 1.55;
+  font-size: 0.88rem;
+  line-height: 1.4;
   color: rgba(255, 255, 255, 0.9);
 }
 
@@ -3576,14 +3785,14 @@ html[data-theme="light"] .key-info-icon-well {
 }
 
 .why-matchup-footer {
-  margin-top: 1.5rem;
+  margin-top: 0.85rem;
   max-width: 38rem;
 }
 
 .why-matchup-punchline {
-  margin: 0.95rem 0 0;
-  font-size: 0.98rem;
-  line-height: 1.65;
+  margin: 0.6rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
   color: rgba(255, 255, 255, 0.72);
   font-style: italic;
 }
@@ -3597,11 +3806,11 @@ html[data-theme="light"] .key-info-icon-well {
 .why-matchup-lottie-frame {
   position: relative;
   width: 100%;
-  max-width: 280px;
+  max-width: 200px;
   border-radius: 1.25rem;
   border: 1px solid rgba(255, 92, 168, 0.35);
   background: rgba(10, 4, 20, 0.5);
-  padding: 0.65rem;
+  padding: 0.5rem;
   box-shadow:
     var(--raised-3d-stack),
     0 0 36px rgba(255, 92, 168, 0.12);
@@ -3609,7 +3818,7 @@ html[data-theme="light"] .key-info-icon-well {
 
 @media (min-width: 768px) {
   .why-matchup-lottie-frame {
-    max-width: 320px;
+    max-width: 220px;
     justify-self: end;
   }
 }
@@ -3679,6 +3888,18 @@ html[data-theme="light"] .why-matchup-ko {
   border-color: rgba(194, 65, 12, 0.35);
 }
 
+html[data-theme="light"] .why-matchup-dot,
+html[data-theme="light"] .use-cases-dot {
+  background: rgba(26, 10, 46, 0.12);
+  border-color: rgba(190, 24, 93, 0.35);
+}
+
+html[data-theme="light"] .why-matchup-dot-active,
+html[data-theme="light"] .use-cases-dot-active {
+  background: linear-gradient(100deg, #be185d 0%, #7c3aed 100%);
+  border-color: transparent;
+}
+
 /* ── Benefits / Good Reasons (section 05) ──
    Signal header + clearer bento cards (bigger type, glass icon wells).
    Manipulate here: benefit-card padding; icon well size; title clamp */
@@ -3701,18 +3922,18 @@ html[data-theme="light"] .why-matchup-ko {
 }
 
 .benefits-title {
-  margin-top: 0.7rem;
-  font-size: clamp(2.4rem, 6.5vw, 4.25rem);
+  margin-top: 0.45rem;
+  font-size: clamp(1.85rem, 4.4vw, 2.75rem);
   font-weight: 800;
   line-height: 0.96;
   letter-spacing: -0.03em;
 }
 
 .benefits-lead {
-  margin-top: 1rem;
+  margin-top: 0.65rem;
   max-width: 38rem;
-  font-size: 1.08rem;
-  line-height: 1.65;
+  font-size: 0.95rem;
+  line-height: 1.5;
   color: var(--text-body);
 }
 
@@ -3724,7 +3945,7 @@ html[data-theme="light"] .why-matchup-ko {
 .benefits-bento {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.15rem;
+  gap: 0.75rem;
 }
 
 .benefits-bento-cell {
@@ -3736,10 +3957,10 @@ html[data-theme="light"] .why-matchup-ko {
   height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 0.85rem;
-  border-radius: 1.35rem;
+  gap: 0.5rem;
+  border-radius: 1.15rem;
   border: 1px solid transparent;
-  padding: 1.35rem 1.35rem 1.5rem;
+  padding: 0.9rem 1rem 1rem;
   overflow: hidden;
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -3905,15 +4126,15 @@ html[data-theme="light"] .why-matchup-ko {
 
 .benefit-card-title {
   /* Manipulate here: raise clamp max if titles still feel small */
-  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-size: clamp(1.05rem, 1.6vw, 1.22rem);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.01em;
 }
 
 .benefit-card-desc {
-  font-size: 1.02rem;
-  line-height: 1.65;
+  font-size: 0.88rem;
+  line-height: 1.45;
   color: rgba(255, 255, 255, 0.86);
   flex: 1;
 }
@@ -3960,19 +4181,13 @@ html[data-theme="light"] .benefit-icon-wrap {
 @media (min-width: 640px) {
   .benefits-bento {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.25rem;
+    gap: 0.75rem;
   }
 
-  .benefits-bento-cell-2 {
-    transform: translateY(1.25rem);
-  }
-
-  .benefits-bento-cell-4 {
-    transform: translateY(-0.75rem);
-  }
-
+  .benefits-bento-cell-2,
+  .benefits-bento-cell-4,
   .benefits-bento-cell-6 {
-    transform: translateY(0.5rem);
+    transform: none;
   }
 }
 
@@ -3980,7 +4195,7 @@ html[data-theme="light"] .benefit-icon-wrap {
   .benefits-bento {
     grid-template-columns: repeat(12, minmax(0, 1fr));
     grid-auto-rows: minmax(0, auto);
-    gap: 1.25rem 1.5rem;
+    gap: 0.75rem;
   }
 
   .benefits-bento-cell-1 {
@@ -3991,35 +4206,35 @@ html[data-theme="light"] .benefit-icon-wrap {
   .benefits-bento-cell-2 {
     grid-column: 8 / span 5;
     grid-row: 1;
-    transform: translateY(2.5rem);
+    transform: none;
   }
 
   .benefits-bento-cell-3 {
     grid-column: 1 / span 4;
     grid-row: 2;
-    transform: translateY(1rem);
+    transform: none;
   }
 
   .benefits-bento-cell-4 {
     grid-column: 5 / span 4;
     grid-row: 2;
-    transform: translateY(-0.5rem);
+    transform: none;
   }
 
   .benefits-bento-cell-5 {
     grid-column: 9 / span 4;
     grid-row: 2;
-    transform: translateY(2rem);
+    transform: none;
   }
 
   .benefits-bento-cell-6 {
     grid-column: 3 / span 8;
     grid-row: 3;
-    transform: translateY(0.75rem);
+    transform: none;
   }
 
   .benefit-card-featured {
-    padding: 1.85rem 1.75rem 2rem;
+    padding: 0.95rem 1.05rem 1.05rem;
   }
 }
 

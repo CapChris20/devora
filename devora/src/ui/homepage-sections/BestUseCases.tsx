@@ -1,14 +1,17 @@
-// Section 03 — eight “best use cases” cards (formerly FourSteps).
-// Flow: MouseGridBackground → chapter label → headline → ordered list of stops.
-// CSS (steps-circuit-cell-N) places each stop in the zigzag layout (no connecting wire).
-// Manipulate here: edit STEPS to change copy/icons/accents.
+// Section 03 — eight “best use cases” (formerly FourSteps), shown four at a time.
+// Flow: MouseGridBackground → chapter label → headline → one vertical panel.
+//       Dots + a filling progress bar auto-cycle 01–04 ↔ 05–08.
+// Manipulate here: edit STEPS for copy/icons; CARD_CYCLE_MS in CardCycle.tsx for speed.
 
 "use client";
 
+import { AnimatePresence, motion } from "framer-motion";
+// vocab: AnimatePresence = keeps the old page mounted until its exit animation finishes
 // vocab: StaticImageData = typed import of a local PNG used by next/image
 import Image, { type StaticImageData } from "next/image";
 import MouseGridBackground from "./MouseGridBackground";
 import { SectionNumber, FadeIn } from "./FadeInWhenScrolling";
+import { CARD_CYCLE_MS, CardCycleBar, useCardCycle } from "./CardCycle";
 
 // Custom use-case icons (one PNG per stop — filenames match the theme of each card).
 // Manipulate here: swap any import path to change which artwork sits on a stop
@@ -102,7 +105,21 @@ const STEP_GRADIENT_CLASS = {
   headline: "soft-headline",
 } as const;
 
+// How many use cases show in the panel at once. Dots = remaining groups.
+// Manipulate here: 4 = two pages of eight; 8 would show everything with no pager
+const PAGE_SIZE = 4;
+const PAGE_COUNT = Math.ceil(STEPS.length / PAGE_SIZE);
+
 export default function BestUseCases() {
+  // Auto-advances first four ↔ last four. Dots still jump immediately.
+  // vocab: useCardCycle = shared hook — index, pause-on-hover, restart-on-dot
+  const cycle = useCardCycle(PAGE_COUNT);
+  const page = cycle.index;
+
+  // Slice the full list down to the four stops for this page.
+  // vocab: slice(start, end) = copy from start up to (not including) end
+  const visible = STEPS.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+
   return (
     // landing-section-alt = alternating section background tint from globals.css
     <MouseGridBackground className="landing-section-alt">
@@ -113,59 +130,113 @@ export default function BestUseCases() {
         </FadeIn>
         {/* vocab: delay={0.1} = wait 0.1s after entering view before fading in */}
         <FadeIn delay={0.1}>
-          <h2 className="font-display soft-headline mt-12 max-w-3xl text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-           Best Use Cases for Devora!
+          <h2 className="font-display soft-headline mt-6 max-w-3xl text-3xl font-bold leading-tight sm:text-4xl lg:text-[2.65rem]">
+            Best Use Cases for Devora!
           </h2>
         </FadeIn>
 
-        {/* Use-case cards in a zigzag layout (CSS places each cell). No connecting path lines. */}
-        <div className="steps-circuit mt-16 lg:mt-24">
-          {/* One list item per step; CSS positions each cell.
-              vocab: class steps-circuit-cell-N = CSS places this stop (1-indexed)
-              Manipulate here: if you add/remove STEPS, also add/remove matching CSS cell rules */}
-          <ol className="steps-circuit-track">
-            {STEPS.map((s, i) => (
-              // Stagger each stop’s entrance: 0s, 0.08s, 0.16s, …
-              // Manipulate here: change 0.08 to tighten/loosen the cascade
-              <FadeIn key={s.title} delay={0.08 * i} className={`steps-circuit-cell steps-circuit-cell-${i + 1}`}>
-                {/* step-accent-* drives per-stop color accents in CSS */}
-                <li className={`step-stop step-stop-${i + 1} step-accent-${s.accent}`}>
-                  {/* Number + icon “beacon” sitting on the circuit node */}
-                  <div className="step-beacon-wrap">
-                    <span className={`step-beacon-num font-pixel ${STEP_GRADIENT_CLASS[s.accent]}`}>
-                      {/* vocab: padStart(2,"0") = turn 1 into "01", 2 into "02", etc. */}
-                      {String(i + 1).padStart(2, "0")}
-                    </span>
-                    <div className="step-beacon">
-                      {/* Custom PNG icon — counter-rotated so it reads upright inside the diamond beacon.
-                          vocab: next/image = optimized <img> with sizing + lazy loading */}
-                      <Image
-                        src={s.icon}
-                        alt=""
-                        className="step-beacon-icon-img"
-                        width={40}
-                        height={40}
-                        aria-hidden="true"
-                      />
-                    </div>
-                  </div>
+        {/* One vertical glass panel — four stops, then dots swap in the other four */}
+        <FadeIn delay={0.12}>
+          <article
+            className="use-cases-panel mt-6 lg:mt-7"
+            onMouseEnter={() => cycle.setPaused(true)}
+            onMouseLeave={() => cycle.setPaused(false)}
+          >
+            <CardCycleBar
+              count={PAGE_COUNT}
+              activeIndex={cycle.index}
+              durationMs={CARD_CYCLE_MS}
+              paused={cycle.paused}
+              cycleKey={cycle.cycleKey}
+              reduceMotion={cycle.reduceMotion}
+              onComplete={cycle.onComplete}
+            />
+            {/*
+              vocab: mode="wait" = finish the outgoing fade before the incoming one starts
+              vocab: key={page} = tells React this is a NEW list when the page changes
+            */}
+            <AnimatePresence mode="wait">
+              <motion.ol
+                key={page}
+                className="use-cases-track"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -8 }}
+                // Manipulate here: duration = how fast the four-pack crossfades
+                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
+              >
+                {visible.map((s, i) => {
+                  // Global index so numbers stay 01–08 across pages (not restarting at 01).
+                  const globalIndex = page * PAGE_SIZE + i;
 
-                  {/* Title + description card for this use case */}
-                  <div className="step-stop-card landing-surface-card">
-                    <h3
-                      className={`step-stop-title landing-card-title font-pixel ${STEP_GRADIENT_CLASS[s.accent]}${
-                        s.titleCompact ? " step-stop-title-compact" : ""
-                      }`}
+                  return (
+                    <li
+                      key={s.title}
+                      className={`step-stop step-accent-${s.accent}`}
                     >
-                      {s.title}
-                    </h3>
-                    <p className="step-stop-desc">{s.desc}</p>
-                  </div>
-                </li>
-              </FadeIn>
-            ))}
-          </ol>
-        </div>
+                      {/* Number + icon “beacon” sitting on the circuit node */}
+                      <div className="step-beacon-wrap">
+                        <span
+                          className={`step-beacon-num font-pixel ${STEP_GRADIENT_CLASS[s.accent]}`}
+                        >
+                          {/* vocab: padStart(2,"0") = turn 1 into "01", 2 into "02", etc. */}
+                          {String(globalIndex + 1).padStart(2, "0")}
+                        </span>
+                        <div className="step-beacon">
+                          {/* Custom PNG icon — counter-rotated so it reads upright inside the diamond beacon.
+                              vocab: next/image = optimized <img> with sizing + lazy loading */}
+                          <Image
+                            src={s.icon}
+                            alt=""
+                            className="step-beacon-icon-img"
+                            width={40}
+                            height={40}
+                            aria-hidden="true"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Title + description card for this use case */}
+                      <div className="step-stop-card landing-surface-card">
+                        <h3
+                          className={`step-stop-title landing-card-title font-pixel ${STEP_GRADIENT_CLASS[s.accent]}${
+                            s.titleCompact ? " step-stop-title-compact" : ""
+                          }`}
+                        >
+                          {s.title}
+                        </h3>
+                        <p className="step-stop-desc">{s.desc}</p>
+                      </div>
+                    </li>
+                  );
+                })}
+              </motion.ol>
+            </AnimatePresence>
+
+            {/* Pager dots — bottom-right. Click to change which four are showing.
+                Manipulate here: PAGE_COUNT grows if you add more STEPS */}
+            <div className="use-cases-pager" role="tablist" aria-label="Use case pages">
+              {Array.from({ length: PAGE_COUNT }, (_, i) => {
+                const selected = i === page;
+                const from = i * PAGE_SIZE + 1;
+                const to = Math.min((i + 1) * PAGE_SIZE, STEPS.length);
+
+                return (
+                  <button
+                    key={i}
+                    type="button"
+                    role="tab"
+                    // vocab: aria-selected = tells assistive tech which page is showing
+                    aria-selected={selected}
+                    aria-label={`Show use cases ${from} to ${to}`}
+                    className={`use-cases-dot ${selected ? "use-cases-dot-active" : ""}`}
+                    onClick={() => cycle.goTo(i)}
+                  />
+                );
+              })}
+            </div>
+          </article>
+        </FadeIn>
       </div>
     </MouseGridBackground>
   );

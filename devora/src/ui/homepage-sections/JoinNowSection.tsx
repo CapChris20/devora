@@ -34,7 +34,7 @@ export default function JoinNowSection() {
   return (
     // Footer landmark with id="join" so nav / deep links can scroll here.
     // landing-footer + grid-bg = section chrome from globals.css
-    <footer id="join" className="landing-footer grid-bg relative overflow-hidden pb-10 pt-32 sm:pt-40">
+    <footer id="join" className="landing-footer grid-bg relative overflow-hidden pb-10 pt-16 sm:pt-20">
       {/* Top edge glow line */}
       <div className="glow-line absolute inset-x-0 top-0 h-px" />
       {/* Soft blurred blob behind the CTA (decorative only).
@@ -62,7 +62,7 @@ export default function JoinNowSection() {
                 Manipulate here: change label/href if signup copy or route moves; btn-neon is in globals.css */}
             <Link
               href="/auth/signup"
-              className="btn-neon font-display mt-12 inline-block rounded-full px-12 py-5 text-sm font-semibold uppercase tracking-[0.2em] text-[#14051c]"
+              className="btn-neon font-display mt-8 inline-block rounded-full px-12 py-5 text-sm font-semibold uppercase tracking-[0.2em] text-[#14051c]"
             >
               Sign Up
             </Link>
@@ -71,7 +71,7 @@ export default function JoinNowSection() {
       </div>
 
       {/* Shared site footer links / credits under the CTA */}
-      <div className="relative mt-28">
+      <div className="relative mt-16">
         <Footer />
       </div>
     </footer>

@@ -21,21 +21,24 @@ type FAQAccordionProps = {
   allowMultiple?: boolean;
 };
 
-// Default FAQ copy for Devora — edit answers here; ids must stay unique.
-// Manipulate here: add/remove/reorder FAQs; keep questions searchable (plain strings)
+// Default FAQ copy for Devora — Chris’s answers, polished for the page.
+// Manipulate here: rewrite answers; keep ids unique; keep questions searchable (plain strings)
 const FAQS: FaqItem[] = [
   {
     id: "origin",
-    question: "How did the idea of Devora come about?",
+    question: "How did the idea for Devora come about?",
     answer: (
       <>
-        Devora started from a simple campus problem: CECS students at{" "}
-        <strong>UM-Dearborn</strong> were sitting in the same labs and Discord
-        servers, but still struggled to find collaborators who matched their
-        skills, courses, and goals. LinkedIn felt like recruiter noise. Discord
-        was fragmented. So Devora was built as a{" "}
-        <strong>verified, CECS-only hub</strong> — discovery, events, and
-        connection in one place, for people who actually share your building.
+        It came from my own transfer experience at{" "}
+        <strong>UM-Dearborn</strong>. When I first got here, I was not putting
+        real effort into approaching people, collaborating, or networking — not
+        because I wanted to stay alone, but because I did not feel confident
+        enough. I did not feel like I had the capability to meet people at
+        scale or build a network the hard way. Living that for a while made
+        something obvious: a lot of CECS students here — including the version
+        of me who just showed up — could use a better on-ramp. Devora started
+        from that personal gap: a place where showing who you are and finding
+        peers does not require forcing confidence you have not built yet.
       </>
     ),
   },
@@ -44,12 +47,14 @@ const FAQS: FaqItem[] = [
     question: "What if I use Devora and nothing comes of it? What's the point?",
     answer: (
       <>
-        Networking is not a lottery ticket — it compounds. Even if one
-        conversation does not turn into a project tomorrow, you still leave with{" "}
-        <strong>clearer visibility into who is around you</strong>: majors,
-        interests, and people working on the same problems. The point is to
-        lower the cost of a warm intro. Showing up once can still put you on
-        someone&apos;s radar for the next hackathon, study group, or referral.
+        Your presence still matters. A profile shows{" "}
+        <strong>who you are as a student</strong> — interests, path, what you
+        want to work on — so the right people can find you even on a quiet week.
+        You do not have to be the one initiating every time; peers can reach out
+        on Devora or take the conversation offline once there is a real reason.
+        And the point is bigger than “meeting people”: career fairs, job events,
+        clubs, and department opportunities live here too. Showing up puts you
+        in that lane — even if one week does not produce a project tomorrow.
       </>
     ),
   },
@@ -58,12 +63,13 @@ const FAQS: FaqItem[] = [
     question: 'Is Devora more than just a "University Tinder" for meeting people?',
     answer: (
       <>
-        Yes. Devora is built around <strong>collaboration and career context</strong>,
-        not swipe-based matching. Profiles highlight majors, skills, interests,
-        and what you are looking for — so you can find a DSA study partner, a
-        React + Unity teammate, or a CECS peer for a side project. It is a
-        campus network for engineers who want to{" "}
-        <strong>ship together</strong>, not a dating app with a university skin.
+        Yes. The whole point of Devora is to be the{" "}
+        <strong>official hub for the CECS department</strong> — not a swipe app
+        with a campus skin. That means advertising clubs and events, surfacing
+        career and job opportunities, and giving you a real directory for
+        networking with verified peers. Meeting people is part of it. Shipping
+        together, showing up at CECS things, and finding collaborators by skill
+        and goal is the product.
       </>
     ),
   },
@@ -73,13 +79,20 @@ const FAQS: FaqItem[] = [
       "How do I know this will be helpful? Have other schools done something similar?",
     answer: (
       <>
-        Campus directories and peer networks are a proven pattern — schools and
-        student orgs have long used them to cut isolation and speed up team
-        formation. Devora focuses that idea on{" "}
-        <strong>CECS @ UM-Dearborn</strong> with verified identities and
-        discovery that LinkedIn / Discord do not give you on this campus. You
-        will know it is helpful the first time you find someone who is already
-        taking the same course or building in the same stack.
+        Verified campus networks are already a pattern elsewhere — apps like{" "}
+        <strong>CircleU</strong>, <strong>Clstr</strong>, and{" "}
+        <strong>Butterfly</strong> help students discover peers by school,
+        major, and intent, and campuses have long used directories / peer lists
+        for the same reason. Research on university ties also shows former
+        classmates influence early hiring: people are more likely to land at
+        firms where peers already work, and those matches often come with better
+        stability. Career guidance commonly cites that a large share of roles
+        never get a public posting and that many hires still move through
+        networks and referrals (employee referrals are often cited as several
+        times more likely to convert). Devora applies that same idea locally for{" "}
+        <strong>CECS @ UM-Dearborn</strong> — so helpfulness looks like finding
+        someone in your stack, your course, or your next event faster than Discord
+        or LinkedIn will.
       </>
     ),
   },
@@ -89,12 +102,14 @@ const FAQS: FaqItem[] = [
       "How can this help me with networking and landing a role I want/need?",
     answer: (
       <>
-        Roles often come from <strong>people who already trust your work</strong> —
-        classmates, project partners, and alumni who remember you shipped
-        something real. Devora helps you find those peers earlier: collaborate on
-        projects, show up at CECS events, and build a network that can later turn
-        into referrals, interview tips, and warm intros. It will not replace
-        applying — it strengthens the relationships that make applications land.
+        You can find people by <strong>niche and direction</strong> — same
+        interests, same path, same kind of work you want to do — and build a
+        real connection from there. When someone is already at a company you
+        care about, that relationship is how referrals, interview help, and
+        honest advice usually happen. Devora will not replace applying, but it
+        makes it easier to know people who can open doors, prep you, and vouch
+        for you because they actually know you — not because you cold-messaged
+        a stranger.
       </>
     ),
   },
@@ -103,11 +118,13 @@ const FAQS: FaqItem[] = [
     question: "Why isn't there a swipe/match system?",
     answer: (
       <>
-        Swipe UX rewards snap judgments and gamifies people. Devora is about{" "}
-        <strong>intentional discovery</strong> — browse verified CECS profiles,
-        filter by what matters (major, interests, goals), then connect when there
-        is a real reason. That keeps the focus on collaboration quality over
-        match counts, and avoids turning campus networking into a dating loop.
+        On purpose. I do not want Devora to feel like a{" "}
+        <strong>Tinder for students</strong>. The model is closer to Instagram
+        follows: you can connect with someone, they can connect back, and then
+        you talk — or not, if they are not interested. Swipe-and-match turns
+        people into a game. Devora is meant to be a connecting platform for
+        collaboration, events, and career context — more than chats from a
+        match queue.
       </>
     ),
   },
@@ -117,11 +134,13 @@ const FAQS: FaqItem[] = [
       "Do I have to use Devora constantly? Can I deactivate my profile anytime?",
     answer: (
       <>
-        No constant use required. When you need a break, open{" "}
-        <strong>Settings</strong> and deactivate — that hides you from Discovery
-        while keeping your account data until you reactivate or delete. You can
-        come back when a hackathon, class project, or internship search makes
-        the network useful again.
+        No, you do not have to use it constantly — and{" "}
+        <strong>yes, you can deactivate anytime</strong> in Settings. Nobody is
+        forcing you on here. Using it is recommended because it makes networking
+        and CECS discovery easier, but if you want to do your own thing offline,
+        that is fine. The goal is to lower the friction, not add another
+        obligation. Come back when a class project, hackathon, or job search
+        makes the network useful again.
       </>
     ),
   },
@@ -130,11 +149,11 @@ const FAQS: FaqItem[] = [
     question: "Can I message anyone or only people I've connected with?",
     answer: (
       <>
-        Messaging is meant for <strong>people you have a connection with</strong>{" "}
-        — so outreach stays intentional instead of cold spam across the whole
-        college. Use Discovery to find the right peers, connect when there is a
-        shared goal, then continue the conversation in the Activity Center.
-        Preference controls in Settings also let you tune who can reach you.
+        You message <strong>people you have connected with</strong>. Find peers
+        in Discovery, connect when there is a shared reason, then continue the
+        conversation from there. That keeps outreach intentional instead of
+        turning the whole college into a cold-DM list — and Settings still let
+        you tune who can reach you.
       </>
     ),
   },

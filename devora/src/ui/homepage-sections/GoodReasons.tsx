@@ -119,7 +119,7 @@ export default function GoodReasons() {
 
         {/* Signal header — same energy as Key Info / Why Devora */}
         <FadeIn delay={0.08}>
-          <div className="benefits-header mt-12 sm:mt-14">
+          <div className="benefits-header mt-6 lg:mt-7">
             <p className="benefits-eyebrow font-pixel">
               <span className="soft-pink">PAYOFF</span>
               <span className="benefits-eyebrow-sep" aria-hidden="true">
@@ -140,7 +140,7 @@ export default function GoodReasons() {
         </FadeIn>
 
         {/* Bento layout — CSS places each cell by benefits-bento-cell-N */}
-        <div className="benefits-bento mt-12 sm:mt-14">
+        <div className="benefits-bento mt-6 lg:mt-7">
           {BENEFITS.map((b, i) => {
             const logo = b.accent === "logo";
             const accent = BENEFIT_TITLE_GRAD[i % BENEFIT_TITLE_GRAD.length];

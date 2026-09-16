@@ -1,6 +1,6 @@
 // Section 01 — “What is Devora?” on the homepage.
-// Flow: mouse-grid bg → chapter label → asymmetric signal panel (Lottie frame + manifesto + claim rails).
-// Manipulate here: edit CLAIMS for the three signal rows; swap the Lottie JSON import to change the animation.
+// Flow: mouse-grid → chapter label → one panel (heading across the top, then Lottie | copy).
+// Manipulate here: edit CLAIMS / manifesto copy; swap the Lottie JSON import to change the animation.
 
 "use client";
 
@@ -49,16 +49,16 @@ export default function WhatIsDevora() {
         {/* Main composition — glass “signal panel” holding media + manifesto.
             vocab: what-is-panel = custom chrome in globals.css (glow frame, not a flat text block) */}
         <FadeIn delay={0.08}>
-          <div className="what-is-panel mt-12 sm:mt-14">
+          <div className="what-is-panel mt-6 lg:mt-7">
             {/* Soft corner stamps — decorative only */}
             <span className="what-is-corner what-is-corner-tl" aria-hidden="true" />
             <span className="what-is-corner what-is-corner-br" aria-hidden="true" />
 
             <div className="what-is-panel-inner">
-              {/* Left: oversized title + Lottie in a tilted media frame */}
-              <div className="what-is-media">
-                <FadeIn delay={0.12}>
-                  {/* Eyebrow + giant question — brand-first signal for this chapter */}
+              {/* Full-width heading — used to sit in the left column beside the copy, which
+                  made the two sides start on different baselines. */}
+              <FadeIn delay={0.12}>
+                <header className="what-is-heading">
                   <p className="what-is-eyebrow font-pixel">
                     <span className="soft-pink">SIGNAL</span>
                     <span className="what-is-eyebrow-sep" aria-hidden="true">
@@ -66,97 +66,86 @@ export default function WhatIsDevora() {
                     </span>
                     <span className="theme-faint">CECS · UM-DEARBORN</span>
                   </p>
-                  <h2 className="what-is-title font-display soft-headline">
-                    What is
-                    <br />
-                    Devora?
-                  </h2>
-                </FadeIn>
+                  <h2 className="what-is-title font-display soft-headline">What is Devora?</h2>
+                </header>
+              </FadeIn>
 
+              {/* Split: Lottie left, pitch + claims right — both top-aligned */}
+              <div className="what-is-split">
                 <FadeIn delay={0.18}>
-                  {/* Media frame: glow ring + slight tilt so it doesn’t feel like a stock two-column layout */}
-                  <div className="what-is-lottie-frame">
-                    <div className="what-is-lottie-glow" aria-hidden="true" />
-                    <MovingAnimation
-                      animationData={whatIsDevoraAnimation}
-                      ariaLabel="What is Devora animation"
-                      className="landing-lottie-what-is what-is-lottie"
-                    />
-                  </div>
-                </FadeIn>
-              </div>
-
-              {/* Right: manifesto copy + claim rails */}
-              <div className="what-is-copy">
-                <FadeIn delay={0.2}>
-                  {/* Terminal-style prompt line — sets the tone before the pitch */}
-                  <p className="what-is-prompt font-pixel">
-                    {/* vocab: {" > "} = literal > in JSX so it isn’t parsed as a tag */}
-                    <span className="soft-pink">{">"}</span>
-                    <span className="theme-muted"> peers.find(</span>
-                    <span className="soft-peach">verified && building</span>
-                    <span className="theme-muted">)</span>
-                  </p>
-                </FadeIn>
-
-                <FadeIn delay={0.24}>
-                  <div className="what-is-manifesto">
-                    <p className="what-is-lead">
-                      Devora is the official hub for networking, CECS events, and collaborating opportunities exclusively for Computer Engineering
-                      &amp; Computer Science students at the University of Michigan–Dearborn.
-                    </p>
-                    <p className="what-is-body">
-                      It&apos;s where classmates become collaborators — find teammates by skill,
-                      join project hubs, and turn hallway conversations into shipped work. No
-                      recruiters. No noise. Just CECS people who actually build.
-                    </p>
+                  <div className="what-is-media">
+                    <div className="what-is-lottie-frame">
+                      <div className="what-is-lottie-glow" aria-hidden="true" />
+                      <MovingAnimation
+                        animationData={whatIsDevoraAnimation}
+                        ariaLabel="What is Devora animation"
+                        className="landing-lottie-what-is what-is-lottie"
+                      />
+                    </div>
                   </div>
                 </FadeIn>
 
-                {/* Claim rails — replace boring pills with numbered neon rows */}
-                <ul className="what-is-claims">
-                  {CLAIMS.map((claim, i) => (
-                    <motion.li
-                      key={claim.code}
-                      className="what-is-claim"
-                      // vocab: whileInView = animate when this row scrolls into view
-                      initial={{ opacity: 0, x: 28 }}
-                      whileInView={{ opacity: 1, x: 0 }}
-                      viewport={{ once: true, margin: "-40px" }}
-                      // Manipulate here: delay step (0.08) controls cascade speed between rails
-                      transition={{
-                        duration: 0.7,
-                        delay: 0.28 + i * 0.08,
-                        ease: [0.16, 1, 0.3, 1],
-                      }}
-                    >
-                      {/* Pixel index + accent title + short desc */}
-                      <span className={`what-is-claim-code font-pixel ${claim.accent}`}>
-                        {claim.code}
-                      </span>
-                      <div className="what-is-claim-text">
-                        <p className={`what-is-claim-title font-display ${claim.accent}`}>
-                          {claim.title}
-                        </p>
-                        <p className="what-is-claim-desc">{claim.desc}</p>
-                      </div>
-                    </motion.li>
-                  ))}
-                </ul>
+                <div className="what-is-copy">
+                  <FadeIn delay={0.2}>
+                    {/* Prompt + lead as one intro block so they don’t float as two stray lines */}
+                    <div className="what-is-intro">
+                      <p className="what-is-prompt font-pixel">
+                        {/* vocab: {" > "} = literal > in JSX so it isn’t parsed as a tag */}
+                        <span className="soft-pink">{">"}</span>
+                        <span className="theme-muted"> peers.find(</span>
+                        <span className="soft-peach">verified && building</span>
+                        <span className="theme-muted">)</span>
+                      </p>
+                      <p className="what-is-lead">
+                        The official hub for{" "}
+                        <span className="soft-pink">networking</span>,{" "}
+                        <span className="soft-peach">CECS events</span>, and{" "}
+                        <span className="soft-violet">collab</span> — exclusively for Computer
+                        Engineering &amp; Computer Science at UM-Dearborn.
+                      </p>
+                    </div>
+                  </FadeIn>
 
-                <FadeIn delay={0.5}>
-                  {/* Closing transformation line under a glow rule */}
-                  <div className="what-is-footer">
-                    <div className="glow-line h-px w-full" aria-hidden="true" />
-                    <p className="what-is-footer-line font-pixel">
-                      <span className="theme-faint">classmates</span>
-                      <span className="what-is-arrow soft-pink" aria-hidden="true">
-                        {" → "}
-                      </span>
-                      <span className="soft-headline">collaborators</span>
-                    </p>
-                  </div>
-                </FadeIn>
+                  <ul className="what-is-claims">
+                    {CLAIMS.map((claim, i) => (
+                      <motion.li
+                        key={claim.code}
+                        className="what-is-claim"
+                        initial={{ opacity: 0, x: 28 }}
+                        whileInView={{ opacity: 1, x: 0 }}
+                        viewport={{ once: true, margin: "-40px" }}
+                        transition={{
+                          duration: 0.7,
+                          delay: 0.28 + i * 0.08,
+                          ease: [0.16, 1, 0.3, 1],
+                        }}
+                      >
+                        <span className={`what-is-claim-code font-pixel ${claim.accent}`}>
+                          {claim.code}
+                        </span>
+                        <div className="what-is-claim-text">
+                          <p className={`what-is-claim-title font-display ${claim.accent}`}>
+                            {claim.title}
+                          </p>
+                          <p className="what-is-claim-desc">{claim.desc}</p>
+                        </div>
+                      </motion.li>
+                    ))}
+                  </ul>
+
+                  <FadeIn delay={0.5}>
+                    <div className="what-is-footer">
+                      <div className="glow-line h-px w-full" aria-hidden="true" />
+                      <p className="what-is-footer-line font-pixel">
+                        <span className="theme-faint">classmates</span>
+                        <span className="what-is-arrow soft-pink" aria-hidden="true">
+                          {" → "}
+                        </span>
+                        <span className="soft-headline">collaborators</span>
+                      </p>
+                    </div>
+                  </FadeIn>
+                </div>
               </div>
             </div>
           </div>
