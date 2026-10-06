@@ -3,7 +3,7 @@
 
 "use client";
 
-import PageLayout from "@/ui/backgrounds/PageLayout";
+import PageLayout from "@/ui/shared/backgrounds/PageLayout";
 import AccountPageContent from "@/ui/account/AccountPageContent";
 
 // Thin route: shared layout + AccountPageContent (editor / view lives there).
@@ -15,6 +15,8 @@ export default function AccountPage() {
       // vocab: wide = give the content more horizontal room than default pages
       // Manipulate here: drop `wide` for a narrower profile column
       wide
+      // vocab: compact = shrink title chrome + skip site footer so the profile fits one screen
+      compact
       // vocab: activeItem = which NavBar link looks selected
       activeItem="Account"
       title="My Profile"

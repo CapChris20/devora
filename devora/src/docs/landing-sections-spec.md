@@ -8,7 +8,7 @@ Content spec only. Design TBD.
 
 **Headline:** What is Devora?
 
-**Content:** CECS-exclusive platform to discover collaborators, join study groups, find events, build connections, and ship projects with aligned partners.
+**Content:** CECS-exclusive platform to find friends and colleagues, join study groups, find events, and network in your career niche.
 
 ---
 
@@ -20,12 +20,12 @@ Content spec only. Design TBD.
 
 | # | Icon | Title | Description |
 |---|------|-------|-------------|
-| 1 | Search / Magnifying Glass | Discovery Grid | Find students by tech stack, major, interests, and collaboration goals |
+| 1 | Search / Magnifying Glass | People | Find students by major, interests, career niche, and what they’re looking for |
 | 2 | Book / Library | Study Groups | Create or join study groups by course, share notes, schedule sessions |
 | 3 | Calendar | Events | Browse CECS hackathons, workshops, networking meetups, and seminars |
 | 4 | Users / People | Connections | Follow students, build your network, find mentors, make friends |
 | 5 | Activity / Trending | Activity Feed | See what your connections are doing, stay engaged with community |
-| 6 | Message / Chat Bubble | Messaging | Real-time DM with collaborators before meeting IRL |
+| 6 | Message / Chat Bubble | Messaging | Real-time DM with classmates before meeting IRL |
 
 ---
 
@@ -37,10 +37,10 @@ Content spec only. Design TBD.
 
 | Step | Icon | Title | Description |
 |------|------|-------|-------------|
-| 1 | User / Profile | Create Profile | Add your major, skills, projects, interests, GitHub/LinkedIn links |
+| 1 | User / Profile | Create Profile | Add your major, interests, career path, GitHub/LinkedIn links |
 | 2 | Sliders / Filter | Discover & Filter | Browse students/groups/events, filter by tech stack, major, course, goals |
-| 3 | Link / Chain | Connect & Message | Follow people, message matched collaborators, join study groups |
-| 4 | Handshake | Collaborate or Meet | Ship projects together, study as a group, attend events IRL |
+| 3 | Link / Chain | Connect & Message | Follow people, message classmates, join study groups |
+| 4 | Handshake | Meet in Person | Grab coffee, study as a group, attend events IRL |
 
 ---
 
@@ -53,7 +53,7 @@ Content spec only. Design TBD.
 Comparison vs alternatives (Devora checkmark vs alternative X):
 
 **GitHub**
-- Devora: Find people + projects
+- Devora: Find people + career niche
 - GitHub: Code hosting only (not people discovery)
 
 **LinkedIn**
@@ -74,11 +74,11 @@ Comparison vs alternatives (Devora checkmark vs alternative X):
 
 | # | Icon | Title | Description |
 |---|------|-------|-------------|
-| 1 | Code / Brackets | Find Aligned Collaborators | Match with students who share your tech stack and project interests |
+| 1 | Code / Brackets | Find Your People | Match with students who share your interests, major, and career niche |
 | 2 | BookOpen | Academic Support Network | Join study groups, get peer tutoring, share course notes |
 | 3 | Clock / CheckCircle | Never Miss Opportunities | Stay updated on CECS events, hackathons, workshops, networking |
 | 4 | Network / Nodes | Reduce Isolation | Especially for commuter and online students seeking connection |
-| 5 | Rocket | Ship Projects with Partners | End graduation wondering "where are my collaborators?" Start building with them now |
+| 5 | Rocket | Leave With a Network | End graduation wondering "where are my people?" Start knowing them now |
 | 6 | Award / Star | Mentorship Opportunities | Connect with seniors, find mentors, give back as you grow |
 
 ---

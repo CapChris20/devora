@@ -5,7 +5,7 @@
 import type { Metadata } from "next";
 
 import { Press_Start_2P, Space_Mono, Unbounded } from "next/font/google";
-import AppWrapper from "@/ui/theme/AppWrapper";
+import AppWrapper from "@/ui/shared/theme/AppWrapper";
 import "@/ui/globals.css";
 
 // vocab: next/font/google = Next.js helper that self-hosts Google fonts efficiently
@@ -32,7 +32,7 @@ const pressStart = Press_Start_2P({
 // vocab: Metadata = Next.js type for <title> / description shown in the browser tab
 // Manipulate here: title/description = what Google + the browser tab show for Devora
 export const metadata: Metadata = {
-  title: "Devora — Connect. Collaborate. Create.",
+  title: "Devora — Connect. Belong. Network.",
   description: "UofM Dearborn CECS Networking Hub",
 };
 

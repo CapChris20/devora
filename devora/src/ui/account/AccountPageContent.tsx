@@ -1,5 +1,5 @@
 // Account page brain — check login, load Firestore profile, toggle view/edit, save changes.
-// Sign-out lives here too when the profile is in view mode.
+// Sign-out lives on the left column under Age / Gender when the profile is in view mode.
 // Child components are “dumb” about Firebase: AccountProfileEditor drafts fields; we write them.
 
 "use client";
@@ -20,8 +20,8 @@ import {
 } from "@/backend/firebase";
 import { uploadProfilePhoto } from "@/backend/firebase/storage-upload";
 
-import AccountProfileEditor from "./AccountProfileEditor";
-import AccountProfileView from "./AccountProfileView";
+import AccountProfileEditor from "./editor/AccountProfileEditor";
+import AccountProfileView from "./profile/AccountProfileView";
 
 // Owns account state: loading → view ↔ edit → save or sign out.
 export default function AccountPageContent() {
@@ -167,7 +167,12 @@ export default function AccountPageContent() {
         <div className="account-success-banner">{success}</div>
       ) : null}
 
-      {/* View mode vs edit mode — only one mounts at a time */}
+      {/* Profile stays under the editor popup; Edit opens the dialog instead of swapping pages. */}
+      <AccountProfileView
+        profile={profile}
+        onEdit={() => setIsEditing(true)}
+        onSignOut={handleSignOut}
+      />
       {isEditing ? (
         <AccountProfileEditor
           profile={profile}
@@ -180,18 +185,6 @@ export default function AccountPageContent() {
           // Editor calls this after its own local validation passes
           onSave={handleSave}
         />
-      ) : (
-        // onEdit flips isEditing so the editor mounts with this profile as initial draft
-        <AccountProfileView profile={profile} onEdit={() => setIsEditing(true)} />
-      )}
-
-      {/* Sign out only in view mode (edit mode has Cancel / Save instead) */}
-      {!isEditing ? (
-        <div className="account-footer-actions">
-          <button type="button" className="page-btn-danger w-full max-w-sm" onClick={handleSignOut}>
-            Sign out
-          </button>
-        </div>
       ) : null}
     </div>
   );

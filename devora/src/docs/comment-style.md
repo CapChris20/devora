@@ -75,5 +75,5 @@ Short route wrappers can stay shorter (file top + one note). Dense teaching goes
 ## Gold examples
 
 - Depth target: the `frame` block above
-- File: `src/ui/backgrounds/VoronoiShaderBackground.tsx`
+- File: `src/ui/shared/backgrounds/VoronoiShaderBackground.tsx`
 - Auth flow: `src/ui/auth/sign-in-actions.ts`

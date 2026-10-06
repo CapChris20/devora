@@ -8,15 +8,15 @@
 import Lenis from "lenis";
 import { useEffect } from "react";
 
-import TopSection from "@/ui/hero/TopSection";
-import GoodReasons from "@/ui/homepage-sections/GoodReasons";
-import FeatureCards from "@/ui/homepage-sections/FeatureCards";
-import JoinNowSection from "@/ui/homepage-sections/JoinNowSection";
-import BestUseCases from "@/ui/homepage-sections/BestUseCases";
-import ScrollingTextStrip from "@/ui/homepage-sections/ScrollingTextStrip";
-import WhatIsDevora from "@/ui/homepage-sections/WhatIsDevora";
-import WhyNot from "@/ui/homepage-sections/WhyNot";
-import NavBar from "@/ui/navbar/NavBar";
+import TopSection from "@/ui/home/hero/TopSection";
+import GoodReasons from "@/ui/home/sections/GoodReasons";
+import FeatureCards from "@/ui/home/sections/FeatureCards";
+import JoinNowSection from "@/ui/home/sections/JoinNowSection";
+import BestUseCases from "@/ui/home/sections/BestUseCases";
+import ScrollingTextStrip from "@/ui/home/sections/ScrollingTextStrip";
+import WhatIsDevora from "@/ui/home/sections/WhatIsDevora";
+import WhyDevora from "@/ui/home/sections/WhyDevora";
+import NavBar from "@/ui/shared/navbar/NavBar";
 
 // TypeScript-only — tells the editor window.smoothScroller may exist.
 // Not code that runs in the browser.
@@ -76,8 +76,8 @@ export default function LandingPage() {
       <FeatureCards />
       {/* How it works in four steps */}
       <BestUseCases />
-      {/* Counter-argument / “why not” section */}
-      <WhyNot />
+      {/* Why Devora vs GitHub / LinkedIn / Discord */}
+      <WhyDevora />
       {/* Social-proof style reasons to join */}
       <GoodReasons />
       {/* Final CTA strip → signup */}

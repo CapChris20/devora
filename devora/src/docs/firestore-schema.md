@@ -1,6 +1,6 @@
 # Firestore Schema: Devora
 
-> **Source of truth** for user profiles, onboarding data, and Discovery Grid profile cards.  
+> **Source of truth** for user profiles, onboarding data, and People profile cards.  
 > Auth is **Google only** with `@umich.edu` emails.
 
 ---
@@ -84,7 +84,7 @@ On completion: `onboardingComplete: true`, `isPublic: true`.
 
 ---
 
-## Discovery Grid profile card
+## People profile card
 
 What renders on each `.glass-card` in `/find-students`:
 
@@ -102,11 +102,11 @@ What renders on each `.glass-card` in `/find-students`:
 
 | Tier | Fields | Where shown |
 |------|--------|-------------|
-| **Public (card + browse)** | `displayName`, `photoURL`, `major`, `classRank`, `careerNiche`, `casualInterests`, `bio` (snippet) | Discovery Grid |
+| **Public (card + browse)** | `displayName`, `photoURL`, `major`, `classRank`, `careerNiche`, `casualInterests`, `bio` (snippet), `links`, `aboutYou` | People (`/find-students`) |
 | **Profile only** | `experienceDetails`, `links`, `gender`, `age`, `careerNicheOther` | Account page + future View profile |
 | **Private** | `email`, `religion`, `signupReason` | Never on cards; not in browse queries |
 
-`isPublic: false` excludes user from Discovery Grid queries (Settings toggle).
+`isPublic: false` excludes user from People queries (Settings: “Show profile to other students”).
 
 `isDeactivated: true` (Settings → Danger zone) also forces `isPublic: false`. Profile data stays. Login sends them to `/auth/deactivated` until they reactivate. Delete account removes Storage files, `users/{uid}` (plus `projects` / `notifications` subcollections), and the Firebase Auth user.
 
@@ -215,7 +215,7 @@ Updates use `updateAccountProfile()` — partial merge, does not reset `onboardi
 
 ---
 
-## Filter alignment (Discovery Grid v1)
+## Filter alignment (People v1)
 
 | DESIGN_SCOPE filter section | Schema field | v1 onboarding? |
 |----------------------------|--------------|----------------|
@@ -234,7 +234,7 @@ Updates use `updateAccountProfile()` — partial merge, does not reset `onboardi
 
 | Feature | Query |
 |---------|-------|
-| Discovery Grid browse | `users` where `isPublic == true` && `onboardingComplete == true` |
+| People browse | `users` where `isPublic == true` && `onboardingComplete == true` — **not live yet**; see [discovery-grid.md](./discovery-grid.md) |
 | Filter by major | `where("major", "==", value)` + `isPublic` |
 | Filter by class rank | `where("classRank", "==", value)` |
 | Filter by niche | `where("careerNiche", "array-contains", value)` |

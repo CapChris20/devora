@@ -1,13 +1,13 @@
-// FAQs page — shared PageLayout chrome + searchable accordion of common Devora questions.
-// Flow: route mounts → PageLayout title → FAQAccordion (search + one-open panels).
+// FAQs page — shared PageLayout chrome + searchable FAQ grid (answers open as popups).
+// Flow: route mounts → PageLayout title → FAQAccordion (search + question cards → dialog).
 
 "use client";
 
-import PageLayout from "@/ui/backgrounds/PageLayout";
-import FAQAccordion from "@/ui/FAQAccordion";
+import PageLayout from "@/ui/shared/backgrounds/PageLayout";
+import FAQAccordion from "@/ui/faqs/FAQAccordion";
 
-// Thin route shell — accordion + FAQ copy live in FAQAccordion.tsx.
-// vocab: "use client" = browser component (accordion state + search need client JS)
+// Thin route shell — grid + FAQ copy live in FAQAccordion.tsx.
+// vocab: "use client" = browser component (search + popup state need client JS)
 // Manipulate here: titleClassName / description = FAQ page header look + teaser copy
 export default function FaqsPage() {
   return (
@@ -16,8 +16,8 @@ export default function FaqsPage() {
       title="FAQs"
       titleClassName="page-title-grad"
       description="Answers about Devora, networking, privacy, and how the CECS hub works."
+      wide
     >
-      {/* Manipulate here: pass allowMultiple to let several answers stay open at once */}
       <FAQAccordion />
     </PageLayout>
   );

@@ -2,15 +2,15 @@
 
 **UofM Dearborn's own CECS Networking Hub**
 
-A student discovery platform for finding aligned collaborators, project partners, and professional connections within the College of Engineering and Computer Science at the University of Michigan – Dearborn.
+A student discovery platform for finding friends, colleagues, and career-niche connections within the College of Engineering and Computer Science at the University of Michigan – Dearborn.
 
 ---
 
 ## Overview
 
 Devora enables CECS students to:
-- Create rich profiles showcasing skills, projects, and interests
-- Discover other students by filtering on tech stack, major, current course, and collaboration goals
+- Create rich profiles showcasing who they are, their interests, and career path
+- Discover other students by filtering on major, interests, and what they’re looking for
 - Connect asynchronously through messaging before in-person meetups
 - Build meaningful professional and personal relationships
 
@@ -21,8 +21,6 @@ Devora enables CECS students to:
 ## Homepage (current)
 
 Live landing page at `/home` — hero, nav, synthwave background, and homepage sections below the fold.
-
-![Devora homepage — hero section with nav, title, credits, and call-to-action](../assets/homepage-screenshot.png)
 
 ---
 

@@ -9,6 +9,7 @@ All project docs live in **`src/docs/`**. Start here.
 | File | What it's for |
 |------|----------------|
 | [DESIGN_SCOPE.md](./DESIGN_SCOPE.md) | **UI design bible** — colors, gradients, page layouts, what’s live vs shell |
+| [discovery-grid.md](./discovery-grid.md) | **Discovery Grid rebuild** — data flow, query gates, conditional render, CSS/classes |
 | [landing-sections-spec.md](./landing-sections-spec.md) | Homepage copy below the hero (features, steps, benefits, join text) |
 | [firestore-schema.md](./firestore-schema.md) | Database plan — users, projects, chats, messages, notifications |
 | [mobile-app-roadmap.md](./mobile-app-roadmap.md) | **Weeks 10–13+** — PWA, Capacitor iOS, push, App Store (web-first) |
@@ -77,4 +78,4 @@ High-level overview, advisor info, and timeline: **`devora/README.md`** (repo ro
 
 ---
 
-*Last updated: Aug 31, 2026*
+*Last updated: Sep 16, 2026*

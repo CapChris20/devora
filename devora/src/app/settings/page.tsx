@@ -3,8 +3,8 @@
 
 "use client";
 
-import PageLayout from "@/ui/backgrounds/PageLayout";
-import SettingsPageContent from "@/ui/settings/SettingsPageContent";
+import PageLayout from "@/ui/shared/backgrounds/PageLayout";
+import SettingsPageContent from "@/ui/settings/page/SettingsPageContent";
 
 // Thin route: shared layout + settings panels (toggles, danger zone).
 // vocab: "use client" = browser component (toggles / danger zone need client JS)

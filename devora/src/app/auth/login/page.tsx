@@ -1,8 +1,8 @@
 // Login route — Google sign-in card inside the shared auth layout.
 // Flow: render SignInPageLayout chrome → LoginCard (email hint + Google button).
 
-import SignInPageLayout from "@/ui/auth/SignInPageLayout";
-import LoginCard from "@/ui/auth/LoginCard";
+import SignInPageLayout from "@/ui/auth/layout/SignInPageLayout";
+import LoginCard from "@/ui/auth/login/LoginCard";
 
 // Thin route: auth chrome + LoginCard (email hint + Google button).
 // vocab: page.tsx = Next.js App Router file that owns the /auth/login URL

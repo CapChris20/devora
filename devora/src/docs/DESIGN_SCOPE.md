@@ -12,9 +12,11 @@
 | What | Status |
 |------|--------|
 | Homepage (`/home`) | **Live** — full landing |
-| Retro backgrounds | **Live** — Peaks, City, Pyramids via `PageLayout` |
+| Voronoi shader backgrounds | **Live** — `PageLayout` + home hero |
 | Nav + theme toggle | **Live** — right-aligned glass pill, full-link hit targets |
-| Discovery Grid, Settings, FAQs, Activity Center | **Shell only** — gradient title + retro background + coming-soon copy |
+| Discovery Grid (`/find-students`) | **Shell** — Filters overlay live; student cards / peek deferred until Firestore browse ([discovery-grid.md](./discovery-grid.md)) |
+| Settings, FAQs | **Live** — real Settings + FAQ accordion |
+| Activity Center | **Shell** — coming-soon messaging |
 | Account (`/account-page`) | **Live** — view + edit own profile from Firestore |
 | Firebase / auth / real data | **Live** — Google sign-in (`@umich.edu`), onboarding, Firestore profiles |
 
@@ -24,7 +26,7 @@
 |-------|-------|------------|
 | Home | `/home` | Inline synthwave sky |
 | Account | `/account-page` | Pyramids |
-| Discovery Grid | `/find-students` | Peaks |
+| Discovery Grid | `/find-students` | Voronoi via `PageLayout` |
 | Settings | `/settings` | City |
 | FAQs | `/faqs-page` | Peaks |
 | Activity Center | `/messages-page` | Pyramids |
@@ -46,7 +48,7 @@ Sign-in is **Google only** with `@umich.edu` emails. Profile data shape: [firest
 
 | Page | `titleClassName` |
 |------|------------------|
-| Discovery Grid | `logo-gradient` |
+| Discovery Grid | `page-title-grad` |
 | Settings | `devora-gradient-text` |
 | FAQs | `pink-grad` |
 | Activity Center | `headline-grad` |
@@ -59,11 +61,15 @@ Match the **homepage synthwave glass aesthetic**. Do **not** make everything pin
 
 ### Core principle
 
-**No flat cyan (`#22d3ee`) or basic single-color pink (`#ff5ca8`) for account page accents, settings toggles, or primary CTAs.** Those read cheap and generic — not Devora.
+**Product:** Devora is for finding your people — friends, colleagues, career-niche networking. Not a “find a builder / ship projects / teammates” product. Copy, looking-for pills, and mock bios must say that.
 
-Use the **four Devora gradient classes** (`.logo-gradient`, `.devora-gradient-text`, `.pink-grad`, `.headline-grad`) and **warm neon stops** (gold `#ffd76f`, orange `#ff9a3d`, magenta `#ff2bd6`, purple `#a855f7`) — each UI element type gets its **own** mapped gradient, not one accent color everywhere.
+**Color:** No flat cyan (`#22d3ee`) or basic single-color pink (`#ff5ca8`) as the only accent on cards, CTAs, search, or rings. Those read cheap.
 
-Pink is still a **gradient accent** on the homepage — marquee, hero glow, titles. Day-to-day UI elsewhere may use purple, gold, and neutral glass borders; **account + settings lean on multi-stop gradients per section**, not cyan outlines.
+Use **short 2–3 stop gradients** drawn from the existing Devora family (shader + wordmark): gold `#ffd76f`, orange `#ff9a3d`, magenta `#ff2bd6` / `#ff5ca8`, violet `#a855f7`. Orange→pink is one good pair, not the only pair — also gold→orange, magenta→violet, peach→magenta.
+
+**Do not overdo gradients.** Names, page titles, and primary buttons can wear a pair. Body, majors, chip labels, and chrome stay glass / `theme-muted`. Never a busy 5-stop rainbow on buttons (avoid stacking orange + pink + magenta + purple + indigo on one control).
+
+Pink is still a **gradient accent** on the homepage — marquee, hero glow, titles. Day-to-day UI uses those restrained pairs + glass, **not cyan outlines**.
 
 ### Devora gradient text (four variants)
 
@@ -71,7 +77,7 @@ Use these classes from `globals.css` — same as landing / How It Works:
 
 | Class | Stops | Best for |
 |-------|-------|----------|
-| `.logo-gradient` | `#ffd76f → #ff9a3d → #ff2bd6` | Discovery Grid title, gold CTAs, event tags |
+| `.logo-gradient` | `#ffd76f → #ff9a3d → #ff2bd6` | Gold CTAs, People warm-family names, event tags |
 | `.devora-gradient-text` | `#ff9a2e → #ff5ca8 → #ff006e → #a855f7 → #6b21a8` | Settings title, synthwave accents |
 | `.pink-grad` | `#ff5ca8 → #ff2bd6 → #7b2ff7` | FAQs title, unread names, RSVP buttons |
 | `.headline-grad` | `#ffffff → #ff5ca8 → #7b2ff7` | Activity Center title, open FAQ questions |
@@ -86,7 +92,7 @@ Use these classes from `globals.css` — same as landing / How It Works:
 | Magenta / pink neon | `#ff5ca8`, `#ff2bd6`, `.pink-grad` | Public badges, social URLs, interest sections |
 | Purple synth | `#a855f7`, `#7b2ff7`, `.devora-gradient-text` | Profile strength, career focus, settings title |
 | White→pink→purple | `.headline-grad` | Account page title, bio/social section labels |
-| Cyan | `#22d3ee` | **Discovery Grid search icons only** — not account, settings, or profile accents |
+| Cyan | `#22d3ee` | **Do not use as a solid People/search/ring accent.** Shader + wordmark palette instead. |
 | Page bg (dark) | `#08040f` | `--page-bg` |
 | Glass panel | `rgba(10, 4, 20, 0.28)` | Sidebars, panels |
 | Glass card | `rgba(10, 4, 20, 0.38)` | Floating cards over background |
@@ -100,7 +106,7 @@ Use these classes from `globals.css` — same as landing / How It Works:
 |---------|-----------|
 | Page title (`My Profile`) | One gradient via `titleClassName` on `PageLayout` only |
 | Display name, section titles, body | `theme-heading` / `theme-muted` — **no per-section gradients** |
-| Eyebrow labels (Major, Profile strength, Discovery preview) | `.account-section-eyebrow` muted uppercase |
+| Eyebrow labels (Major, Profile strength, How you appear) | `.account-section-eyebrow` muted uppercase |
 | Badges (Verified, Public, Joined) | Neutral glass pills — same family as `.account-meta-chip` |
 | Tags | Neutral glass border, no pink/orange fill |
 | Profile strength bar | Single pink→purple gradient on the **fill only** |
@@ -121,22 +127,21 @@ Use these classes from `globals.css` — same as landing / How It Works:
 - **Panels** (`.page-panel`): glass sidebar containers, blur 18px
 - **Cards** (`.glass-card`): individual floating cards — **background scene must show between cards**
 - **Landing cards** (`.neon-card`): homepage only
+- **Footer** (`.site-footer-bar`): one row — DEVORA wordmark, Privacy/Terms/FAQs/Contact, `© year Devora · Chris Shina · UM-Dearborn CECS`. `py-2.5`, small type, no stacked credit block and no 3D extrude stack that inflates height.
 
 ### Interactions
 
-- `SplashCursor` on homepage only (`/home`, `z-index: 5`, `pointer-events: none`)
 - Lenis smooth scroll on homepage only
 - `ThemeProvider` — dark/light, `localStorage` key `devora-theme`
 - Nav links: text directly on `<Link>`, no nested clickable spans; min 48px hit height
 
 ### Background assignment
 
-| Page | Scene file | Visual |
-|------|------------|--------|
-| Discovery Grid, FAQs | `peaks-scene.tsx` | Mountain peaks, grid floor |
-| Settings | `city-scene.tsx` | City skyline |
-| Activity Center, Account | `pyramids-scene.tsx` | Desert pyramids |
-| Home | Inline in `TopSection` | Sun, city silhouettes, grid |
+| Page | File | Visual |
+|------|------|--------|
+| Account, Settings, FAQs, Discovery, Messages | `shared/backgrounds/PageLayout.tsx` | Voronoi shader via `BackgroundPicture` |
+| Home hero | `home/hero/TopSection.tsx` | Voronoi shader (`VoronoiShaderBackgroundClient`) |
+| Auth / onboarding chrome | `auth/layout/SignInPageLayout.tsx` | Voronoi shader |
 
 ---
 
@@ -156,12 +161,13 @@ Rebuild pages using these — do not reinvent:
 | `.page-tab-active` | Cyan→purple gradient tab background |
 | `.page-divider` | Neutral dividers |
 | `.page-search-wrap` / `.page-search-input` | Rounded search fields |
-| `.page-btn-outline` | Pill button with gradient label + cyan border (`::before`) |
-| `.page-btn-grad-logo/devora/pink/headline` | Button label gradient variants |
+| `.page-btn-outline` | Pill button with gradient label; People CTAs override the old cyan `::before` border |
+| `.page-btn-grad-logo/devora/pink/headline` | Button label gradient variants — prefer short pairs; People uses `.discovery-btn-ember` / `.discovery-btn-violet` |
 | `.page-btn-with-icon` + inner gradient span | Icon + gradient text buttons |
 | `.page-btn-danger` | Destructive actions |
 | `.page-icon-btn` | Circular icon buttons |
-| `.page-checkbox` | Cyan accent checkboxes |
+| `.page-checkbox` | Checkboxes (do not restyle as flat cyan on People) |
+| `.site-footer-bar` | **Slim one-row footer** — wordmark + links + one credit line (`py-2.5`, not a stacked `py-8` block) |
 
 ### Gradient mapping (validated)
 
@@ -179,80 +185,110 @@ Rebuild pages using these — do not reinvent:
 
 ### 1. Discovery Grid
 
-**Route:** `/find-students` · **Shell:** `PageLayout wide` · **Background:** Peaks · **Title:** `logo-gradient`
+**Route:** `/find-students` (do not rename) · **Nav / title:** Discovery Grid · **Shell:** `PageLayout wide` · **Title class:** `page-title-grad`  
+**Copy:** Find friends, colleagues, and people in your career niche across CECS.  
+**UI:** `src/ui/discovery/` — `DiscoveryGridContent.tsx` (filters live). Cards + peek are **not mounted**; rebuild from [discovery-grid.md](./discovery-grid.md).
 
-#### Layout
+Call this **Discovery Grid** in nav, page title, welcome, and settings. Do not relabel it “People”.
+
+#### Layout (live today)
+
+Title + description + **Filters** overlay. No student cards. Drawer is a left glass panel; the page behind it stays unblurred (no `backdrop-filter` on `.discovery-drawer-backdrop`).
+
+#### Layout (when Firestore browse is wired)
+
+Not a 2-column sticky sidebar. Full-width 4-up portrait cards. Filters stay a **left overlay drawer**. Profile peek is a **viewport overlay portaled to `document.body`** (z-index 240, above navbar 200) so the slim footer cannot paint over it.
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│  [Filter sidebar 340–360px]  │  [Profile grid]      │
-│  sticky, scrollable pills   │  NO opaque panel     │
-│  glass .page-panel          │  only .glass-card    │
+│  [Filters]  N students                              │
+│  [ card ] [ card ] [ card ] [ card ]                │
+│  [ card ] [ card ] [ card ] [ card ]                │
 └─────────────────────────────────────────────────────┘
-Mobile: filter drawer overlay (340px max width)
+Filters button → glass drawer overlay
+View profile → peek sheet (Connect / Connect with a message)
 ```
 
-#### Filter sidebar
+#### Filter overlay
 
-- Search input at top (cyan search icon)
+- Search at top — **gold search icon**, not cyan
 - 8 scrollable pill sections; section labels use `.page-section-label` + cycling gradients
-- **Active pills only** get gradient text; inactive stay neutral white
-- "Clear N filters" footer with `.page-btn-outline`
+- Active pills: short Devora pair fills (gold→orange, magenta→violet, orange→magenta) — not flat cyan/pink
+- Inactive pills stay glass
+- “Clear N filters” with `.page-btn-outline`
 
 #### Filter sections & options
 
-**CECS Major** (cyan pill / `logo-gradient` when active):
+**CECS Major** (warm gold pair / `logo-gradient` when active):
 Bioengineering, Computer & Information Science, Computer Engineering, Cybersecurity & Information Assurance, Data Science, Electrical Engineering, Engineering Mathematics, Human-Centered Engineering Design, Industrial & Systems Engineering, Manufacturing Engineering, Mechanical Engineering, Robotics Engineering, Software Engineering
 
-**CIS / CIA Concentration** (purple / `devora-gradient-text`):
+**CIS / CIA Concentration** (magenta→violet / `devora-gradient-text`):
 Artificial Intelligence, Computer Science, Information Systems, Game Design, Digital Forensics, Cybersecurity & Privacy
 
 **Technical Niche** (gold / `pink-grad`):
 Frontend, Backend, Full Stack, Mobile, Embedded Systems, FPGA / Hardware, Cloud & DevOps, UI/UX Design, AI / Machine Learning, Data Engineering, Cybersecurity, Robotics, Game Development, AR / VR, IoT, Systems Programming
 
-**Hobbies & Activities** (pink / `headline-grad`):
+**Hobbies & Activities** (orange→magenta / `headline-grad`):
 Hackathons, Open Source, Photography, Fitness / Gym, Cooking, Hiking, Skateboarding, Basketball, Soccer, Chess, Board Games, Tabletop RPG, Cars & Motorsports, Art & Illustration, Volunteering, Entrepreneurship
 
-**Media & Entertainment** (purple):
+**Media & Entertainment** (magenta→violet):
 Anime, Marvel / DC, Sci-Fi, Horror, K-Drama, Hip-Hop, EDM, Rock, Jazz / Lo-Fi, Gaming — FPS, Gaming — RPG, Gaming — Fighting, Streaming, Podcasts, Reading, Film Photography
 
-**Clubs & Orgs** (cyan):
+**Clubs & Orgs** (warm gold pair / `logo-gradient`):
 ACM, IEEE, ISC Robotics, M@uto (Autonomous Vehicles), Dearborn Electric Racing, NSBE, SHPE, Society of Women Engineers, Game Dev Club, Cybersecurity Club, ECO, Circle K, First Gen Student Org, Swing Dearborn, BuildOn, VictorsLink Events
 
-**Looking For** (gold):
-Study Partner, Project Teammate, Hackathon Squad, Gym Buddy, Gaming Squad, Mentor, Mentee, Coffee Chat, Lab Partner, Capstone Team
+**Looking For** (gold — **people, not project teammates**):
+Friend, Study Partner, Coffee Chat, Colleague, Mentor, Mentee, Gym Buddy, Gaming Squad, Lab Partner, Campus Events
 
 **Class Year** (neutral):
 Freshman, Sophomore, Junior, Senior, Graduate
 
-#### Profile card fields
+#### Profile card (portrait)
 
-Maps to [firestore-schema.md](firestore-schema.md) — Discovery Grid card:
+Hierarchy: **PFP (large, centered) → Name → Major and class rank → Social links → career path + interests → View profile**
 
-- Avatar circle with accent border + glow (`photoURL` or initials)
-- **Name:** `displayName` — `.page-card-name` + cycling gradient
-- **Major · class rank:** muted line (`major`, `classRank`)
-- **Tags:** top items from `careerNiche` + `casualInterests` (max 3–4, muted)
-- **Bio:** truncated ~80 chars (optional line)
-- "View profile": `.page-btn-outline.page-btn-grad-logo`
+- Gradient **border** on the PFP (not a solid cyan/pink ring). Four families:
+  - `cyan` key in data → **gold → orange** visually
+  - `purple` → **magenta → violet**
+  - `gold` → **gold → orange**
+  - `pink` → **orange → magenta**
+- **Name:** `.discovery-card-name` + that family’s 2–3 stop text gradient
+- **Major · class rank:** muted (no gradient)
+- **Socials:** GitHub / LinkedIn / Instagram icons when URLs exist
+- **Tags:** glass chips with a short pair wash (not flat cyan fill)
+- **Not a dump of looking-for / clubs / bio on the card face** — those belong in the peek
+- “View profile”: `.page-btn-outline.page-btn-grad-logo`
 
-**Not on card:** `email`, `gender`, `age`, `religion`, `signupReason`, full `experienceDetails`, social links.
+**Not on card:** `email`, `gender`, `age`, `religion`, `signupReason`, full `experienceDetails`
+
+#### Full-profile peek
+
+- Glass sheet, grain, family wash matching the card accent
+- Close (X), hero PFP + name + major + rank + socials
+- Bio, then 2-col chips: Career path, Interests, Looking for, Clubs & orgs
+- **Connect** (wordmark gold→orange→magenta) and **Connect with a message** (orange→magenta). Message is optional (`#discovery-connect-note`). After send: **Requested** (session-only until Firestore connections exist)
+- Overlay must cover navbar + slim footer (`createPortal` to `document.body`)
 
 #### Sample profiles (mock reference)
 
-| Name | Major | Year | Stack | Interests |
-|------|-------|------|-------|-----------|
-| Alex Chen | CIS | Junior | React · TS · Python | Hackathons, Anime, ACM |
-| Maya Hassan | CompE | Sophomore | C++ · Embedded · MATLAB | IEEE, Robotics, Sci-Fi |
-| Jordan Lee | SE | Senior | Node · AWS · Docker | Open Source, Gaming RPG, Capstone |
-| (+ 9 more — vary avatar accent hex across cyan/purple/gold/pink) |
+| Name | Major | Year | Looking for |
+|------|-------|------|-------------|
+| Alex Chen | CIS | Junior | Friend, Campus Events |
+| Maya Hassan | CompE | Sophomore | Lab Partner, Study Partner |
+| Jordan Lee | SE | Senior | Colleague, Mentor |
+| (+ 9 more — cycle accent keys cyan/purple/gold/pink; paint them as the four pairs above) |
+
+Bios talk about people, coffee, classes, career — **not** “shipping,” “looking for a teammate,” or “finding a builder.”
 
 #### Firebase TODO
 
+See [discovery-grid.md](./discovery-grid.md) for query gates, mapping, and conditional render. Do not remount `MOCK_PROFILES` as the live grid.
+
 - Firestore compound filters on tags
-- Full-text search on name/stack
+- Full-text search on name
 - Pagination / infinite scroll
 - Saved filter presets
+- Persist Connect / optional first message
 
 ---
 
@@ -268,12 +304,12 @@ Maps to [firestore-schema.md](firestore-schema.md) — Discovery Grid card:
 
 | Card | Fields |
 |------|--------|
-| **Profile & Discovery** | Show profile publicly, appear in grid, show skills, show interests, show class year |
+| **Profile & Discovery** | Show profile to other students, show interests, show class year |
 | **Messaging & Notifications** | New message, connection request, profile view, event invite, weekly digest; "Allow messages from" dropdown |
 | **Appearance** | Dark / Light mode — **wire to `ThemeProvider`**; active mode label gets gradient text |
 | **Privacy & Safety** | Online status, read receipts, blocked users, data export |
 | **Account & Security** | Change email, reset password, 2FA, GitHub/Google connect, sign out all devices |
-| **Danger Zone** | **Deactivate** (`isDeactivated` + hide from Discovery, reversible). **Delete** (Google reauth → wipe Storage + Firestore + Auth). |
+| **Danger Zone** | **Deactivate** (`isDeactivated` + hide from People, reversible). **Delete** (Google reauth → wipe Storage + Firestore + Auth). |
 
 Toggle switches: **Devora gradient** when on (`.devora-toggle`) — not cyan. Outline actions use `.devora-btn-outline` with gradient variants.
 
@@ -301,14 +337,14 @@ Toggle switches: **Devora gradient** when on (`.devora-toggle`) — not cyan. Ou
 5. What's on the roadmap after launch?
 
 **Using the Platform** (`devora-gradient-text`)
-6. How does the Discovery Grid work?
+6. How does People work?
 7. What should I put on my profile?
 8. How does messaging work?
 9. Will Devora show CECS events and workshops?
 10. Does Devora work on mobile?
 
 **Privacy & Safety** (`pink-grad`)
-11. Can I hide my profile from Discovery?
+11. Can I hide my profile from other students?
 12. What if someone makes me uncomfortable?
 13. Can I download or delete my data?
 
@@ -358,8 +394,8 @@ Single `.page-panel` with vertical tab sidebar (desktop) / horizontal tabs (mobi
 
 | Column | Content |
 |--------|---------|
-| **Left** | Avatar (gold/magenta ring), display name (`headline-grad`), subtitle, school, verified + joined badges, **Edit profile** (`devora-btn-outline`), profile strength bar (if &lt;100%), discovery preview card, stat grid (Major, Class rank, Age, Gender — each label uses a different gradient) |
-| **Right** | Glass details card: Bio, Looking for, Experience & projects, Career focus, Interests (with "+N more"), Social links — each section title uses its mapped gradient + Public badge. Collapsible **Private details** (email, school). |
+| **Left** | Avatar (gold/magenta ring), display name (`headline-grad`), subtitle, school, verified + joined badges, **Edit profile**, profile strength bar (if &lt;100%), “How you appear” preview, info grid (Major, Class rank, Age, Gender), Sign out under the info grid |
+| **Right** | Glass details: Bio, Looking for, Experience, Career focus, Interests, Social links. |
 
 Sign out sits below the split (`page-btn-danger`). Edit mode replaces view with `AccountProfileEditor`.
 
@@ -376,7 +412,7 @@ All fields from Firestore `users/{uid}` — same as onboarding. No mock data.
 | Avatar | `photoURL` or initials from `firstName`/`lastName` |
 | Quick facts | `major`, `classRank`, `age`, `gender` |
 | Profile strength | Derived via `getProfileCompleteness()` |
-| Discovery preview | `getDiscoveryTags()` + truncated bio |
+| Discovery preview | `getDiscoveryTags()` + truncated bio (“How you appear” / Public to students) |
 | Looking for | `aboutYou` |
 | Career focus | `careerNiche`, `careerNicheOther` |
 | Interests | `casualInterests` |
@@ -413,23 +449,14 @@ Reuse `PillGroup` from `src/ui/shared/PillGroup.tsx` and options from `onboardin
 ## Component Architecture (when rebuilding)
 
 ```
-src/ui/pages/
-  shared/
-    mock-data.ts          ← filter options, FAQ copy, mock profiles, gradient maps
-  discovery-grid/
-    DiscoveryGridLayout.tsx
-  settings/
-    SettingsLayout.tsx
-  faqs/
-    FaqsLayout.tsx
-  messages/
-    MessagesLayout.tsx    ← Activity Center inner UI
+src/ui/discovery/
+  DiscoveryGridContent.tsx   ← filters overlay + card grid + peek portal
+  filter-options.ts
+  mock-profiles.ts
+  cards/                     DiscoveryProfileCard, Peek, Avatar, social SVGs
+  filters/                   DiscoveryFilterSidebar
 
-src/app/
-  discovery-grid-page/page.tsx   ← RetroPageShell + titleClassName + Layout
-  settings-page/page.tsx
-  faqs-page/page.tsx
-  messages-page/page.tsx         ← activeItem="Activity Center"
+src/app/find-students/page.tsx   ← PageLayout wide + title Discovery Grid
 ```
 
 ---
@@ -454,7 +481,7 @@ users/{uid}/blocked/{blockedUid}
 
 - `@umich.edu` email verification
 - Onboarding: major, class year, initial tags
-- Protected: Discovery Grid, Activity Center, Settings, Account
+- Protected: People, Activity Center, Settings, Account
 - Public: Home, FAQs
 
 ---
@@ -468,17 +495,23 @@ users/{uid}/blocked/{blockedUid}
 
 ## Anti-patterns (learned from concept passes)
 
-- ❌ Flat cyan (`#22d3ee`) on account page — borders, badges, links, strength bar, avatar ring
-- ❌ Flat basic pink (`#ff5ca8`) as the only accent on account/settings — use full gradient classes instead
+- ❌ Flat cyan (`#22d3ee`) on People cards, search, avatar rings, or peek buttons
+- ❌ Flat basic pink (`#ff5ca8`) as the only accent — use a short pair instead
 - ❌ One accent color on every account element (all cyan or all pink)
+- ❌ Busy rainbow button gradients (5+ stops)
+- ❌ Relabeling Discovery Grid as “People” in nav, titles, or welcome copy
+- ❌ Mock student grid on `/find-students` before Firestore browse exists
+- ❌ `backdrop-filter` blur on the Filters overlay (page behind the drawer must stay sharp)
+- ❌ “View Grid” / “find a builder” / “ship together” in live UI copy
+- ❌ Left vertical accent rails on cards, peek, FAQ, or settings
+- ❌ Peek trapped in the page column (footer paints over it) — portal to `document.body`
+- ❌ Tall stacked footer (`py-8` + wordmark + links + two credit blocks) — keep the slim bar
 - ❌ All-pink borders, icons, pills, toggles, chevrons
 - ❌ Gradient text on every line of body copy, majors, or stack strings
-- ❌ Opaque black panel behind entire profile grid (hides retro background)
+- ❌ Opaque black panel behind the whole People grid (hides the shader)
 - ❌ Nested `<span>` inside nav links (breaks click targets)
-- ❌ `overflow-x-auto` on desktop nav pill
-- ❌ 200px filter sidebar with 4 options
-- ❌ Sparse settings (4 items total)
-- ❌ 4 FAQs only
+- ❌ Persistent 2-column filter sidebar on People (filters are an overlay)
+- ❌ Dumping looking-for / clubs / full bio on the card face
 - ❌ Empty Activity Center tabs
 
 ---
@@ -492,4 +525,4 @@ users/{uid}/blocked/{blockedUid}
 
 ---
 
-*Last updated: Aug 31, 2026 — account page uses per-element Devora gradients (no flat cyan/pink). Settings toggles use devora gradient. Shell pages keep per-route title gradients.*
+*Last updated: Sep 16, 2026 — Discovery Grid filters-only shell; card grid deferred to discovery-grid.md; filter overlay does not blur the page.*

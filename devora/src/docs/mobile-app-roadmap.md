@@ -75,7 +75,7 @@ Core web only. No Capacitor yet.
 
 - Auth (Google, `@umich.edu`), onboarding, Firestore profiles
 - Account page, settings (persisted to Firestore)
-- Discovery Grid, Activity Center / messaging (as scoped in [DESIGN_SCOPE.md](./DESIGN_SCOPE.md))
+- People (`/find-students`), Activity Center / messaging (as scoped in [DESIGN_SCOPE.md](./DESIGN_SCOPE.md))
 - Deploy to production URL
 
 Mobile prep that can happen **alongside** web (low effort):

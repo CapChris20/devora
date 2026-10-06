@@ -10,10 +10,12 @@ Also read [DESIGN_SCOPE.md](./DESIGN_SCOPE.md) for visual/UI specs (colors, grad
 
 ```
 src/app/              → URLs only (thin page files)
-src/ui/               → React components + globals.css
+src/ui/               → React screens + globals.css
 src/backend/firebase/ → Firebase client (auth, db, sign-in)
 src/docs/             → Project documentation
 ```
+
+`src/app/` is the URL map. `src/ui/` is nested **screen → part → file**.
 
 ---
 
@@ -23,20 +25,21 @@ src/docs/             → Project documentation
    - ❌ Marquee, CTA, Shell, Reveal, RetroPageShell, SiteNavBar, LandingMarquee
    - ✅ ScrollingTextStrip, JoinNowSection, PageLayout, NavBar, TopSection
 
-2. **Folder = context** — do **not** repeat the folder name in every file.
-   - ❌ `homepage-sections/HomepageScrollingText.tsx`
-   - ✅ `homepage-sections/ScrollingTextStrip.tsx`
+2. **Folder names what it is for**
+   - **Top folder** = the screen / feature (`home`, `account`, `auth`, `settings`, `faqs`, `shared`)
+   - **Subfolder** = what that part does (`hero`, `sections`, `onboarding`, `login`, `editor`)
+   - **File name** = the component
+   - Do **not** repeat the folder name in every file (`home/sections/ScrollingTextStrip.tsx`, not `HomepageScrollingText.tsx`)
 
 3. **No "Site" prefix** on shared chrome — `NavBar.tsx`, `Footer.tsx` (not SiteNavBar / SiteFooter).
 
-4. **Stable folder names** — do not rename top-level `ui/` folders without explicit approval.
-   - Exception already made: `landing/` → `homepage-sections/`
+4. **Do not rename `src/app/` route folders** without asking — URLs stay `/home`, `/faqs-page`, `/account-page`, `/onboarding`, etc.
 
-5. **Copy/text lives in `*-text.ts`** next to the component (e.g. `hero/top-section-text.ts`).
+5. **Copy/text lives in `*-text.ts`** next to the component (e.g. `home/hero/top-section-text.ts`).
 
-6. **Delete dead code** — do not add new `_archive/` dumps; remove unused files.
+6. **Delete dead code** — do not add `_archive/` dumps; remove unused files.
 
-7. **Renames change imports everywhere** — run build after; update nav hrefs and docs in `src/docs/`.
+7. **Renames change imports everywhere** — run a TypeScript/Next check after; update docs in `src/docs/`.
 
 ---
 
@@ -45,7 +48,7 @@ src/docs/             → Project documentation
 | URL | Folder | Notes |
 |-----|--------|-------|
 | `/home` | `home/` | Full homepage (redirect from `/`) |
-| `/find-students` | `find-students/` | Discovery Grid shell |
+| `/find-students` | `find-students/` | **Discovery Grid** (nav + title). Do not rename the URL. |
 | `/settings` | `settings/` | Settings shell |
 | `/faqs-page` | `faqs-page/` | **Kept** `-page` suffix (user choice) |
 | `/messages-page` | `messages-page/` | Activity Center shell; nav label **Activity Center** |
@@ -55,28 +58,53 @@ src/docs/             → Project documentation
 | `/onboarding` | `onboarding/` | 5-step profile setup |
 | `/onboarding/welcome` | `onboarding/welcome/` | Post-onboarding welcome |
 
-Do not rename these routes without asking.
+Do not rename these routes without asking. Discovery Grid UI lives in `src/ui/discovery/` (route stays `/find-students`). Messages is still a thin `PageLayout` shell.
 
 ---
 
-## `src/ui/` layout (current)
+## `src/ui/` layout (screen → part)
 
-| Folder | Purpose | Key files |
-|--------|---------|-----------|
-| `hero/` | Top of homepage only | `TopSection.tsx`, `top-section-text.ts`, `Credits.tsx`, `Logo.tsx`, other `Hero*` pieces user kept |
-| `homepage-sections/` | Homepage sections below hero | `ScrollingTextStrip`, `WhatIsDevora`, `FeatureCards`, `BestUseCases`, `WhyNot`, `GoodReasons`, `JoinNowSection`, `FadeInWhenScrolling`, `MouseGridBackground`, `MovingAnimation` |
-| `auth/` | Sign-in + onboarding UI | `SignInPageLayout`, `LoginCard`, `SignupCard`, `GoogleButton`, `OnboardingForm`, `WelcomeScreen` |
-| `navbar/` | Top menu | `NavBar.tsx` |
-| `footer/` | Bottom links | `Footer.tsx` |
-| `backgrounds/` | App-page synthwave scenes | `PageLayout.tsx`, `BackgroundPicture.tsx`, `mountains.tsx`, `city.tsx`, `pyramids.tsx`, `background-helpers.tsx` |
-| `theme/` | Dark/light mode | `DarkLightMode.tsx`, `AppWrapper.tsx`, `DarkLightButton.tsx` |
-| `cursor/` | Fluid cursor | `SplashCursor.jsx`, `SplashCursorClient.tsx` |
-| `logo/` | Logo component | `DevoraLogo.tsx` |
-| `lottie-animations/` | Lottie JSON | kebab-case filenames |
-| `small-assets/` | PNG/SVG icons | keep unless user renames |
-| `globals.css` | All styles | do not split without asking |
+```
+ui/
+  home/
+    hero/                      TopSection, title stack, credits, CTAs
+    sections/                  landing blocks below the hero
+  account/
+    AccountPageContent.tsx     orchestrator
+    profile/                   view, info cards, discovery preview, helpers
+    editor/                    AccountProfileEditor
+    onboarding/                OnboardingForm, WelcomeScreen, options
+  auth/
+    login/ signup/ google/ layout/ deactivated/
+    sign-in-actions.ts
+  settings/
+    page/                      SettingsPageContent
+    toggles/                   GradientToggle
+  faqs/
+    FAQAccordion.tsx
+  discovery/
+    DiscoveryGridContent.tsx   Discovery Grid shell (filters live; cards deferred)
+    cards/ filters/            peek, avatars, overlay filters
+  shared/
+    pills/ navbar/ footer/ logo/ theme/
+    backgrounds/               PageLayout + Voronoi only
+    assets/small-assets/
+    assets/lottie-animations/
+  globals.css
+```
 
-**Do not recreate** `ui/background/` (singular) or `ui/pages/` concept layouts unless user asks.
+| Folder | Purpose |
+|--------|---------|
+| `home/hero/` | Homepage first viewport |
+| `home/sections/` | Homepage sections below hero (`WhatIsDevora`, `WhyDevora`, `CardCycle`, …) |
+| `account/` | Account screen; onboarding lives here even though the URL is `/onboarding` |
+| `auth/` | Sign-in / signup / deactivated chrome |
+| `settings/` | Settings screen |
+| `faqs/` | FAQ accordion |
+| `shared/` | Chrome and assets used by more than one screen |
+| `globals.css` | All styles — do not split without asking |
+
+Import examples: `@/ui/home/hero/TopSection`, `@/ui/account/onboarding/OnboardingForm`, `@/ui/shared/backgrounds/PageLayout`.
 
 ---
 
@@ -98,11 +126,9 @@ Folder stays `backend/`, not `lib/`.
 
 - **Homepage hero main block:** `TopSection` (not LandingHero)
 - **App page wrapper:** `PageLayout` (not RetroPageShell)
-- **Background renderer:** `BackgroundPicture`
+- **Background renderer:** `BackgroundPicture` (Voronoi via `VoronoiShaderBackgroundClient`)
 - **Scroll animation helper:** `FadeIn` / `SectionNumber` exported from `FadeInWhenScrolling.tsx`
-- **Why Devora section:** `WhyNot.tsx` (short, not WhyNotLinkedIn)
-
-When adding hero subcomponents, prefer **short obvious names** inside `hero/` (`Slogan`, `Blurb`) only if user approves — several `Hero*` files were intentionally kept.
+- **Why Devora section:** `WhyDevora.tsx`
 
 ---
 
@@ -117,6 +143,6 @@ When adding hero subcomponents, prefer **short obvious names** inside `hero/` (`
 
 ## Before creating new files
 
-1. Pick the right folder from the table above
+1. Pick the right **screen** folder, then the **part** subfolder
 2. Use a plain-English filename (say it out loud — would a friend understand?)
 3. If renaming >3 files or changing URLs, **list current → proposed and wait for approval**

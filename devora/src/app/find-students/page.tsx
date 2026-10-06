@@ -1,22 +1,24 @@
-// Discovery Grid page placeholder — browse students by major, interests, and skills.
-// Flow: route mounts → PageLayout with title/description → grid UI comes later.
+// Discovery Grid page — title chrome + Filters overlay. Student cards are not mounted yet.
+// Flow: route mounts → PageLayout → DiscoveryGridContent (filters only).
+// Grid / peek rebuild: src/docs/discovery-grid.md (Firestore browse + conditional render).
 
 "use client";
 
-import PageLayout from "@/ui/backgrounds/PageLayout";
+import PageLayout from "@/ui/shared/backgrounds/PageLayout";
+import DiscoveryGridContent from "@/ui/discovery/DiscoveryGridContent";
 
-// Placeholder shell until the student browse grid is built.
-// vocab: "use client" = browser component (matches other app shells using PageLayout)
-// Manipulate here: title/description = what students see before the grid ships
+// Thin route: wide layout + Discovery Grid filters. Card grid is deferred.
 export default function DiscoveryGridPage() {
   return (
     <PageLayout
-      // vocab: wide = give the future grid more horizontal room
+      // vocab: wide = 1400px max so four profile cards fit on one row
       wide
       activeItem="Discovery Grid"
       title="Discovery Grid"
       titleClassName="page-title-grad"
-      description="Browse CECS students by major, interests, and skills — coming soon."
-    />
+      description="Find friends, colleagues, and people in your career niche across CECS."
+    >
+      <DiscoveryGridContent />
+    </PageLayout>
   );
 }

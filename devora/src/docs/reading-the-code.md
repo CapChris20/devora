@@ -57,7 +57,7 @@
 | **router.push / replace** | Navigate to another page (`push` = history, `replace` = no back). |
 | **onAuthStateChanged** | Firebase listener — fires when user signs in or out. |
 | **onboardingComplete** | Boolean on profile — false until 5-step form is done. |
-| **isPublic** | Boolean — false hides user from Discovery Grid queries. |
+| **isPublic** | Boolean — false hides user from People queries. |
 | **use client** | This file runs in the browser (hooks, clicks, Firebase). |
 | **useEffect** | Run setup/cleanup after the component appears. |
 | **useState** | Hold a value that can change and re-render the UI. |
