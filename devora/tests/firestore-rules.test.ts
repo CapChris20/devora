@@ -85,6 +85,29 @@ describe("owner flows", () => {
   });
 });
 
+describe("conversations and projects", () => {
+  it("participant can create a conversation they are in; non-participant cannot", async () => {
+    await assertSucceeds(setDoc(doc(umich("bob"), "conversations/c1"), { participantIds: ["bob", "pub"] }));
+    await assertFails(setDoc(doc(umich("bob"), "conversations/c2"), { participantIds: ["pub"] }));
+  });
+  it("participant reads conversation, outsider cannot", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      await setDoc(doc(ctx.firestore(), "conversations/c3"), { participantIds: ["bob", "pub"] });
+    });
+    await assertSucceeds(getDoc(doc(umich("bob"), "conversations/c3")));
+    await assertFails(getDoc(doc(umich("zed"), "conversations/c3")));
+  });
+  it("projects of a public user are readable; of a private or deactivated user are not", async () => {
+    await env.withSecurityRulesDisabled(async (ctx) => {
+      for (const u of ["pub", "alice", "deact"]) await setDoc(doc(ctx.firestore(), `users/${u}/projects/p1`), { t: 1 });
+    });
+    await assertSucceeds(getDoc(doc(umich("bob"), "users/pub/projects/p1")));
+    await assertFails(getDoc(doc(umich("bob"), "users/alice/projects/p1")));
+    await assertFails(getDoc(doc(umich("bob"), "users/deact/projects/p1")));
+    await assertSucceeds(getDoc(doc(umich("alice"), "users/alice/projects/p1")));
+  });
+});
+
 // Documents a known gap rather than a desired behavior: a list query cannot prove
 // isDeactivated != true from an isPublic == true filter, so the list rule is
 // evaluated on isPublic alone. The app keeps the two in sync (deactivateAccount
