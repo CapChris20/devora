@@ -19,7 +19,13 @@ service cloud.firestore {
     }
 
     match /users/{userId} {
-      allow read: if isUmichUser() || isOwner(userId);
+      allow get: if isUmichUser()
+        && (isOwner(userId)
+          || (resource.data.get('isPublic', false) == true
+            && resource.data.get('isDeactivated', false) != true));
+      allow list: if isUmichUser()
+        && resource.data.get('isPublic', false) == true
+        && resource.data.get('isDeactivated', false) != true;
       allow create, update: if isOwner(userId)
         && isUmichEmail(request.resource.data.email);
       allow delete: if isOwner(userId) && isUmichUser();
