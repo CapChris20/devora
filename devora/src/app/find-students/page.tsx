@@ -1,7 +1,6 @@
 // Discovery Grid page per DESIGN.md § 5.3.
 // Halftone Dots animated background in Devora brand gradient taking over the whole page.
-// Hero band with quieted isometric cube SVG texture,
-// h1.t-band "Discovery Grid", lead blurb, toolbar, and the live student grid.
+// Clean opaque hero card, toolbar, and the live student grid.
 
 "use client";
 
@@ -9,43 +8,6 @@ import NavBar from "@/ui/shared/navbar/NavBar";
 import Footer from "@/ui/shared/footer/Footer";
 import DiscoveryGridContent from "@/ui/discovery/DiscoveryGridContent";
 import BackgroundPicture from "@/ui/shared/backgrounds/BackgroundPicture";
-
-const S = 36;
-const W = 62.3538; // sqrt(3) * 36
-const H = 108; // 3 * S
-
-function IsometricCube({ x, y }: { x: number; y: number }) {
-  const halfW = W / 2;
-  const halfS = S / 2;
-  return (
-    <g transform={`translate(${x}, ${y})`}>
-      {/* Top face */}
-      <polygon
-        points={`0,0 ${halfW},${halfS} 0,${S} -${halfW},${halfS}`}
-        style={{ fill: "var(--cube-top, #241e24)" }}
-        stroke="#ff5ca8"
-        strokeOpacity="0.12"
-        strokeWidth="1"
-      />
-      {/* Left face */}
-      <polygon
-        points={`-${halfW},${halfS} 0,${S} 0,${2 * S} -${halfW},${1.5 * S}`}
-        style={{ fill: "var(--cube-left, #191519)" }}
-        stroke="#ff5ca8"
-        strokeOpacity="0.12"
-        strokeWidth="1"
-      />
-      {/* Right face */}
-      <polygon
-        points={`0,${S} ${halfW},${halfS} ${halfW},${1.5 * S} 0,${2 * S}`}
-        style={{ fill: "var(--cube-right, #121012)" }}
-        stroke="#ff5ca8"
-        strokeOpacity="0.12"
-        strokeWidth="1"
-      />
-    </g>
-  );
-}
 
 export default function DiscoveryGridPage() {
   return (
@@ -60,43 +22,73 @@ export default function DiscoveryGridPage() {
       <div className="relative z-10 min-h-screen">
         <NavBar activeItem="Discovery Grid" />
 
-        {/* ── Hero band ── */}
-        <section className="disc-hero">
-          {/* Isometric Pattern SVG overlay */}
-          <svg
-            className="cubes opacity-40"
-            width="100%"
-            height="100%"
-            aria-hidden="true"
+        {/* ── Hero band with solid opaque overlay card ── */}
+        <section
+          aria-label="Discovery Grid hero"
+          style={{
+            paddingTop: "calc(clamp(72px, 8vw, 96px) + 52px)",
+            paddingBottom: 16,
+            position: "relative",
+          }}
+        >
+          <div
+            style={{
+              maxWidth: 1240,
+              marginInline: "auto",
+              paddingInline: "clamp(20px, 4.5vw, 64px)",
+            }}
           >
-            <defs>
-              <pattern
-                id="cubePattern"
-                width={W}
-                height={H}
-                patternUnits="userSpaceOnUse"
+            <div
+              style={{
+                background: "#0d0a11",
+                border: "2px solid rgba(255, 92, 168, 0.35)",
+                borderRadius: 24,
+                padding: "clamp(28px, 4vw, 42px)",
+                boxShadow: "0 16px 36px -10px rgba(0, 0, 0, 0.75), 0 0 24px -8px rgba(255, 92, 168, 0.2)",
+              }}
+            >
+              <h1
+                style={{
+                  fontFamily: "var(--font-display), 'Arial Black', sans-serif",
+                  fontWeight: 800,
+                  fontSize: "clamp(36px, 6.5vw, 84px)",
+                  lineHeight: 0.95,
+                  letterSpacing: "-0.035em",
+                  textTransform: "uppercase",
+                  color: "#ffffff",
+                  margin: 0,
+                  textShadow: "0 2px 14px rgba(0,0,0,0.7)",
+                }}
               >
-                <IsometricCube x={0} y={0} />
-                <IsometricCube x={W} y={0} />
-                <IsometricCube x={W / 2} y={1.5 * S} />
-                <IsometricCube x={0} y={H} />
-                <IsometricCube x={W} y={H} />
-              </pattern>
-            </defs>
-            <rect width="100%" height="100%" fill="url(#cubePattern)" />
-          </svg>
-
-          {/* Content */}
-          <div className="wrap">
-            <h1 className="t-band text-[var(--text)]">Discovery Grid</h1>
-            <p className="lead">
-              Find friends, colleagues and people in your career niche across CECS.
-            </p>
+                Discovery Grid
+              </h1>
+              <p
+                style={{
+                  fontFamily: "var(--font-mono), monospace",
+                  fontSize: "clamp(16px, 1.4vw, 19px)",
+                  lineHeight: 1.55,
+                  maxWidth: "46em",
+                  marginTop: 16,
+                  marginBottom: 0,
+                  color: "rgba(255, 255, 255, 0.92)",
+                }}
+              >
+                Find friends, colleagues and people in your career niche across CECS.
+              </p>
+            </div>
           </div>
         </section>
 
         {/* ── Main Grid Container ── */}
-        <main className="wrap pb-24 pt-6">
+        <main
+          style={{
+            maxWidth: 1240,
+            marginInline: "auto",
+            paddingInline: "clamp(20px, 4.5vw, 64px)",
+            paddingBottom: 96,
+            paddingTop: 16,
+          }}
+        >
           <DiscoveryGridContent />
         </main>
 

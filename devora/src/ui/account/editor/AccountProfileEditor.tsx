@@ -386,7 +386,13 @@ export default function AccountProfileEditor({
         onClick={() => closeEditorUnlessSaving(isSaving, onCancel)}
       >
         <form
-          className="glass-card account-profile-editor"
+          className="account-profile-editor"
+          style={{
+            background: "#0d0a11",
+            border: "2px solid rgba(255, 92, 168, 0.35)",
+            boxShadow: "0 24px 64px -12px rgba(0, 0, 0, 0.95)",
+            borderRadius: 20,
+          }}
           onSubmit={submitProfileEdits}
           // vocab: stopPropagation = a click on the form must not count as a backdrop click
           onClick={(event) => event.stopPropagation()}

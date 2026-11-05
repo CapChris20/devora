@@ -783,29 +783,58 @@ export default function SettingsPageContent() {
   }
 
   return (
-    <div className="settings-page-content-wrapper">
+    <div style={{ display: "flex", flexDirection: "column", gap: 24, width: "100%" }}>
       {/* Status banner */}
       {successMessage && (
-        <div className="settings-alert-banner success-banner">
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "14px 20px",
+            borderRadius: 14,
+            fontFamily: "var(--font-mono), monospace",
+            fontSize: 14,
+            fontWeight: 700,
+            background: "linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%)",
+            color: "#0d0b0e",
+            boxShadow: "0 8px 24px -4px rgba(0,0,0,0.5)",
+          }}
+        >
           <Check size={18} color="#0d0b0e" strokeWidth={3} />
           <span>{successMessage}</span>
         </div>
       )}
 
       {errorMessage && (
-        <div className="settings-alert-banner error-banner">
-          <AlertTriangle size={18} />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 12,
+            padding: "14px 20px",
+            borderRadius: 14,
+            fontFamily: "var(--font-mono), monospace",
+            fontSize: 14,
+            fontWeight: 700,
+            background: "#241018",
+            border: "2px solid #852230",
+            color: "#ff8fa0",
+            boxShadow: "0 8px 24px -4px rgba(0,0,0,0.5)",
+          }}
+        >
+          <AlertTriangle size={18} color="#ff8fa0" />
           <span>{errorMessage}</span>
         </div>
       )}
 
       {isSaving && (
-        <div className="saving-indicator">
+        <div style={{ fontFamily: "var(--font-mono), monospace", fontSize: 13, color: "#d8cdd5", textAlign: "right" }}>
           <span>{SAVING_HINT}</span>
         </div>
       )}
 
-      <div className="settings-grid-stack">
+      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
         {/* Discovery Visibility */}
         <SettingsCard title="Discovery Grid">
           <SettingsRow
@@ -870,18 +899,41 @@ export default function SettingsPageContent() {
             disabled={isSaving}
           />
 
-          <div className="policy-select-row">
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+              padding: "12px 16px",
+              borderRadius: 14,
+              background: "#15101a",
+              border: "1.5px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
             <div>
-              <span className="text-[15.5px] font-semibold text-white">
+              <span style={{ fontSize: 16, fontWeight: 700, color: "#ffffff" }}>
                 Allow messages from
               </span>
-              <p className="text-[14px] text-[var(--text-muted)] m-0 mt-0.5">
+              <p style={{ fontSize: 14, color: "#d8cdd5", margin: "4px 0 0" }}>
                 Who can start a conversation with you.
               </p>
             </div>
 
             <select
-              className="policy-select"
+              style={{
+                height: 44,
+                padding: "0 16px",
+                borderRadius: 12,
+                background: "#0e0b12",
+                border: "2px solid #2f2536",
+                color: "#ffffff",
+                fontFamily: "var(--font-mono), monospace",
+                fontSize: 14,
+                fontWeight: 600,
+                outline: "none",
+                cursor: "pointer",
+                maxWidth: 320,
+              }}
               value={preferences.allowMessagesFrom}
               onChange={(event) =>
                 updatePreference(ALLOW_MESSAGES_FROM_KEY, event.target.value as MessagePolicy)
@@ -916,12 +968,22 @@ export default function SettingsPageContent() {
 
         {/* Account Info & Actions */}
         <SettingsCard title="Account">
-          <div className="flex flex-col gap-1">
-            <span className="mono text-[12px] text-[var(--text-muted)]">Signed in as</span>
-            <span className="text-[16px] font-bold text-white">{profile.email}</span>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 4,
+              padding: "12px 16px",
+              borderRadius: 14,
+              background: "#15101a",
+              border: "1.5px solid rgba(255, 255, 255, 0.08)",
+            }}
+          >
+            <span style={{ fontFamily: "var(--font-mono), monospace", fontSize: 12, color: "#d8cdd5", textTransform: "uppercase" }}>Signed in as</span>
+            <span style={{ fontSize: 16, fontWeight: 700, color: "#ffffff" }}>{profile.email}</span>
           </div>
 
-          <div className="flex flex-wrap gap-3 pt-2">
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, paddingTop: 4 }}>
             <Link href={ACCOUNT_PAGE_PATH} className="btn-primary">
               <PenLine size={16} />
               <span>Edit profile</span>
@@ -929,9 +991,23 @@ export default function SettingsPageContent() {
 
             <button
               type="button"
-              className="account-signout-btn"
               onClick={() => {
                 void signOutAndReturnToLogin(router);
+              }}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 8,
+                height: 44,
+                paddingInline: 22,
+                borderRadius: 9999,
+                background: "#15101a",
+                border: "2px solid rgba(255, 255, 255, 0.3)",
+                color: "#ffffff",
+                fontFamily: "var(--font-mono), monospace",
+                fontWeight: 700,
+                fontSize: 14,
+                cursor: "pointer",
               }}
             >
               <LogOut size={16} />

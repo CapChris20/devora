@@ -416,10 +416,15 @@ export default function AccountProfileView({
         .account-page-head {
           display: flex;
           flex-wrap: wrap;
-          align-items: flex-end;
+          align-items: center;
           justify-content: space-between;
           gap: 16px;
-          margin-bottom: 20px;
+          margin-bottom: 24px;
+          background: #0d0a11;
+          border: 2px solid rgba(255, 92, 168, 0.35);
+          border-radius: 20px;
+          padding: 24px 28px;
+          box-shadow: 0 14px 36px -10px rgba(0, 0, 0, 0.75), 0 0 20px -8px rgba(255, 92, 168, 0.2);
         }
 
         .account-split-grid {
@@ -436,12 +441,11 @@ export default function AccountProfileView({
         }
 
         .glass-panel {
-          background: rgb(22 17 21 / 0.45);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border: 1.5px solid rgb(255 255 255 / 0.12);
-          border-radius: 16px;
-          padding: 20px;
+          background: #0f0b13;
+          border: 2px solid #2f2536;
+          border-radius: 20px;
+          padding: 24px;
+          box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.8), 0 0 20px -8px rgba(255, 92, 168, 0.15);
         }
 
         .identity-row {
@@ -526,22 +530,24 @@ export default function AccountProfileView({
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          height: 24px;
-          padding: 0 10px;
+          height: 26px;
+          padding: 0 12px;
           border-radius: 999px;
-          border: 1px solid rgb(255 255 255 / 0.25);
+          background: #18121d;
+          border: 1.5px solid #3d2f47;
           font-family: var(--f-mono);
           font-size: 11px;
           text-transform: uppercase;
           letter-spacing: 0.04em;
-          color: white;
+          color: #ffffff;
         }
 
         .profile-strength-box {
-          background: rgb(255 255 255 / 0.04);
-          border-radius: 12px;
-          padding: 12px 14px;
-          margin-top: 14px;
+          background: #16101c;
+          border: 1.5px solid #2f2536;
+          border-radius: 14px;
+          padding: 14px 16px;
+          margin-top: 16px;
         }
 
         .strength-header {
@@ -561,7 +567,7 @@ export default function AccountProfileView({
         .strength-bar-track {
           width: 100%;
           height: 6px;
-          background: rgb(255 255 255 / 0.1);
+          background: rgba(255, 255, 255, 0.15);
           border-radius: 999px;
           overflow: hidden;
         }
@@ -575,7 +581,7 @@ export default function AccountProfileView({
 
         .strength-hint {
           font-size: 12px;
-          color: var(--text-muted);
+          color: #d8cdd5;
           margin: 6px 0 0;
         }
 
@@ -585,7 +591,7 @@ export default function AccountProfileView({
           gap: 12px 16px;
           margin: 16px 0 0;
           padding: 14px 0 0;
-          border-top: 1px solid rgb(255 255 255 / 0.08);
+          border-top: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .fact-item {
@@ -606,13 +612,13 @@ export default function AccountProfileView({
           align-items: center;
           justify-content: center;
           gap: 8px;
-          height: 42px;
+          height: 44px;
           border-radius: 999px;
-          background: transparent;
-          border: 1.5px solid var(--danger-edge, #7a2a3a);
-          color: var(--danger, #ff8fa0);
+          background: #1c0c14;
+          border: 2px solid #852230;
+          color: #ff8fa0;
           font-family: var(--f-mono);
-          font-size: 13px;
+          font-size: 13.5px;
           font-weight: 700;
           text-transform: uppercase;
           cursor: pointer;
@@ -620,8 +626,8 @@ export default function AccountProfileView({
         }
 
         .btn-danger:hover {
-          border-color: var(--danger);
-          background: rgb(255 143 160 / 0.08);
+          border-color: #ff5ca8;
+          background: #2a101d;
         }
 
         .public-legend-line {
@@ -728,16 +734,17 @@ export default function AccountProfileView({
         }
 
         .profile-tag {
-          height: 28px;
+          height: 30px;
           display: inline-flex;
           align-items: center;
-          padding: 0 10px;
+          padding: 0 12px;
           border-radius: 999px;
-          background: rgb(255 255 255 / 0.06);
-          border: 1px solid rgb(255 255 255 / 0.14);
-          font-size: 12px;
-          font-weight: 500;
+          background: #18121d;
+          border: 1.5px solid #3d2f47;
+          font-size: 12.5px;
+          font-weight: 600;
           color: white;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
         }
 
         .social-links-col {
@@ -747,13 +754,14 @@ export default function AccountProfileView({
         }
 
         .social-link-row {
-          height: 38px;
+          height: 42px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 12px;
-          border-radius: 10px;
-          background: rgb(255 255 255 / 0.04);
+          padding: 0 14px;
+          border-radius: 12px;
+          background: #16101c;
+          border: 1.5px solid #2f2536;
         }
 
         .social-link-left {
@@ -765,12 +773,12 @@ export default function AccountProfileView({
 
         .social-name {
           font-weight: 600;
-          font-size: 12.5px;
+          font-size: 13px;
         }
 
         .social-val {
           font-size: 12px;
-          color: var(--text-muted);
+          color: #d8cdd5;
           max-width: 140px;
           overflow: hidden;
           text-overflow: ellipsis;
@@ -781,17 +789,17 @@ export default function AccountProfileView({
           display: inline-flex;
           align-items: center;
           gap: 4px;
-          background: rgb(255 92 168 / 0.1);
-          border: 1px solid rgb(255 92 168 / 0.45);
-          padding: 3px 10px;
+          background: #281228;
+          border: 1.5px solid #ff5ca8;
+          padding: 4px 12px;
           border-radius: 999px;
           cursor: pointer;
           transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s var(--spring);
         }
 
         .social-add-link:hover {
-          background: rgb(255 92 168 / 0.22);
-          border-color: #ff5ca8;
+          background: #ff5ca8;
+          color: #0d0b0e;
           transform: translateY(-1px);
         }
 

@@ -525,11 +525,9 @@ export default function DiscoveryGridContent() {
           gap: 12px 16px;
           padding: 8px 14px 8px 10px;
           border-radius: 9999px;
-          background: rgb(24 20 25 / 0.72);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 2px solid rgb(255 255 255 / 0.14);
-          box-shadow: 0 12px 36px -12px rgb(0 0 0 / 0.65);
+          background: #0d0a11;
+          border: 2px solid rgba(255, 92, 168, 0.32);
+          box-shadow: 0 14px 36px -10px rgba(0, 0, 0, 0.75), 0 0 20px -8px rgba(255, 92, 168, 0.2);
           margin-bottom: 24px;
         }
 
@@ -547,9 +545,9 @@ export default function DiscoveryGridContent() {
           gap: 10px;
           padding: 0 20px;
           border-radius: 9999px;
-          background: rgb(255 255 255 / 0.08);
-          border: 2px solid rgb(255 255 255 / 0.18);
-          color: white;
+          background: #18131f;
+          border: 2px solid #362a3f;
+          color: #ffffff;
           font-family: var(--f-body, sans-serif);
           font-size: 14.5px;
           font-weight: 700;
@@ -558,15 +556,15 @@ export default function DiscoveryGridContent() {
         }
 
         .dtools-filter-btn:hover {
-          background: rgb(255 92 168 / 0.15);
+          background: #251b2f;
           border-color: #ff5ca8;
           transform: translateY(-1px);
         }
 
         .dtools-filter-btn.has-active {
-          background: rgb(255 92 168 / 0.18);
+          background: #28142b;
           border-color: #ff5ca8;
-          box-shadow: 0 0 16px rgb(255 92 168 / 0.25);
+          box-shadow: 0 0 16px rgba(255, 92, 168, 0.35);
         }
 
         :global(.dtools-icon) {
@@ -594,14 +592,14 @@ export default function DiscoveryGridContent() {
           align-items: center;
           min-height: 48px;
           border-radius: 9999px;
-          background: rgb(13 11 14 / 0.7);
-          border: 2px solid rgb(255 255 255 / 0.14);
+          background: #120e17;
+          border: 2px solid #362a3f;
           transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .dtools-search-pill:focus-within {
           border-color: #ff5ca8;
-          box-shadow: 0 0 0 3px rgb(255 92 168 / 0.22);
+          box-shadow: 0 0 0 3px rgba(255, 92, 168, 0.25);
         }
 
         .dtools-search-icon {
@@ -621,13 +619,14 @@ export default function DiscoveryGridContent() {
           outline: none;
           padding-left: 46px;
           padding-right: 36px;
-          color: white;
+          color: #ffffff;
           font-family: var(--f-body, sans-serif);
-          font-size: 14.5px;
+          font-size: 15px;
+          font-weight: 500;
         }
 
         .dtools-search-pill input::placeholder {
-          color: var(--text-muted, rgb(251 246 248 / 0.5));
+          color: #b5aab3;
           font-size: 14px;
         }
 
@@ -637,9 +636,9 @@ export default function DiscoveryGridContent() {
           width: 24px;
           height: 24px;
           border-radius: 50%;
-          background: rgb(255 255 255 / 0.15);
-          border: none;
-          color: white;
+          background: #251b2f;
+          border: 1px solid #4a3858;
+          color: #ffffff;
           display: grid;
           place-items: center;
           cursor: pointer;
@@ -647,18 +646,19 @@ export default function DiscoveryGridContent() {
         }
 
         .dtools-clear-query:hover {
-          background: rgb(255 92 168 / 0.5);
+          background: #ff5ca8;
+          color: #0d0b0e;
         }
 
         .dtools-count-chip {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 8px 16px;
+          padding: 8px 18px;
           border-radius: 999px;
-          background: rgb(255 255 255 / 0.05);
-          border: 1px solid rgb(255 255 255 / 0.12);
-          color: var(--text-muted);
+          background: #18131f;
+          border: 1.5px solid #362a3f;
+          color: #ffffff;
           font-family: var(--f-mono);
           font-size: 13px;
           font-weight: 700;
@@ -696,13 +696,14 @@ export default function DiscoveryGridContent() {
           min-height: 36px;
           padding: 0 10px 0 14px;
           border-radius: 999px;
-          background: rgb(255 92 168 / 0.09);
-          border: 1.5px solid rgb(255 92 168 / 0.4);
+          background: #241228;
+          border: 1.5px solid #ff5ca8;
           color: white;
           font-weight: 600;
           font-size: 13.5px;
           cursor: pointer;
           transition: all 0.18s ease;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.4);
         }
 
         .fchip-elevated:hover {
