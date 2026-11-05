@@ -451,24 +451,52 @@ function SettingsDangerZone({
 
   return (
     <motion.div
-      className="danger-panel"
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+      style={{
+        background: "#160a10",
+        border: "2px solid #6b1d28",
+        borderRadius: 20,
+        padding: "clamp(20px, 3vw, 28px)",
+        display: "flex",
+        flexDirection: "column",
+        gap: 18,
+        boxShadow: "0 14px 36px -10px rgba(0, 0, 0, 0.8), 0 0 20px -8px rgba(255, 60, 80, 0.2)",
+      }}
     >
-      <div className="danger-header">
-        <AlertTriangle size={20} color="var(--danger, #ff8fa0)" />
-        <h2 className="danger-title">Danger zone</h2>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 10,
+          paddingBottom: 12,
+          borderBottom: "1px solid #4a151d",
+        }}
+      >
+        <AlertTriangle size={22} color="#ff8fa0" />
+        <h2
+          style={{
+            fontFamily: "var(--font-display), 'Arial Black', sans-serif",
+            fontWeight: 700,
+            fontSize: 18,
+            textTransform: "uppercase",
+            color: "#ff8fa0",
+            margin: 0,
+          }}
+        >
+          Danger zone
+        </h2>
       </div>
 
-      <p className="danger-desc">
+      <p style={{ fontSize: 14.5, color: "#e2d5dc", lineHeight: 1.5, margin: 0 }}>
         {isDeactivated
           ? "Your account is deactivated. Classmates can't find you on Discovery. Reactivate anytime, or delete everything permanently."
           : "Deactivate hides you from Discovery but keeps your data. Delete removes your profile, photo, and login — that can't be undone."}
       </p>
 
-      <div className="danger-actions-row">
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
         {isDeactivated ? (
           <button
             type="button"
@@ -481,12 +509,22 @@ function SettingsDangerZone({
         ) : (
           <button
             type="button"
-            className="btn-danger"
             onClick={() => {
               setDangerConfirm(DEACTIVATE_CONFIRM_MODE);
               setErrorMessage(EMPTY_STATUS_MESSAGE);
             }}
             disabled={isSaving}
+            style={{
+              height: 44,
+              paddingInline: 22,
+              borderRadius: 9999,
+              background: "#2a1016",
+              border: "2px solid #852230",
+              color: "#ff8fa0",
+              fontWeight: 700,
+              fontSize: 14,
+              cursor: "pointer",
+            }}
           >
             <span>Deactivate account</span>
           </button>
@@ -494,37 +532,75 @@ function SettingsDangerZone({
 
         <button
           type="button"
-          className="btn-danger"
           onClick={() => {
             setDangerConfirm(DELETE_CONFIRM_MODE);
             setDeletePhrase(EMPTY_STATUS_MESSAGE);
             setErrorMessage(EMPTY_STATUS_MESSAGE);
           }}
           disabled={isSaving}
+          style={{
+            height: 44,
+            paddingInline: 22,
+            borderRadius: 9999,
+            background: "#2a1016",
+            border: "2px solid #852230",
+            color: "#ff8fa0",
+            fontWeight: 700,
+            fontSize: 14,
+            cursor: "pointer",
+          }}
         >
           <span>Delete account</span>
         </button>
       </div>
 
       {isDeactivateConfirmOpen && (
-        <div className="danger-confirm-box">
-          <p className="text-[14px] text-[var(--text-body)] m-0">
+        <div
+          style={{
+            background: "#241018",
+            border: "1.5px solid #852230",
+            borderRadius: 14,
+            padding: 18,
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+            marginTop: 6,
+          }}
+        >
+          <p style={{ fontSize: 14, color: "#ffffff", margin: 0, fontWeight: 600 }}>
             Hide your profile from Discovery? You can sign back in later and reactivate.
           </p>
-          <div className="flex gap-3">
+          <div style={{ display: "flex", gap: 12 }}>
             <button
               type="button"
-              className="btn-ghost"
               onClick={() => setDangerConfirm(null)}
               disabled={isSaving}
+              style={{
+                height: 40,
+                paddingInline: 18,
+                borderRadius: 999,
+                background: "#160a0f",
+                border: "1.5px solid #4a151d",
+                color: "#e2d5dc",
+                cursor: "pointer",
+              }}
             >
               Cancel
             </button>
             <button
               type="button"
-              className="btn-danger"
               onClick={onDeactivate}
               disabled={isSaving}
+              style={{
+                height: 40,
+                paddingInline: 18,
+                borderRadius: 999,
+                background: "#ff5ca8",
+                border: "none",
+                color: "#0d0b0e",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
             >
               {isSaving ? DEACTIVATING_LABEL : DEACTIVATE_CONFIRM_LABEL}
             </button>
@@ -533,147 +609,78 @@ function SettingsDangerZone({
       )}
 
       {isDeleteConfirmOpen && (
-        <div className="danger-confirm-box">
-          <p className="text-[14px] text-[var(--danger)] m-0">
+        <div
+          style={{
+            background: "#241018",
+            border: "1.5px solid #ff8fa0",
+            borderRadius: 14,
+            padding: 18,
+            display: "flex",
+            flexDirection: "column",
+            gap: 14,
+            marginTop: 6,
+          }}
+        >
+          <p style={{ fontSize: 14, color: "#ff8fa0", margin: 0, fontWeight: 600 }}>
             This permanently deletes your profile, photo, and Google login on Devora. Type DELETE to confirm.
           </p>
           <input
-            className="danger-input"
+            style={{
+              height: 48,
+              padding: "0 16px",
+              borderRadius: 10,
+              background: "#160a0f",
+              border: "2px solid #ff8fa0",
+              color: "#ffffff",
+              fontSize: 15,
+              outline: "none",
+            }}
             value={deletePhrase}
             onChange={(event) => setDeletePhrase(event.target.value)}
             placeholder="Type DELETE"
             autoComplete="off"
             disabled={isSaving}
           />
-          <div className="flex gap-3">
+          <div style={{ display: "flex", gap: 12 }}>
             <button
               type="button"
-              className="btn-ghost"
               onClick={() => {
                 setDangerConfirm(null);
                 setDeletePhrase(EMPTY_STATUS_MESSAGE);
               }}
               disabled={isSaving}
+              style={{
+                height: 40,
+                paddingInline: 18,
+                borderRadius: 999,
+                background: "#160a0f",
+                border: "1.5px solid #4a151d",
+                color: "#e2d5dc",
+                cursor: "pointer",
+              }}
             >
               Cancel
             </button>
             <button
               type="button"
-              className="btn-danger"
               onClick={onDelete}
               disabled={isSaving}
+              style={{
+                height: 40,
+                paddingInline: 18,
+                borderRadius: 999,
+                background: "#ef4444",
+                border: "none",
+                color: "#ffffff",
+                fontWeight: 700,
+                cursor: "pointer",
+              }}
             >
               {isSaving ? DELETING_LABEL : DELETE_CONFIRM_LABEL}
             </button>
           </div>
         </div>
       )}
-
-      <style jsx>{`
-        .danger-panel {
-          background: var(--surface, #1c181c);
-          border: 2px solid var(--danger-edge, #7a2a3a);
-          border-radius: 20px;
-          padding: clamp(20px, 3vw, 28px);
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-        }
-
-        .danger-header {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid var(--danger-edge, #7a2a3a);
-        }
-
-        .danger-title {
-          font-family: var(--font-display), "Arial Black", sans-serif;
-          font-weight: 700;
-          font-size: 17px;
-          text-transform: uppercase;
-          color: var(--danger, #ff8fa0);
-          margin: 0;
-        }
-
-        .danger-desc {
-          font-size: 14.5px;
-          color: var(--text-muted);
-          line-height: 1.5;
-          margin: 0;
-        }
-
-        .danger-actions-row {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 14px;
-        }
-
-        .danger-confirm-box {
-          background: var(--surface-2, #29232a);
-          border: 1px solid var(--danger-edge, #7a2a3a);
-          border-radius: 14px;
-          padding: 16px;
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-          margin-top: 6px;
-        }
-
-        .danger-input {
-          height: 48px;
-          padding: 0 16px;
-          border-radius: 10px;
-          background: var(--surface, #1c181c);
-          border: 2px solid var(--edge, #3d3439);
-          color: white;
-          font-family: var(--f-mono);
-          font-size: 15px;
-          outline: none;
-        }
-
-        .danger-input:focus {
-          border-color: var(--danger);
-        }
-
-        .btn-danger {
-          height: 44px;
-          padding-inline: 22px;
-          border-radius: 9999px;
-          background: transparent;
-          border: 2px solid var(--danger-edge, #7a2a3a);
-          color: var(--danger, #ff8fa0);
-          font-family: var(--f-mono);
-          font-size: 13.5px;
-          font-weight: 700;
-          text-transform: uppercase;
-          cursor: pointer;
-          transition: background 0.2s ease, border-color 0.2s ease;
-        }
-
-        .btn-danger:hover {
-          background: rgb(255 143 160 / 0.1);
-          border-color: var(--danger);
-        }
-
-        .btn-ghost {
-          height: 44px;
-          padding-inline: 22px;
-          border-radius: 9999px;
-          background: transparent;
-          border: 2px solid rgb(255 255 255 / 0.4);
-          color: white;
-          font-family: var(--f-mono);
-          font-size: 13.5px;
-          font-weight: 700;
-          cursor: pointer;
-        }
-
-        .btn-ghost:hover {
-          border-color: white;
-        }
-      `}</style>
     </motion.div>
   );
 }
