@@ -11,12 +11,32 @@
 
 // ===== IMPORTS =====
 
-import EntranceShaderBackgroundClient from "./EntranceShaderBackgroundClient";
-import HexblocksShaderBackgroundClient from "./HexblocksShaderBackgroundClient";
-import IsoShaderBackgroundClient from "./IsoShaderBackgroundClient";
-import PyramidShaderBackgroundClient from "./PyramidShaderBackgroundClient";
-import VoronoiShaderBackgroundClient from "./VoronoiShaderBackgroundClient";
-import VoxelShaderBackgroundClient from "./VoxelShaderBackgroundClient";
+import dynamic from "next/dynamic";
+
+const EntranceShaderBackgroundClient = dynamic(
+  () => import("./EntranceShaderBackgroundClient"),
+  { ssr: false }
+);
+const HexblocksShaderBackgroundClient = dynamic(
+  () => import("./HexblocksShaderBackgroundClient"),
+  { ssr: false }
+);
+const IsoShaderBackgroundClient = dynamic(
+  () => import("./IsoShaderBackgroundClient"),
+  { ssr: false }
+);
+const PyramidShaderBackgroundClient = dynamic(
+  () => import("./PyramidShaderBackgroundClient"),
+  { ssr: false }
+);
+const VoronoiShaderBackgroundClient = dynamic(
+  () => import("./VoronoiShaderBackgroundClient"),
+  { ssr: false }
+);
+const VoxelShaderBackgroundClient = dynamic(
+  () => import("./VoxelShaderBackgroundClient"),
+  { ssr: false }
+);
 
 // ===== NAMED CONSTANTS =====
 

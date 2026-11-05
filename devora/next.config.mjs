@@ -47,6 +47,17 @@ const securityHeaders = [
 ];
 
 const nextConfig = {
+  experimental: {
+    optimizePackageImports: [
+      "lucide-react",
+      "@lobehub/icons",
+      "@heroicons/react",
+      "three",
+      "gsap",
+      "framer-motion",
+      "lenis",
+    ],
+  },
   images: {
     remotePatterns: [
       {
