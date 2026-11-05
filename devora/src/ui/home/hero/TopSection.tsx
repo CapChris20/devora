@@ -54,9 +54,11 @@ export default function TopSection() {
           <article className="hero-info-card hero-info-card-horizontal w-full max-w-[48rem]">
             <div className="hero-info-card-content">
               {/* Small campus eyebrow above the big headline */}
-              <p className="theme-muted text-[10px] uppercase tracking-[0.45em] sm:text-[11px]">
-                CECS · University of Michigan–Dearborn
-              </p>
+              <div className="hero-eyebrow-wrap">
+                <span className="hero-eyebrow-tag">
+                  CECS · University of Michigan–Dearborn
+                </span>
+              </div>
 
               {/* Animate each headline word in one after another (staggered motion.span) */}
               <h2 className="hero-info-card-headline font-display">
