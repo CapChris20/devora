@@ -1,13 +1,12 @@
-// Discovery Grid empty state — 4-card open-seats layout with signature hard shadows.
-// Replaces the cluttered single-poster empty state per user request:
-// Features 3 or 4 open-seat cards in a responsive grid, each displaying Devora's
-// signature 3D hard offset shadows, avatar placeholders, tags, and interactive CTAs.
+// Discovery Grid empty state — Faint Placeholder Cards ("Awaiting Enrollments")
+// per Option 1: 3-4 faint ghost / placeholder cards with dashed frames,
+// empty avatar rings, signature hard offset shadows, and "Awaiting enrollments" styling.
 
 "use client";
 
 import { useState } from "react";
 import Link from "next/link";
-import { Sparkles, Copy, UserPlus, Users, Code, Cpu, Database } from "lucide-react";
+import { Copy, User, Sparkles } from "lucide-react";
 import type { UserProfile } from "@/backend/firebase";
 
 type DiscoveryEmptyStateProps = {
@@ -17,59 +16,42 @@ type DiscoveryEmptyStateProps = {
   onToast?: (message: string) => void;
 };
 
-type OpenSeatMeta = {
-  seatNumber: string;
-  title: string;
-  major: string;
-  status: string;
-  tags: string[];
+type PlaceholderCardMeta = {
+  slot: string;
+  majorHint: string;
   shadowColor: string;
-  ringGradient: string;
-  icon: typeof UserPlus;
-  isSelfSlot?: boolean;
+  ringColor: string;
+  tagHints: string[];
 };
 
-const OPEN_SEATS: OpenSeatMeta[] = [
+const PLACEHOLDER_CARDS: PlaceholderCardMeta[] = [
   {
-    seatNumber: "01",
-    title: "Your Seat",
-    major: "Computer Science",
-    status: "Ready to join the grid",
-    tags: ["Full-Stack", "Web & Mobile", "AI / ML"],
+    slot: "01",
+    majorHint: "Computer Science",
     shadowColor: "#ff9a3d",
-    ringGradient: "linear-gradient(135deg, #ff9a3d, #ff5ca8)",
-    icon: Sparkles,
-    isSelfSlot: true,
+    ringColor: "rgba(255, 154, 61, 0.6)",
+    tagHints: ["Software Dev", "Web & Mobile", "Algorithms"],
   },
   {
-    seatNumber: "02",
-    title: "Seat 02 · Open",
-    major: "Software Engineering",
-    status: "Awaiting first classmate",
-    tags: ["Cloud Architecture", "Cybersecurity", "Hackathons"],
+    slot: "02",
+    majorHint: "Software Engineering",
     shadowColor: "#ff5ca8",
-    ringGradient: "linear-gradient(135deg, #ff5ca8, #ff2bd6)",
-    icon: Code,
+    ringColor: "rgba(255, 92, 168, 0.6)",
+    tagHints: ["Cloud Systems", "DevOps", "Cybersecurity"],
   },
   {
-    seatNumber: "03",
-    title: "Seat 03 · Open",
-    major: "Computer Engineering",
-    status: "Awaiting first classmate",
-    tags: ["Embedded Systems", "Robotics", "Hardware / IoT"],
+    slot: "03",
+    majorHint: "Computer Engineering",
     shadowColor: "#ff2bd6",
-    ringGradient: "linear-gradient(135deg, #ff5ca8, #ff2bd6)",
-    icon: Cpu,
+    ringColor: "rgba(255, 43, 214, 0.6)",
+    tagHints: ["Embedded", "Robotics", "Hardware"],
   },
   {
-    seatNumber: "04",
-    title: "Seat 04 · Open",
-    major: "Data Science & AI",
-    status: "Awaiting first classmate",
-    tags: ["Machine Learning", "Data Pipelines", "Algorithms"],
+    slot: "04",
+    majorHint: "Data Science",
     shadowColor: "#ff9a3d",
-    ringGradient: "linear-gradient(135deg, #ff9a3d, #ff5ca8)",
-    icon: Database,
+    ringColor: "rgba(255, 154, 61, 0.6)",
+    tagHints: ["Machine Learning", "AI", "Data Viz"],
   },
 ];
 
@@ -157,29 +139,29 @@ export default function DiscoveryEmptyState({
     );
   }
 
-  // True empty grid: 4-card open-seat layout with hard offset shadows
+  // Option 1: Faint Placeholder Cards ("Awaiting Enrollments")
   return (
-    <section className="discovery-empty-seats-wrapper" aria-label="Seats open on Discovery Grid">
-      {/* ── Top Header Banner ── */}
-      <div className="discovery-empty-seats-header">
-        <div className="empty-eyebrow-pill">
+    <section className="awaiting-enrollments-wrapper" aria-label="Awaiting enrollments on Discovery Grid">
+      {/* ── Page Header / Sub-banner ── */}
+      <div className="awaiting-header-banner">
+        <div className="awaiting-badge">
           <Sparkles size={13} color="#ff5ca8" />
-          <span>Seats Still Open · CECS Hub</span>
+          <span>Awaiting Enrollments · CECS Hub</span>
         </div>
 
-        <h2 className="empty-main-title">
-          No Classmates On The Grid Yet
+        <h2 className="awaiting-title">
+          Awaiting Enrollments
         </h2>
 
-        <p className="empty-main-subtitle">
-          CECS students at UM‑Dearborn appear here once they make their profiles public.
-          Invite your peers or complete your profile to take the first seat.
+        <p className="awaiting-subtitle">
+          Student profile cards appear on this grid as classmates create and publish their profiles.
+          Complete your profile or invite peers to fill the first slots.
         </p>
 
-        <div className="empty-cta-actions">
+        <div className="awaiting-actions">
           <Link
             href="/account-page"
-            className="empty-cta-primary"
+            className="awaiting-primary-btn"
           >
             <span>{isProfileComplete ? "View Your Profile" : "Finish Your Profile"}</span>
           </Link>
@@ -187,83 +169,63 @@ export default function DiscoveryEmptyState({
           <button
             type="button"
             onClick={handleCopyLink}
-            className="empty-cta-secondary"
+            className="awaiting-secondary-btn"
             aria-label="Copy invite link"
           >
-            <Copy size={16} />
+            <Copy size={15} />
             <span>{copied ? "Link Copied!" : "Copy Invite Link"}</span>
           </button>
         </div>
       </div>
 
-      {/* ── 4-Up Open Seat Cards Grid with Shadows ── */}
-      <div className="empty-seats-grid">
-        {OPEN_SEATS.map((seat) => {
-          const IconComponent = seat.icon;
+      {/* ── 4-Up Faint Placeholder Cards Grid with Hard Shadows ── */}
+      <div className="awaiting-cards-grid">
+        {PLACEHOLDER_CARDS.map((card) => {
           return (
             <article
-              key={seat.seatNumber}
-              className="open-seat-card"
+              key={card.slot}
+              className="faint-placeholder-card"
               style={{
-                boxShadow: `7px 7px 0 0 ${seat.shadowColor}`,
+                boxShadow: `7px 7px 0 0 ${card.shadowColor}`,
               }}
             >
-              {/* Top Accent Band */}
-              <div className="seat-card-band">
-                <span className="seat-badge">SEAT {seat.seatNumber}</span>
-                <span className="seat-chip-open">OPEN</span>
+              {/* Top Faint Band */}
+              <div className="faint-card-band">
+                <span className="faint-band-label">SLOT {card.slot}</span>
+                <span className="faint-band-pill">AWAITING</span>
               </div>
 
-              {/* Avatar Ring */}
+              {/* Faint Dashed Avatar Ring */}
               <div
-                className="seat-avatar-ring"
+                className="faint-avatar-ring"
                 style={{
-                  background: `linear-gradient(#f4eef0, #f4eef0) padding-box, ${seat.ringGradient} border-box`,
+                  borderColor: card.ringColor,
                 }}
               >
-                <IconComponent
-                  size={32}
-                  color={seat.shadowColor}
-                  strokeWidth={2.2}
-                />
+                <User size={30} color={card.shadowColor} opacity={0.65} />
               </div>
 
-              {/* Identity */}
-              <div className="seat-card-body">
-                <h3 className="seat-card-name">
-                  {seat.isSelfSlot ? (viewerProfile?.displayName || "You") : seat.title}
-                </h3>
-                <p className="seat-card-major">{seat.major}</p>
-                <p className="seat-card-status">{seat.status}</p>
+              {/* Identity Placeholder */}
+              <div className="faint-card-body">
+                <h3 className="faint-card-name">Awaiting Student</h3>
+                <p className="faint-card-meta">{card.majorHint}</p>
+                <p className="faint-card-school">CECS · UM-Dearborn</p>
               </div>
 
-              {/* Tag Pills */}
-              <div className="seat-card-tags">
-                {seat.tags.map((tag) => (
-                  <span key={tag} className="seat-tag">
+              {/* Faint Tag Chips */}
+              <div className="faint-card-tags">
+                {card.tagHints.map((tag) => (
+                  <span key={tag} className="faint-tag-pill">
                     {tag}
                   </span>
                 ))}
               </div>
 
-              {/* Action Button */}
-              {seat.isSelfSlot ? (
-                <Link
-                  href="/account-page"
-                  className="seat-action-btn seat-self-btn"
-                >
-                  <span>Claim Seat</span>
-                </Link>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleCopyLink}
-                  className="seat-action-btn seat-invite-btn"
-                >
-                  <Users size={15} />
-                  <span>Invite Peer</span>
-                </button>
-              )}
+              {/* Bottom Awaiting Enrollments Note */}
+              <div className="faint-card-foot">
+                <span className="faint-foot-pulse" style={{ background: card.shadowColor }} />
+                <span className="faint-foot-text">Awaiting enrollment</span>
+              </div>
             </article>
           );
         })}
