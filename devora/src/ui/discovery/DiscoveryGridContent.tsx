@@ -26,7 +26,7 @@ import {
   type FilterSectionId,
 } from "./filter-options";
 import { buildDiscoveryBrowseList } from "./map-discovery-profile";
-import type { DiscoveryProfile } from "./mock-profiles";
+import { MOCK_PROFILES, type DiscoveryProfile } from "./mock-profiles";
 
 // ===== NAMED CONSTANTS =====
 
@@ -186,7 +186,9 @@ export default function DiscoveryGridContent() {
   }, [browseProfiles, debouncedQuery, selectedFilters]);
 
   const selectedProfile =
-    filteredProfiles.find((p) => p.id === selectedProfileId) ?? null;
+    filteredProfiles.find((p) => p.id === selectedProfileId) ??
+    MOCK_PROFILES.find((p) => p.id === selectedProfileId) ??
+    null;
 
   // Stale peek guard per DISCOVERY_GRID.md § 4.9:
   // "Do not open peek from a stale id after filters change."
@@ -397,6 +399,8 @@ export default function DiscoveryGridContent() {
           onClearFilters={clearSearchAndFilters}
           viewerProfile={viewerProfile}
           onToast={showToast}
+          onViewProfile={(profile) => setSelectedProfileId(profile.id)}
+          requestedProfileIds={requestedProfileIds}
         />
       ) : filteredProfiles.length === 0 ? (
         /* 4.7 No match when search or filters return 0 results */
