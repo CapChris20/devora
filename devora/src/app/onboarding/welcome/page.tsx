@@ -1,10 +1,15 @@
-// First screen after onboarding completes — celebrates setup and points users onward.
+// First screen after onboarding finishes. It celebrates setup and points onward.
 // Flow: onboarding finishes → /onboarding/welcome → WelcomeScreen shows next steps.
+
+// ===== IMPORTS =====
 
 import WelcomeScreen from "@/ui/account/onboarding/WelcomeScreen";
 
-// Thin route: welcome UI lives entirely in WelcomeScreen.
-// vocab: page.tsx = Next.js App Router file that owns the /onboarding/welcome URL
+// ===== MAIN COMPONENT =====
+
+/**
+ * The /onboarding/welcome page. The celebration UI lives in WelcomeScreen.
+ */
 export default function OnboardingWelcomePage() {
   return <WelcomeScreen />;
 }

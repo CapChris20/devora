@@ -1,22 +1,79 @@
-// Animated crystal-cell background for the hero + inner pages.
-// Port of a ShaderToy demo. Flow: React boots WebGL → each frame sends time/theme/mouse →
-// GPU paints black-and-white cells → tintDark/tintLight turn them into Devora colors.
-// Cheap on purpose: half-res canvas, ~30fps, pauses when the tab is hidden.
+// Animated crystal-cell background for the hero and inner pages.
+// Flow: boot WebGL → each frame sends time, theme, and pointer → the GPU paints Devora-colored cells.
+// Cheap on purpose: half-res canvas, about 30fps, and it pauses when the tab is hidden.
+// Callers import VoronoiShaderBackgroundClient, which loads this file only in the browser.
 
 "use client";
 
+// ===== IMPORTS =====
+
 import { useEffect, useRef } from "react";
 
-type VoronoiShaderBackgroundProps = {
-  className?: string;
-  // true = stick to the whole browser window (inner pages). false = only fill the hero box.
-  fixed?: boolean;
-};
+// ===== NAMED CONSTANTS =====
 
+const WEBGL_CONTEXT_NAME = "webgl" as const;
+const LOW_POWER_GPU_PREFERENCE = "low-power" as const;
+const WEBGL_ALPHA_ENABLED = false;
+const WEBGL_ANTIALIAS_ENABLED = false;
+const WEBGL_DEPTH_ENABLED = false;
+const WEBGL_STENCIL_ENABLED = false;
+const WEBGL_PRESERVE_DRAWING_BUFFER = false;
+const DERIVATIVE_EXTENSION_NAME = "OES_standard_derivatives";
+const VORONOI_SHADER_LOG_LABEL = "[VoronoiShader]";
+const REDUCED_MOTION_MEDIA_QUERY = "(prefers-reduced-motion: reduce)";
+const DOCUMENT_THEME_ATTRIBUTE = "data-theme";
+const LIGHT_THEME_ATTRIBUTE_VALUE = "light";
+const LIGHT_THEME_UNIFORM_VALUE = 1;
+const DARK_THEME_UNIFORM_VALUE = 0;
+const POSITION_ATTRIBUTE_NAME = "aPos";
+const RESOLUTION_UNIFORM_NAME = "uResolution";
+const TIME_UNIFORM_NAME = "uTime";
+const THEME_UNIFORM_NAME = "uTheme";
+const MOUSE_UNIFORM_NAME = "uMouse";
+const VERTEX_FLOATS_PER_POSITION = 2;
+const ARE_VERTEX_FLOATS_NORMALIZED = false;
+const VERTEX_STRIDE_BYTES = 0;
+const VERTEX_OFFSET_BYTES = 0;
+const DRAW_START_VERTEX = 0;
+const FULLSCREEN_QUAD_VERTEX_COUNT = 6;
+const FULLSCREEN_QUAD_CORNERS = new Float32Array([
+  -1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1,
+]);
+// Manipulate here: lower = smoother but heavier GPU; 33 is about 30fps
+const FRAME_INTERVAL_MS = 33;
+const MILLISECONDS_PER_SECOND = 1000;
+const INITIAL_SHADER_TIME_SECONDS = 0;
+const FROZEN_SHADER_TIME_SECONDS = 0;
+const NO_ANIMATION_FRAME_ID = 0;
+const RESET_DRAW_TIMESTAMP_MS = 0;
+// Manipulate here: raise (for example 0.75) = sharper but heavier; lower = faster
+const VORONOI_CANVAS_RESOLUTION_SCALE = 0.55;
+const MINIMUM_CANVAS_DIMENSION_PX = 2;
+const MINIMUM_VIEWPORT_DIMENSION_PX = 1;
+const POINTER_UNIT_MIN = 0;
+const POINTER_UNIT_MAX = 1;
+const MOUSE_START_POSITION = 0.5;
+const IDLE_MOUSE_X = -1;
+const IDLE_MOUSE_Y = -1;
+// Manipulate here: higher = the cells catch the pointer faster; lower = smoother lag
+const MOUSE_EASE_FACTOR = 0.18;
+const RESIZE_EVENT = "resize";
+const POINTER_MOVE_EVENT = "pointermove";
+const POINTER_DOWN_EVENT = "pointerdown";
+const VISIBILITY_CHANGE_EVENT = "visibilitychange";
+const PASSIVE_LISTENER_OPTIONS: AddEventListenerOptions = { passive: true };
+const VORONOI_CANVAS_CLASS = "voronoi-shader-bg pointer-events-none";
+const FIXED_CANVAS_POSITION_CLASS = "fixed inset-0";
+const ABSOLUTE_CANVAS_POSITION_CLASS = "absolute inset-0";
+const DEFAULT_CLASS_NAME = "";
+const DEFAULT_IS_FIXED = false;
+
+// Single-letter names inside the shader (p, s, e, md, uv) are GPU math locals.
+// They stay short on purpose. The formulas below must stay byte-for-byte.
 // --- VERTEX SHADER (tiny) ---
 // vocab: shader = tiny GPU program. Vertex shader = places the corners of the full-screen shape.
 // We only draw a rectangle that covers the screen; the pretty look is in the fragment shader.
-const VERT = `
+const VERTEX_SHADER_SOURCE = `
 // vocab: attribute = per-vertex input from JS (here: corner positions of the quad)
 // vocab: vec2 = two floats (x, y)
 attribute vec2 aPos;
@@ -28,7 +85,7 @@ void main() {
 
 // --- FRAGMENT SHADER (the look) ---
 // vocab: fragment shader = runs once for EVERY pixel and decides that pixel’s color
-const FRAG = `
+const FRAGMENT_SHADER_SOURCE = `
 // vocab: extension = optional GPU feature. Derivatives help fake 3D lighting cheaply.
 #extension GL_OES_standard_derivatives : enable
 // vocab: precision mediump = “medium accuracy floats” — faster on phones/laptops
@@ -238,7 +295,7 @@ void main() {
 
 // Older GPUs missing derivative helpers get this slower twin (same look, more math).
 // vocab: .replace = string find/swap in JavaScript — we surgically edit the GLSL text
-const FRAG_FALLBACK = FRAG.replace(
+const FRAGMENT_SHADER_FALLBACK = FRAGMENT_SHADER_SOURCE.replace(
   "#extension GL_OES_standard_derivatives : enable\n",
   ""
 ).replace(
@@ -251,288 +308,497 @@ const FRAG_FALLBACK = FRAG.replace(
   float fw1 = (abs(fdx) + abs(fdy)) * ss;`
 );
 
-// Turn GLSL source text into a compiled GPU shader object (or null on failure)
-function compile(gl: WebGLRenderingContext, type: number, source: string) {
-  // vocab: createShader = empty shader shell on the GPU
-  const shader = gl.createShader(type);
+
+// ===== TYPES =====
+
+type VoronoiShaderBackgroundProps = {
+  className?: string;
+  // true = stick to the whole browser window (inner pages). false = only fill the hero box.
+  fixed?: boolean;
+};
+
+type VoronoiPointerState = {
+  isMouseActive: boolean;
+  targetX: number;
+  targetY: number;
+  easedX: number;
+  easedY: number;
+};
+
+type VoronoiDrawSession = {
+  webglContext: WebGLRenderingContext;
+  shaderProgram: WebGLProgram;
+  vertexBuffer: WebGLBuffer | null;
+  canvas: HTMLCanvasElement;
+  shouldReduceMotion: boolean;
+  pointerState: VoronoiPointerState;
+  positionAttributeLocation: number;
+  resolutionUniformLocation: WebGLUniformLocation | null;
+  timeUniformLocation: WebGLUniformLocation | null;
+  themeUniformLocation: WebGLUniformLocation | null;
+  mouseUniformLocation: WebGLUniformLocation | null;
+};
+
+type VoronoiAnimationState = {
+  animationFrameId: number;
+  isDisposed: boolean;
+  lastDrawTimestampMs: number;
+  startTimestampMs: number;
+  shouldReduceMotion: boolean;
+};
+
+type VoronoiListenerInput = {
+  canvas: HTMLCanvasElement;
+  resizeCanvas: () => void;
+  onPointer: (pointerEvent: PointerEvent) => void;
+  pauseWhenTabHidden: () => void;
+  themeObserver: MutationObserver;
+};
+
+type VoronoiReleaseInput = {
+  animation: VoronoiAnimationState;
+  detachListeners: () => void;
+  webglContext: WebGLRenderingContext;
+  shaderProgram: WebGLProgram;
+  vertexBuffer: WebGLBuffer | null;
+};
+
+// ===== HELPER FUNCTIONS =====
+
+function createLowPowerWebglContext(canvas: HTMLCanvasElement): WebGLRenderingContext | null {
+  // vocab: WebGL = the browser GPU drawing API. These flags stay off: the quad is opaque.
+  return canvas.getContext(WEBGL_CONTEXT_NAME, {
+    alpha: WEBGL_ALPHA_ENABLED,
+    antialias: WEBGL_ANTIALIAS_ENABLED,
+    depth: WEBGL_DEPTH_ENABLED,
+    stencil: WEBGL_STENCIL_ENABLED,
+    powerPreference: LOW_POWER_GPU_PREFERENCE,
+    preserveDrawingBuffer: WEBGL_PRESERVE_DRAWING_BUFFER,
+  });
+}
+
+function compileShader(
+  webglContext: WebGLRenderingContext,
+  shaderType: number,
+  shaderSource: string,
+): WebGLShader | null {
+  const shader = webglContext.createShader(shaderType);
   if (!shader) return null;
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  // Compile failed → log the GPU error and give up this shader
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.warn("[VoronoiShader]", gl.getShaderInfoLog(shader));
-    gl.deleteShader(shader);
-    return null;
-  }
-  return shader;
+
+  webglContext.shaderSource(shader, shaderSource);
+  webglContext.compileShader(shader);
+
+  const didCompile = webglContext.getShaderParameter(shader, webglContext.COMPILE_STATUS);
+  if (didCompile) return shader;
+
+  console.warn(VORONOI_SHADER_LOG_LABEL, webglContext.getShaderInfoLog(shader));
+  webglContext.deleteShader(shader);
+  return null;
 }
 
-// Attach vertex + fragment shaders into one runnable “program”
-function linkProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string) {
-  const vs = compile(gl, gl.VERTEX_SHADER, vsSource);
-  const fs = compile(gl, gl.FRAGMENT_SHADER, fsSource);
-  // Either half failed → delete what we made and stop
-  if (!vs || !fs) {
-    if (vs) gl.deleteShader(vs);
-    if (fs) gl.deleteShader(fs);
-    return null;
-  }
-  // vocab: program = linked pair of shaders the GPU can run together
-  const prog = gl.createProgram();
-  if (!prog) return null;
-  gl.attachShader(prog, vs);
-  gl.attachShader(prog, fs);
-  gl.linkProgram(prog);
-  gl.deleteShader(vs);
-  gl.deleteShader(fs);
-  // Link failed → clean up
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-    console.warn("[VoronoiShader]", gl.getProgramInfoLog(prog));
-    gl.deleteProgram(prog);
-    return null;
-  }
-  return prog;
+function deleteShaderIfPresent(webglContext: WebGLRenderingContext, shader: WebGLShader | null): void {
+  if (!shader) return;
+  webglContext.deleteShader(shader);
 }
 
+function linkShaderProgram(
+  webglContext: WebGLRenderingContext,
+  vertexShaderSource: string,
+  fragmentShaderSource: string,
+): WebGLProgram | null {
+  const vertexShader = compileShader(webglContext, webglContext.VERTEX_SHADER, vertexShaderSource);
+  const fragmentShader = compileShader(
+    webglContext,
+    webglContext.FRAGMENT_SHADER,
+    fragmentShaderSource,
+  );
+  if (!vertexShader || !fragmentShader) {
+    deleteShaderIfPresent(webglContext, vertexShader);
+    deleteShaderIfPresent(webglContext, fragmentShader);
+    return null;
+  }
+
+  const shaderProgram = webglContext.createProgram();
+  if (!shaderProgram) return null;
+
+  webglContext.attachShader(shaderProgram, vertexShader);
+  webglContext.attachShader(shaderProgram, fragmentShader);
+  webglContext.linkProgram(shaderProgram);
+  webglContext.deleteShader(vertexShader);
+  webglContext.deleteShader(fragmentShader);
+
+  const didLink = webglContext.getProgramParameter(shaderProgram, webglContext.LINK_STATUS);
+  if (didLink) return shaderProgram;
+
+  console.warn(VORONOI_SHADER_LOG_LABEL, webglContext.getProgramInfoLog(shaderProgram));
+  webglContext.deleteProgram(shaderProgram);
+  return null;
+}
+
+function linkVoronoiProgram(webglContext: WebGLRenderingContext): WebGLProgram | null {
+  const derivativeExtension = webglContext.getExtension(DERIVATIVE_EXTENSION_NAME);
+  const fastProgram = derivativeExtension
+    ? linkShaderProgram(webglContext, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE)
+    : null;
+  if (fastProgram) return fastProgram;
+  return linkShaderProgram(webglContext, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_FALLBACK);
+}
+
+function createFullscreenQuadBuffer(webglContext: WebGLRenderingContext): WebGLBuffer | null {
+  const vertexBuffer = webglContext.createBuffer();
+  webglContext.bindBuffer(webglContext.ARRAY_BUFFER, vertexBuffer);
+  webglContext.bufferData(webglContext.ARRAY_BUFFER, FULLSCREEN_QUAD_CORNERS, webglContext.STATIC_DRAW);
+  return vertexBuffer;
+}
+
+function readThemeUniformValue(): number {
+  const themeAttribute = document.documentElement.getAttribute(DOCUMENT_THEME_ATTRIBUTE);
+  const isLightTheme = themeAttribute === LIGHT_THEME_ATTRIBUTE_VALUE;
+  if (isLightTheme) return LIGHT_THEME_UNIFORM_VALUE;
+  return DARK_THEME_UNIFORM_VALUE;
+}
+
+function createVoronoiPointerState(): VoronoiPointerState {
+  return {
+    isMouseActive: false,
+    targetX: MOUSE_START_POSITION,
+    targetY: MOUSE_START_POSITION,
+    easedX: MOUSE_START_POSITION,
+    easedY: MOUSE_START_POSITION,
+  };
+}
+
+function clampUnitInterval(value: number): number {
+  return Math.min(POINTER_UNIT_MAX, Math.max(POINTER_UNIT_MIN, value));
+}
+
+function updateVoronoiPointerTarget(
+  pointerEvent: PointerEvent,
+  pointerState: VoronoiPointerState,
+  shouldReduceMotion: boolean,
+): void {
+  if (shouldReduceMotion) return;
+
+  const viewportWidth = Math.max(MINIMUM_VIEWPORT_DIMENSION_PX, window.innerWidth);
+  const viewportHeight = Math.max(MINIMUM_VIEWPORT_DIMENSION_PX, window.innerHeight);
+  // ShaderToy Y grows upward. Browser Y grows downward, so flip it.
+  pointerState.targetX = clampUnitInterval(pointerEvent.clientX / viewportWidth);
+  pointerState.targetY = clampUnitInterval(POINTER_UNIT_MAX - pointerEvent.clientY / viewportHeight);
+  pointerState.isMouseActive = true;
+}
+
+function pushMouseUniform(
+  webglContext: WebGLRenderingContext,
+  mouseUniformLocation: WebGLUniformLocation | null,
+  pointerState: VoronoiPointerState,
+): void {
+  if (!pointerState.isMouseActive) {
+    // x of -1 is the idle signal inside the shader, so it uses the demo's default shape.
+    webglContext.uniform2f(mouseUniformLocation, IDLE_MOUSE_X, IDLE_MOUSE_Y);
+    return;
+  }
+
+  pointerState.easedX += (pointerState.targetX - pointerState.easedX) * MOUSE_EASE_FACTOR;
+  pointerState.easedY += (pointerState.targetY - pointerState.easedY) * MOUSE_EASE_FACTOR;
+  webglContext.uniform2f(mouseUniformLocation, pointerState.easedX, pointerState.easedY);
+}
+
+function createVoronoiDrawSession(
+  webglContext: WebGLRenderingContext,
+  shaderProgram: WebGLProgram,
+  vertexBuffer: WebGLBuffer | null,
+  canvas: HTMLCanvasElement,
+  shouldReduceMotion: boolean,
+  pointerState: VoronoiPointerState,
+): VoronoiDrawSession {
+  return {
+    webglContext,
+    shaderProgram,
+    vertexBuffer,
+    canvas,
+    shouldReduceMotion,
+    pointerState,
+    positionAttributeLocation: webglContext.getAttribLocation(shaderProgram, POSITION_ATTRIBUTE_NAME),
+    resolutionUniformLocation: webglContext.getUniformLocation(shaderProgram, RESOLUTION_UNIFORM_NAME),
+    timeUniformLocation: webglContext.getUniformLocation(shaderProgram, TIME_UNIFORM_NAME),
+    themeUniformLocation: webglContext.getUniformLocation(shaderProgram, THEME_UNIFORM_NAME),
+    mouseUniformLocation: webglContext.getUniformLocation(shaderProgram, MOUSE_UNIFORM_NAME),
+  };
+}
+
+function paintVoronoiFrame(session: VoronoiDrawSession, timeSeconds: number): void {
+  const { webglContext } = session;
+  webglContext.useProgram(session.shaderProgram);
+  webglContext.bindBuffer(webglContext.ARRAY_BUFFER, session.vertexBuffer);
+  webglContext.enableVertexAttribArray(session.positionAttributeLocation);
+  webglContext.vertexAttribPointer(
+    session.positionAttributeLocation,
+    VERTEX_FLOATS_PER_POSITION,
+    webglContext.FLOAT,
+    ARE_VERTEX_FLOATS_NORMALIZED,
+    VERTEX_STRIDE_BYTES,
+    VERTEX_OFFSET_BYTES,
+  );
+  // vocab: uniform = a value JavaScript pushes in for every pixel this frame
+  webglContext.uniform2f(session.resolutionUniformLocation, session.canvas.width, session.canvas.height);
+  const shaderTimeSeconds = session.shouldReduceMotion ? FROZEN_SHADER_TIME_SECONDS : timeSeconds;
+  webglContext.uniform1f(session.timeUniformLocation, shaderTimeSeconds);
+  webglContext.uniform1f(session.themeUniformLocation, readThemeUniformValue());
+  pushMouseUniform(webglContext, session.mouseUniformLocation, session.pointerState);
+  webglContext.drawArrays(webglContext.TRIANGLES, DRAW_START_VERTEX, FULLSCREEN_QUAD_VERTEX_COUNT);
+}
+
+function resizeVoronoiCanvas(
+  canvas: HTMLCanvasElement,
+  webglContext: WebGLRenderingContext,
+  isFixedToViewport: boolean,
+): void {
+  const parentElement = canvas.parentElement;
+  const layoutWidth = isFixedToViewport
+    ? window.innerWidth
+    : parentElement?.clientWidth || window.innerWidth;
+  const layoutHeight = isFixedToViewport
+    ? window.innerHeight
+    : parentElement?.clientHeight || window.innerHeight;
+  const pixelWidth = Math.max(
+    MINIMUM_CANVAS_DIMENSION_PX,
+    Math.floor(layoutWidth * VORONOI_CANVAS_RESOLUTION_SCALE),
+  );
+  const pixelHeight = Math.max(
+    MINIMUM_CANVAS_DIMENSION_PX,
+    Math.floor(layoutHeight * VORONOI_CANVAS_RESOLUTION_SCALE),
+  );
+
+  if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+    canvas.width = pixelWidth;
+    canvas.height = pixelHeight;
+  }
+
+  canvas.style.width = `${layoutWidth}px`;
+  canvas.style.height = `${layoutHeight}px`;
+  webglContext.viewport(0, 0, pixelWidth, pixelHeight);
+}
+
+function createVoronoiAnimationState(shouldReduceMotion: boolean): VoronoiAnimationState {
+  return {
+    animationFrameId: NO_ANIMATION_FRAME_ID,
+    isDisposed: false,
+    lastDrawTimestampMs: RESET_DRAW_TIMESTAMP_MS,
+    startTimestampMs: performance.now(),
+    shouldReduceMotion,
+  };
+}
+
+function createVoronoiFrameLoop(
+  animation: VoronoiAnimationState,
+  paintFrame: (timeSeconds: number) => void,
+): (now: number) => void {
+  // This function is the heartbeat. The browser keeps calling it; we decide whether to repaint.
+  const runAnimationFrame = (now: number) => {
+    // vocab: now = timestamp in milliseconds from requestAnimationFrame
+    // vocab: isDisposed = tear down already happened — don't touch WebGL
+    if (animation.isDisposed) return;
+
+    // vocab: requestAnimationFrame = call this again right before the next screen refresh
+    animation.animationFrameId = window.requestAnimationFrame(runAnimationFrame);
+    if (animation.shouldReduceMotion) return;
+
+    // Manipulate here: lower FRAME_INTERVAL_MS = smoother but heavier; raise = calmer on laptops
+    const millisecondsSinceLastPaint = now - animation.lastDrawTimestampMs;
+    if (millisecondsSinceLastPaint < FRAME_INTERVAL_MS) return;
+
+    animation.lastDrawTimestampMs = now;
+    const elapsedSeconds = (now - animation.startTimestampMs) / MILLISECONDS_PER_SECOND;
+    paintFrame(elapsedSeconds);
+  };
+
+  return runAnimationFrame;
+}
+
+function pauseVoronoiWhenTabIsHidden(
+  animation: VoronoiAnimationState,
+  runAnimationFrame: (now: number) => void,
+): void {
+  const isTabHidden = document.hidden;
+  if (isTabHidden) {
+    window.cancelAnimationFrame(animation.animationFrameId);
+    animation.animationFrameId = NO_ANIMATION_FRAME_ID;
+    return;
+  }
+
+  const isLoopStopped = animation.animationFrameId === NO_ANIMATION_FRAME_ID;
+  const shouldRestartLoop = !animation.shouldReduceMotion && isLoopStopped;
+  if (!shouldRestartLoop) return;
+
+  animation.lastDrawTimestampMs = RESET_DRAW_TIMESTAMP_MS;
+  animation.animationFrameId = window.requestAnimationFrame(runAnimationFrame);
+}
+
+function createThemeRepaintObserver(
+  animation: VoronoiAnimationState,
+  paintFrame: (timeSeconds: number) => void,
+): MutationObserver {
+  // vocab: MutationObserver = watch the DOM. The sun/moon toggle changes data-theme on <html>.
+  return new MutationObserver(() => {
+    const elapsedSeconds = (performance.now() - animation.startTimestampMs) / MILLISECONDS_PER_SECOND;
+    paintFrame(elapsedSeconds);
+  });
+}
+
+function attachVoronoiPageListeners(input: VoronoiListenerInput): () => void {
+  window.addEventListener(RESIZE_EVENT, input.resizeCanvas);
+  window.addEventListener(POINTER_MOVE_EVENT, input.onPointer, PASSIVE_LISTENER_OPTIONS);
+  window.addEventListener(POINTER_DOWN_EVENT, input.onPointer, PASSIVE_LISTENER_OPTIONS);
+  document.addEventListener(VISIBILITY_CHANGE_EVENT, input.pauseWhenTabHidden);
+  input.themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: [DOCUMENT_THEME_ATTRIBUTE],
+  });
+
+  // vocab: ResizeObserver = fires when the parent box changes size, not only the window
+  const parentResizeObserver = new ResizeObserver(input.resizeCanvas);
+  if (input.canvas.parentElement) parentResizeObserver.observe(input.canvas.parentElement);
+
+  return () => {
+    window.removeEventListener(RESIZE_EVENT, input.resizeCanvas);
+    window.removeEventListener(POINTER_MOVE_EVENT, input.onPointer);
+    window.removeEventListener(POINTER_DOWN_EVENT, input.onPointer);
+    document.removeEventListener(VISIBILITY_CHANGE_EVENT, input.pauseWhenTabHidden);
+    input.themeObserver.disconnect();
+    parentResizeObserver.disconnect();
+  };
+}
+
+function bootVoronoiFrames(
+  animation: VoronoiAnimationState,
+  resizeCanvas: () => void,
+  paintFrame: (timeSeconds: number) => void,
+  runAnimationFrame: (now: number) => void,
+): void {
+  resizeCanvas();
+  paintFrame(INITIAL_SHADER_TIME_SECONDS);
+  if (animation.shouldReduceMotion) return;
+  animation.animationFrameId = window.requestAnimationFrame(runAnimationFrame);
+}
+
+function releaseVoronoiGpuResources(input: VoronoiReleaseInput): void {
+  input.animation.isDisposed = true;
+  window.cancelAnimationFrame(input.animation.animationFrameId);
+  input.detachListeners();
+  input.webglContext.deleteProgram(input.shaderProgram);
+  input.webglContext.deleteBuffer(input.vertexBuffer);
+}
+
+function openVoronoiDrawSession(
+  canvas: HTMLCanvasElement,
+  webglContext: WebGLRenderingContext,
+  shaderProgram: WebGLProgram,
+  shouldReduceMotion: boolean,
+) {
+  const vertexBuffer = createFullscreenQuadBuffer(webglContext);
+  const pointerState = createVoronoiPointerState();
+  const session = createVoronoiDrawSession(
+    webglContext,
+    shaderProgram,
+    vertexBuffer,
+    canvas,
+    shouldReduceMotion,
+    pointerState,
+  );
+  const animation = createVoronoiAnimationState(shouldReduceMotion);
+  const paintFrame = (timeSeconds: number) => paintVoronoiFrame(session, timeSeconds);
+  const runAnimationFrame = createVoronoiFrameLoop(animation, paintFrame);
+  return { vertexBuffer, pointerState, animation, paintFrame, runAnimationFrame };
+}
+
+function startVoronoiRenderLoop(
+  canvas: HTMLCanvasElement,
+  webglContext: WebGLRenderingContext,
+  shaderProgram: WebGLProgram,
+  isFixedToViewport: boolean,
+  shouldReduceMotion: boolean,
+): () => void {
+  const drawSession = openVoronoiDrawSession(canvas, webglContext, shaderProgram, shouldReduceMotion);
+  const resizeCanvas = () => resizeVoronoiCanvas(canvas, webglContext, isFixedToViewport);
+  const onPointer = (pointerEvent: PointerEvent) => {
+    updateVoronoiPointerTarget(pointerEvent, drawSession.pointerState, shouldReduceMotion);
+  };
+  const themeObserver = createThemeRepaintObserver(drawSession.animation, drawSession.paintFrame);
+  const pauseWhenTabHidden = () => {
+    pauseVoronoiWhenTabIsHidden(drawSession.animation, drawSession.runAnimationFrame);
+  };
+
+  bootVoronoiFrames(
+    drawSession.animation,
+    resizeCanvas,
+    drawSession.paintFrame,
+    drawSession.runAnimationFrame,
+  );
+  const detachListeners = attachVoronoiPageListeners({
+    canvas,
+    resizeCanvas,
+    onPointer,
+    pauseWhenTabHidden,
+    themeObserver,
+  });
+
+  return () =>
+    releaseVoronoiGpuResources({
+      animation: drawSession.animation,
+      detachListeners,
+      webglContext,
+      shaderProgram,
+      vertexBuffer: drawSession.vertexBuffer,
+    });
+}
+
+function mountVoronoiShader(
+  canvas: HTMLCanvasElement,
+  isFixedToViewport: boolean,
+): (() => void) | void {
+  const shouldReduceMotion = window.matchMedia(REDUCED_MOTION_MEDIA_QUERY).matches;
+  const webglContext = createLowPowerWebglContext(canvas);
+  if (!webglContext) return;
+
+  const shaderProgram = linkVoronoiProgram(webglContext);
+  if (!shaderProgram) return;
+
+  return startVoronoiRenderLoop(
+    canvas,
+    webglContext,
+    shaderProgram,
+    isFixedToViewport,
+    shouldReduceMotion,
+  );
+}
+
+// ===== MAIN COMPONENT =====
+
+/**
+ * Crystal-cell shader. Pointer movement softens the cells. Hidden tabs stop the loop.
+ * @param props.className - Extra classes on the canvas
+ * @param props.fixed - Stick to the window when true, otherwise fill the parent box
+ * @returns The WebGL canvas
+ */
 export default function VoronoiShaderBackground({
-  className = "",
-  fixed = false,
+  className = DEFAULT_CLASS_NAME,
+  fixed = DEFAULT_IS_FIXED,
 }: VoronoiShaderBackgroundProps) {
-  // vocab: useRef = box that holds the real <canvas> DOM node after React mounts it
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // vocab: useEffect = run setup after first paint; return cleanup when this component leaves
-  // Boot WebGL once, then animate until unmount
+  // vocab: useEffect = run setup after paint; the returned function runs when this leaves the page
   useEffect(() => {
     const canvas = canvasRef.current;
-    // Canvas not ready yet — bail (shouldn’t happen after mount)
     if (!canvas) return;
-
-    // OS “reduce motion” accessibility setting → freeze animation (still show one frame)
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    // vocab: getContext("webgl") = ask the browser for a GPU drawing API on this canvas
-    const gl = canvas.getContext("webgl", {
-      alpha: false,
-      antialias: false,
-      depth: false,
-      stencil: false,
-      powerPreference: "low-power",
-      preserveDrawingBuffer: false,
-    });
-    // Browser has no WebGL — leave a blank canvas
-    if (!gl) return;
-
-    // Prefer the fast shader; if derivatives aren’t supported, use the slower fallback
-    const ext = gl.getExtension("OES_standard_derivatives");
-    let prog = ext ? linkProgram(gl, VERT, FRAG) : null;
-    if (!prog) prog = linkProgram(gl, VERT, FRAG_FALLBACK);
-    if (!prog) return;
-
-    // Upload a full-screen rectangle as two triangles (6 corners)
-    // vocab: buffer = GPU memory holding those corner positions
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-      gl.STATIC_DRAW
-    );
-
-    // vocab: getUniformLocation / getAttribLocation = “handles” so JS can push values into the shader by name
-    const aPos = gl.getAttribLocation(prog, "aPos");
-    const uResolution = gl.getUniformLocation(prog, "uResolution");
-    const uTime = gl.getUniformLocation(prog, "uTime");
-    const uTheme = gl.getUniformLocation(prog, "uTheme");
-    const uMouse = gl.getUniformLocation(prog, "uMouse");
-
-    // vocab: raf = id returned by requestAnimationFrame — we store it so cleanup can cancel the loop
-    let raf = 0;
-    // vocab: disposed = true after cleanup — stops frame() from touching WebGL after unmount
-    let disposed = false;
-    // vocab: lastDraw = timestamp (ms) of the last real paint — used for the FPS cap
-    let lastDraw = 0;
-    // vocab: performance.now() = high-res clock in ms; start is “t = 0” for the shader
-    const start = performance.now();
-    // Cap near 30 frames/sec so laptops don’t melt (1000ms / 30 ≈ 33)
-    // Manipulate here: lower FRAME_MS = smoother but heavier GPU; raise = calmer / less lag
-    const FRAME_MS = 33;
-
-    // Pointer drives cell smoothness (ShaderToy X/Y). Idle until first move/tap.
-    // target = where the pointer is now; mouseX/Y = eased values we actually send to the GPU
-    let mouseActive = false;
-    let mouseTargetX = 0.5;
-    let mouseTargetY = 0.5;
-    let mouseX = 0.5;
-    let mouseY = 0.5;
-
-    // Read dark/light from <html data-theme="..."> (our sun/moon toggle sets this)
-    // Returns 0 or 1 because the shader’s uTheme expects a float, not a string
-    const readTheme = () =>
-      document.documentElement.getAttribute("data-theme") === "light" ? 1 : 0;
-
-    // Turn a pointer event into 0..1 coordinates for the shader.
-    // Canvas has pointer-events-none so buttons still work — we listen on window instead.
-    const onPointer = (ev: PointerEvent) => {
-      // Don’t morph cells when the user asked for less motion
-      if (reduceMotion) return;
-      const w = Math.max(1, window.innerWidth);
-      const h = Math.max(1, window.innerHeight);
-      // vocab: clientX/Y = pointer position inside the browser window (pixels from top-left)
-      // Divide by size → 0 at left/top edge, 1 at right/bottom (then we flip Y)
-      mouseTargetX = Math.min(1, Math.max(0, ev.clientX / w));
-      // ShaderToy Y grows upward; browser Y grows downward — flip so “up” matches the demo
-      mouseTargetY = Math.min(1, Math.max(0, 1 - ev.clientY / h));
-      mouseActive = true;
-    };
-
-    // Match canvas to parent (hero) or whole window (fixed pages).
-    // Internal pixels are ~55% size; CSS stretches them — big FPS win, slight softness.
-    // Manipulate here: raise `scale` (e.g. 0.75) = sharper but heavier; lower = faster
-    const resize = () => {
-      const parent = canvas.parentElement;
-      // vocab: ?. = safe access — if parent is missing, fall through to window size
-      // vocab: || = if left side is empty/falsy, use the right side
-      const w = fixed ? window.innerWidth : parent?.clientWidth || window.innerWidth;
-      const h = fixed ? window.innerHeight : parent?.clientHeight || window.innerHeight;
-      const scale = 0.55;
-      const pw = Math.max(2, Math.floor(w * scale));
-      const ph = Math.max(2, Math.floor(h * scale));
-      // Only reset the GPU pixel buffer when the size actually changed (avoids flicker/work)
-      if (canvas.width !== pw || canvas.height !== ph) {
-        canvas.width = pw;
-        canvas.height = ph;
-      }
-      // CSS size = full layout size (may be larger than canvas.width/height)
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      // vocab: viewport = tell WebGL which pixel rectangle inside the canvas to draw into
-      gl.viewport(0, 0, pw, ph);
-    };
-
-    // ONE PAINT: push the latest uniforms into the GPU, then draw the full-screen quad.
-    // vocab: timeSec = seconds since start — becomes uTime inside the fragment shader
-    const draw = (timeSec: number) => {
-      // Make this linked program the active one
-      gl.useProgram(prog);
-      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-      // Wire the buffer’s x,y pairs into the vertex shader’s `aPos` attribute
-      gl.enableVertexAttribArray(aPos);
-      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-
-      // Feed resolution / time / theme into the fragment shader uniforms
-      // vocab: uniform2f / uniform1f = “set this uniform to 2 floats / 1 float”
-      gl.uniform2f(uResolution, canvas.width, canvas.height);
-      // Freeze time at 0 when reduce-motion is on (cells stop drifting)
-      gl.uniform1f(uTime, reduceMotion ? 0 : timeSec);
-      gl.uniform1f(uTheme, readTheme());
-
-      // Ease mouse toward the pointer so cell morph doesn’t snap
-      // Manipulate here: 0.18 = how fast it catches up (higher = snappier, lower = smoother lag)
-      if (mouseActive) {
-        mouseX += (mouseTargetX - mouseX) * 0.18;
-        mouseY += (mouseTargetY - mouseY) * 0.18;
-        gl.uniform2f(uMouse, mouseX, mouseY);
-      } else {
-        // −1 on x is the “idle” signal inside plotGray → use ShaderToy default s/e
-        gl.uniform2f(uMouse, -1, -1);
-      }
-
-      // vocab: drawArrays = run the shaders for these 6 vertices (2 triangles = full screen)
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-    };
-
-    // This function is the heartbeat of the background animation.
-    // The browser keeps calling it; we decide whether to actually repaint.
-    const frame = (now: number) => {
-      // vocab: now = timestamp in milliseconds from requestAnimationFrame
-
-      // Stop forever after cleanup ran (user left the page / component unmounted)
-      // vocab: disposed = our flag meaning “tear down already happened — don’t touch WebGL”
-      if (disposed) return;
-
-      // Queue the NEXT call to `frame` before we paint.
-      // vocab: raf = id of that scheduled call — keep it so we can cancel later
-      // vocab: requestAnimationFrame(frame) = “call frame again right before the next screen refresh”
-      // Why call itself? That’s the loop — each run schedules the next run.
-      raf = window.requestAnimationFrame(frame);
-
-      // Accessibility: OS “reduce motion” on → keep the loop scheduled but don’t animate
-      if (reduceMotion) return;
-
-      // FPS cap: if it’s been less than FRAME_MS (≈33ms ≈ 30fps) since last paint, skip this tick
-      // Manipulate here: lower FRAME_MS = smoother but heavier; raise = calmer on laptops
-      if (now - lastDraw < FRAME_MS) return;
-
-      lastDraw = now;
-
-      // Convert ms since start → seconds, then hand to draw (shader uses uTime in seconds)
-      // vocab: (now - start) / 1000 = elapsed seconds; draw pushes that into the GPU as uTime
-      draw((now - start) / 1000);
-    };
-
-    // When the sun/moon toggle flips <html data-theme>, repaint once immediately
-    // (don’t wait for the next animation tick — colors should snap with the UI)
-    // vocab: MutationObserver = browser API that watches the DOM for attribute changes
-    const themeObserver = new MutationObserver(() => {
-      draw((performance.now() - start) / 1000);
-    });
-
-    // Pause GPU work when the tab is in the background (saves battery / heat)
-    const onVisibility = () => {
-      // Tab hidden → cancel the animation loop
-      if (document.hidden) {
-        window.cancelAnimationFrame(raf);
-        raf = 0;
-      } else if (!reduceMotion && !raf) {
-        // Tab visible again and we aren’t already looping → restart the heartbeat
-        lastDraw = 0;
-        raf = window.requestAnimationFrame(frame);
-      }
-    };
-
-    // Boot sequence: size the canvas → paint frame 0 → start the loop (unless reduce-motion)
-    resize();
-    draw(0);
-    if (!reduceMotion) raf = window.requestAnimationFrame(frame);
-
-    // Hook browser events. { passive: true } = “we won’t call preventDefault” → smoother scrolling
-    window.addEventListener("resize", resize);
-    window.addEventListener("pointermove", onPointer, { passive: true });
-    window.addEventListener("pointerdown", onPointer, { passive: true });
-    document.addEventListener("visibilitychange", onVisibility);
-    themeObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
-
-    // vocab: ResizeObserver = fires when the *parent box* changes size (not only the window)
-    // Needed for the hero: layout can change without a window resize event
-    const ro = new ResizeObserver(resize);
-    if (canvas.parentElement) ro.observe(canvas.parentElement);
-
-    // CLEANUP — runs when React unmounts this component (navigate away / remount)
-    // vocab: return () => {...} inside useEffect = the cleanup function
-    // Must remove listeners + free GPU memory or you leak and can crash WebGL on remount
-    return () => {
-      disposed = true;
-      window.cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("pointermove", onPointer);
-      window.removeEventListener("pointerdown", onPointer);
-      document.removeEventListener("visibilitychange", onVisibility);
-      themeObserver.disconnect();
-      ro.disconnect();
-      gl.deleteProgram(prog);
-      gl.deleteBuffer(buf);
-    };
+    return mountVoronoiShader(canvas, fixed);
   }, [fixed]);
 
-  // Canvas ignores mouse so buttons still work; we track the pointer on window instead
+  const positionClass = fixed ? FIXED_CANVAS_POSITION_CLASS : ABSOLUTE_CANVAS_POSITION_CLASS;
+
   return (
     <canvas
       ref={canvasRef}
-      className={`voronoi-shader-bg pointer-events-none ${fixed ? "fixed inset-0" : "absolute inset-0"} ${className}`.trim()}
+      className={`${VORONOI_CANVAS_CLASS} ${positionClass} ${className}`.trim()}
       aria-hidden="true"
     />
   );

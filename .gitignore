@@ -7,3 +7,10 @@ pglite-debug.log
 
 # Cursor IDE
 .cursor/
+.vercel
+.env*
+*-screenshots*
+devora-screenshots*
+.screenshot-review/
+devora/src/shaderxd-source-v2/
+devora/src/ui/activity-center-source*/

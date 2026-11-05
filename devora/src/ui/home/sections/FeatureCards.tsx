@@ -1,140 +1,241 @@
-// Section 02 — six “Key Info” feature cards (icon + title + blurb).
-// Flow: mouse-grid → chapter label → header (headline + Lottie frame) → 3-col card grid.
-// Manipulate here: edit FEATURES for copy/icons. Titles stay solid (theme-heading).
+// Section 02 — Key info: "Built to find your people" per DESIGN.md § 5.1C.
+// Paper field (--paper), chapter rail ("Key info"), torn seam at entry.
+// Head grid: title & lead on left, 320px circle on right holding recoloured Lottie.
+// List: 3 x 2 grid of 64px recoloured PNG icons, h3.t-card, and 16px ink-body paragraphs.
 
 "use client";
 
-// vocab: StaticImageData = typed import of a local PNG/JPG used by next/image
-import Image, { type StaticImageData } from "next/image";
-import everythingBuilderNeedsAnimation from "@/ui/shared/assets/lottie-animations/everything-a-builder-needs.json";
-import fileManagerIcon from "@/ui/shared/assets/small-assets/file-manager.png";
-import increaseIcon from "@/ui/shared/assets/small-assets/increase.png";
-import partyCardIcon from "@/ui/shared/assets/small-assets/party-card.png";
-import searchIcon from "@/ui/shared/assets/small-assets/search.png";
-import shareIcon from "@/ui/shared/assets/small-assets/share.png";
-import userIcon from "@/ui/shared/assets/small-assets/user.png";
-import MouseGridBackground from "./MouseGridBackground";
+import { useEffect, useRef } from "react";
+import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import TornEdge from "@/ui/shared/TornEdge";
+import ChapterRail from "./ChapterRail";
 import MovingAnimation from "./MovingAnimation";
-import { SectionNumber, FadeIn } from "./FadeInWhenScrolling";
+import builderAnimation from "@/ui/shared/assets/lottie-animations/recolored/everything-a-builder-needs.json";
 
-// Data for each card: PNG icon, title, and short description.
-// Same six icons as before — only chrome/copy density changed.
-// Manipulate here: reorder / rewrite / swap icon imports to change the grid
-const FEATURES: {
-  icon: StaticImageData;
-  title: string;
-  desc: string;
-}[] = [
+import searchIcon from "@/ui/shared/assets/small-assets/recolored/search.png";
+import fileManagerIcon from "@/ui/shared/assets/small-assets/recolored/file-manager.png";
+import partyCardIcon from "@/ui/shared/assets/small-assets/recolored/party-card.png";
+import userIcon from "@/ui/shared/assets/small-assets/recolored/user.png";
+import increaseIcon from "@/ui/shared/assets/small-assets/recolored/increase.png";
+import shareIcon from "@/ui/shared/assets/small-assets/recolored/share.png";
+
+gsap.registerPlugin(ScrollTrigger);
+
+const FEATURES = [
   {
     icon: searchIcon,
-    title: "Finding your People",
-    desc: "Skip the awkward cold approach. Browse peers by interest, career niche, major, and goals — then reach out knowing you already line up.",
+    title: "Finding your people",
+    text: "Skip the awkward cold approach. Browse peers by interest, career niche, major and goals, then reach out knowing you already line up.",
   },
   {
     icon: fileManagerIcon,
-    title: "Potential Opportunities",
-    desc: "Study groups, coffee chats, mentors, and friends in your field — the openings that actually matter for CECS students, in one place.",
+    title: "Potential opportunities",
+    text: "Study groups, coffee chats, mentors and friends in your field. The openings that actually matter for CECS students, in one place.",
   },
   {
     icon: partyCardIcon,
-    title: "Events & CECS Intel",
-    desc: "The hub for department networking: events, opportunities, job discovery, career advice, and the stuff that usually dies in Discord.",
+    title: "Events and CECS intel",
+    text: "The hub for department networking: events, opportunities, job discovery, career advice, and the stuff that usually dies in Discord.",
   },
   {
     icon: userIcon,
-    title: "Real Profiles",
-    desc: "Verified UM-Dearborn students only — major, experience, interests, and a real reason to be here. No bots. No fake accounts.",
+    title: "Real profiles",
+    text: "Verified UM\u2011Dearborn students only, with major, experience, interests and a real reason to be here. No bots. No fake accounts.",
   },
   {
     icon: increaseIcon,
-    title: "Skill Graph",
-    desc: "See who shares your stack and ambitions at a glance. Match on skills, not vibes from a random group chat.",
+    title: "Skill graph",
+    text: "See who shares your stack and ambitions at a glance. Match on skills, not vibes from a random group chat.",
   },
   {
     icon: shareIcon,
-    title: "Direct Chat",
-    desc: "Message peers on-platform, or jump to the socials they share. No more cold LinkedIn templates into the void.",
+    title: "Direct chat",
+    text: "Message peers on Devora, or jump to the socials they share. No more cold LinkedIn templates into the void.",
   },
 ];
 
 export default function FeatureCards() {
+  const sectionRef = useRef<HTMLElement>(null);
+  const discRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!sectionRef.current || !discRef.current) return;
+
+    // Disc rotate & scale scrubbed across section (§ 7.4)
+    const tween = gsap.fromTo(
+      discRef.current,
+      { rotate: -10, scale: 0.85 },
+      {
+        rotate: 6,
+        scale: 1.05,
+        ease: "none",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: true,
+        },
+      }
+    );
+
+    return () => {
+      tween.kill();
+    };
+  }, []);
+
   return (
-    <MouseGridBackground className="landing-section">
-      <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
-        {/* Chapter label: “02 · Key Info About Devora” */}
-        <FadeIn>
-          <SectionNumber num="02" title="Key Info About Devora" />
-        </FadeIn>
+    <section
+      ref={sectionRef}
+      id="features"
+      className="scene scene-paper"
+      style={{
+        background: "var(--paper)",
+        color: "var(--ink)",
+        position: "relative",
+      }}
+    >
+      {/* Torn seam in paper colour overlapping section above */}
+      <TornEdge color="var(--paper)" />
 
-        {/* Header band — big headline + Lottie in a HUD frame (matches What is Devora energy) */}
-        <FadeIn delay={0.08}>
-          <div className="key-info-header mt-6 lg:mt-7">
-            <div className="key-info-header-copy">
-              <p className="key-info-eyebrow font-pixel">
-                <span className="soft-pink">PEOPLE</span>
-                <span className="key-info-eyebrow-sep" aria-hidden="true">
-                  /
-                </span>
-                <span className="theme-faint">SIX SIGNALS</span>
-              </p>
-              <h2 className="key-info-title font-display soft-headline">
-                Everything you
-                <br />
-                need to find your people.
-              </h2>
-              <p className="key-info-lead">
-                The pieces that make Devora feel like a real CECS network — not another feed
-                you forget about after onboarding.
-              </p>
+      <div className="wrap">
+        <div className="chapter-grid">
+          <ChapterRail label="Key info" field="paper" />
+
+          <div>
+            {/* Header grid: 1.4fr .6fr from 980px */}
+            <div className="key-info-header-grid">
+              <div>
+                <h2 className="t-title text-[var(--ink)]">
+                  Built to find your people
+                </h2>
+                <p className="lead text-[var(--ink-body)] mt-5">
+                  The pieces that make Devora feel like a real CECS network, and
+                  not another feed you forget about after onboarding.
+                </p>
+              </div>
+
+              {/* 320px circle in --paper-2 with 2px ink border and --shadow */}
+              <div className="disc-wrapper">
+                <div ref={discRef} className="key-info-disc">
+                  <MovingAnimation
+                    animationData={builderAnimation}
+                    ariaLabel="Builder animation"
+                    className="w-[90%] h-[90%]"
+                  />
+                </div>
+              </div>
             </div>
 
-            <div className="key-info-lottie-frame">
-              <div className="key-info-lottie-glow" aria-hidden="true" />
-              <MovingAnimation
-                animationData={everythingBuilderNeedsAnimation}
-                ariaLabel="What to know about Devora!"
-                className="landing-lottie-key-info key-info-lottie"
-              />
-            </div>
-          </div>
-        </FadeIn>
-
-        {/* One card per FEATURES entry; stagger fade-in by index.
-            sm: 2 cols, lg: 3 cols */}
-        <div className="key-info-grid mt-6 lg:mt-7">
-          {/* vocab: delay={0.08 * i} = stagger each card's fade-in by index
-              Manipulate here: change 0.08 to tighten/loosen the cascade */}
-          {FEATURES.map((f, i) => {
-            // vocab: padStart(2,"0") = turn 1 into "01", 2 into "02", etc.
-            const code = String(i + 1).padStart(2, "0");
-
-            return (
-              <FadeIn key={f.title} delay={0.08 * i}>
-                {/* group = enables group-hover: scale/rotate on the icon */}
-                <article className="key-info-card group">
-                  <div className="key-info-card-top">
-                    {/* Icon sits in a glass well so it reads as a beacon, not a tiny orphan PNG */}
-                    <div className="key-info-icon-well">
-                      <Image
-                        src={f.icon}
-                        alt=""
-                        width={56}
-                        height={56}
-                        className="key-info-icon transition-transform duration-500 group-hover:-rotate-6 group-hover:scale-110"
-                      />
-                    </div>
-                    <span className="key-info-code font-pixel soft-pink">{code}</span>
+            {/* Feature List: 3x2 from 1100px, 2x3 from 640px, 1 column below */}
+            <ul className="features-list">
+              {FEATURES.map((item, idx) => (
+                <li key={idx} className="feature-item">
+                  <div className="feature-icon-wrapper">
+                    <Image
+                      src={item.icon}
+                      alt=""
+                      width={64}
+                      height={64}
+                      className="feature-icon"
+                    />
                   </div>
-
-                  {/* Solid heading — color lives on the icon well + index, not a rainbow title */}
-                  <h3 className="key-info-card-title font-display theme-heading">{f.title}</h3>
-                  <p className="key-info-card-desc">{f.desc}</p>
-                </article>
-              </FadeIn>
-            );
-          })}
+                  <h3 className="t-card text-[var(--ink)] mt-4">
+                    {item.title}
+                  </h3>
+                  <p className="text-[16px] leading-[1.55] text-[var(--ink-body)] mt-2.5 max-w-[50ch]">
+                    {item.text}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
-    </MouseGridBackground>
+
+      <style jsx>{`
+        .key-info-header-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 32px;
+          margin-bottom: 64px;
+          align-items: center;
+        }
+
+        @media (min-width: 980px) {
+          .key-info-header-grid {
+            grid-template-columns: 1.4fr 0.6fr;
+          }
+        }
+
+        .disc-wrapper {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .key-info-disc {
+          width: 300px;
+          height: 300px;
+          border-radius: 50%;
+          background: var(--paper-2);
+          border: 2px solid var(--ink);
+          box-shadow: var(--shadow);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+        }
+
+        @media (min-width: 640px) {
+          .key-info-disc {
+            width: 320px;
+            height: 320px;
+          }
+        }
+
+        .features-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 48px 36px;
+        }
+
+        @media (min-width: 640px) {
+          .features-list {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 48px 40px;
+          }
+        }
+
+        @media (min-width: 1100px) {
+          .features-list {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 56px 48px;
+          }
+        }
+
+        .feature-item {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .feature-icon-wrapper {
+          width: 64px;
+          height: 64px;
+        }
+
+        :global(.feature-icon) {
+          filter: drop-shadow(3px 3px 0 rgb(13 11 14 / 0.18));
+          width: 64px;
+          height: 64px;
+          object-fit: contain;
+        }
+      `}</style>
+    </section>
   );
 }

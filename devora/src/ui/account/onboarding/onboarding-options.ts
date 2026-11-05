@@ -2,6 +2,8 @@
 // Defines majors, career niches, interest groups, and step titles.
 // Imported by OnboardingForm + AccountProfileEditor (same pills everywhere).
 
+// ===== NAMED CONSTANTS =====
+
 // How many wizard steps the onboarding form has.
 // Manipulate here: if you add a step, also update STEP_TITLES, OnboardingForm canContinue + JSX
 export const ONBOARDING_STEPS = 5;
@@ -45,7 +47,9 @@ export const MAJORS = [
   "Software Engineering",
 ] as const;
 
-// vocab/symbol: typeof MAJORS[number] — any one item from the MAJORS array
+// ===== TYPES =====
+
+// vocab: typeof MAJORS[number] = any one item from the MAJORS array
 export type Major = (typeof MAJORS)[number];
 
 // Career-focus pills keyed by major — used after the student picks a major.
@@ -212,22 +216,6 @@ export const CAREER_NICHES_BY_MAJOR: Record<Major, readonly string[]> = {
   ],
 };
 
-// Career niche pills for a given major, or an empty list when major is blank.
-// Look up career-focus pills for a chosen major string.
-// Used by OnboardingForm + AccountProfileEditor after the major dropdown changes.
-export function getCareerNichesForMajor(major: string): readonly string[] {
-  // No major yet — nothing to show (UI hides the niche PillGroup).
-  if (!major) {
-    return [];
-  }
-
-  // Unknown major string — fall back to empty instead of crashing.
-  // vocab/symbol: as Major = tell TypeScript this string is one of the MAJORS values
-  // vocab/symbol: ?? [] = if the key is missing from the map, return an empty list
-  // Manipulate here: add niches under CAREER_NICHES_BY_MAJOR for that major key
-  return CAREER_NICHES_BY_MAJOR[major as Major] ?? [];
-}
-
 // Interest categories for step 3 (each group becomes its own PillGroup).
 export const PERSONAL_INTEREST_GROUPS = [
   {
@@ -393,6 +381,10 @@ export const PERSONAL_INTEREST_GROUPS = [
   },
 ] as const;
 
+const SPORTS_AND_FITNESS_GROUP_INDEX = 0;
+const MEDIA_AND_ENTERTAINMENT_GROUP_INDEX = 6;
+const CUSTOM_INTEREST_SEPARATOR_PATTERN = /[,;]+/;
+
 // Flat list of every interest pill — used to tell "known" vs custom interests apart.
 // vocab/symbol: flatMap — run on each group and flatten into one combined array
 export const PERSONAL_INTERESTS = PERSONAL_INTEREST_GROUPS.flatMap(
@@ -400,37 +392,15 @@ export const PERSONAL_INTERESTS = PERSONAL_INTEREST_GROUPS.flatMap(
 );
 
 /** @deprecated Use PERSONAL_INTEREST_GROUPS — kept for filter sidebar parity */
-export const HOBBIES_AND_ACTIVITIES = PERSONAL_INTEREST_GROUPS[0].options;
+export const HOBBIES_AND_ACTIVITIES =
+  PERSONAL_INTEREST_GROUPS[SPORTS_AND_FITNESS_GROUP_INDEX].options;
 
 /** @deprecated Use PERSONAL_INTEREST_GROUPS */
-export const MEDIA_AND_ENTERTAINMENT = PERSONAL_INTEREST_GROUPS[6].options;
+export const MEDIA_AND_ENTERTAINMENT =
+  PERSONAL_INTEREST_GROUPS[MEDIA_AND_ENTERTAINMENT_GROUP_INDEX].options;
 
 // Alias kept so older imports of CASUAL_INTERESTS still work.
 export const CASUAL_INTERESTS = PERSONAL_INTERESTS;
-
-// Split a comma- or semicolon-separated string into trimmed interest labels.
-// Example: "Knitting, F1; Pottery" → ["Knitting", "F1", "Pottery"]
-export function parseCustomInterests(raw: string): string[] {
-  return raw
-    // vocab/symbol: /[,;]+/ = split on one or more commas or semicolons
-    .split(/[,;]+/)
-    .map((item) => item.trim())
-    // Drop empty pieces from trailing commas or double separators.
-    .filter((item) => item.length > 0);
-}
-
-// Combine pill selections with custom-typed interests, removing duplicates.
-// This is what gets written to profile.casualInterests on Finish / Save.
-export function mergeCasualInterests(
-  selected: string[],
-  customRaw: string
-): string[] {
-  // vocab/symbol: new Set — removes duplicates; Array.from turns it back into a list
-  // Order: pill picks first, then custom typed ones
-  return Array.from(
-    new Set([...selected, ...parseCustomInterests(customRaw)])
-  );
-}
 
 // "Looking for" tags (friends, coffee chat, colleagues — not project teammates).
 export const LOOKING_FOR = [
@@ -490,3 +460,56 @@ export const STEP_TITLES = [
   "Why Devora",
   "Bio & socials",
 ] as const;
+
+// ===== MAIN FUNCTIONS =====
+
+/**
+ * Career niche pills for a chosen major.
+ * Used by OnboardingForm and AccountProfileEditor after the major dropdown changes.
+ * @param major - The major string from the dropdown. Empty when nothing is selected
+ * @returns The niche list for that major, or an empty list when the major is blank or unknown
+ */
+export function getCareerNichesForMajor(major: string): readonly string[] {
+  // No major yet — the form hides the niche pills.
+  if (!major) {
+    return [];
+  }
+
+  // Unknown major string — return empty instead of crashing.
+  // vocab: as Major = tell TypeScript this string is one of the MAJORS values
+  // vocab: ?? = if the key is missing from the map, use an empty list
+  // Manipulate here: add niches under CAREER_NICHES_BY_MAJOR for that major key
+  return CAREER_NICHES_BY_MAJOR[major as Major] ?? [];
+}
+
+/**
+ * Split a comma- or semicolon-separated string into trimmed interest labels.
+ * Example: "Knitting, F1; Pottery" becomes ["Knitting", "F1", "Pottery"].
+ * @param rawInterestText - The free-text interest field
+ * @returns Trimmed labels, with empty pieces from extra commas removed
+ */
+export function parseCustomInterests(rawInterestText: string): string[] {
+  // vocab: /[,;]+/ = split on one or more commas or semicolons
+  return rawInterestText
+    .split(CUSTOM_INTEREST_SEPARATOR_PATTERN)
+    .map((interestLabel) => interestLabel.trim())
+    .filter((interestLabel) => interestLabel.length > 0);
+}
+
+/**
+ * Combine pill selections with custom-typed interests and remove duplicates.
+ * This is what gets written to casualInterests on Finish and Save.
+ * @param selectedInterests - Pills the student turned on
+ * @param customInterestText - Comma- or semicolon-separated extras
+ * @returns Pill picks first, then custom labels, with duplicates removed
+ */
+export function mergeCasualInterests(
+  selectedInterests: string[],
+  customInterestText: string
+): string[] {
+  // vocab: Set = removes duplicates. vocab: ...spread = copy both lists into that set
+  // Pill picks stay first so the saved order matches the form.
+  return Array.from(
+    new Set([...selectedInterests, ...parseCustomInterests(customInterestText)])
+  );
+}

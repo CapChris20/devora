@@ -1,18 +1,31 @@
-// Default "view my profile" layout — sidebar, Discovery Grid preview, and public/private sections.
-// Edit button flips the parent (AccountPageContent) into AccountProfileEditor.
-// Field names here match Firestore (bio, aboutYou, careerNiche, casualInterests, links, …).
+// Redesigned Account Profile View per DESIGN.md § 5.2.
+// Compact layout so all profile information is visible without excessive scrolling.
+// Left: Glass panel with 72px avatar (gradient ring), identity, chips, profile strength, facts, sign out.
+// Right: Glass panel with public legend, 2-col compact section grid (Bio, Looking for,
+// Experience, Career focus, Interests, Social links), plus compact "Private details" disclosure.
 
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
+import {
+  BadgeCheck,
+  Calendar,
+  Globe,
+  Lock,
+  LogOut,
+  PenLine,
+  ChevronDown,
+  Plus,
+} from "lucide-react";
 
 import type { UserProfile } from "@/backend/firebase";
-
-import AccountDiscoveryPreview from "./AccountDiscoveryPreview";
-import AccountInfoCard from "./AccountInfoCard";
+import {
+  GithubIcon,
+  LinkedinIcon,
+  InstagramIcon,
+} from "@/ui/discovery/cards/DiscoverySocialIcons";
 import {
   formatJoinedDate,
-  formatLinkLabel,
   getInitials,
   getProfileCompleteness,
   getProfileSubtitle,
@@ -20,282 +33,840 @@ import {
 } from "./account-helpers";
 
 type AccountProfileViewProps = {
-  // vocab: UserProfile = full Firestore users/{uid} document shape
   profile: UserProfile;
-  // Parent sets isEditing=true when this runs
   onEdit: () => void;
-  // Parent clears the Firebase session and sends them to login
   onSignOut: () => void;
 };
 
-// How many interest tags show before "+N more"
-// Manipulate here: raise to show more chips before the expand button
-const TAG_PREVIEW_LIMIT = 6;
-
-// Renders interest/career tags; can collapse long lists behind "+N more".
-function TagList({ items, limit }: { items: string[]; limit?: number }) {
-  // vocab: useState = React hook that stores a value and re-renders when you call the setter
-  const [expanded, setExpanded] = useState(false);
-  // Show only the first `limit` tags until they expand.
-  // vocab: slice(0, limit) = take the first `limit` items
-  const visible = limit && !expanded ? items.slice(0, limit) : items;
-  const hiddenCount = limit ? Math.max(0, items.length - limit) : 0;
-
-  // Nothing to show — render nothing (parent shows empty hint instead).
-  if (items.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="account-tag-list">
-      <div className="account-tag-row">
-        {visible.map((item) => (
-          <span key={item} className="account-tag">
-            {item}
-          </span>
-        ))}
-      </div>
-      {/* Expand button when there are more tags than the preview limit */}
-      {hiddenCount > 0 && !expanded ? (
-        <button type="button" className="account-text-btn" onClick={() => setExpanded(true)}>
-          +{hiddenCount} more
-        </button>
-      ) : null}
-    </div>
-  );
-}
-
-// Section wrapper with optional Public / Only you badge.
-function SectionBlock({
-  title,
-  visibility,
-  children,
-}: {
-  title: string;
-  visibility?: "public" | "private";
-  // vocab: ReactNode = anything React can render (JSX, text, null, …)
-  children: ReactNode;
-}) {
-  return (
-    <section className="account-section-block">
-      <div className="account-section-block-header">
-        <h3 className="account-section-title">{title}</h3>
-        {visibility ? (
-          <span
-            className={
-              visibility === "public" ? "account-visibility-badge" : "account-private-badge"
-            }
-          >
-            {visibility === "public" ? "Public" : "Only you"}
-          </span>
-        ) : null}
-      </div>
-      {children}
-    </section>
-  );
-}
-
-// Read-only profile: left column (avatar + preview) and right column (details).
 export default function AccountProfileView({
   profile,
   onEdit,
   onSignOut,
 }: AccountProfileViewProps) {
-  // privateOpen = whether the email/school panel at the bottom is expanded
-  const [privateOpen, setPrivateOpen] = useState(false);
-  const initials = getInitials(profile);
-  // vocab: getProfileCompleteness = 0–100 score + list of missing sections
+  const [isPrivateOpen, setIsPrivateOpen] = useState(false);
+  const [avatarFailed, setAvatarFailed] = useState(false);
+
   const completeness = getProfileCompleteness(profile);
-  // vocab/symbol: ?? {} = if links is missing, use an empty object
+  const subtitle = getProfileSubtitle(profile);
+  const joinedText = formatJoinedDate(profile.createdAt);
+  const isVerified = isUmichVerified(profile.email);
+  const initials = getInitials(profile);
+  const fullName =
+    [profile.firstName, profile.lastName].filter(Boolean).join(" ") ||
+    profile.displayName ||
+    "Student";
+
+  // Social link helpers
   const links = profile.links ?? {};
-  // Build the three social rows even when a link is missing (shows "Not added").
-  const socialEntries = [
-    { key: "github", label: "GitHub", href: links.github },
-    { key: "linkedin", label: "LinkedIn", href: links.linkedin },
-    { key: "instagram", label: "Instagram", href: links.instagram },
+  const socialItems = [
+    {
+      key: "github",
+      label: "GitHub",
+      val: links.github,
+      Icon: GithubIcon,
+    },
+    {
+      key: "linkedin",
+      label: "LinkedIn",
+      val: links.linkedin,
+      Icon: LinkedinIcon,
+    },
+    {
+      key: "instagram",
+      label: "Instagram",
+      val: links.instagram,
+      Icon: InstagramIcon,
+    },
   ];
 
   return (
-    <div className="account-profile-view account-split-layout">
-      {/* Left column — avatar, strength meter, Discovery preview, quick stats */}
-      <aside className="account-split-left">
-        {/* Identity row — avatar + name + edit; completeness sits under them (one card, not two).
-            Compact desktop CSS in globals.css keeps this block short enough for one viewport. */}
-        <div className="glass-card account-identity-card">
-          <div className="account-identity-main">
-            <div className="account-avatar-ring">
-              {profile.photoURL ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.photoURL} alt="" />
-              ) : (
-                <span className="account-avatar-initials">{initials}</span>
+    <div className="account-view-root">
+      {/* ── Page Head ── */}
+      <div className="account-page-head">
+        <div>
+          <h1 className="t-band text-white">My profile</h1>
+          <p className="lead text-[var(--text-body)] mt-1.5">
+            This is how classmates see you on the Discovery Grid.
+          </p>
+        </div>
+
+        <button type="button" onClick={onEdit} className="btn-primary">
+          <PenLine size={16} />
+          <span>Edit profile</span>
+        </button>
+      </div>
+
+      {/* ── 2-Column Split Grid (5fr 7fr from 1024px) ── */}
+      <div className="account-split-grid">
+        {/* ── Left Column (5fr) ── */}
+        <div className="account-left-col">
+          <div className="glass-panel account-identity-panel">
+            {/* Identity row: 72px avatar + name + major/year + school */}
+            <div className="identity-row">
+              <div className="avatar-ring-wrapper">
+                <div className="avatar-inner">
+                  {profile.photoURL && !avatarFailed ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={profile.photoURL}
+                      alt={fullName}
+                      className="avatar-img"
+                      onError={() => setAvatarFailed(true)}
+                    />
+                  ) : (
+                    <div className="avatar-initials">{initials}</div>
+                  )}
+                </div>
+              </div>
+
+              <div className="identity-info">
+                <h2 className="identity-name">{fullName}</h2>
+                <p className="identity-major">{subtitle}</p>
+                <p className="identity-school">UM&#8209;Dearborn CECS</p>
+              </div>
+            </div>
+
+            {/* Chips row */}
+            <div className="chips-row">
+              {isVerified && (
+                <div className="chip-badge">
+                  <BadgeCheck size={13} color="#ff5ca8" />
+                  <span>Verified @umich.edu</span>
+                </div>
               )}
-            </div>
-            <div className="account-identity-copy">
-              <h2 className="account-hero-name">{profile.displayName}</h2>
-              <p className="account-hero-subtitle">{getProfileSubtitle(profile)}</p>
-              <p className="account-school">{profile.school}</p>
-              <div className="account-hero-badges">
-                {isUmichVerified(profile.email) ? (
-                  <span className="account-verified-badge">Verified @umich.edu</span>
-                ) : null}
-                <span className="account-meta-chip">Joined {formatJoinedDate(profile.createdAt)}</span>
+              <div className="chip-badge">
+                <Calendar size={13} />
+                <span>{joinedText || "Joined Aug 2026"}</span>
               </div>
             </div>
-          </div>
-          <button type="button" className="devora-btn-outline account-edit-btn" onClick={onEdit}>
-            Edit profile
-          </button>
-          {/* Profile strength meter — only when something is still missing */}
-          {completeness.score < 100 ? (
-            <div className="account-completeness">
-              <div className="account-completeness-top">
-                <p className="account-section-eyebrow">Profile strength</p>
-                <span className="account-completeness-score">{completeness.score}%</span>
+
+            {/* Profile strength box */}
+            <div className="profile-strength-box">
+              <div className="strength-header">
+                <span className="mono text-[var(--text-muted)] text-xs">Profile strength</span>
+                <span className="strength-pct">{completeness.score}%</span>
               </div>
-              <div className="account-completeness-track">
+              <div className="strength-bar-track">
                 <div
-                  className="account-completeness-fill"
+                  className="strength-bar-fill"
                   style={{ width: `${completeness.score}%` }}
                 />
               </div>
-              <p className="account-empty-hint">
-                Add: {completeness.missing.slice(0, 3).join(", ")}
-                {completeness.missing.length > 3 ? "…" : ""}
+              <p className="strength-hint">
+                {completeness.score < 100
+                  ? "Add experience to reach 100%."
+                  : "Profile is 100% complete."}
               </p>
             </div>
-          ) : null}
-        </div>
 
-        <AccountDiscoveryPreview profile={profile} />
-
-        <div className="account-info-grid">
-          {/* vocab / profile fields: major, classRank, age, gender — basics from onboarding */}
-          <AccountInfoCard label="Major" value={profile.major || "—"} />
-          <AccountInfoCard label="Class rank" value={profile.classRank || "—"} />
-          <AccountInfoCard label="Age" value={profile.age || "—"} />
-          <AccountInfoCard label="Gender" value={profile.gender || "—"} />
-        </div>
-
-        <div className="account-footer-actions">
-          <button type="button" className="page-btn-danger" onClick={onSignOut}>
-            Sign out
-          </button>
-        </div>
-      </aside>
-
-      {/* Right column — public detail sections + collapsible private email/school */}
-      <div className="account-split-right">
-        <div className="glass-card account-details-card">
-          <SectionBlock title="Bio" visibility="public">
-            {profile.bio?.trim() ? (
-              <p className="account-bio-text">{profile.bio}</p>
-            ) : (
-              <p className="account-empty-hint">
-                No bio yet. This is the first thing classmates read on the grid.
-              </p>
-            )}
-          </SectionBlock>
-
-          <SectionBlock title="Looking for" visibility="public">
-            {/* vocab / profile field: aboutYou = "looking for" tags */}
-            {(profile.aboutYou?.length ?? 0) > 0 ? (
-              <TagList items={profile.aboutYou ?? []} />
-            ) : (
-              <p className="account-empty-hint">
-                Tell people what kind of friends, colleagues, or chats you want — edit profile to add this.
-              </p>
-            )}
-          </SectionBlock>
-
-          <SectionBlock title="Experience & projects" visibility="public">
-            {/* vocab / profile field: hasExperience + experienceDetails = project write-up */}
-            {profile.hasExperience && profile.experienceDetails?.trim() ? (
-              <p className="account-body-text whitespace-pre-wrap">{profile.experienceDetails}</p>
-            ) : (
-              <p className="account-empty-hint">
-                No experience listed. Add projects or internships to build credibility.
-              </p>
-            )}
-          </SectionBlock>
-
-          <SectionBlock title="Career focus" visibility="public">
-            {/* vocab / profile field: careerNiche = career/focus pills for their major */}
-            {(profile.careerNiche?.length ?? 0) > 0 ? (
-              <TagList items={profile.careerNiche ?? []} />
-            ) : (
-              <p className="account-empty-hint">No career focus tags yet.</p>
-            )}
-            {profile.careerNicheOther ? (
-              <p className="account-body-text mt-2">{profile.careerNicheOther}</p>
-            ) : null}
-          </SectionBlock>
-
-          <SectionBlock title="Interests" visibility="public">
-            {/* vocab / profile field: casualInterests = hobby pills (+ custom typed) */}
-            {(profile.casualInterests?.length ?? 0) > 0 ? (
-              <TagList items={profile.casualInterests ?? []} limit={TAG_PREVIEW_LIMIT} />
-            ) : (
-              <p className="account-empty-hint">No interests added yet.</p>
-            )}
-          </SectionBlock>
-
-          <SectionBlock title="Social links" visibility="public">
-            <ul className="account-social-list">
-              {socialEntries.map((entry) => (
-                <li key={entry.key}>
-                  {/* Live link when set; otherwise a "Not added" placeholder */}
-                  {entry.href?.trim() ? (
-                    <a
-                      href={entry.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="account-social-link"
-                    >
-                      <span className="account-social-label">{entry.label}</span>
-                      <span className="account-social-url">{formatLinkLabel(entry.href)}</span>
-                    </a>
-                  ) : (
-                    <div className="account-social-missing">
-                      <span className="account-social-label">{entry.label}</span>
-                      <span className="account-empty-hint">Not added</span>
-                    </div>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </SectionBlock>
-        </div>
-
-        {/* Private details — email and school, collapsed by default */}
-        <div className="account-private-panel glass-card">
-          <button
-            type="button"
-            className="account-private-toggle"
-            // vocab/symbol: !open = flip true↔false
-            onClick={() => setPrivateOpen((open) => !open)}
-            aria-expanded={privateOpen}
-          >
-            <span className="account-section-title">Private details</span>
-            <span className="account-private-badge">Only you</span>
-            <span className="account-chevron" data-open={privateOpen}>
-              ▾
-            </span>
-          </button>
-          {privateOpen ? (
-            <dl className="account-private-list">
-              <div>
-                <dt>Email</dt>
-                <dd>{profile.email}</dd>
+            {/* Facts Grid (2x2 <dl>) */}
+            <dl className="facts-grid">
+              <div className="fact-item">
+                <dt className="mono text-[var(--text-muted)]">Major</dt>
+                <dd className="fact-val">{profile.major || "—"}</dd>
               </div>
-              <div>
-                <dt>School</dt>
-                <dd>{profile.school}</dd>
+              <div className="fact-item">
+                <dt className="mono text-[var(--text-muted)]">Class rank</dt>
+                <dd className="fact-val">{profile.classRank || "—"}</dd>
+              </div>
+              <div className="fact-item">
+                <dt className="mono text-[var(--text-muted)]">Age</dt>
+                <dd className="fact-val">{profile.age || "—"}</dd>
+              </div>
+              <div className="fact-item">
+                <dt className="mono text-[var(--text-muted)]">Gender</dt>
+                <dd className="fact-val">{profile.gender || "—"}</dd>
               </div>
             </dl>
-          ) : null}
+          </div>
+
+          {/* Sign Out danger button */}
+          <button
+            type="button"
+            onClick={onSignOut}
+            className="btn-danger w-full mt-3.5"
+          >
+            <LogOut size={16} />
+            <span>Sign out</span>
+          </button>
+        </div>
+
+        {/* ── Right Column (7fr) ── */}
+        <div className="account-right-col">
+          <div className="glass-panel">
+            {/* Legend line */}
+            <div className="public-legend-line">
+              <Globe size={14} color="#ff5ca8" />
+              <span>Sections marked public show on the Discovery Grid.</span>
+            </div>
+
+            {/* 2-column section grid */}
+            <div className="sections-grid">
+              {/* 1. Bio */}
+              <div className="section-block">
+                <div className="section-head">
+                  <h3 className="section-title">Bio</h3>
+                  <span className="public-stamp">
+                    <Globe size={12} />
+                    <span>Public</span>
+                  </span>
+                </div>
+                {profile.bio ? (
+                  <p className="section-body">{profile.bio}</p>
+                ) : (
+                  <div className="empty-section-hint">
+                    <span>No bio yet.</span>
+                    <button type="button" onClick={onEdit} className="add-link">
+                      <Plus size={13} color="#ff5ca8" />
+                      <span className="add-link-text">Add bio</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 2. Looking for */}
+              <div className="section-block">
+                <div className="section-head">
+                  <h3 className="section-title">Looking for</h3>
+                  <span className="public-stamp">
+                    <Globe size={12} />
+                    <span>Public</span>
+                  </span>
+                </div>
+                {profile.aboutYou && profile.aboutYou.length > 0 ? (
+                  <div className="tags-flex">
+                    {profile.aboutYou.map((tag) => (
+                      <span key={tag} className="profile-tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-section-hint">
+                    <span>No items.</span>
+                    <button type="button" onClick={onEdit} className="add-link">
+                      <Plus size={13} color="#ff5ca8" />
+                      <span className="add-link-text">Add looking for</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 3. Experience & projects */}
+              <div className="section-block">
+                <div className="section-head">
+                  <h3 className="section-title">Experience &amp; projects</h3>
+                  <span className="public-stamp">
+                    <Globe size={12} />
+                    <span>Public</span>
+                  </span>
+                </div>
+                {profile.experienceDetails ? (
+                  <p className="section-body">{profile.experienceDetails}</p>
+                ) : (
+                  <div className="empty-section-hint">
+                    <span>No experience listed.</span>
+                    <button type="button" onClick={onEdit} className="add-link">
+                      <Plus size={13} color="#ff5ca8" />
+                      <span className="add-link-text">Add experience</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 4. Career focus */}
+              <div className="section-block">
+                <div className="section-head">
+                  <h3 className="section-title">Career focus</h3>
+                  <span className="public-stamp">
+                    <Globe size={12} />
+                    <span>Public</span>
+                  </span>
+                </div>
+                {profile.careerNiche && profile.careerNiche.length > 0 ? (
+                  <div className="tags-flex">
+                    {profile.careerNiche.map((tag) => (
+                      <span key={tag} className="profile-tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-section-hint">
+                    <span>No focus tags.</span>
+                    <button type="button" onClick={onEdit} className="add-link">
+                      <Plus size={13} color="#ff5ca8" />
+                      <span className="add-link-text">Add focus</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 5. Interests */}
+              <div className="section-block">
+                <div className="section-head">
+                  <h3 className="section-title">Interests</h3>
+                  <span className="public-stamp">
+                    <Globe size={12} />
+                    <span>Public</span>
+                  </span>
+                </div>
+                {profile.casualInterests && profile.casualInterests.length > 0 ? (
+                  <div className="tags-flex">
+                    {profile.casualInterests.map((tag) => (
+                      <span key={tag} className="profile-tag">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="empty-section-hint">
+                    <span>No interests.</span>
+                    <button type="button" onClick={onEdit} className="add-link">
+                      <Plus size={13} color="#ff5ca8" />
+                      <span className="add-link-text">Add interests</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* 6. Social links */}
+              <div className="section-block">
+                <div className="section-head">
+                  <h3 className="section-title">Social links</h3>
+                  <span className="public-stamp">
+                    <Globe size={12} />
+                    <span>Public</span>
+                  </span>
+                </div>
+                <div className="social-links-col">
+                  {socialItems.map((item) => {
+                    const Icon = item.Icon;
+                    return (
+                      <div key={item.key} className="social-link-row">
+                        <div className="social-link-left">
+                          <Icon size={14} />
+                          <span className="social-name">{item.label}</span>
+                        </div>
+                        {item.val ? (
+                          <span className="social-val">{item.val}</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={onEdit}
+                            className="social-add-link"
+                          >
+                            <Plus size={12} color="#ff5ca8" />
+                            <span className="add-link-text">Add link</span>
+                          </button>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Private details disclosure */}
+          <div className="private-details-wrapper mt-3.5">
+            <button
+              type="button"
+              className="private-disclosure-btn glass-panel"
+              onClick={() => setIsPrivateOpen(!isPrivateOpen)}
+              aria-expanded={isPrivateOpen}
+            >
+              <div className="disclosure-left">
+                <Lock size={15} color="#ff5ca8" />
+                <span className="disclosure-label">Private details</span>
+                <span className="only-you-chip">Only you</span>
+              </div>
+
+              <ChevronDown
+                size={18}
+                className={`disclosure-chevron ${isPrivateOpen ? "is-open" : ""}`}
+              />
+            </button>
+
+            {isPrivateOpen && (
+              <div className="private-disclosure-body glass-panel">
+                <dl className="private-details-dl">
+                  <div>
+                    <dt className="mono text-[var(--text-muted)] text-xs">Email</dt>
+                    <dd className="private-val">{profile.email || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt className="mono text-[var(--text-muted)] text-xs">School</dt>
+                    <dd className="private-val">
+                      {profile.school || "University of Michigan-Dearborn"}
+                    </dd>
+                  </div>
+                </dl>
+              </div>
+            )}
+          </div>
         </div>
       </div>
+
+      <style jsx>{`
+        .account-view-root {
+          width: 100%;
+        }
+
+        .account-page-head {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: flex-end;
+          justify-content: space-between;
+          gap: 16px;
+          margin-bottom: 20px;
+        }
+
+        .account-split-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 20px;
+          align-items: start;
+        }
+
+        @media (min-width: 1024px) {
+          .account-split-grid {
+            grid-template-columns: 4.8fr 7.2fr;
+          }
+        }
+
+        .glass-panel {
+          background: rgb(22 17 21 / 0.45);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
+          border: 1.5px solid rgb(255 255 255 / 0.12);
+          border-radius: 16px;
+          padding: 20px;
+        }
+
+        .identity-row {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .avatar-ring-wrapper {
+          width: 74px;
+          height: 74px;
+          border-radius: 50%;
+          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
+          padding: 3px;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .avatar-inner {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          overflow: hidden;
+          background: var(--surface, #1c181c);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        :global(.avatar-img) {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .avatar-initials {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 800;
+          font-size: 20px;
+          color: white;
+        }
+
+        .identity-info {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .identity-name {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 800;
+          text-transform: uppercase;
+          font-size: clamp(20px, 2vw, 26px);
+          line-height: 1.1;
+          letter-spacing: -0.02em;
+          color: white;
+          margin: 0;
+        }
+
+        .identity-major {
+          font-size: 14px;
+          color: var(--text-body);
+          margin: 0;
+        }
+
+        .identity-school {
+          font-size: 12.5px;
+          color: var(--text-muted);
+          margin: 0;
+        }
+
+        .chips-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-top: 14px;
+        }
+
+        .chip-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          height: 24px;
+          padding: 0 10px;
+          border-radius: 999px;
+          border: 1px solid rgb(255 255 255 / 0.25);
+          font-family: var(--f-mono);
+          font-size: 11px;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: white;
+        }
+
+        .profile-strength-box {
+          background: rgb(255 255 255 / 0.04);
+          border-radius: 12px;
+          padding: 12px 14px;
+          margin-top: 14px;
+        }
+
+        .strength-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 6px;
+        }
+
+        .strength-pct {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 800;
+          font-size: 18px;
+          color: white;
+        }
+
+        .strength-bar-track {
+          width: 100%;
+          height: 6px;
+          background: rgb(255 255 255 / 0.1);
+          border-radius: 999px;
+          overflow: hidden;
+        }
+
+        .strength-bar-fill {
+          height: 100%;
+          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
+          border-radius: 999px;
+          transition: width 0.3s ease;
+        }
+
+        .strength-hint {
+          font-size: 12px;
+          color: var(--text-muted);
+          margin: 6px 0 0;
+        }
+
+        .facts-grid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px 16px;
+          margin: 16px 0 0;
+          padding: 14px 0 0;
+          border-top: 1px solid rgb(255 255 255 / 0.08);
+        }
+
+        .fact-item {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        .fact-val {
+          font-size: 15px;
+          font-weight: 700;
+          color: white;
+          margin: 0;
+        }
+
+        .btn-danger {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          height: 42px;
+          border-radius: 999px;
+          background: transparent;
+          border: 1.5px solid var(--danger-edge, #7a2a3a);
+          color: var(--danger, #ff8fa0);
+          font-family: var(--f-mono);
+          font-size: 13px;
+          font-weight: 700;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: border-color 0.2s ease, background 0.2s ease;
+        }
+
+        .btn-danger:hover {
+          border-color: var(--danger);
+          background: rgb(255 143 160 / 0.08);
+        }
+
+        .public-legend-line {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          font-size: 12.5px;
+          color: var(--text-muted);
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgb(255 255 255 / 0.08);
+        }
+
+        .sections-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 18px 20px;
+        }
+
+        @media (min-width: 640px) {
+          .sections-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        .section-block {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .section-head {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .section-title {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 700;
+          text-transform: uppercase;
+          font-size: 13px;
+          color: white;
+          margin: 0;
+        }
+
+        .public-stamp {
+          display: inline-flex;
+          align-items: center;
+          gap: 3px;
+          font-family: var(--f-mono);
+          font-size: 10px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: var(--text-muted);
+        }
+
+        .section-body {
+          font-size: 13.5px;
+          line-height: 1.45;
+          color: var(--text-body);
+          margin: 0;
+        }
+
+        .empty-section-hint {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          font-size: 13px;
+          color: var(--text-muted);
+        }
+
+        .add-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: rgb(255 92 168 / 0.1);
+          border: 1px solid rgb(255 92 168 / 0.45);
+          border-radius: 999px;
+          padding: 3px 10px;
+          cursor: pointer;
+          transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s var(--spring);
+        }
+
+        .add-link:hover {
+          background: rgb(255 92 168 / 0.22);
+          border-color: #ff5ca8;
+          transform: translateY(-1px);
+        }
+
+        .add-link-text {
+          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-size: 11.5px;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+        }
+
+        .tags-flex {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        .profile-tag {
+          height: 28px;
+          display: inline-flex;
+          align-items: center;
+          padding: 0 10px;
+          border-radius: 999px;
+          background: rgb(255 255 255 / 0.06);
+          border: 1px solid rgb(255 255 255 / 0.14);
+          font-size: 12px;
+          font-weight: 500;
+          color: white;
+        }
+
+        .social-links-col {
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+        }
+
+        .social-link-row {
+          height: 38px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 12px;
+          border-radius: 10px;
+          background: rgb(255 255 255 / 0.04);
+        }
+
+        .social-link-left {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: white;
+        }
+
+        .social-name {
+          font-weight: 600;
+          font-size: 12.5px;
+        }
+
+        .social-val {
+          font-size: 12px;
+          color: var(--text-muted);
+          max-width: 140px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        .social-add-link {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          background: rgb(255 92 168 / 0.1);
+          border: 1px solid rgb(255 92 168 / 0.45);
+          padding: 3px 10px;
+          border-radius: 999px;
+          cursor: pointer;
+          transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s var(--spring);
+        }
+
+        .social-add-link:hover {
+          background: rgb(255 92 168 / 0.22);
+          border-color: #ff5ca8;
+          transform: translateY(-1px);
+        }
+
+        .private-disclosure-btn {
+          width: 100%;
+          min-height: 46px;
+          padding: 10px 16px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          cursor: pointer;
+          outline: none;
+        }
+
+        .disclosure-left {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .disclosure-label {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 700;
+          text-transform: uppercase;
+          font-size: 13px;
+          color: white;
+        }
+
+        .only-you-chip {
+          height: 20px;
+          display: inline-flex;
+          align-items: center;
+          padding: 0 8px;
+          border-radius: 999px;
+          border: 1px solid rgb(255 255 255 / 0.25);
+          font-family: var(--f-mono);
+          font-size: 10px;
+          text-transform: uppercase;
+          color: var(--text-muted);
+        }
+
+        :global(.disclosure-chevron) {
+          transition: transform 0.26s cubic-bezier(0.23, 1, 0.32, 1);
+          color: white;
+        }
+
+        :global(.disclosure-chevron.is-open) {
+          transform: rotate(180deg);
+        }
+
+        .private-disclosure-body {
+          margin-top: 6px;
+          padding: 16px;
+        }
+
+        .private-details-dl {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 12px;
+          margin: 0;
+        }
+
+        @media (min-width: 640px) {
+          .private-details-dl {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        .private-val {
+          font-size: 14px;
+          font-weight: 600;
+          color: white;
+          margin: 2px 0 0;
+        }
+      `}</style>
     </div>
   );
 }

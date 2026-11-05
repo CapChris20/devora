@@ -1,15 +1,33 @@
-// Lottie brand color palettes and deep-clone recolor helper for homepage animations.
-// Flow: WhyMatchupLottie calls recolorLottie(json, preset) → structuredClone → walk the tree →
-// rewrite solid fills ({ c: { a:0, k:[r,g,b,a] } }) and gradient stops → return branded JSON.
-// Why: After Effects Lottie exports keep original brand colors; we remap them to Devora’s palette
-// without editing the huge JSON files by hand.
-// Manipulate here: change DEVORA_LOTTIE_COLORS / DEVORA_LOTTIE_PALETTES to rebrand the matchup cards.
+// Lottie brand palettes and a deep-clone recolor helper for homepage animations.
+// Flow: WhyMatchupLottie calls recolorLottie → clone the JSON → walk the tree → rewrite fills.
+// After Effects exports keep their original colors; this remaps them to Devora.
+// Used by WhyMatchupLottie. Manipulate the palettes below to rebrand the matchup cards.
 
-// vocab: LottieRGBA = red, green, blue, alpha each as 0..1 (Lottie, not 0–255 CSS)
-// Example: CSS #ff9a2e ≈ [1, 0.604, 0.18, 1] here
-export type LottieRGBA = [number, number, number, number];
+// ===== NAMED CONSTANTS =====
 
-// Core brand colors as 0–1 RGBA (Lottie format, not 0–255).
+// vocab: Lottie = After Effects JSON animation. Colors are red, green, blue, alpha as 0..1, not 0–255 CSS.
+const LUMA_RED_WEIGHT = 0.299;
+const LUMA_GREEN_WEIGHT = 0.587;
+const LUMA_BLUE_WEIGHT = 0.114;
+const TONE_FULL_BRIGHTNESS = 0.9;
+// Manipulate here: raise to recolor more near-whites; lower to preserve more whites
+const NEAR_WHITE_LUMINANCE = 0.92;
+const UNIT_INTERVAL_MAX = 1;
+const OPAQUE_ALPHA = 1;
+const RED_CHANNEL_INDEX = 0;
+const GREEN_CHANNEL_INDEX = 1;
+const BLUE_CHANNEL_INDEX = 2;
+const ALPHA_CHANNEL_INDEX = 3;
+const LOTTIE_RGBA_LENGTH = 4;
+const STATIC_LOTTIE_VALUE_FLAG = 0;
+const GRADIENT_HEADER_SLOT_COUNT = 1;
+const GRADIENT_STOP_CHANNEL_STRIDE = 4;
+const CYCLE_RECOLOR_MODE = "cycle" as const;
+const TONE_RECOLOR_MODE = "tone" as const;
+const PALETTE_CURSOR_START = 0;
+const INDEX_STEP = 1;
+
+// Core brand colors as 0–1 RGBA.
 // Manipulate here: tweak a channel (0..1) to shift a brand stop used by every palette below.
 export const DEVORA_LOTTIE_COLORS = {
   orange: [1, 0.604, 0.18, 1] as LottieRGBA,
@@ -20,12 +38,8 @@ export const DEVORA_LOTTIE_COLORS = {
   white: [1, 1, 1, 1] as LottieRGBA,
 } as const;
 
-// Which Why Devora card animation we’re recoloring
-export type DevoraLottiePreset = "github" | "linkedin" | "discord";
-
-// Ordered palettes per Why Devora card animation.
-// Cycle mode walks this list in order for each solid color it finds.
-// Manipulate here: reorder or swap colors to change how each rival’s Lottie looks.
+// Ordered palettes per Why Devora card. Cycle mode walks this list for each solid color it finds.
+// Manipulate here: reorder or swap colors to change how each animation looks.
 export const DEVORA_LOTTIE_PALETTES: Record<DevoraLottiePreset, LottieRGBA[]> = {
   github: [
     DEVORA_LOTTIE_COLORS.orange,
@@ -48,158 +62,208 @@ export const DEVORA_LOTTIE_PALETTES: Record<DevoraLottiePreset, LottieRGBA[]> = 
   ],
 };
 
-// "cycle" = next palette color by encounter order
-// "tone"  = map bright→dark source colors onto light→dark palette slots
-type RecolorMode = "cycle" | "tone";
-
-// Which remapping strategy each preset uses (all cycle for now).
-// Manipulate here: set a preset to "tone" if you want brightness-based mapping instead
+// Manipulate here: set a preset to "tone" for brightness-based mapping instead of encounter order
 const PRESET_RECOLOR_MODE: Record<DevoraLottiePreset, RecolorMode> = {
-  github: "cycle",
-  linkedin: "cycle",
-  discord: "cycle",
+  github: CYCLE_RECOLOR_MODE,
+  linkedin: CYCLE_RECOLOR_MODE,
+  discord: CYCLE_RECOLOR_MODE,
 };
 
-// Perceived brightness of a color (0 = black, 1 = white).
-// Classic luma weights — green counts most because human eyes are most sensitive to it.
-function luminance([r, g, b]: LottieRGBA): number {
-  return 0.299 * r + 0.587 * g + 0.114 * b;
+// ===== TYPES =====
+
+export type LottieRGBA = [number, number, number, number];
+
+export type DevoraLottiePreset = "github" | "linkedin" | "discord";
+
+type RecolorMode = typeof CYCLE_RECOLOR_MODE | typeof TONE_RECOLOR_MODE;
+
+type PaletteCursor = {
+  nextColorIndex: number;
+};
+
+// ===== HELPER FUNCTIONS =====
+
+function measurePerceivedBrightness([red, green, blue]: LottieRGBA): number {
+  // Green counts most because human eyes are most sensitive to it.
+  return LUMA_RED_WEIGHT * red + LUMA_GREEN_WEIGHT * green + LUMA_BLUE_WEIGHT * blue;
 }
 
-// Cycle mode — next palette color by index; keep original alpha (transparency).
-// vocab/symbol: % = wrap index around the palette length (5th color with 4-length palette → index 1)
-function pickCycleReplacement(color: LottieRGBA, palette: LottieRGBA[], index: number): LottieRGBA {
-  const replacement = palette[index % palette.length];
-  // Keep original alpha so semi-transparent fills stay semi-transparent
-  return [replacement[0], replacement[1], replacement[2], color[3]];
+function copyRgbWithOriginalAlpha(
+  replacement: readonly [number, number, number, number],
+  original: LottieRGBA,
+): LottieRGBA {
+  return [
+    replacement[RED_CHANNEL_INDEX],
+    replacement[GREEN_CHANNEL_INDEX],
+    replacement[BLUE_CHANNEL_INDEX],
+    original[ALPHA_CHANNEL_INDEX],
+  ];
 }
 
-// Tone mode — map bright→dark source colors onto light→dark palette slots.
-// Brighter originals pick earlier (lighter) palette entries; darker originals pick later ones.
+function pickCycleReplacement(color: LottieRGBA, palette: LottieRGBA[], colorIndex: number): LottieRGBA {
+  // vocab/symbol: % = wrap the index around the palette length
+  const replacement = palette[colorIndex % palette.length];
+  return copyRgbWithOriginalAlpha(replacement, color);
+}
+
 function pickToneReplacement(color: LottieRGBA, palette: LottieRGBA[]): LottieRGBA {
-  const lum = luminance(color);
-  // Normalize luma into 0..1 using 0.9 as “full bright” ceiling
-  const t = Math.min(1, lum / 0.9);
-  // Invert so bright → low index, dark → high index
-  const idx = Math.min(palette.length - 1, Math.round((1 - t) * (palette.length - 1)));
-  const replacement = palette[idx];
-  return [replacement[0], replacement[1], replacement[2], color[3]];
+  const perceivedBrightness = measurePerceivedBrightness(color);
+  const normalizedBrightness = Math.min(UNIT_INTERVAL_MAX, perceivedBrightness / TONE_FULL_BRIGHTNESS);
+  // Invert so bright colors pick earlier palette slots and dark colors pick later ones.
+  const paletteIndex = Math.min(
+    palette.length - INDEX_STEP,
+    Math.round((UNIT_INTERVAL_MAX - normalizedBrightness) * (palette.length - INDEX_STEP)),
+  );
+  const replacement = palette[paletteIndex];
+  return copyRgbWithOriginalAlpha(replacement, color);
 }
 
-// Choose white for near-white, else tone or cycle based on mode.
 function pickReplacement(
   color: LottieRGBA,
   palette: LottieRGBA[],
-  index: number,
+  colorIndex: number,
   mode: RecolorMode,
 ): LottieRGBA {
-  const lum = luminance(color);
-
-  // Near-white highlights stay white so highlights don't tint muddy.
-  // Manipulate here: raise 0.92 to recolor more near-whites; lower to preserve more whites
-  if (lum > 0.92) {
-    return [DEVORA_LOTTIE_COLORS.white[0], DEVORA_LOTTIE_COLORS.white[1], DEVORA_LOTTIE_COLORS.white[2], color[3]];
+  const perceivedBrightness = measurePerceivedBrightness(color);
+  const isNearWhite = perceivedBrightness > NEAR_WHITE_LUMINANCE;
+  if (isNearWhite) {
+    return copyRgbWithOriginalAlpha(DEVORA_LOTTIE_COLORS.white, color);
   }
 
-  if (mode === "tone") {
-    return pickToneReplacement(color, palette);
-  }
-
-  return pickCycleReplacement(color, palette, index);
+  const isToneMode = mode === TONE_RECOLOR_MODE;
+  if (isToneMode) return pickToneReplacement(color, palette);
+  return pickCycleReplacement(color, palette, colorIndex);
 }
 
-// Rewrite gradient stop RGB triples in place (Lottie packs them as flat number arrays).
-// Lottie gradient `k` shape (simplified): [countOrHeader, offset, r, g, b, offset, r, g, b, …]
-// We step by 4 starting at index 1, rewriting only r/g/b and leaving offsets alone.
-function recolorGradientStops(stops: number[], palette: LottieRGBA[], mode: RecolorMode): void {
-  // How many color stops are packed after the header entry
-  const stopCount = Math.floor((stops.length - 1) / 4);
-
-  // Each stop: offset + r + g + b (step by 4 starting after the first entry)
-  for (let i = 1; i < stops.length; i += 4) {
-    // Temporary RGBA (alpha forced to 1 for luminance / palette picks — we don't write alpha back)
-    const old: LottieRGBA = [stops[i], stops[i + 1], stops[i + 2], 1];
-    const stopIndex = (i - 1) / 4;
-    const replacement =
-      mode === "tone"
-        ? pickToneReplacement(old, palette)
-        : pickReplacement(old, palette, stopIndex, "cycle");
-
-    // Tone mode with multiple stops — spread palette across the gradient from light→dark.
-    // We reverse the index so the first stop gets the darkest palette color (looks richer).
-    if (mode === "tone" && stopCount > 0) {
-      const gradientIdx = Math.min(
-        palette.length - 1,
-        Math.round((stopIndex / stopCount) * (palette.length - 1)),
-      );
-      const gradientColor = palette[palette.length - 1 - gradientIdx];
-      stops[i] = gradientColor[0];
-      stops[i + 1] = gradientColor[1];
-      stops[i + 2] = gradientColor[2];
-      // vocab: continue = skip the default write below and go to the next loop iteration
-      continue;
-    }
-
-    // Default (cycle, or tone with a single stop): write the picked replacement RGB
-    stops[i] = replacement[0];
-    stops[i + 1] = replacement[1];
-    stops[i + 2] = replacement[2];
-  }
+function writeGradientStopRgb(stops: number[], channelIndex: number, color: LottieRGBA): void {
+  stops[channelIndex] = color[RED_CHANNEL_INDEX];
+  stops[channelIndex + GREEN_CHANNEL_INDEX] = color[GREEN_CHANNEL_INDEX];
+  stops[channelIndex + BLUE_CHANNEL_INDEX] = color[BLUE_CHANNEL_INDEX];
 }
 
-// Recursively walk the Lottie JSON and recolor solid fills + gradients.
-// colorIndex is an object ({ value }) so nested calls share one mutable counter for cycle mode.
-// vocab: unknown = “we don’t know the shape yet” — we narrow it with typeof / Array.isArray checks
-function walk(node: unknown, palette: LottieRGBA[], colorIndex: { value: number }, mode: RecolorMode): void {
-  // Skip nulls / primitives (numbers, strings, booleans) — only objects/arrays can hold colors.
-  // vocab/symbol: !node || ... = bail if missing OR not an object
-  if (!node || typeof node !== "object") return;
+function pickSpreadToneGradientColor(
+  palette: LottieRGBA[],
+  stopIndex: number,
+  stopCount: number,
+): LottieRGBA {
+  const lastPaletteIndex = palette.length - INDEX_STEP;
+  const gradientIndex = Math.min(
+    lastPaletteIndex,
+    Math.round((stopIndex / stopCount) * lastPaletteIndex),
+  );
+  // Reverse so the first stop gets the darkest palette color.
+  return palette[lastPaletteIndex - gradientIndex];
+}
 
-  // Arrays — visit every child (layers, shapes, keyframe lists, …)
-  if (Array.isArray(node)) {
-    // vocab: .forEach = call walk once per child
-    node.forEach((child) => walk(child, palette, colorIndex, mode));
+function recolorOneGradientStop(
+  stops: number[],
+  palette: LottieRGBA[],
+  mode: RecolorMode,
+  stopCount: number,
+  channelIndex: number,
+): void {
+  const originalColor: LottieRGBA = [
+    stops[channelIndex],
+    stops[channelIndex + GREEN_CHANNEL_INDEX],
+    stops[channelIndex + BLUE_CHANNEL_INDEX],
+    OPAQUE_ALPHA,
+  ];
+  const stopIndex = (channelIndex - GRADIENT_HEADER_SLOT_COUNT) / GRADIENT_STOP_CHANNEL_STRIDE;
+  const isToneMode = mode === TONE_RECOLOR_MODE;
+  const replacement = isToneMode
+    ? pickToneReplacement(originalColor, palette)
+    : pickReplacement(originalColor, palette, stopIndex, CYCLE_RECOLOR_MODE);
+
+  const shouldSpreadToneGradient = isToneMode && stopCount > 0;
+  if (shouldSpreadToneGradient) {
+    const gradientColor = pickSpreadToneGradientColor(palette, stopIndex, stopCount);
+    writeGradientStopRgb(stops, channelIndex, gradientColor);
     return;
   }
 
-  // Treat as a plain object with string keys
-  const obj = node as Record<string, unknown>;
-
-  // Solid color prop: { c: { a: 0, k: [r,g,b,a] } }
-  // vocab: a: 0 = “not animated” (static keyframe). Animated colors (a:1) are left alone —
-  //   their `k` shape is a keyframe array, not a single RGBA, so we skip them safely.
-  if (obj.c && typeof obj.c === "object" && obj.c !== null) {
-    const colorProp = obj.c as { a?: number; k?: LottieRGBA };
-    if (colorProp.a === 0 && Array.isArray(colorProp.k) && colorProp.k.length === 4) {
-      const old = colorProp.k as LottieRGBA;
-      colorProp.k = pickReplacement(old, palette, colorIndex.value, mode);
-      // Advance the cycle counter so the next solid fill gets the next palette color
-      colorIndex.value += 1;
-    }
-  }
-
-  // Gradient prop: { g: { k: { a: 0, k: number[] } } }
-  // Same a:0 rule — only static gradients get rewritten.
-  if (obj.g && typeof obj.g === "object" && obj.g !== null) {
-    const gradient = obj.g as { k?: { a?: number; k?: number[] } };
-    // vocab/symbol: ?. = optional chain — skip if k is missing
-    if (gradient.k?.a === 0 && Array.isArray(gradient.k.k)) {
-      recolorGradientStops(gradient.k.k, palette, mode);
-    }
-  }
-
-  // Keep walking every nested value (layers → shapes → fills → …).
-  // This also re-visits `c` / `g` children, which is fine — primitives/already-handled shapes no-op.
-  Object.values(obj).forEach((child) => walk(child, palette, colorIndex, mode));
+  writeGradientStopRgb(stops, channelIndex, replacement);
 }
 
-// Deep-clone a Lottie JSON and remap fills/strokes to Devora brand colors.
-// Always clone first — never mutate the imported JSON module (other callers share it).
+function recolorGradientStops(stops: number[], palette: LottieRGBA[], mode: RecolorMode): void {
+  const stopCount = Math.floor((stops.length - GRADIENT_HEADER_SLOT_COUNT) / GRADIENT_STOP_CHANNEL_STRIDE);
+
+  for (
+    let channelIndex = GRADIENT_HEADER_SLOT_COUNT;
+    channelIndex < stops.length;
+    channelIndex += GRADIENT_STOP_CHANNEL_STRIDE
+  ) {
+    recolorOneGradientStop(stops, palette, mode, stopCount, channelIndex);
+  }
+}
+
+function recolorStaticSolidFill(
+  lottieNode: Record<string, unknown>,
+  palette: LottieRGBA[],
+  paletteCursor: PaletteCursor,
+  mode: RecolorMode,
+): void {
+  if (!lottieNode.c || typeof lottieNode.c !== "object") return;
+
+  const colorProp = lottieNode.c as { a?: number; k?: LottieRGBA };
+  const isStaticColor = colorProp.a === STATIC_LOTTIE_VALUE_FLAG;
+  const hasRgbaList = Array.isArray(colorProp.k) && colorProp.k.length === LOTTIE_RGBA_LENGTH;
+  if (!isStaticColor || !hasRgbaList) return;
+
+  const originalColor = colorProp.k as LottieRGBA;
+  colorProp.k = pickReplacement(originalColor, palette, paletteCursor.nextColorIndex, mode);
+  paletteCursor.nextColorIndex += INDEX_STEP;
+}
+
+function recolorStaticGradient(lottieNode: Record<string, unknown>, palette: LottieRGBA[], mode: RecolorMode): void {
+  if (!lottieNode.g || typeof lottieNode.g !== "object") return;
+
+  const gradient = lottieNode.g as { k?: { a?: number; k?: number[] } };
+  const isStaticGradient = gradient.k?.a === STATIC_LOTTIE_VALUE_FLAG;
+  const hasStopList = Array.isArray(gradient.k?.k);
+  if (!isStaticGradient || !hasStopList || !gradient.k?.k) return;
+
+  recolorGradientStops(gradient.k.k, palette, mode);
+}
+
+function walkLottieTreeAndRecolor(
+  node: unknown,
+  palette: LottieRGBA[],
+  paletteCursor: PaletteCursor,
+  mode: RecolorMode,
+): void {
+  // vocab: unknown = the JSON shape is not known yet — narrow it before reading fields
+  if (!node || typeof node !== "object") return;
+
+  if (Array.isArray(node)) {
+    node.forEach((child) => walkLottieTreeAndRecolor(child, palette, paletteCursor, mode));
+    return;
+  }
+
+  const lottieNode = node as Record<string, unknown>;
+  recolorStaticSolidFill(lottieNode, palette, paletteCursor, mode);
+  recolorStaticGradient(lottieNode, palette, mode);
+
+  // Keep walking every nested value, including children we already recolored.
+  // Those children are numbers or already-handled objects, so a second visit does not tint them again.
+  Object.values(lottieNode).forEach((child) => {
+    walkLottieTreeAndRecolor(child, palette, paletteCursor, mode);
+  });
+}
+
+// ===== MAIN FUNCTION =====
+
+/**
+ * Deep-clone a Lottie JSON and remap static fills and gradients to a Devora palette.
+ * The imported JSON is never mutated, because other callers share that module.
+ * @param data - Original Lottie JSON object
+ * @param preset - Which Why Devora card palette to apply ("github", "linkedin", or "discord")
+ * @returns A new Lottie object with brand colors
+ */
 export function recolorLottie(data: object, preset: DevoraLottiePreset): object {
-  // vocab: structuredClone = deep copy so we never mutate the imported JSON
-  const clone = structuredClone(data);
-  const mode = PRESET_RECOLOR_MODE[preset];
-  // colorIndex is an object so nested walk() calls can increment the same counter
-  walk(clone, DEVORA_LOTTIE_PALETTES[preset], { value: 0 }, mode);
-  return clone;
+  // vocab: structuredClone = deep copy so the imported animation file stays untouched
+  const clonedAnimation = structuredClone(data);
+  const recolorMode = PRESET_RECOLOR_MODE[preset];
+  const paletteCursor: PaletteCursor = { nextColorIndex: PALETTE_CURSOR_START };
+  walkLottieTreeAndRecolor(clonedAnimation, DEVORA_LOTTIE_PALETTES[preset], paletteCursor, recolorMode);
+  return clonedAnimation;
 }

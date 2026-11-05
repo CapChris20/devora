@@ -1,13 +1,35 @@
 // Mock CECS students — reference data for the deferred Discovery Grid, not mounted on /find-students.
-// Filter pills match these exact strings. Keep as a shape example until users/{uid} browse exists.
-// Used by card/peek components. Real queries: src/docs/discovery-grid.md.
+// Filter pills match these exact strings. Keep this as the shape example until users/{uid} browse exists.
+// Used by the card and peek components. Real queries live in src/docs/discovery-grid.md.
+
+// ===== IMPORTS =====
 
 import type { FilterSectionId } from "./filter-options";
+
+// ===== NAMED CONSTANTS =====
+
+const DICEBEAR_AVATAR_URL_PREFIX = "https://api.dicebear.com/9.x/adventurer/svg?seed=";
+const DICEBEAR_BACKGROUND_QUERY = "&backgroundColor=2a1248";
+const GITHUB_PROFILE_URL_PREFIX = "https://github.com/";
+const LINKEDIN_PROFILE_URL_PREFIX = "https://www.linkedin.com/in/";
+const INSTAGRAM_PROFILE_URL_PREFIX = "https://instagram.com/";
+const MISSING_INITIAL = "?";
+const NAME_WHITESPACE_PATTERN = /\s+/;
+const DEFAULT_MOCK_SOCIAL_NETWORKS: Array<"github" | "linkedin" | "instagram"> = [
+  "github",
+  "linkedin",
+  "instagram",
+];
+
+// ===== TYPES =====
+
+type MockSocialNetwork = "github" | "linkedin" | "instagram";
 
 // Avatar ring color — cycles cyan / purple / gold / pink per DESIGN_SCOPE.
 export type DiscoveryAccent = "cyan" | "purple" | "gold" | "pink";
 
-// Public card fields + extra mock-only tags so Clubs / Concentration filters still work.
+// Public card fields plus extra mock-only tags so Clubs and Concentration filters still work.
+// Field names stay as written because the card and peek read these exact keys.
 export type DiscoveryProfile = {
   id: string;
   displayName: string;
@@ -29,36 +51,111 @@ export type DiscoveryProfile = {
     instagram?: string;
   };
   accent: DiscoveryAccent;
+  // Real Storage URL when the student uploaded one. Missing means initials, not a mock face.
+  photoUrl?: string;
 };
 
-// Illustrated mock PFP from Dicebear — seeded so the same student always gets the same face.
-// vocab: seed = Dicebear uses this string as the RNG input (id, not the display name)
-// Manipulate here: swap "adventurer" for "lorelei" / "notionists" if you want a different art style
-export function getMockPhotoUrl(id: string): string {
-  return `https://api.dicebear.com/9.x/adventurer/svg?seed=${encodeURIComponent(id)}&backgroundColor=2a1248`;
-}
+// ===== HELPER FUNCTIONS =====
 
 // Build the public social bag for a mock student.
-// vocab: Partial = TypeScript — you can omit github / linkedin / instagram
+// vocab: the links type lets a student omit github, linkedin, or instagram
 // Manipulate here: pass only the networks that student filled in
-function mockLinks(
-  slug: string,
-  networks: Array<"github" | "linkedin" | "instagram"> = ["github", "linkedin", "instagram"]
-) {
-  const catalog = {
-    github: `https://github.com/${slug}`,
-    linkedin: `https://www.linkedin.com/in/${slug}`,
-    instagram: `https://instagram.com/${slug}`,
+function buildMockProfileLinks(
+  profileSlug: string,
+  socialNetworks: MockSocialNetwork[] = DEFAULT_MOCK_SOCIAL_NETWORKS
+): DiscoveryProfile["links"] {
+  const socialUrlByNetwork = {
+    github: `${GITHUB_PROFILE_URL_PREFIX}${profileSlug}`,
+    linkedin: `${LINKEDIN_PROFILE_URL_PREFIX}${profileSlug}`,
+    instagram: `${INSTAGRAM_PROFILE_URL_PREFIX}${profileSlug}`,
   };
   const links: DiscoveryProfile["links"] = {};
-  for (const network of networks) {
-    links[network] = catalog[network];
+
+  for (const socialNetwork of socialNetworks) {
+    links[socialNetwork] = socialUrlByNetwork[socialNetwork];
   }
+
   return links;
 }
 
+function doesProfileMatchSearchText(profile: DiscoveryProfile, searchQuery: string): boolean {
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  if (!normalizedQuery) {
+    return true;
+  }
+
+  // Search box stays on these fields only. Concentration and looking-for are pill filters, not search.
+  const searchableProfileText = [
+    profile.displayName,
+    profile.major,
+    profile.majorShort,
+    profile.bio,
+    ...profile.careerNiche,
+    ...profile.casualInterests,
+    ...profile.clubs,
+  ]
+    .join(" ")
+    .toLowerCase();
+
+  return searchableProfileText.includes(normalizedQuery);
+}
+
+// vocab: .some = true if at least one selected pill is on this profile
+function doesSelectionMatchAnyProfileTag(selectedTags: string[], profileTags: string[]): boolean {
+  if (selectedTags.length === 0) {
+    return true;
+  }
+  return selectedTags.some((tag) => profileTags.includes(tag));
+}
+
+function doesRequiredValueMatchSelection(selectedValues: string[], profileValue: string): boolean {
+  if (selectedValues.length === 0) {
+    return true;
+  }
+  return selectedValues.includes(profileValue);
+}
+
+function doesOptionalValueMatchSelection(
+  selectedValues: string[],
+  profileValue: string | undefined
+): boolean {
+  if (selectedValues.length === 0) {
+    return true;
+  }
+  // A blank concentration cannot satisfy a concentration pill.
+  if (!profileValue) {
+    return false;
+  }
+  return selectedValues.includes(profileValue);
+}
+
+// ===== MAIN FUNCTIONS =====
+
+/**
+ * Illustrated mock portrait from Dicebear. The same id always gets the same face.
+ * @param profileId - Seed string. Dicebear uses this as the random input, not the display name.
+ * @returns An SVG URL for that seed
+ */
+export function getMockPhotoUrl(profileId: string): string {
+  const encodedSeed = encodeURIComponent(profileId);
+  // Manipulate here: swap "adventurer" in the prefix for "lorelei" or "notionists" for a different style
+  return `${DICEBEAR_AVATAR_URL_PREFIX}${encodedSeed}${DICEBEAR_BACKGROUND_QUERY}`;
+}
+
+/**
+ * Two-letter initials from the display name, for when the mock photo fails.
+ * @param displayName - The student's full name
+ * @returns Uppercase initials, or "?" when the name is blank
+ */
+export function getMockInitials(displayName: string): string {
+  const nameParts = displayName.trim().split(NAME_WHITESPACE_PATTERN);
+  const firstInitial = nameParts[0]?.[0] ?? MISSING_INITIAL;
+  const lastInitial = nameParts[1]?.[0] ?? "";
+  return `${firstInitial}${lastInitial}`.toUpperCase();
+}
+
 // 12 students so the grid looks full and every filter section has at least one hit.
-// Manipulate here: add/rename people; keep tag strings identical to filter-options.ts
+// Manipulate here: add or rename people; keep tag strings identical to filter-options.ts
 export const MOCK_PROFILES: DiscoveryProfile[] = [
   {
     id: "alex-chen",
@@ -72,7 +169,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Friend", "Campus Events"],
     clubs: ["ACM"],
     bio: "CIS junior into frontend. Always down for coffee after ACM and a weekend event.",
-    links: mockLinks("alexchen"),
+    links: buildMockProfileLinks("alexchen"),
     accent: "cyan",
   },
   {
@@ -86,7 +183,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Lab Partner", "Study Partner"],
     clubs: ["IEEE", "ISC Robotics"],
     bio: "Firmware + sensors. Looking for a lab partner who actually shows up to office hours.",
-    links: mockLinks("mayahassan", ["github", "linkedin"]),
+    links: buildMockProfileLinks("mayahassan", ["github", "linkedin"]),
     accent: "purple",
   },
   {
@@ -100,7 +197,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Colleague", "Mentor"],
     clubs: ["ACM"],
     bio: "SE senior on Node + AWS. Happy to swap internship stories and résumé notes.",
-    links: mockLinks("jordanlee", ["github", "linkedin"]),
+    links: buildMockProfileLinks("jordanlee", ["github", "linkedin"]),
     accent: "gold",
   },
   {
@@ -114,7 +211,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Study Partner", "Coffee Chat"],
     clubs: ["Society of Women Engineers"],
     bio: "Training models by day, speed-chess by night. Need a stats buddy for CIS 350.",
-    links: mockLinks("priyapatel"),
+    links: buildMockProfileLinks("priyapatel"),
     accent: "pink",
   },
   {
@@ -129,7 +226,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Mentor", "Gym Buddy"],
     clubs: ["Cybersecurity Club", "NSBE"],
     bio: "Forensics labs and CTFs. Will talk threat models if you spot me on a deadlift.",
-    links: mockLinks("samokonkwo", ["github", "linkedin"]),
+    links: buildMockProfileLinks("samokonkwo", ["github", "linkedin"]),
     accent: "cyan",
   },
   {
@@ -143,7 +240,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Friend", "Coffee Chat"],
     clubs: ["IEEE"],
     bio: "Boards, sensors, and a film camera. Looking for people who geek out on hardware and photos.",
-    links: mockLinks("rileynguyen", ["github", "instagram"]),
+    links: buildMockProfileLinks("rileynguyen", ["github", "instagram"]),
     accent: "purple",
   },
   {
@@ -157,7 +254,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Mentee", "Gaming Squad"],
     clubs: ["M@uto (Autonomous Vehicles)"],
     bio: "New to Dearborn. Want a crew for M@uto and pickup basketball after labs.",
-    links: mockLinks("chrisalvarez", ["instagram"]),
+    links: buildMockProfileLinks("chrisalvarez", ["instagram"]),
     accent: "gold",
   },
   {
@@ -171,7 +268,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Friend", "Campus Events"],
     clubs: ["Game Dev Club"],
     bio: "Figma and React. Want friends in HCED / frontend who actually show up to campus stuff.",
-    links: mockLinks("taylorkim"),
+    links: buildMockProfileLinks("taylorkim"),
     accent: "pink",
   },
   {
@@ -185,7 +282,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Coffee Chat", "Mentor"],
     clubs: ["SHPE", "BuildOn"],
     bio: "Healthcare data + devices. Open to coffee chats about grad life and industry internships.",
-    links: mockLinks("aisharahman", ["linkedin"]),
+    links: buildMockProfileLinks("aisharahman", ["linkedin"]),
     accent: "cyan",
   },
   {
@@ -199,7 +296,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Gym Buddy", "Friend"],
     clubs: ["Dearborn Electric Racing"],
     bio: "DER chassis + gym at 6am. Looking for a gym buddy who also likes cars.",
-    links: mockLinks("noahberg", ["github", "instagram"]),
+    links: buildMockProfileLinks("noahberg", ["github", "instagram"]),
     accent: "purple",
   },
   {
@@ -213,7 +310,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Colleague", "Coffee Chat"],
     clubs: ["SHPE", "First Gen Student Org"],
     bio: "Process + product. Mapping first-gen resources for CECS — always open to coffee chats.",
-    links: mockLinks("elenavasquez", ["linkedin", "instagram"]),
+    links: buildMockProfileLinks("elenavasquez", ["linkedin", "instagram"]),
     accent: "gold",
   },
   {
@@ -228,81 +325,50 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     lookingFor: ["Gaming Squad", "Friend"],
     clubs: ["Game Dev Club", "NSBE"],
     bio: "Unity newbie hunting a fighting-game squad and friends who won't ghost a campus event.",
-    links: mockLinks("malikjohnson"),
+    links: buildMockProfileLinks("malikjohnson"),
     accent: "pink",
   },
 ];
 
-// Two-letter initials from the display name (no Firestore profile needed).
-export function getMockInitials(displayName: string): string {
-  const parts = displayName.trim().split(/\s+/);
-  const first = parts[0]?.[0] ?? "?";
-  const last = parts[1]?.[0] ?? "";
-  return `${first}${last}`.toUpperCase();
-}
-
-// True if this profile should stay visible for the current search + pills.
-// Within one section, any matching pill is enough (OR). Across sections, all must pass (AND).
+/**
+ * True when this profile should stay visible for the current search and pills.
+ * Within one section, any matching pill is enough. Across sections, every section must pass.
+ * @param profile - The student to test
+ * @param searchQuery - Text from the search box. Blank search matches everyone.
+ * @param selectedFilters - Pills that are on, grouped by section id
+ * @returns True when the profile passes search and every active section
+ */
 export function profileMatchesFilters(
   profile: DiscoveryProfile,
-  query: string,
-  selected: Record<FilterSectionId, string[]>
+  searchQuery: string,
+  selectedFilters: Record<FilterSectionId, string[]>
 ): boolean {
-  const needle = query.trim().toLowerCase();
-
-  // Search box — name, major, tags, bio (client-side; Algolia later)
-  if (needle) {
-    const haystack = [
-      profile.displayName,
-      profile.major,
-      profile.majorShort,
-      profile.bio,
-      ...profile.careerNiche,
-      ...profile.casualInterests,
-      ...profile.clubs,
-    ]
-      .join(" ")
-      .toLowerCase();
-    if (!haystack.includes(needle)) {
-      return false;
-    }
-  }
-
-  // vocab/symbol: .some = true if at least one selected pill is on this profile
-  if (selected.majors.length && !selected.majors.includes(profile.major)) {
+  if (!doesProfileMatchSearchText(profile, searchQuery)) {
     return false;
   }
-  if (
-    selected.concentrations.length &&
-    (!profile.concentration || !selected.concentrations.includes(profile.concentration))
-  ) {
+  if (!doesRequiredValueMatchSelection(selectedFilters.majors, profile.major)) {
     return false;
   }
-  if (selected.niches.length && !selected.niches.some((tag) => profile.careerNiche.includes(tag))) {
+  if (!doesOptionalValueMatchSelection(selectedFilters.concentrations, profile.concentration)) {
     return false;
   }
-  if (
-    selected.hobbies.length &&
-    !selected.hobbies.some((tag) => profile.casualInterests.includes(tag))
-  ) {
+  if (!doesSelectionMatchAnyProfileTag(selectedFilters.niches, profile.careerNiche)) {
     return false;
   }
-  if (
-    selected.media.length &&
-    !selected.media.some((tag) => profile.casualInterests.includes(tag))
-  ) {
+  // Hobbies and media both live in casualInterests on the mock cards.
+  if (!doesSelectionMatchAnyProfileTag(selectedFilters.hobbies, profile.casualInterests)) {
     return false;
   }
-  if (selected.clubs.length && !selected.clubs.some((tag) => profile.clubs.includes(tag))) {
+  if (!doesSelectionMatchAnyProfileTag(selectedFilters.media, profile.casualInterests)) {
     return false;
   }
-  if (
-    selected.lookingFor.length &&
-    !selected.lookingFor.some((tag) => profile.lookingFor.includes(tag))
-  ) {
+  if (!doesSelectionMatchAnyProfileTag(selectedFilters.clubs, profile.clubs)) {
     return false;
   }
-  if (selected.classYear.length && !selected.classYear.includes(profile.classRank)) {
+  if (!doesSelectionMatchAnyProfileTag(selectedFilters.lookingFor, profile.lookingFor)) {
+    return false;
+  }
+  if (!doesRequiredValueMatchSelection(selectedFilters.classYear, profile.classRank)) {
     return false;
   }
 

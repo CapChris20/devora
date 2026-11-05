@@ -1,4 +1,7 @@
-// Public import path for all backend code — re-exports from firebase/index.ts.
+// Public import path for all backend code. Re-exports from firebase/index.ts.
+
+// ===== MAIN EXPORTS =====
+
 export {
   app,
   auth,

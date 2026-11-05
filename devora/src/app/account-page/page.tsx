@@ -1,30 +1,33 @@
-// Profile page shell — account editing UI over the shared Voronoi background.
-// Flow: route mounts → PageLayout chrome → AccountPageContent handles view/edit.
+// Account page per DESIGN.md § 5.2.
+// Shaded with Flopine's torus + sphere SDF raymarching background taking over the whole page.
+// NavBar -> AccountPageContent -> Footer.
 
 "use client";
 
-import PageLayout from "@/ui/shared/backgrounds/PageLayout";
+import NavBar from "@/ui/shared/navbar/NavBar";
+import Footer from "@/ui/shared/footer/Footer";
 import AccountPageContent from "@/ui/account/AccountPageContent";
+import BackgroundPicture from "@/ui/shared/backgrounds/BackgroundPicture";
 
-// Thin route: shared layout + AccountPageContent (editor / view lives there).
-// vocab: "use client" = browser component (needed for interactive account UI below)
-// vocab: PageLayout = shared app chrome (nav + Voronoi background + title)
 export default function AccountPage() {
   return (
-    <PageLayout
-      // vocab: wide = give the content more horizontal room than default pages
-      // Manipulate here: drop `wide` for a narrower profile column
-      wide
-      // vocab: compact = shrink title chrome + skip site footer so the profile fits one screen
-      compact
-      // vocab: activeItem = which NavBar link looks selected
-      activeItem="Account"
-      title="My Profile"
-      // Manipulate here: titleClassName = page title fill (page-title-grad = calm brand tint)
-      titleClassName="page-title-grad"
+    <div
+      className="min-h-screen flex flex-col relative"
+      style={{
+        color: "var(--text, #fbf6f8)",
+      }}
     >
-      {/* Real logic (load profile, edit, save) lives in AccountPageContent */}
-      <AccountPageContent />
-    </PageLayout>
+      <BackgroundPicture variant="account" />
+
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <NavBar activeItem="Account" />
+
+        <main className="flex-1 w-full max-w-[1240px] mx-auto px-4 sm:px-6 lg:px-8 pt-20 sm:pt-24 pb-14">
+          <AccountPageContent />
+        </main>
+
+        <Footer />
+      </div>
+    </div>
   );
 }

@@ -1,11 +1,13 @@
 // Edit profile popup — medium glass panel over the account page (not a full-page swap).
-// Collapsible sections keep one area open at a time so the form stays readable.
-// Parent (AccountPageContent) owns Firebase writes; this component only drafts local state + validates.
-// Pill lists are shared with onboarding (onboarding-options.ts) so edit + signup stay in sync.
+// Collapsible sections keep the form readable. Each section remembers its own open state.
+// AccountPageContent owns the Firebase write. This file only drafts local state and validates.
+// Pill lists are shared with onboarding so edit and signup stay in sync.
 
 "use client";
 
-import { FormEvent, ReactNode, useEffect, useMemo, useState } from "react";
+// ===== IMPORTS =====
+
+import { type FormEvent, type ReactNode, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 
 import type { AccountProfileUpdate, UserProfile } from "@/backend/firebase";
@@ -23,514 +25,622 @@ import PillGroup from "@/ui/shared/pills/PillGroup";
 
 import { splitCasualInterests } from "../profile/account-helpers";
 
+// ===== NAMED CONSTANTS =====
+
+const MINIMUM_BIO_CHARACTER_COUNT = 20;
+const MAXIMUM_BIO_CHARACTER_COUNT = 150;
+const SINGULAR_LINK_COUNT = 1;
+const ESCAPE_KEY = "Escape";
+const HIDDEN_PAGE_OVERFLOW = "hidden";
+const EXPERIENCE_YES_LABEL = "Yes";
+const EXPERIENCE_NO_LABEL = "No";
+const EXPERIENCE_CHOICES = [EXPERIENCE_YES_LABEL, EXPERIENCE_NO_LABEL] as const;
+const EMPTY_EXPERIENCE_DETAILS = "";
+const CUSTOM_INTEREST_SEPARATOR = ",";
+const SUMMARY_SEPARATOR = " · ";
+const PHOTO_FILE_FALLBACK_LABEL = "JPG, PNG, or WebP";
+const MAJOR_PLACEHOLDER_OPTION = "Select a CECS major";
+const ACTIVE_PILL_CLASS_NAME = "onboarding-pill-active";
+const DETAILS_TEXTAREA_CLASS_NAME = "sign-in-input min-h-[120px] resize-y";
+const VALID_BIO_COUNT_CLASS_NAME = "onboarding-char-count--valid";
+const BIO_COUNT_CLASS_NAME = "onboarding-char-count";
+const BASICS_SUMMARY_FALLBACK = "Photo, class rank, major";
+const CAREER_SUMMARY_FALLBACK = "Career focus and project history";
+const HAS_EXPERIENCE_LABEL = "Has experience";
+const NO_EXPERIENCE_LABEL = "No experience listed";
+const INTERESTS_SUMMARY_FALLBACK = "Personal interests (optional)";
+const SOCIAL_SUMMARY_FALLBACK = "GitHub, LinkedIn, Instagram";
+const BIO_LENGTH_ERROR_MESSAGE = `Bio must be between ${MINIMUM_BIO_CHARACTER_COUNT} and ${MAXIMUM_BIO_CHARACTER_COUNT} characters.`;
+const MISSING_EXPERIENCE_ERROR_MESSAGE = "Add experience details or switch experience to No.";
+const EDITOR_TITLE = "Edit profile";
+const EDITOR_INTRO = "Open a section to change it — only one area at a time keeps this readable.";
+const SAVING_BUTTON_LABEL = "Saving…";
+const SAVE_BUTTON_LABEL = "Save changes";
+const CANCEL_BUTTON_LABEL = "Cancel";
+const BIO_PLACEHOLDER = "A short intro — who you are, what you’re into, who you’d like to meet…";
+const EXPERIENCE_PLACEHOLDER = "Tell us about your experience or projects…";
+
+// ===== TYPES =====
+
 type AccountProfileEditorProps = {
   // vocab: UserProfile = full Firestore users/{uid} document shape (seed for the draft)
   profile: UserProfile;
-  // saving = true while parent is uploading / writing (disables inputs + buttons)
+  // saving = true while the parent is uploading or writing
   saving: boolean;
   onCancel: () => void;
-  // vocab: AccountProfileUpdate = partial profile fields the parent will merge into Firestore
-  // photoFile is separate so the parent can upload to Storage first, then include photoURL
+  // vocab: AccountProfileUpdate = partial profile fields the parent merges into Firestore
+  // photoFile is separate so the parent can upload to Storage first
   onSave: (update: AccountProfileUpdate, photoFile: File | null) => Promise<void>;
 };
 
 type EditorSectionProps = {
   title: string;
-  // One-line preview shown in the header when the section is collapsed
   summary: string;
-  defaultOpen?: boolean;
-  // vocab: ReactNode = anything React can render (JSX, text, null, …)
+  isOpenByDefault?: boolean;
+  // vocab: ReactNode = anything React can render
   children: ReactNode;
 };
 
-// Paint the editor on <body> so it covers navbar + footer.
-// Why? PageLayout content is `relative z-10`; a fixed popup inside that column
-// can get trapped and look like a second full page instead of a dialog.
-// vocab: createPortal = React still owns the tree, DOM node goes on document.body
-function EditorPortal({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
+type EditorDraft = {
+  bio: string;
+  major: string;
+  classRank: string;
+  gender: string;
+  age: string;
+  careerNiche: string[];
+  careerNicheOther: string;
+  hasExperience: boolean;
+  experienceDetails: string;
+  casualInterests: string[];
+  casualInterestsOther: string;
+  aboutYou: string[];
+  github: string;
+  linkedin: string;
+  instagram: string;
+};
 
+// ===== HELPER FUNCTIONS =====
+
+function EditorPortal({ children }: { children: ReactNode }) {
+  // vocab: useState = store a value and re-render when the setter is called
+  const [isPortalMounted, setIsPortalMounted] = useState(false);
+
+  // Paint on document.body so the popup is not trapped inside the page column.
+  // vocab: useEffect = run after paint. vocab: createPortal = React owns the tree, the DOM node moves
   useEffect(() => {
-    setMounted(true);
+    setIsPortalMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!isPortalMounted) {
+    return null;
+  }
+
   return createPortal(children, document.body);
 }
 
-// One collapsible block (Basics, Bio, Career, etc.) inside the editor.
-// Each section manages its own open/closed state — they don't force siblings closed.
-function EditorSection({ title, summary, defaultOpen = false, children }: EditorSectionProps) {
-  // vocab: useState = React hook that stores a value and re-renders when you call the setter
-  // open = whether this accordion section's body is visible
-  const [open, setOpen] = useState(defaultOpen);
+function EditorSection({
+  title,
+  summary,
+  isOpenByDefault = false,
+  children,
+}: EditorSectionProps) {
+  const [isSectionOpen, setIsSectionOpen] = useState(isOpenByDefault);
 
   return (
     <section className="account-editor-section">
-      {/* Click header to expand or collapse this section */}
       <button
         type="button"
         className="account-editor-section-toggle"
-        // vocab/symbol: !current = flip true↔false
-        onClick={() => setOpen((current) => !current)}
-        // vocab: aria-expanded = accessibility hint for screen readers (section open or closed)
-        aria-expanded={open}
+        onClick={() => setIsSectionOpen((isOpen) => !isOpen)}
+        // vocab: aria-expanded = tells screen readers whether this section is open
+        aria-expanded={isSectionOpen}
       >
         <div className="min-w-0 flex-1">
           <p className="account-section-eyebrow">{title}</p>
-          {/* Summary line only shows when the section is closed */}
-          {!open ? <p className="account-editor-section-summary">{summary}</p> : null}
+          {isSectionOpen ? null : <p className="account-editor-section-summary">{summary}</p>}
         </div>
-        <span className="account-chevron" data-open={open}>
+        <span className="account-chevron" data-open={isSectionOpen}>
           ▾
         </span>
       </button>
-      {open ? <div className="account-editor-section-body">{children}</div> : null}
+      {isSectionOpen ? <div className="account-editor-section-body">{children}</div> : null}
     </section>
   );
 }
 
-// Full edit form — local state starts from the saved profile, then onSave sends changes up.
+function useCloseEditorOnEscape(onCancel: () => void, isSaving: boolean): void {
+  // vocab: useEffect = lock scroll while open, and undo it when the editor unmounts
+  useEffect(() => {
+    const closeEditorOnEscape = (event: KeyboardEvent) => {
+      const isEscapeKey = event.key === ESCAPE_KEY;
+      if (isEscapeKey && !isSaving) {
+        onCancel();
+      }
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = HIDDEN_PAGE_OVERFLOW;
+    window.addEventListener("keydown", closeEditorOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeEditorOnEscape);
+    };
+  }, [onCancel, isSaving]);
+}
+
+function keepCareerNichesForMajor(nextMajor: string, currentNiches: string[]): string[] {
+  if (!nextMajor) {
+    return [];
+  }
+  const allowedNiches = getCareerNichesForMajor(nextMajor);
+  return currentNiches.filter((niche) => allowedNiches.includes(niche));
+}
+
+function isBioLengthValid(bio: string): boolean {
+  const bioLength = bio.trim().length;
+  // Manipulate here: keep 20 and 150 aligned with onboarding Finish
+  return bioLength >= MINIMUM_BIO_CHARACTER_COUNT && bioLength <= MAXIMUM_BIO_CHARACTER_COUNT;
+}
+
+function isEditorExperienceChoiceSelected(optionLabel: string, hasExperience: boolean): boolean {
+  const isYesSelected = optionLabel === EXPERIENCE_YES_LABEL && hasExperience;
+  const isNoSelected = optionLabel === EXPERIENCE_NO_LABEL && !hasExperience;
+  return isYesSelected || isNoSelected;
+}
+
+function countCommaSeparatedInterests(customInterestsText: string): number {
+  // Split the raw text. Trimming first would change the count for space-only pieces.
+  if (!customInterestsText.trim()) {
+    return 0;
+  }
+  return customInterestsText.split(CUSTOM_INTEREST_SEPARATOR).filter(Boolean).length;
+}
+
+function countFilledSocialLinks(socialLinks: string[]): number {
+  return socialLinks.filter((link) => link.trim()).length;
+}
+
+function formatBasicsSummary(classRank: string, major: string): string {
+  const joinedSummary = [classRank, major].filter(Boolean).join(SUMMARY_SEPARATOR);
+  if (!joinedSummary) {
+    return BASICS_SUMMARY_FALLBACK;
+  }
+  return joinedSummary;
+}
+
+function formatBioSectionSummary(bio: string, aboutYouCount: number): string {
+  return `${bio.trim().length}/${MAXIMUM_BIO_CHARACTER_COUNT} chars${SUMMARY_SEPARATOR}${aboutYouCount} looking-for tags`;
+}
+
+function formatCareerSectionSummary(careerNicheCount: number, hasExperience: boolean): string {
+  if (careerNicheCount === 0) {
+    return CAREER_SUMMARY_FALLBACK;
+  }
+  const experienceLabel = hasExperience ? HAS_EXPERIENCE_LABEL : NO_EXPERIENCE_LABEL;
+  return `${careerNicheCount} focus tags${SUMMARY_SEPARATOR}${experienceLabel}`;
+}
+
+function formatInterestSectionSummary(interestCount: number): string {
+  if (interestCount > 0) {
+    return `${interestCount} interests selected`;
+  }
+  return INTERESTS_SUMMARY_FALLBACK;
+}
+
+function formatSocialLinkSummary(linkCount: number): string {
+  if (linkCount === 0) {
+    return SOCIAL_SUMMARY_FALLBACK;
+  }
+  const pluralSuffix = linkCount === SINGULAR_LINK_COUNT ? "" : "s";
+  return `${linkCount} link${pluralSuffix} added`;
+}
+
+function buildBioCountClassName(bio: string): string {
+  const isBioLongEnough = bio.trim().length >= MINIMUM_BIO_CHARACTER_COUNT;
+  const validClassName = isBioLongEnough ? VALID_BIO_COUNT_CLASS_NAME : "";
+  return `${BIO_COUNT_CLASS_NAME} ${validClassName}`;
+}
+
+function buildAccountProfileUpdate(draft: EditorDraft): AccountProfileUpdate {
+  return {
+    bio: draft.bio.trim(),
+    major: draft.major,
+    classRank: draft.classRank,
+    gender: draft.gender,
+    age: draft.age,
+    careerNiche: draft.careerNiche,
+    careerNicheOther: draft.careerNicheOther.trim(),
+    hasExperience: draft.hasExperience,
+    // A No answer must not keep leftover text from a flipped Yes.
+    experienceDetails: draft.hasExperience
+      ? draft.experienceDetails.trim()
+      : EMPTY_EXPERIENCE_DETAILS,
+    casualInterests: mergeCasualInterests(draft.casualInterests, draft.casualInterestsOther),
+    aboutYou: draft.aboutYou,
+    links: {
+      github: draft.github.trim(),
+      linkedin: draft.linkedin.trim(),
+      instagram: draft.instagram.trim(),
+    },
+  };
+}
+
+function readFirstSelectedFile(fileList: FileList | null): File | null {
+  // vocab: ?. = no crash if the picker was cleared. ?? = null when nothing was chosen
+  return fileList?.[0] ?? null;
+}
+
+function closeEditorUnlessSaving(isSaving: boolean, onCancel: () => void): void {
+  if (!isSaving) {
+    onCancel();
+  }
+}
+
+// ===== MAIN COMPONENT =====
+
+/**
+ * Full edit form. Local state starts from the saved profile, then onSave sends the draft up.
+ * @param props - The saved profile, the saving flag, and cancel/save callbacks
+ * @param props.profile - Firestore profile used to seed the draft
+ * @param props.saving - True while the parent upload or write is in flight
+ * @param props.onCancel - Closes the popup without writing
+ * @param props.onSave - Receives the field bag and an optional new photo file
+ * @returns The editor dialog
+ */
 export default function AccountProfileEditor({
   profile,
   saving,
   onCancel,
   onSave,
 }: AccountProfileEditorProps) {
-  // Split saved interests into known pills vs custom typed ones (for the text field).
-  // vocab: useMemo = only re-run when profile.casualInterests changes (avoids re-splitting every render)
-  // vocab: splitCasualInterests = known pills → known[]; anything else → customText
-  // Why split? Editor shows known items as active pills; custom ones go in the free-text box.
+  const isSaving = saving;
+
+  // vocab: useMemo = only re-split when casualInterests changes
+  // vocab: splitCasualInterests = known pills in known[], everything else in customText
+  // vocab: ?? = if casualInterests is missing, start from an empty list
   const initialSplit = useMemo(
-    // vocab/symbol: ?? [] = if casualInterests is missing, use an empty list
     () => splitCasualInterests(profile.casualInterests ?? []),
     [profile.casualInterests]
   );
 
-  // --- Local draft of every editable field (copied from profile on first render) ---
-  // Changing these does NOT touch Firestore until Save → parent handleSave.
-  // vocab / profile field: bio = short Discovery intro (must stay 20–150 chars to save)
-  // Manipulate here: keep canSave limits in sync with onboarding bio rules
+  // Changing these does not touch Firestore until Save.
+  // vocab / profile field: bio = short Discovery intro
   const [bio, setBio] = useState(profile.bio ?? "");
-  // vocab / profile field: major = CECS major string
   const [major, setMajor] = useState(profile.major ?? "");
-  // vocab / profile field: classRank = Freshman–Graduate
   const [classRank, setClassRank] = useState(profile.classRank ?? "");
   const [gender, setGender] = useState(profile.gender ?? "");
   const [age, setAge] = useState(profile.age ?? "");
-  // vocab / profile field: careerNiche = multi-select career tags for the major
-  // vocab/symbol: string[] = list of strings
   const [careerNiche, setCareerNiche] = useState<string[]>(profile.careerNiche ?? []);
   const [careerNicheOther, setCareerNicheOther] = useState(profile.careerNicheOther ?? "");
-  // vocab / profile field: hasExperience = whether they list projects / internships
+  // vocab / profile field: hasExperience = whether they list projects or internships
   const [hasExperience, setHasExperience] = useState(profile.hasExperience ?? false);
   const [experienceDetails, setExperienceDetails] = useState(profile.experienceDetails ?? "");
-  // Known interest pills vs free-typed custom interests (merged on save)
   const [casualInterests, setCasualInterests] = useState<string[]>(initialSplit.known);
   const [casualInterestsOther, setCasualInterestsOther] = useState(initialSplit.customText);
   // vocab / profile field: aboutYou = "looking for" tags
   const [aboutYou, setAboutYou] = useState<string[]>(profile.aboutYou ?? []);
-  // Optional social URLs stored under profile.links
-  // vocab/symbol: ?. = optional chaining — if links is missing, fall back to ""
+  // vocab: ?. = if links is missing, fall back to an empty string
   const [github, setGithub] = useState(profile.links?.github ?? "");
   const [linkedin, setLinkedin] = useState(profile.links?.linkedin ?? "");
   const [instagram, setInstagram] = useState(profile.links?.instagram ?? "");
-  // vocab: File | null = new photo from the file picker, or null to keep the old one
-  // Parent uploads only if this is non-null on Save
+  // vocab: File | null = a new photo, or null to keep the current one
   const [photoFile, setPhotoFile] = useState<File | null>(null);
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // Escape closes the popup (same as Cancel — no Firestore write).
-  // Freeze background scroll while the dialog is open.
-  // vocab: useEffect = run after paint; return = cleanup when the editor unmounts
-  useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape" && !saving) {
-        onCancel();
-      }
-    }
+  useCloseEditorOnEscape(onCancel, isSaving);
 
-    const previous = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-    window.addEventListener("keydown", onKeyDown);
-    return () => {
-      document.body.style.overflow = previous;
-      window.removeEventListener("keydown", onKeyDown);
-    };
-  }, [onCancel, saving]);
-
-  // Derived counts used in section summary lines.
   const careerNicheOptions = getCareerNichesForMajor(major);
-  // Count pill picks + comma-separated custom interests for the Interests summary.
   const interestCount =
-    casualInterests.length +
-    (casualInterestsOther.trim() ? casualInterestsOther.split(",").filter(Boolean).length : 0);
-  // How many social URL fields are non-empty.
-  const linkCount = [github, linkedin, instagram].filter((link) => link.trim()).length;
+    casualInterests.length + countCommaSeparatedInterests(casualInterestsOther);
+  const linkCount = countFilledSocialLinks([github, linkedin, instagram]);
+  const canSave = isBioLengthValid(bio);
+  const photoName = photoFile?.name ?? PHOTO_FILE_FALLBACK_LABEL;
 
-  // When major changes, drop career niches that don't belong to the new major.
-  // Same rule as OnboardingForm — keeps draft niches honest after a major switch.
-  function handleMajorChange(nextMajor: string) {
+  const draft: EditorDraft = {
+    bio,
+    major,
+    classRank,
+    gender,
+    age,
+    careerNiche,
+    careerNicheOther,
+    hasExperience,
+    experienceDetails,
+    casualInterests,
+    casualInterestsOther,
+    aboutYou,
+    github,
+    linkedin,
+    instagram,
+  };
+
+  const applyMajorChange = (nextMajor: string) => {
     setMajor(nextMajor);
+    setCareerNiche((currentNiches) => keepCareerNichesForMajor(nextMajor, currentNiches));
+  };
 
-    // Cleared major — clear niches too.
-    if (!nextMajor) {
-      setCareerNiche([]);
-      return;
-    }
-
-    // Keep only niches that are valid for the newly chosen major.
-    // vocab/symbol: filter = keep items where the callback returns true
-    const allowed = getCareerNichesForMajor(nextMajor);
-    setCareerNiche((current) => current.filter((niche) => allowed.includes(niche)));
-  }
-
-  // Bio length is the only hard gate on the Save button's disabled state.
-  // Experience details are checked inside handleSubmit (shows an error instead of silently disabling).
-  // Manipulate here: change 20/150 to match onboarding canContinue case 5
-  function canSave(): boolean {
-    const bioLength = bio.trim().length;
-    return bioLength >= 20 && bioLength <= 150;
-  }
-
-  // Validate draft fields, then hand the update + optional photo to the parent.
-  // Parent (AccountPageContent.handleSave) does Storage upload + Firestore merge.
-  // vocab: FormEvent = browser form submit event (Enter key or Save button)
-  async function handleSubmit(event: FormEvent) {
-    // vocab/symbol: preventDefault — stop the browser from doing a full page reload
+  const submitProfileEdits = async (event: FormEvent) => {
+    // vocab: preventDefault = stop the browser from reloading the page
+    // vocab: async = wait for the parent save before this submit handler finishes
     event.preventDefault();
-    setError("");
+    setErrorMessage("");
 
-    // Bio too short or too long — block save with a banner.
-    if (!canSave()) {
-      setError("Bio must be between 20 and 150 characters.");
+    if (!isBioLengthValid(bio)) {
+      setErrorMessage(BIO_LENGTH_ERROR_MESSAGE);
       return;
     }
 
-    // They said Yes to experience but left the details box empty.
     if (hasExperience && !experienceDetails.trim()) {
-      setError("Add experience details or switch experience to No.");
+      setErrorMessage(MISSING_EXPERIENCE_ERROR_MESSAGE);
       return;
     }
 
-    // Build the field bag the parent will merge into users/{uid}.
-    // vocab: mergeCasualInterests = combine pill picks + comma-typed customs, deduped
-    await onSave(
-      {
-        bio: bio.trim(),
-        major,
-        classRank,
-        gender,
-        age,
-        careerNiche,
-        careerNicheOther: careerNicheOther.trim(),
-        hasExperience,
-        // Clear details if they said No — don't save leftover text from a flipped Yes→No
-        experienceDetails: hasExperience ? experienceDetails.trim() : "",
-        casualInterests: mergeCasualInterests(casualInterests, casualInterestsOther),
-        aboutYou,
-        links: {
-          github: github.trim(),
-          linkedin: linkedin.trim(),
-          instagram: instagram.trim(),
-        },
-      },
-      photoFile
-    );
-  }
+    // vocab: await = the parent uploads the photo, then merges Firestore
+    await onSave(buildAccountProfileUpdate(draft), photoFile);
+  };
 
   return (
     <EditorPortal>
-      {/* Click the dim area (not the card) to cancel — same as the Cancel button. */}
       <div
         className="account-editor-backdrop"
-        onClick={() => {
-          if (!saving) onCancel();
-        }}
+        onClick={() => closeEditorUnlessSaving(isSaving, onCancel)}
       >
         <form
           className="glass-card account-profile-editor"
-          onSubmit={handleSubmit}
-          // vocab: stopPropagation = clicking the form must not count as a backdrop click
+          onSubmit={submitProfileEdits}
+          // vocab: stopPropagation = a click on the form must not count as a backdrop click
           onClick={(event) => event.stopPropagation()}
           role="dialog"
           aria-modal="true"
           aria-labelledby="account-editor-title"
         >
-      {/* Editor header + validation error */}
-      <div className="account-editor-header">
-        <h2 id="account-editor-title" className="account-hero-name text-xl">
-          Edit profile
-        </h2>
-        <p className="theme-muted mt-1 text-sm">
-          Open a section to change it — only one area at a time keeps this readable.
-        </p>
-        {error ? <div className="sign-in-error mt-4">{error}</div> : null}
-      </div>
-
-      <div className="account-editor-sections">
-        {/* Basics — photo, class rank, gender, age, major */}
-        {/* Manipulate here: CLASS_RANKS / GENDERS / AGES / MAJORS live in onboarding-options.ts */}
-        <EditorSection
-          title="Basics"
-          // vocab/symbol: filter(Boolean) = drop empty strings before joining with " · "
-          summary={[classRank, major].filter(Boolean).join(" · ") || "Photo, class rank, major"}
-          defaultOpen
-        >
-          <div className="flex flex-col gap-3">
-            <label className="account-editor-label" htmlFor="account-photo">
-              Profile photo
-            </label>
-            <label className="sign-in-file-picker" htmlFor="account-photo">
-              <input
-                id="account-photo"
-                type="file"
-                accept="image/*"
-                className="sign-in-file-input"
-                onChange={(event) =>
-                  // vocab/symbol: files?.[0] ?? null = first chosen file, or null if none
-                  setPhotoFile(event.target.files?.[0] ?? null)
-                }
-                disabled={saving}
-              />
-              <span className="sign-in-file-btn">Choose photo</span>
-              <span className="sign-in-file-name">
-                {photoFile?.name ?? "JPG, PNG, or WebP"}
-              </span>
-            </label>
+          <div className="account-editor-header">
+            <h2 id="account-editor-title" className="account-hero-name text-xl">
+              {EDITOR_TITLE}
+            </h2>
+            <p className="theme-muted mt-1 text-sm">{EDITOR_INTRO}</p>
+            {errorMessage ? <div className="sign-in-error mt-4">{errorMessage}</div> : null}
           </div>
 
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <PillGroup
-              label="Class rank"
-              options={CLASS_RANKS}
-              selected={classRank}
-              // vocab/symbol: as string = single-select mode returns one string (not string[])
-              onChange={(value) => setClassRank(value as string)}
-            />
-            <PillGroup
-              label="Gender"
-              options={GENDERS}
-              selected={gender}
-              onChange={(value) => setGender(value as string)}
-            />
-          </div>
-
-          <PillGroup label="Age" options={AGES} selected={age} onChange={(value) => setAge(value as string)} />
-
-          <div className="flex flex-col gap-3">
-            <label className="account-editor-label" htmlFor="account-major">
-              Major
-            </label>
-            {/* vocab: <select> = native dropdown; changing major filters career niches */}
-            <select
-              id="account-major"
-              className="sign-in-input"
-              value={major}
-              onChange={(event) => handleMajorChange(event.target.value)}
-              disabled={saving}
+          <div className="account-editor-sections">
+            {/* Manipulate here: CLASS_RANKS / GENDERS / AGES / MAJORS live in onboarding-options.ts */}
+            <EditorSection
+              title="Basics"
+              summary={formatBasicsSummary(classRank, major)}
+              isOpenByDefault
             >
-              <option value="">Select a CECS major</option>
-              {MAJORS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-        </EditorSection>
+              <div className="flex flex-col gap-3">
+                <label className="account-editor-label" htmlFor="account-photo">
+                  Profile photo
+                </label>
+                <label className="sign-in-file-picker" htmlFor="account-photo">
+                  <input
+                    id="account-photo"
+                    type="file"
+                    accept="image/*"
+                    className="sign-in-file-input"
+                    onChange={(event) => setPhotoFile(readFirstSelectedFile(event.target.files))}
+                    disabled={isSaving}
+                  />
+                  <span className="sign-in-file-btn">Choose photo</span>
+                  <span className="sign-in-file-name">{photoName}</span>
+                </label>
+              </div>
 
-        {/* Bio & looking-for tags — bio length gates Save; ABOUT_YOU pills are optional */}
-        <EditorSection
-          title="Bio & discovery"
-          summary={`${bio.trim().length}/150 chars · ${aboutYou.length} looking-for tags`}
-        >
-          <div className="flex flex-col gap-3">
-            <label className="account-editor-label" htmlFor="account-bio">
-              Bio (20–150 characters)
-            </label>
-            <textarea
-              id="account-bio"
-              className="sign-in-input min-h-[120px] resize-y"
-              placeholder="A short intro — who you are, what you’re into, who you’d like to meet…"
-              value={bio}
-              onChange={(event) => setBio(event.target.value)}
-              maxLength={150}
-              disabled={saving}
-            />
-            {/* Green count style once they hit the 20-char minimum */}
-            <p
-              className={`onboarding-char-count ${
-                bio.trim().length >= 20 ? "onboarding-char-count--valid" : ""
-              }`}
-            >
-              {bio.trim().length}/150
-            </p>
-          </div>
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <PillGroup
+                  label="Class rank"
+                  options={CLASS_RANKS}
+                  selected={classRank}
+                  onChange={(value) => setClassRank(value as string)}
+                />
+                <PillGroup
+                  label="Gender"
+                  options={GENDERS}
+                  selected={gender}
+                  onChange={(value) => setGender(value as string)}
+                />
+              </div>
 
-          <PillGroup
-            label="Looking for (optional)"
-            options={ABOUT_YOU}
-            selected={aboutYou}
-            multiple
-            onChange={(value) => setAboutYou(value as string[])}
-          />
-        </EditorSection>
-
-        {/* Career niches + experience Yes/No */}
-        <EditorSection
-          title="Career & projects"
-          summary={
-            careerNiche.length > 0
-              ? `${careerNiche.length} focus tags · ${hasExperience ? "Has experience" : "No experience listed"}`
-              : "Career focus and project history"
-          }
-        >
-          {/* Career niches only appear after a major is chosen */}
-          {major ? (
-            <PillGroup
-              label="Career focus"
-              options={careerNicheOptions}
-              selected={careerNiche}
-              multiple
-              onChange={(value) => setCareerNiche(value as string[])}
-            />
-          ) : (
-            <p className="account-empty-hint">Pick a major in Basics to unlock career focus tags.</p>
-          )}
-
-          <input
-            type="text"
-            className="sign-in-input"
-            placeholder="More about your career focus (optional)"
-            value={careerNicheOther}
-            onChange={(event) => setCareerNicheOther(event.target.value)}
-            disabled={saving}
-          />
-
-          <div className="flex flex-col gap-3">
-            <p className="account-editor-label">Experience or projects?</p>
-            <div className="flex gap-3">
-              {/* Yes / No buttons that set hasExperience */}
-              {["Yes", "No"].map((option) => {
-                const active =
-                  (option === "Yes" && hasExperience) || (option === "No" && !hasExperience);
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    className={`onboarding-pill flex-1 ${active ? "onboarding-pill-active" : ""}`}
-                    onClick={() => setHasExperience(option === "Yes")}
-                    disabled={saving}
-                  >
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Details box only when they said Yes to experience */}
-          {hasExperience ? (
-            <textarea
-              className="sign-in-input min-h-[120px] resize-y"
-              placeholder="Tell us about your experience or projects…"
-              value={experienceDetails}
-              onChange={(event) => setExperienceDetails(event.target.value)}
-              disabled={saving}
-            />
-          ) : null}
-        </EditorSection>
-
-        {/* Personal interest pills + custom typed interests */}
-        {/* Manipulate here: PERSONAL_INTEREST_GROUPS in onboarding-options.ts */}
-        <EditorSection
-          title="Interests"
-          summary={interestCount > 0 ? `${interestCount} interests selected` : "Personal interests (optional)"}
-        >
-          <div className="account-editor-interests-scroll">
-            {PERSONAL_INTEREST_GROUPS.map((group) => (
               <PillGroup
-                key={group.label}
-                label={group.label}
-                options={group.options}
-                selected={casualInterests}
+                label="Age"
+                options={AGES}
+                selected={age}
+                onChange={(value) => setAge(value as string)}
+              />
+
+              <div className="flex flex-col gap-3">
+                <label className="account-editor-label" htmlFor="account-major">
+                  Major
+                </label>
+                <select
+                  id="account-major"
+                  className="sign-in-input"
+                  value={major}
+                  onChange={(event) => applyMajorChange(event.target.value)}
+                  disabled={isSaving}
+                >
+                  <option value="">{MAJOR_PLACEHOLDER_OPTION}</option>
+                  {MAJORS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </EditorSection>
+
+            <EditorSection
+              title="Bio & discovery"
+              summary={formatBioSectionSummary(bio, aboutYou.length)}
+            >
+              <div className="flex flex-col gap-3">
+                <label className="account-editor-label" htmlFor="account-bio">
+                  Bio ({MINIMUM_BIO_CHARACTER_COUNT}–{MAXIMUM_BIO_CHARACTER_COUNT} characters)
+                </label>
+                <textarea
+                  id="account-bio"
+                  className={DETAILS_TEXTAREA_CLASS_NAME}
+                  placeholder={BIO_PLACEHOLDER}
+                  value={bio}
+                  onChange={(event) => setBio(event.target.value)}
+                  maxLength={MAXIMUM_BIO_CHARACTER_COUNT}
+                  disabled={isSaving}
+                />
+                <p className={buildBioCountClassName(bio)}>
+                  {bio.trim().length}/{MAXIMUM_BIO_CHARACTER_COUNT}
+                </p>
+              </div>
+              <PillGroup
+                label="Looking for (optional)"
+                options={ABOUT_YOU}
+                selected={aboutYou}
                 multiple
-                onChange={(value) => setCasualInterests(value as string[])}
+                onChange={(value) => setAboutYou(value as string[])}
               />
-            ))}
-            <input
-              type="text"
-              className="sign-in-input"
-              placeholder="Add your own interests — separate with commas"
-              value={casualInterestsOther}
-              onChange={(event) => setCasualInterestsOther(event.target.value)}
-              disabled={saving}
-            />
-          </div>
-        </EditorSection>
+            </EditorSection>
 
-        {/* Optional GitHub / LinkedIn / Instagram URLs */}
-        <EditorSection
-          title="Social links"
-          summary={linkCount > 0 ? `${linkCount} link${linkCount === 1 ? "" : "s"} added` : "GitHub, LinkedIn, Instagram"}
-        >
-          <div className="onboarding-link-group">
-            <div className="onboarding-link-field">
-              <span className="onboarding-link-tag">GH</span>
+            <EditorSection
+              title="Career & projects"
+              summary={formatCareerSectionSummary(careerNiche.length, hasExperience)}
+            >
+              {major ? (
+                <PillGroup
+                  label="Career focus"
+                  options={careerNicheOptions}
+                  selected={careerNiche}
+                  multiple
+                  onChange={(value) => setCareerNiche(value as string[])}
+                />
+              ) : (
+                <p className="account-empty-hint">
+                  Pick a major in Basics to unlock career focus tags.
+                </p>
+              )}
               <input
-                type="url"
+                type="text"
                 className="sign-in-input"
-                placeholder="github.com/username"
-                value={github}
-                onChange={(event) => setGithub(event.target.value)}
-                disabled={saving}
+                placeholder="More about your career focus (optional)"
+                value={careerNicheOther}
+                onChange={(event) => setCareerNicheOther(event.target.value)}
+                disabled={isSaving}
               />
-            </div>
-            <div className="onboarding-link-field">
-              <span className="onboarding-link-tag">IN</span>
-              <input
-                type="url"
-                className="sign-in-input"
-                placeholder="linkedin.com/in/username"
-                value={linkedin}
-                onChange={(event) => setLinkedin(event.target.value)}
-                disabled={saving}
-              />
-            </div>
-            <div className="onboarding-link-field">
-              <span className="onboarding-link-tag">IG</span>
-              <input
-                type="url"
-                className="sign-in-input"
-                placeholder="instagram.com/username"
-                value={instagram}
-                onChange={(event) => setInstagram(event.target.value)}
-                disabled={saving}
-              />
-            </div>
-          </div>
-        </EditorSection>
-      </div>
+              <div className="flex flex-col gap-3">
+                <p className="account-editor-label">Experience or projects?</p>
+                <div className="flex gap-3">
+                  {EXPERIENCE_CHOICES.map((optionLabel) => {
+                    const isOptionSelected = isEditorExperienceChoiceSelected(
+                      optionLabel,
+                      hasExperience
+                    );
+                    const pillClassName = `onboarding-pill flex-1 ${
+                      isOptionSelected ? ACTIVE_PILL_CLASS_NAME : ""
+                    }`;
+                    return (
+                      <button
+                        key={optionLabel}
+                        type="button"
+                        className={pillClassName}
+                        onClick={() => setHasExperience(optionLabel === EXPERIENCE_YES_LABEL)}
+                        disabled={isSaving}
+                      >
+                        {optionLabel}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+              {hasExperience ? (
+                <textarea
+                  className={DETAILS_TEXTAREA_CLASS_NAME}
+                  placeholder={EXPERIENCE_PLACEHOLDER}
+                  value={experienceDetails}
+                  onChange={(event) => setExperienceDetails(event.target.value)}
+                  disabled={isSaving}
+                />
+              ) : null}
+            </EditorSection>
 
-      {/* Cancel leaves edit mode without writing; Save runs handleSubmit → parent onSave */}
-      <div className="account-editor-actions">
-        <button
-          type="button"
-          className="sign-in-google-btn flex-1"
-          onClick={onCancel}
-          disabled={saving}
-        >
-          Cancel
-        </button>
-        <button
-          type="submit"
-          className="btn-neon font-display flex-1 rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-[0.12em]"
-          disabled={saving || !canSave()}
-        >
-          {saving ? "Saving…" : "Save changes"}
-        </button>
-      </div>
+            {/* Manipulate here: PERSONAL_INTEREST_GROUPS in onboarding-options.ts */}
+            <EditorSection title="Interests" summary={formatInterestSectionSummary(interestCount)}>
+              <div className="account-editor-interests-scroll">
+                {PERSONAL_INTEREST_GROUPS.map((group) => (
+                  <PillGroup
+                    key={group.label}
+                    label={group.label}
+                    options={group.options}
+                    selected={casualInterests}
+                    multiple
+                    onChange={(value) => setCasualInterests(value as string[])}
+                  />
+                ))}
+                <input
+                  type="text"
+                  className="sign-in-input"
+                  placeholder="Add your own interests — separate with commas"
+                  value={casualInterestsOther}
+                  onChange={(event) => setCasualInterestsOther(event.target.value)}
+                  disabled={isSaving}
+                />
+              </div>
+            </EditorSection>
+
+            <EditorSection title="Social links" summary={formatSocialLinkSummary(linkCount)}>
+              <div className="onboarding-link-group">
+                <div className="onboarding-link-field">
+                  <span className="onboarding-link-tag">GH</span>
+                  <input
+                    type="url"
+                    className="sign-in-input"
+                    placeholder="github.com/username"
+                    value={github}
+                    onChange={(event) => setGithub(event.target.value)}
+                    disabled={isSaving}
+                  />
+                </div>
+                <div className="onboarding-link-field">
+                  <span className="onboarding-link-tag">IN</span>
+                  <input
+                    type="url"
+                    className="sign-in-input"
+                    placeholder="linkedin.com/in/username"
+                    value={linkedin}
+                    onChange={(event) => setLinkedin(event.target.value)}
+                    disabled={isSaving}
+                  />
+                </div>
+                <div className="onboarding-link-field">
+                  <span className="onboarding-link-tag">IG</span>
+                  <input
+                    type="url"
+                    className="sign-in-input"
+                    placeholder="instagram.com/username"
+                    value={instagram}
+                    onChange={(event) => setInstagram(event.target.value)}
+                    disabled={isSaving}
+                  />
+                </div>
+              </div>
+            </EditorSection>
+          </div>
+
+          <div className="account-editor-actions">
+            <button
+              type="button"
+              className="sign-in-google-btn flex-1"
+              onClick={onCancel}
+              disabled={isSaving}
+            >
+              {CANCEL_BUTTON_LABEL}
+            </button>
+            <button
+              type="submit"
+              className="btn-neon font-display flex-1 rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-[0.12em]"
+              disabled={isSaving || !canSave}
+            >
+              {isSaving ? SAVING_BUTTON_LABEL : SAVE_BUTTON_LABEL}
+            </button>
+          </div>
         </form>
       </div>
     </EditorPortal>

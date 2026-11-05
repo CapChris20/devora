@@ -1,151 +1,339 @@
-// Section 01 — “What is Devora?” on the homepage.
-// Flow: mouse-grid → chapter label → one panel (heading across the top, then Lottie | copy).
-// Manipulate here: edit CLAIMS / manifesto copy; swap the Lottie JSON import to change the animation.
+// Section 01 — “What is Devora?” per DESIGN.md § 5.1A.
+// Night field, mouse-lit grid, chapter rail ("The platform").
+// Panel with orange/pink corner marks, blinking prompt, Lottie frame,
+// three claim rows, and footer row linking to /find-students.
 
 "use client";
 
-// vocab: framer-motion = animation library used for staggered claim-rail entrances
-import { motion } from "framer-motion";
-import whatIsDevoraAnimation from "@/ui/shared/assets/lottie-animations/what-is-devora.json";
-import MouseGridBackground from "./MouseGridBackground";
+import Link from "next/link";
+import { LayoutGrid, ArrowRight } from "lucide-react";
+import whatIsDevoraAnimation from "@/ui/shared/assets/lottie-animations/recolored/what-is-devora.json";
 import MovingAnimation from "./MovingAnimation";
-import { SectionNumber, FadeIn } from "./FadeInWhenScrolling";
+import MouseGridBackground from "./MouseGridBackground";
+import ChapterRail from "./ChapterRail";
 
-// Three “signal” claim rows under the manifesto — pixel index + solid title/desc.
 const CLAIMS = [
   {
     code: "01",
-    title: "100% CECS Verified",
-    desc: "UM-Dearborn only — no recruiters, no bots, no off-campus noise.",
+    title: "100% CECS verified",
+    text: "UM\u2011Dearborn only. No recruiters, no bots, no off-campus noise.",
   },
   {
     code: "02",
-    title: "Every Major & Track",
-    desc: "CIS, CE, SE, DS, and the rest of the building — one searchable grid.",
+    title: "Every major and track",
+    text: "CIS, CE, SE, DS and the rest of the building in one searchable grid.",
   },
   {
     code: "03",
-    title: "Find Your People",
-    desc: "Friends, colleagues, study crews — people in your career niche.",
+    title: "Find your people",
+    text: "Friends, colleagues and study crews in your career niche.",
   },
 ];
 
 export default function WhatIsDevora() {
   return (
-    // Full-width section with the mouse-following grid glow behind everything.
-    // landing-section-alt = alternating section tint from globals.css
-    <MouseGridBackground id="what-is-devora" className="landing-section-alt what-is-section">
-      <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
-        {/* Chapter label: “01 · The Platform” fades in first */}
-        <FadeIn>
-          <SectionNumber num="01" title="The Platform" />
-        </FadeIn>
+    <section
+      id="what-is-devora"
+      className="scene scene-night"
+      style={{
+        background: "var(--night)",
+        color: "var(--text)",
+        position: "relative",
+      }}
+    >
+      <MouseGridBackground as="div">
+        <div className="wrap what-is-wrap">
+          <div className="chapter-grid">
+            {/* Sticky chapter rail */}
+            <ChapterRail label="The platform" field="night" />
 
-        {/* Main composition — glass “signal panel” holding media + manifesto.
-            vocab: what-is-panel = custom chrome in globals.css (glow frame, not a flat text block) */}
-        <FadeIn delay={0.08}>
-          <div className="what-is-panel mt-6 lg:mt-7">
-            {/* Soft corner stamps — decorative only */}
-            <span className="what-is-corner what-is-corner-tl" aria-hidden="true" />
-            <span className="what-is-corner what-is-corner-br" aria-hidden="true" />
+            {/* Main Section Content */}
+            <div>
+              {/* Panel */}
+              <div className="what-is-poster-panel">
+                {/* Corner marks: 28px L-shape 3px border. Orange top-left, pink bottom-right */}
+                <span className="corner-mark corner-mark-tl" aria-hidden="true" />
+                <span className="corner-mark corner-mark-br" aria-hidden="true" />
 
-            <div className="what-is-panel-inner">
-              {/* Full-width heading — used to sit in the left column beside the copy, which
-                  made the two sides start on different baselines. */}
-              <FadeIn delay={0.12}>
-                <header className="what-is-heading">
-                  <p className="what-is-eyebrow font-pixel">
-                    <span className="soft-pink">SIGNAL</span>
-                    <span className="what-is-eyebrow-sep" aria-hidden="true">
-                      /
-                    </span>
-                    <span className="theme-faint">CECS · UM-DEARBORN</span>
-                  </p>
-                  <h2 className="what-is-title font-display soft-headline">What is Devora?</h2>
-                </header>
-              </FadeIn>
+                {/* 1. Prompt line: pink >, peers.find(friends && niche), blinking caret */}
+                <div className="prompt-line">
+                  <span className="prompt-angle">&gt;</span>
+                  <span className="prompt-text">peers.find(friends &amp;&amp; niche)</span>
+                  <span className="prompt-caret" aria-hidden="true" />
+                </div>
 
-              {/* Split: Lottie left, pitch + claims right — both top-aligned */}
-              <div className="what-is-split">
-                <FadeIn delay={0.18}>
-                  <div className="what-is-media">
-                    <div className="what-is-lottie-frame">
-                      <div className="what-is-lottie-glow" aria-hidden="true" />
+                {/* 2. Headline */}
+                <h2 className="t-title what-is-headline">
+                  What is Devora?
+                </h2>
+
+                {/* 3. Two-column grid */}
+                <div className="what-is-columns">
+                  {/* Left: Lottie frame */}
+                  <div className="lottie-frame">
+                    <div className="lottie-glow" aria-hidden="true" />
+                    <div className="lottie-inner">
                       <MovingAnimation
                         animationData={whatIsDevoraAnimation}
                         ariaLabel="What is Devora animation"
-                        className="landing-lottie-what-is what-is-lottie"
+                        className="w-full h-full max-w-[420px] max-h-[250px] mx-auto aspect-[16/10]"
                       />
                     </div>
                   </div>
-                </FadeIn>
 
-                <div className="what-is-copy">
-                  <FadeIn delay={0.2}>
-                    {/* Prompt + lead as one intro block so they don’t float as two stray lines */}
-                    <div className="what-is-intro">
-                      <p className="what-is-prompt font-pixel">
-                        {/* vocab: {" > "} = literal > in JSX so it isn’t parsed as a tag */}
-                        <span className="soft-pink">{">"}</span>
-                        <span className="theme-muted">
-                          {" "}
-                          peers.find(friends && niche)
-                        </span>
-                      </p>
-                      <p className="what-is-lead">
-                        The official hub for{" "}
-                        <strong>networking</strong>, <strong>CECS events</strong>, and{" "}
-                        <strong>finding your people</strong> — exclusively for Computer
-                        Engineering &amp; Computer Science at UM-Dearborn.
-                      </p>
-                    </div>
-                  </FadeIn>
+                  {/* Right column */}
+                  <div className="claims-column">
+                    <p className="lead what-is-lead">
+                      The official hub for <strong>networking</strong>,{" "}
+                      <strong>CECS events</strong> and{" "}
+                      <strong>finding your people</strong>, built only for
+                      Computer Engineering and Computer Science students at
+                      UM&#8209;Dearborn.
+                    </p>
 
-                  <ul className="what-is-claims">
-                    {CLAIMS.map((claim, i) => (
-                      <motion.li
-                        key={claim.code}
-                        className="what-is-claim"
-                        initial={{ opacity: 0, x: 28 }}
-                        whileInView={{ opacity: 1, x: 0 }}
-                        viewport={{ once: true, margin: "-40px" }}
-                        transition={{
-                          duration: 0.7,
-                          delay: 0.28 + i * 0.08,
-                          ease: [0.16, 1, 0.3, 1],
-                        }}
-                      >
-                        <span className={`what-is-claim-code font-pixel soft-pink`}>
-                          {claim.code}
-                        </span>
-                        <div className="what-is-claim-text">
-                          <p className="what-is-claim-title font-display theme-heading">
-                            {claim.title}
-                          </p>
-                          <p className="what-is-claim-desc">{claim.desc}</p>
+                    {/* Three claim rows */}
+                    <div className="claims-grid">
+                      {CLAIMS.map((c) => (
+                        <div key={c.code} className="claim-row">
+                          <span className="claim-code">{c.code}</span>
+                          <div className="claim-content">
+                            <span className="claim-title">{c.title}:</span>{" "}
+                            <span className="claim-text">{c.text}</span>
+                          </div>
                         </div>
-                      </motion.li>
-                    ))}
-                  </ul>
-
-                  <FadeIn delay={0.5}>
-                    <div className="what-is-footer">
-                      <div className="glow-line h-px w-full" aria-hidden="true" />
-                      <p className="what-is-footer-line font-pixel">
-                        <span className="theme-faint">classmates</span>
-                        <span className="what-is-arrow theme-muted" aria-hidden="true">
-                          {" → "}
-                        </span>
-                        <span className="theme-heading">friends</span>
-                      </p>
+                      ))}
                     </div>
-                  </FadeIn>
+
+                    {/* Footer row */}
+                    <div className="what-is-footer-row">
+                      <div className="concept-connector">
+                        <span className="mono text-white">Classmates</span>
+                        <div className="connector-arrow">
+                          <ArrowRight size={22} color="#ff5ca8" />
+                        </div>
+                        <span className="mono text-white">Friends</span>
+                      </div>
+
+                      <Link href="/find-students" className="btn-primary">
+                        <LayoutGrid size={20} />
+                        <span>Open the Discovery Grid</span>
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </FadeIn>
-      </div>
-    </MouseGridBackground>
+        </div>
+      </MouseGridBackground>
+
+      <style jsx>{`
+        .what-is-wrap {
+          max-width: 1400px;
+        }
+
+        .what-is-poster-panel {
+          position: relative;
+          padding: clamp(18px, 2.2vw, 32px);
+          border-radius: 24px;
+          background: linear-gradient(180deg, rgb(28 24 28 / .92), rgb(18 15 18 / .92));
+          border: 2px solid var(--edge);
+        }
+
+        .what-is-poster-panel::before {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: 24px;
+          background: var(--grad);
+          translate: 8px 8px;
+          z-index: -1;
+        }
+
+        .corner-mark {
+          position: absolute;
+          width: 28px;
+          height: 28px;
+          pointer-events: none;
+        }
+        .corner-mark-tl {
+          top: 14px;
+          left: 14px;
+          border-top: 3px solid var(--orange);
+          border-left: 3px solid var(--orange);
+        }
+        .corner-mark-br {
+          bottom: 14px;
+          right: 14px;
+          border-bottom: 3px solid var(--magenta);
+          border-right: 3px solid var(--magenta);
+        }
+
+        .prompt-line {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-family: var(--f-mono);
+          font-size: 13.5px;
+          margin-bottom: 12px;
+        }
+        .prompt-angle {
+          background: var(--grad);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-weight: 700;
+        }
+        .prompt-text {
+          color: var(--text-muted);
+        }
+        .prompt-caret {
+          display: inline-block;
+          width: 9px;
+          height: 16px;
+          background: #ff5ca8;
+          animation: blink 1s steps(1) infinite;
+        }
+
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          50.1%, 100% { opacity: 0; }
+        }
+
+        .what-is-headline {
+          color: var(--text);
+          margin-bottom: 18px;
+        }
+
+        .what-is-columns {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 24px;
+          align-items: stretch;
+        }
+
+        @media (min-width: 980px) {
+          .what-is-columns {
+            grid-template-columns: 1fr 1.15fr;
+            gap: 32px;
+          }
+        }
+
+        .lottie-frame {
+          position: relative;
+          border-radius: 18px;
+          background: var(--night);
+          border: 2px solid var(--edge);
+          min-height: 220px;
+          max-height: 280px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          padding: 12px;
+        }
+
+        .lottie-glow {
+          position: absolute;
+          inset: 0;
+          background: radial-gradient(circle at 40% 40%, rgba(255, 92, 168, 0.35), transparent 60%),
+                      radial-gradient(circle at 70% 70%, rgba(255, 154, 61, 0.25), transparent 50%);
+          pointer-events: none;
+        }
+
+        .lottie-inner {
+          position: relative;
+          z-index: 1;
+          width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .claims-column {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+
+        .what-is-lead {
+          color: var(--text-body);
+          font-size: clamp(15px, 1.3vw, 17.5px);
+          line-height: 1.45;
+        }
+
+        .what-is-lead strong {
+          color: var(--text);
+          font-weight: 700;
+        }
+
+        .claims-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 10px;
+        }
+
+        .claim-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 12px;
+          background: var(--surface-2);
+          border-radius: 12px;
+          padding: 10px 14px;
+          border: 2px solid transparent;
+          transition: border-color 0.2s ease, translate 0.2s var(--spring);
+        }
+
+        .claim-row:hover {
+          border-color: #ff5ca8;
+          translate: 4px 0;
+        }
+
+        .claim-code {
+          font-family: var(--f-mono);
+          font-size: 14px;
+          font-weight: 700;
+          background: var(--grad);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+
+        .claim-content {
+          font-size: 15.5px;
+          line-height: 1.45;
+        }
+
+        .claim-title {
+          font-weight: 700;
+          color: var(--text);
+        }
+
+        .claim-text {
+          color: var(--text-muted);
+        }
+
+        .what-is-footer-row {
+          margin-top: auto;
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: space-between;
+          gap: 20px;
+          padding-top: 16px;
+        }
+
+        .concept-connector {
+          display: inline-flex;
+          align-items: center;
+          gap: 12px;
+        }
+
+        .connector-arrow {
+          display: flex;
+          align-items: center;
+        }
+      `}</style>
+    </section>
   );
 }

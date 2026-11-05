@@ -1,16 +1,43 @@
-// Read and write student profiles in Firestore at users/{uid}.
-// Flow: getDoc/setDoc on users/{uid} for signup → onboarding → account → settings.
-// Used by signup, onboarding, account page, and settings.
+// Read and write student profiles in Firestore.
+// Flow: signup/onboarding/account write owner-only users/{uid} → sync public discoveryProfiles/{uid}.
+// Discovery list reads discoveryProfiles only so classmates never download private fields.
+// Used by signup, onboarding, account, settings, and Discovery.
+
+// ===== IMPORTS =====
 
 import {
+  collection,
   doc,
   getDoc,
+  getDocs,
+  limit,
+  query,
   serverTimestamp,
   setDoc,
+  where,
   type Timestamp,
 } from "firebase/firestore";
 
+import {
+  syncDiscoveryProfileProjection,
+} from "./discovery-profile-sync";
+import { sanitizeSocialProfileUrl } from "./safe-http-url";
 import { db } from "./start-firebase";
+
+// ===== NAMED CONSTANTS =====
+
+const DEFAULT_SCHOOL_NAME = "University of Michigan-Dearborn";
+const USERS_COLLECTION = "users";
+const DISCOVERY_PROFILES_COLLECTION = "discoveryProfiles";
+const PUBLIC_PROFILE_FIELD = "isPublic";
+// One page for v1. Pagination is a later pass.
+// Manipulate here: raise to show more classmates before a "load more" exists
+const PUBLIC_PROFILE_PAGE_SIZE = 40;
+
+// Merge so a partial save never wipes fields the caller did not send.
+const MERGE_EXISTING_DOCUMENT_FIELDS = { merge: true } as const;
+
+// ===== TYPES =====
 
 export type UserLinks = {
   github?: string;
@@ -18,9 +45,11 @@ export type UserLinks = {
   instagram?: string;
 };
 
-// Who can DM this user (enforced when messaging exists).
+// Who can DM this user once messaging exists.
 export type MessagePolicy = "everyone" | "connections" | "none";
 
+// Field names match documents already stored in Firestore.
+// They stay showSkills / notifyMessages instead of isShowingSkills so old profiles still load.
 export type UserPreferences = {
   showSkills: boolean;
   showInterests: boolean;
@@ -35,43 +64,12 @@ export type UserPreferences = {
   showReadReceipts: boolean;
 };
 
-// Defaults for every preference toggle so Settings always has a full object.
-// Manipulate here: flip any true/false to change the “first visit” Settings defaults
-export const DEFAULT_USER_PREFERENCES: UserPreferences = {
-  showSkills: true,
-  showInterests: true,
-  showClassYear: true,
-  notifyMessages: true,
-  notifyConnectionRequests: true,
-  notifyProfileViews: false,
-  notifyEventInvites: true,
-  notifyWeeklyDigest: true,
-  allowMessagesFrom: "everyone",
-  showOnlineStatus: true,
-  showReadReceipts: true,
-};
-
-// Fill missing preference fields with defaults so the UI always has a full object.
-// Older profiles may only have some keys saved — we merge so toggles never read undefined.
-// vocab: Partial<T> = same shape as T but every field is optional
-export function resolveUserPreferences(
-  preferences?: Partial<UserPreferences> | null
-): UserPreferences {
-  // vocab/symbol: ... spreads defaults first, then overwrites with whatever was saved
-  // Why defaults first? Saved values win; missing keys keep the DEFAULT_USER_PREFERENCES value.
-  return {
-    ...DEFAULT_USER_PREFERENCES,
-    ...preferences,
-  };
-}
-
 export type UserSettingsUpdate = {
   isPublic?: boolean;
   preferences?: UserPreferences;
 };
 
-// Shape of one student document in Firestore.
-// vocab: Timestamp = Firestore’s date/time type (not a plain JS Date)
+// vocab: Timestamp = Firestore's date type, not a plain JavaScript Date
 export type UserProfile = {
   email: string;
   firstName: string;
@@ -125,9 +123,7 @@ export type OnboardingPayload = {
   links: UserLinks;
 };
 
-// Only these profile fields may be sent in a patch update from the account editor.
-// vocab: Pick = take only these keys from UserProfile
-// vocab: Partial = make those picked keys optional for a partial update
+// vocab: Pick = only these keys from UserProfile. Partial = each of those keys is optional.
 export type AccountProfileUpdate = Partial<
   Pick<
     UserProfile,
@@ -147,140 +143,301 @@ export type AccountProfileUpdate = Partial<
   >
 >;
 
-// Save isPublic toggle and notification/messaging preferences from Settings page.
-// vocab: uid = unique user id from Firebase Auth (document id under users/)
-// vocab: setDoc = write/merge fields into a Firestore document
-// vocab: serverTimestamp = let Firebase fill “now” on the server
+export type PublicProfileRecord = {
+  userId: string;
+  profile: UserProfile;
+};
+
+type ProfileNameFields = {
+  firstName: string;
+  lastName: string;
+  displayName: string;
+};
+
+// ===== HELPER FUNCTIONS =====
+
+function sanitizeUserLinks(links: UserLinks | undefined): UserLinks {
+  return {
+    github: sanitizeSocialProfileUrl(links?.github, "github"),
+    linkedin: sanitizeSocialProfileUrl(links?.linkedin, "linkedin"),
+    instagram: sanitizeSocialProfileUrl(links?.instagram, "instagram"),
+  };
+}
+
+// Re-running onboarding must keep the name from signup. Email is the last fallback.
+function buildNameFieldsForOnboardingSave(
+  existingProfile: UserProfile | null,
+  emailAddress: string
+): ProfileNameFields {
+  // vocab: ?. and ?? = use the saved name when it exists, otherwise an empty string
+  const firstName = existingProfile?.firstName ?? "";
+  const lastName = existingProfile?.lastName ?? "";
+  // vocab: || = use the next value when the left side is empty
+  const displayName =
+    existingProfile?.displayName || `${firstName} ${lastName}`.trim() || emailAddress;
+
+  return { firstName, lastName, displayName };
+}
+
+function buildOnboardingDocument(
+  emailAddress: string,
+  onboardingAnswers: OnboardingPayload,
+  nameFields: ProfileNameFields,
+  existingProfile: UserProfile | null
+) {
+  return {
+    email: emailAddress,
+    firstName: nameFields.firstName,
+    lastName: nameFields.lastName,
+    displayName: nameFields.displayName,
+    classRank: onboardingAnswers.classRank,
+    gender: onboardingAnswers.gender,
+    age: onboardingAnswers.age,
+    major: onboardingAnswers.major,
+    careerNiche: onboardingAnswers.careerNiche,
+    // vocab: ?? "" = empty string when an optional onboarding field was skipped
+    careerNicheOther: onboardingAnswers.careerNicheOther ?? "",
+    hasExperience: onboardingAnswers.hasExperience,
+    experienceDetails: onboardingAnswers.experienceDetails ?? "",
+    casualInterests: onboardingAnswers.casualInterests,
+    aboutYou: onboardingAnswers.aboutYou,
+    religion: onboardingAnswers.religion ?? "",
+    signupReason: onboardingAnswers.signupReason,
+    bio: onboardingAnswers.bio,
+    photoURL: onboardingAnswers.photoURL ?? "",
+    links: sanitizeUserLinks(onboardingAnswers.links),
+    school: DEFAULT_SCHOOL_NAME,
+    // Finished onboarding means visible on Discovery unless they later hide in Settings.
+    // Manipulate here: isPublic false = stay hidden until they flip the Settings toggle
+    isPublic: true,
+    isDeactivated: false,
+    onboardingComplete: true,
+    ...(existingProfile?.preferences ? { preferences: existingProfile.preferences } : {}),
+  };
+}
+
+function readUserProfileFromDiscoveryDoc(
+  userId: string,
+  discoveryData: Record<string, unknown>
+): PublicProfileRecord {
+  // Discovery docs never store private fields. Empty strings keep the UserProfile shape.
+  const profile = {
+    ...(discoveryData as UserProfile),
+    email: "",
+    religion: "",
+    signupReason: [],
+    gender: "",
+    age: "",
+  };
+
+  return { userId, profile };
+}
+
+async function writeOwnerProfileAndSyncDiscovery(
+  userId: string,
+  profileFields: Record<string, unknown>
+): Promise<UserProfile> {
+  await setDoc(doc(db, USERS_COLLECTION, userId), profileFields, MERGE_EXISTING_DOCUMENT_FIELDS);
+
+  // Re-read so sync uses the merged document (partial writes included).
+  const savedProfile = await getUserProfileWithoutDiscoverySync(userId);
+  if (!savedProfile) {
+    throw new Error("Profile was missing after save.");
+  }
+
+  await syncDiscoveryProfileProjection(userId, savedProfile);
+  return savedProfile;
+}
+
+/**
+ * Internal read of users/{uid} without refreshing the Discovery projection.
+ * Used by write paths that sync themselves afterward.
+ */
+async function getUserProfileWithoutDiscoverySync(
+  userId: string
+): Promise<UserProfile | null> {
+  const profileSnapshot = await getDoc(doc(db, USERS_COLLECTION, userId));
+  if (!profileSnapshot.exists()) {
+    return null;
+  }
+  return profileSnapshot.data() as UserProfile;
+}
+
+// ===== MAIN FUNCTIONS =====
+
+// Defaults so Settings always has a full object on the first visit.
+// Manipulate here: flip any true/false to change the first-visit Settings defaults.
+export const DEFAULT_USER_PREFERENCES: UserPreferences = {
+  showSkills: true,
+  showInterests: true,
+  showClassYear: true,
+  notifyMessages: true,
+  notifyConnectionRequests: true,
+  notifyProfileViews: false,
+  notifyEventInvites: true,
+  notifyWeeklyDigest: true,
+  allowMessagesFrom: "everyone",
+  showOnlineStatus: true,
+  showReadReceipts: true,
+};
+
+/**
+ * Fill missing preference fields with defaults.
+ * Older profiles may only have some keys saved. Saved values win; missing keys keep the default.
+ * @param savedPreferences - Partial preferences from Firestore, or nothing
+ * @returns A full preferences object the Settings toggles can read
+ */
+export function resolveUserPreferences(
+  savedPreferences?: Partial<UserPreferences> | null
+): UserPreferences {
+  // vocab: Partial<T> = same shape as T, but every field is optional
+  // vocab: ...spread = copy defaults first, then overwrite with whatever was saved
+  return {
+    ...DEFAULT_USER_PREFERENCES,
+    ...savedPreferences,
+  };
+}
+
+/**
+ * Save the public toggle and notification preferences from the Settings page.
+ * @param userId - Firebase Auth user id (document id under users/)
+ * @param settingsUpdate - isPublic and/or preferences
+ * @returns Resolves when Firestore has merged the update and Discovery is synced
+ */
 export async function updateUserSettings(
-  uid: string,
-  data: UserSettingsUpdate
+  userId: string,
+  settingsUpdate: UserSettingsUpdate
 ): Promise<void> {
-  await setDoc(
-    // vocab: doc(db, "users", uid) = pointer to the users/{uid} document
-    doc(db, "users", uid),
-    {
-      // vocab/symbol: ...data = spread whatever Settings sent (isPublic and/or preferences)
-      ...data,
-      updatedAt: serverTimestamp(),
-    },
-    // vocab/symbol: merge true — update these keys only, leave other fields alone
-    { merge: true }
-  );
+  await writeOwnerProfileAndSyncDiscovery(userId, {
+    ...settingsUpdate,
+    updatedAt: serverTimestamp(),
+  });
 }
 
-// Patch profile fields from Account page editor (does not reset onboarding flags).
+/**
+ * Patch profile fields from the account editor. Does not reset onboarding flags.
+ * @param userId - Firebase Auth user id
+ * @param profileUpdate - Only the fields the editor changed
+ * @returns Resolves when Firestore has merged the patch and Discovery is synced
+ */
 export async function updateAccountProfile(
-  uid: string,
-  data: AccountProfileUpdate
+  userId: string,
+  profileUpdate: AccountProfileUpdate
 ): Promise<void> {
-  // Why merge? Account editor sends a partial patch — never wipe unrelated fields.
-  await setDoc(
-    doc(db, "users", uid),
-    {
-      ...data,
-      updatedAt: serverTimestamp(),
-    },
-    { merge: true }
+  const sanitizedProfileUpdate: AccountProfileUpdate = {
+    ...profileUpdate,
+    ...(profileUpdate.links ? { links: sanitizeUserLinks(profileUpdate.links) } : {}),
+  };
+
+  await writeOwnerProfileAndSyncDiscovery(userId, {
+    ...sanitizedProfileUpdate,
+    updatedAt: serverTimestamp(),
+  });
+}
+
+/**
+ * Load one page of public Discovery projections (not full users/{uid} docs).
+ * Classmates never receive email, religion, signupReason, gender, or age from this query.
+ * @returns Public profile projections, each with its Firebase user id
+ */
+export async function listPublicProfiles(): Promise<PublicProfileRecord[]> {
+  // Query shape must match firestore.rules on discoveryProfiles.
+  // vocab: query + where = ask Firestore for documents that match, not the whole collection
+  const publicProfilesQuery = query(
+    collection(db, DISCOVERY_PROFILES_COLLECTION),
+    where(PUBLIC_PROFILE_FIELD, "==", true),
+    where("onboardingComplete", "==", true),
+    limit(PUBLIC_PROFILE_PAGE_SIZE)
+  );
+  // vocab: getDocs = run that query once and return the matching documents
+  const snapshot = await getDocs(publicProfilesQuery);
+
+  return snapshot.docs.map((profileDocument) =>
+    readUserProfileFromDiscoveryDoc(
+      profileDocument.id,
+      profileDocument.data() as Record<string, unknown>
+    )
   );
 }
 
-// Fetch one user's profile doc by uid. Returns null if doc doesn't exist yet.
-// vocab: getDoc = read one Firestore document once
-export async function getUserProfile(uid: string): Promise<UserProfile | null> {
-  // vocab: snapshot = result of the read (may or may not contain a document)
-  const snapshot = await getDoc(doc(db, "users", uid));
-
-  // No users/{uid} doc yet (brand-new Google account).
-  // vocab: snapshot.exists() = false when that document id was never written
-  if (!snapshot.exists()) {
+/**
+ * Read one student profile (owner document). Also refreshes their Discovery projection
+ * so older accounts get a public-safe card after the security split.
+ * @param userId - Firebase Auth user id
+ * @returns The profile, or null if users/{userId} was never written
+ */
+export async function getUserProfile(userId: string): Promise<UserProfile | null> {
+  const profile = await getUserProfileWithoutDiscoverySync(userId);
+  if (!profile) {
     return null;
   }
 
-  // vocab: snapshot.data() = plain object of the document fields
-  // vocab: as UserProfile = tell TypeScript “trust this shape” after we know it exists
-  return snapshot.data() as UserProfile;
+  // Best-effort projection sync. A failure here must not block Account / Settings.
+  try {
+    await syncDiscoveryProfileProjection(userId, profile);
+  } catch {
+    // Rules deploy lag or offline — owner UI still works from users/{uid}.
+  }
+
+  return profile;
 }
 
-// First save after signup — name + email only; onboarding still required.
+/**
+ * First save after signup. Stores name and email on the owner doc. Onboarding is still required.
+ * @param userId - Firebase Auth user id
+ * @param emailAddress - Michigan email from Google
+ * @param signupNames - First and last name from the signup form or from Google's display name
+ * @returns Resolves when the starter profile is merged
+ */
 export async function saveSignupProfile(
-  uid: string,
-  email: string,
-  names: SignupNames
+  userId: string,
+  emailAddress: string,
+  signupNames: SignupNames
 ): Promise<void> {
-  // vocab/symbol: `...${}` = template string — builds "First Last" for displayName
-  const displayName = `${names.firstName} ${names.lastName}`.trim();
+  const displayName = `${signupNames.firstName} ${signupNames.lastName}`.trim();
 
-  await setDoc(
-    doc(db, "users", uid),
-    {
-      email,
-      firstName: names.firstName,
-      lastName: names.lastName,
-      displayName,
-      // Manipulate here: change school string if you rebrand or add another campus
-      school: "University of Michigan-Dearborn",
-      // Private until onboarding finishes and they opt into Discovery.
-      // Manipulate here: isPublic true = show on Discovery before onboarding is done
-      isPublic: false,
-      // vocab / profile field: onboardingComplete = false until Finish on the wizard
-      onboardingComplete: false,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    },
-    { merge: true }
-  );
+  await writeOwnerProfileAndSyncDiscovery(userId, {
+    email: emailAddress,
+    firstName: signupNames.firstName,
+    lastName: signupNames.lastName,
+    displayName,
+    // Manipulate here: change DEFAULT_SCHOOL_NAME if you rebrand or add another campus
+    school: DEFAULT_SCHOOL_NAME,
+    // Private until onboarding finishes and they opt into Discovery.
+    // Manipulate here: isPublic true = show on Discovery before onboarding is done
+    isPublic: false,
+    isDeactivated: false,
+    onboardingComplete: false,
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
 }
 
-// Save full onboarding answers — marks onboardingComplete and opens profile to Discovery.
+/**
+ * Save the full onboarding answers, mark onboarding complete, and open the profile on Discovery.
+ * @param userId - Firebase Auth user id
+ * @param emailAddress - Michigan email from the signed-in user
+ * @param onboardingAnswers - Every field collected by the onboarding form
+ * @returns Resolves when the finished profile is merged and Discovery is synced
+ */
 export async function saveOnboardingProfile(
-  uid: string,
-  email: string,
-  data: OnboardingPayload
+  userId: string,
+  emailAddress: string,
+  onboardingAnswers: OnboardingPayload
 ): Promise<void> {
-  // Keep first/last name from signup if they already exist.
-  const existing = await getUserProfile(uid);
-  // vocab/symbol: ?. and ?? — use saved name if present, else empty string
-  const firstName = existing?.firstName ?? "";
-  const lastName = existing?.lastName ?? "";
-  // Prefer saved displayName, else build from names, else fall back to email.
-  // vocab/symbol: || = use the next value when the left side is empty/falsy
-  const displayName =
-    existing?.displayName || `${firstName} ${lastName}`.trim() || email;
-
-  await setDoc(
-    doc(db, "users", uid),
-    {
-      email,
-      firstName,
-      lastName,
-      displayName,
-      classRank: data.classRank,
-      gender: data.gender,
-      age: data.age,
-      major: data.major,
-      careerNiche: data.careerNiche,
-      // vocab/symbol: ?? "" = empty string when optional onboarding fields were skipped
-      careerNicheOther: data.careerNicheOther ?? "",
-      hasExperience: data.hasExperience,
-      experienceDetails: data.experienceDetails ?? "",
-      casualInterests: data.casualInterests,
-      aboutYou: data.aboutYou,
-      religion: data.religion ?? "",
-      signupReason: data.signupReason,
-      bio: data.bio,
-      photoURL: data.photoURL ?? "",
-      links: data.links,
-      // Manipulate here: school label written on every finished onboarding save
-      school: "University of Michigan-Dearborn",
-      // Finished onboarding → visible on Discovery by default.
-      // Manipulate here: isPublic false = stay hidden until they flip Settings
-      isPublic: true,
-      onboardingComplete: true,
-      updatedAt: serverTimestamp(),
-      // Keep original createdAt if present; otherwise stamp "now".
-      // Why? Re-running onboarding should not reset their account birthday.
-      createdAt: existing?.createdAt ?? serverTimestamp(),
-    },
-    { merge: true }
+  const existingProfile = await getUserProfileWithoutDiscoverySync(userId);
+  const nameFields = buildNameFieldsForOnboardingSave(existingProfile, emailAddress);
+  const onboardingDocument = buildOnboardingDocument(
+    emailAddress,
+    onboardingAnswers,
+    nameFields,
+    existingProfile
   );
+
+  await writeOwnerProfileAndSyncDiscovery(userId, {
+    ...onboardingDocument,
+    // Keep the original createdAt. Re-running onboarding should not reset their join date.
+    createdAt: existingProfile?.createdAt ?? serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  });
 }

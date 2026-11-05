@@ -1,6 +1,8 @@
-// Outermost page wrapper for the entire app — fonts, global CSS, theme script, AppWrapper.
-// Flow: load fonts → set metadata → wrap every route in <html>/<body> + AppWrapper.
-// Every route renders inside this layout as {children}.
+// Outermost page wrapper for the whole app: fonts, global CSS, theme script, and AppWrapper.
+// Flow: load fonts → set the tab title → wrap every route in html/body plus AppWrapper.
+// Every route renders inside this layout as children.
+
+// ===== IMPORTS =====
 
 import type { Metadata } from "next";
 
@@ -8,9 +10,27 @@ import { Press_Start_2P, Space_Mono, Unbounded } from "next/font/google";
 import AppWrapper from "@/ui/shared/theme/AppWrapper";
 import "@/ui/globals.css";
 
-// vocab: next/font/google = Next.js helper that self-hosts Google fonts efficiently
-// vocab: variable = CSS custom property name we attach to <html> for Tailwind/theme
-// Manipulate here: change weight arrays / font families to restyle the whole app
+// ===== NAMED CONSTANTS =====
+
+const DOCUMENT_LANGUAGE = "en";
+const BODY_CLASS_NAME = "font-mono antialiased";
+
+const SITE_TITLE = "Devora — Connect. Belong. Network.";
+const SITE_DESCRIPTION = "UofM Dearborn CECS Networking Hub";
+
+const THEME_STORAGE_KEY = "devora-theme";
+const DEFAULT_THEME = "dark";
+const LIGHT_THEME = "light";
+
+// Runs before React paints so the saved theme is on the page immediately.
+// Kept as one compact script on purpose: it has to run before the app loads.
+// vocab: localStorage = the browser's saved key/value store for this site
+const THEME_BOOT_SCRIPT = `(function(){try{var savedTheme=localStorage.getItem("${THEME_STORAGE_KEY}");document.documentElement.setAttribute("data-theme",savedTheme==="${LIGHT_THEME}"?"${LIGHT_THEME}":"${DEFAULT_THEME}");}catch(error){document.documentElement.setAttribute("data-theme","${DEFAULT_THEME}");}})();`;
+
+// vocab: next/font/google = Next.js helper that self-hosts Google fonts
+// These calls stay at the top of the file, with the weights and CSS names written out.
+// Next.js reads them at build time and rejects a constant or a function in their place.
+// vocab: variable = CSS custom property name attached to html so Tailwind can use the font
 const spaceMono = Space_Mono({
   weight: ["400", "700"],
   subsets: ["latin"],
@@ -29,15 +49,21 @@ const pressStart = Press_Start_2P({
   variable: "--font-pixel",
 });
 
-// vocab: Metadata = Next.js type for <title> / description shown in the browser tab
-// Manipulate here: title/description = what Google + the browser tab show for Devora
+const APP_FONT_CLASS_NAME = `${spaceMono.variable} ${unbounded.variable} ${pressStart.variable}`;
+
+// ===== MAIN =====
+
+// vocab: Metadata = Next.js type for the browser tab title and description
+// Manipulate here: title and description are what the tab and search results show
 export const metadata: Metadata = {
-  title: "Devora — Connect. Belong. Network.",
-  description: "UofM Dearborn CECS Networking Hub",
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
 };
 
-// Root HTML shell: fonts on <html>, theme before paint, AppWrapper around pages.
-// vocab: children = whatever page/route is nested inside this layout
+/**
+ * Root HTML shell. Fonts sit on html, the theme script runs before paint, and AppWrapper wraps every page.
+ * @param props.children - The page for the current route
+ */
 export default function RootLayout({
   children,
 }: {
@@ -45,31 +71,18 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
-      // vocab: suppressHydrationWarning = ignore theme class mismatch before React hydrates
-      // Why? Theme script may set data-theme before React boots; without this, React warns.
+      lang={DOCUMENT_LANGUAGE}
+      // vocab: suppressHydrationWarning = ignore a theme mismatch before React takes over
+      // The theme script may set data-theme before React boots. Without this, React warns.
       suppressHydrationWarning
-      // Attach font CSS variables so globals.css / Tailwind can use --font-mono etc.
-      className={`${spaceMono.variable} ${unbounded.variable} ${pressStart.variable}`}
+      className={APP_FONT_CLASS_NAME}
     >
       <head>
-        {/*
-          Set data-theme from localStorage BEFORE React paints (avoids a flash of wrong theme).
-          vocab: dangerouslySetInnerHTML = inject raw JS string into the page
-          vocab: localStorage.getItem("devora-theme") = saved "light" or "dark" from Settings
-          Manipulate here: change default "dark" at the end to "light" for a light-first app
-        */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `(function(){try{var t=localStorage.getItem("devora-theme");document.documentElement.setAttribute("data-theme",t==="light"?"light":"dark");}catch(e){document.documentElement.setAttribute("data-theme","dark");}})();`,
-          }}
-        />
+        {/* vocab: dangerouslySetInnerHTML = put this raw script into the page */}
+        {/* Manipulate here: DEFAULT_THEME at the top flips the first-visit theme */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT_SCRIPT }} />
       </head>
-      {/*
-        AppWrapper adds theme context + shared chrome around every page.
-        vocab: font-mono antialiased = default body font + smoother glyph edges
-      */}
-      <body className="font-mono antialiased">
+      <body className={BODY_CLASS_NAME}>
         <AppWrapper>{children}</AppWrapper>
       </body>
     </html>

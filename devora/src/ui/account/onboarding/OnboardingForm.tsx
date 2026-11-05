@@ -5,16 +5,19 @@
 
 "use client";
 
-import { FormEvent, useEffect, useState } from "react";
+// ===== IMPORTS =====
+
+import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-// vocab: onAuthStateChanged = Firebase listener; fires when user signs in or out
-import { onAuthStateChanged } from "firebase/auth";
+// vocab: onAuthStateChanged = Firebase listener; fires when the user signs in or out
+import { onAuthStateChanged, type User } from "firebase/auth";
 
 import {
   auth,
   getAuthErrorMessage,
   getUserProfile,
   saveOnboardingProfile,
+  type OnboardingPayload,
 } from "@/backend/firebase";
 import { uploadProfilePhoto } from "@/backend/firebase/storage-upload";
 
@@ -35,560 +38,778 @@ import {
 } from "./onboarding-options";
 import PillGroup from "@/ui/shared/pills/PillGroup";
 
-// Main onboarding wizard — five steps of local state, then one Finish write to Firebase.
-export default function OnboardingForm() {
-  // vocab: useRouter = Next.js helper that lets us navigate (push/replace) without a full reload
-  const router = useRouter();
-  // vocab: useState = React hook that stores a value and re-renders when you call the setter
-  // step = which wizard page (1–5) the student is on right now
-  // Manipulate here: start at 1; raising ONBOARDING_STEPS alone isn’t enough — add a case in canContinue + JSX
-  const [step, setStep] = useState(1);
-  // isSaving = true while Finish is writing to Firebase (disables Back / Finish)
-  const [isSaving, setIsSaving] = useState(false);
-  // isLoading = true until we know they’re logged in and still need onboarding
-  const [isLoading, setIsLoading] = useState(true);
-  // error = red banner text under the progress bar (empty string = hidden)
-  const [error, setError] = useState("");
+// ===== NAMED CONSTANTS =====
 
-  // --- Form fields collected across all steps (written to Firestore on Finish) ---
-  // Each setter is wired to a PillGroup / input below. Names match Firestore profile fields.
-  // vocab / profile field: classRank = Freshman–Graduate (step 1)
+const IDENTITY_STEP = 1;
+const CAREER_STEP = 2;
+const INTERESTS_STEP = 3;
+const SIGNUP_REASON_STEP = 4;
+const BIO_STEP = 5;
+const STEP_TITLE_INDEX_OFFSET = 1;
+const PROGRESS_PERCENT_SCALE = 100;
+const MINIMUM_BIO_CHARACTER_COUNT = 20;
+const MAXIMUM_BIO_CHARACTER_COUNT = 150;
+const LOGIN_PATH = "/auth/login";
+const DISCOVERY_PATH = "/find-students";
+const WELCOME_PATH = "/onboarding/welcome";
+const PROFILE_LOAD_ERROR_MESSAGE = "Could not load your profile. Refresh and try again.";
+const REQUIRED_FIELDS_ERROR_MESSAGE = "Fill in the required fields before continuing.";
+const LOADING_PROFILE_MESSAGE = "Loading your profile…";
+const SAVING_BUTTON_LABEL = "Saving…";
+const FINISH_BUTTON_LABEL = "Finish";
+const CONTINUE_BUTTON_LABEL = "Continue";
+const BACK_BUTTON_LABEL = "Back";
+const EXPERIENCE_YES_LABEL = "Yes";
+const EXPERIENCE_NO_LABEL = "No";
+const EXPERIENCE_CHOICES = [EXPERIENCE_YES_LABEL, EXPERIENCE_NO_LABEL] as const;
+const EMPTY_PHOTO_URL = "";
+const EMPTY_EXPERIENCE_DETAILS = "";
+const PHOTO_FILE_FALLBACK_LABEL = "JPG, PNG, or WebP";
+const MAJOR_PLACEHOLDER_OPTION = "Select a CECS major";
+const ACTIVE_PILL_CLASS_NAME = "onboarding-pill-active";
+const DETAILS_TEXTAREA_CLASS_NAME = "sign-in-input min-h-[120px] resize-y";
+const VALID_BIO_COUNT_CLASS_NAME = "onboarding-char-count--valid";
+const BIO_COUNT_CLASS_NAME = "onboarding-char-count";
+
+// ===== TYPES =====
+
+type OnboardingDraft = {
+  classRank: string;
+  gender: string;
+  age: string;
+  major: string;
+  careerNiche: string[];
+  careerNicheOther: string;
+  hasExperience: boolean | null;
+  experienceDetails: string;
+  casualInterests: string[];
+  casualInterestsOther: string;
+  aboutYou: string[];
+  religion: string;
+  signupReason: string[];
+  bio: string;
+  github: string;
+  linkedin: string;
+  instagram: string;
+};
+
+type FinishOnboardingInput = {
+  draft: OnboardingDraft;
+  photoFile: File | null;
+  router: ReturnType<typeof useRouter>;
+  setIsSaving: (isSaving: boolean) => void;
+  setErrorMessage: (message: string) => void;
+};
+
+// ===== HELPER FUNCTIONS =====
+
+function hasCompletedIdentityStep(classRank: string, gender: string, age: string): boolean {
+  // vocab: Boolean = true when every pill has a non-empty choice
+  return Boolean(classRank && gender && age);
+}
+
+function hasCompletedCareerStep(
+  major: string,
+  careerNiche: string[],
+  hasExperience: boolean | null,
+  experienceDetails: string
+): boolean {
+  const hasChosenMajor = Boolean(major);
+  const hasChosenNiche = careerNiche.length > 0;
+  // null means they have not answered Yes or No yet. That is different from No.
+  const hasAnsweredExperience = hasExperience !== null;
+  const hasExperienceWriteUp = experienceDetails.trim().length > 0;
+  const isExperienceAnswerComplete = hasExperience === false || hasExperienceWriteUp;
+  return hasChosenMajor && hasChosenNiche && hasAnsweredExperience && isExperienceAnswerComplete;
+}
+
+function isBioLengthValid(bio: string): boolean {
+  const bioLength = bio.trim().length;
+  // Manipulate here: keep these limits in sync with the textarea maxLength and the editor
+  return bioLength >= MINIMUM_BIO_CHARACTER_COUNT && bioLength <= MAXIMUM_BIO_CHARACTER_COUNT;
+}
+
+function canLeaveOnboardingStep(currentStep: number, draft: OnboardingDraft): boolean {
+  // Interests are optional, so that step never blocks Continue.
+  if (currentStep === IDENTITY_STEP) {
+    return hasCompletedIdentityStep(draft.classRank, draft.gender, draft.age);
+  }
+  if (currentStep === CAREER_STEP) {
+    return hasCompletedCareerStep(
+      draft.major,
+      draft.careerNiche,
+      draft.hasExperience,
+      draft.experienceDetails
+    );
+  }
+  if (currentStep === INTERESTS_STEP) {
+    return true;
+  }
+  if (currentStep === SIGNUP_REASON_STEP) {
+    return draft.signupReason.length > 0;
+  }
+  if (currentStep === BIO_STEP) {
+    return isBioLengthValid(draft.bio);
+  }
+  return false;
+}
+
+function keepCareerNichesForMajor(nextMajor: string, currentNiches: string[]): string[] {
+  if (!nextMajor) {
+    return [];
+  }
+  const allowedNiches = getCareerNichesForMajor(nextMajor);
+  return currentNiches.filter((niche) => allowedNiches.includes(niche));
+}
+
+function isExperienceChoiceSelected(optionLabel: string, hasExperience: boolean | null): boolean {
+  const isYesSelected = optionLabel === EXPERIENCE_YES_LABEL && hasExperience === true;
+  const isNoSelected = optionLabel === EXPERIENCE_NO_LABEL && hasExperience === false;
+  return isYesSelected || isNoSelected;
+}
+
+function buildBioCountClassName(bio: string): string {
+  const isBioLongEnough = bio.trim().length >= MINIMUM_BIO_CHARACTER_COUNT;
+  const validClassName = isBioLongEnough ? VALID_BIO_COUNT_CLASS_NAME : "";
+  return `${BIO_COUNT_CLASS_NAME} ${validClassName}`;
+}
+
+function readPrimaryButtonLabel(isSaving: boolean, currentStep: number): string {
+  if (isSaving) {
+    return SAVING_BUTTON_LABEL;
+  }
+  if (currentStep === ONBOARDING_STEPS) {
+    return FINISH_BUTTON_LABEL;
+  }
+  return CONTINUE_BUTTON_LABEL;
+}
+
+function readFirstSelectedFile(fileList: FileList | null): File | null {
+  // vocab: ?. = no crash if the file list is missing. ?? = use null when no file was chosen
+  return fileList?.[0] ?? null;
+}
+
+function buildOnboardingProfilePayload(draft: OnboardingDraft, photoUrl: string): OnboardingPayload {
+  return {
+    classRank: draft.classRank,
+    gender: draft.gender,
+    age: draft.age,
+    major: draft.major,
+    careerNiche: draft.careerNiche,
+    careerNicheOther: draft.careerNicheOther.trim(),
+    // The form allows null until they answer. Firestore wants a real boolean.
+    hasExperience: draft.hasExperience === true,
+    // A No answer must not keep leftover text from a flipped Yes.
+    experienceDetails: draft.hasExperience
+      ? draft.experienceDetails.trim()
+      : EMPTY_EXPERIENCE_DETAILS,
+    casualInterests: mergeCasualInterests(draft.casualInterests, draft.casualInterestsOther),
+    aboutYou: draft.aboutYou,
+    // An empty religion string is omitted so Firestore does not store a blank field.
+    religion: draft.religion || undefined,
+    signupReason: draft.signupReason,
+    bio: draft.bio.trim(),
+    photoURL: photoUrl,
+    links: {
+      github: draft.github.trim(),
+      linkedin: draft.linkedin.trim(),
+      instagram: draft.instagram.trim(),
+    },
+  };
+}
+
+async function uploadOnboardingPhotoIfChosen(userId: string, photoFile: File | null): Promise<string> {
+  if (!photoFile) {
+    return EMPTY_PHOTO_URL;
+  }
+  // vocab: uploadProfilePhoto = put the file in Storage and return a public download URL
+  // vocab: await = the profile write needs that URL before it runs
+  return uploadProfilePhoto(userId, photoFile);
+}
+
+async function redirectIfOnboardingFormIsUnavailable(
+  user: User | null,
+  router: ReturnType<typeof useRouter>,
+  setErrorMessage: (message: string) => void,
+  setIsLoading: (isLoading: boolean) => void
+): Promise<void> {
+  if (!user) {
+    // Manipulate here: change LOGIN_PATH if the login route moves
+    router.replace(LOGIN_PATH);
+    return;
+  }
+
+  try {
+    // vocab: getUserProfile = load users/{uid} from Firestore
+    const profile = await getUserProfile(user.uid);
+    // vocab: ?. = if profile is null, skip onboardingComplete
+    // vocab / profile field: onboardingComplete = true after a successful Finish save
+    if (profile?.onboardingComplete) {
+      // Manipulate here: change DISCOVERY_PATH if Discovery’s route renames
+      router.replace(DISCOVERY_PATH);
+    }
+  } catch {
+    setErrorMessage(PROFILE_LOAD_ERROR_MESSAGE);
+  } finally {
+    setIsLoading(false);
+  }
+}
+
+async function finishOnboardingAndOpenWelcome(input: FinishOnboardingInput): Promise<void> {
+  // vocab: auth.currentUser = whoever Firebase says is logged in right now (or null)
+  const signedInUser = auth.currentUser;
+  if (!signedInUser) {
+    input.router.replace(LOGIN_PATH);
+    return;
+  }
+
+  input.setIsSaving(true);
+  try {
+    const photoUrl = await uploadOnboardingPhotoIfChosen(signedInUser.uid, input.photoFile);
+    // vocab: ?? = if email is missing, save an empty string instead
+    // vocab: saveOnboardingProfile = write the fields and set onboardingComplete true
+    await saveOnboardingProfile(
+      signedInUser.uid,
+      signedInUser.email ?? "",
+      buildOnboardingProfilePayload(input.draft, photoUrl)
+    );
+    // Manipulate here: change WELCOME_PATH if the congrats route moves
+    input.router.push(WELCOME_PATH);
+  } catch (thrownError) {
+    input.setErrorMessage(getAuthErrorMessage(thrownError));
+  } finally {
+    input.setIsSaving(false);
+  }
+}
+
+function OnboardingIdentityStep({
+  draft,
+  setClassRank,
+  setGender,
+  setAge,
+}: {
+  draft: OnboardingDraft;
+  setClassRank: (classRank: string) => void;
+  setGender: (gender: string) => void;
+  setAge: (age: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Manipulate here: edit CLASS_RANKS / GENDERS / AGES in onboarding-options.ts */}
+      <PillGroup
+        label="What is your class rank?"
+        options={CLASS_RANKS}
+        selected={draft.classRank}
+        onChange={(value) => setClassRank(value as string)}
+      />
+      <PillGroup
+        label="Gender?"
+        options={GENDERS}
+        selected={draft.gender}
+        onChange={(value) => setGender(value as string)}
+      />
+      <PillGroup
+        label="Age?"
+        options={AGES}
+        selected={draft.age}
+        onChange={(value) => setAge(value as string)}
+      />
+    </div>
+  );
+}
+
+function OnboardingCareerStep({
+  draft,
+  careerNicheOptions,
+  onMajorChange,
+  setCareerNiche,
+  setCareerNicheOther,
+  setHasExperience,
+  setExperienceDetails,
+}: {
+  draft: OnboardingDraft;
+  careerNicheOptions: readonly string[];
+  onMajorChange: (nextMajor: string) => void;
+  setCareerNiche: (careerNiche: string[]) => void;
+  setCareerNicheOther: (careerNicheOther: string) => void;
+  setHasExperience: (hasExperience: boolean) => void;
+  setExperienceDetails: (experienceDetails: string) => void;
+}) {
+  return (
+    <div className="flex flex-col gap-5">
+      {/* Manipulate here: MAJORS and CAREER_NICHES_BY_MAJOR live in onboarding-options.ts */}
+      <div className="flex flex-col gap-3">
+        <label className="onboarding-field-label" htmlFor="major">
+          What is your major?
+        </label>
+        <select
+          id="major"
+          className="sign-in-input"
+          value={draft.major}
+          onChange={(event) => onMajorChange(event.target.value)}
+        >
+          <option value="">{MAJOR_PLACEHOLDER_OPTION}</option>
+          {MAJORS.map((option) => (
+            <option key={option} value={option}>
+              {option}
+            </option>
+          ))}
+        </select>
+      </div>
+      {draft.major ? (
+        <PillGroup
+          label="What niche or career are you interested in?"
+          options={careerNicheOptions}
+          selected={draft.careerNiche}
+          multiple
+          onChange={(value) => setCareerNiche(value as string[])}
+        />
+      ) : (
+        <p className="text-xs theme-muted">Select your major first to see career niche options.</p>
+      )}
+      <input
+        type="text"
+        className="sign-in-input"
+        placeholder="More about your niche (optional)"
+        value={draft.careerNicheOther}
+        onChange={(event) => setCareerNicheOther(event.target.value)}
+      />
+      <div className="flex flex-col gap-3">
+        <p className="onboarding-field-label">Do you have any experience or projects to include?</p>
+        <div className="flex gap-3">
+          {EXPERIENCE_CHOICES.map((optionLabel) => {
+            const isOptionSelected = isExperienceChoiceSelected(optionLabel, draft.hasExperience);
+            const pillClassName = `onboarding-pill flex-1 ${
+              isOptionSelected ? ACTIVE_PILL_CLASS_NAME : ""
+            }`;
+            return (
+              <button
+                key={optionLabel}
+                type="button"
+                className={pillClassName}
+                onClick={() => setHasExperience(optionLabel === EXPERIENCE_YES_LABEL)}
+              >
+                {optionLabel}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      {draft.hasExperience ? (
+        <textarea
+          className={DETAILS_TEXTAREA_CLASS_NAME}
+          placeholder="Tell us about your experience or projects…"
+          value={draft.experienceDetails}
+          onChange={(event) => setExperienceDetails(event.target.value)}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+function OnboardingInterestsStep({
+  draft,
+  interestPickCount,
+  setCasualInterests,
+  setCasualInterestsOther,
+  setAboutYou,
+  setReligion,
+}: {
+  draft: OnboardingDraft;
+  interestPickCount: number;
+  setCasualInterests: (casualInterests: string[]) => void;
+  setCasualInterestsOther: (casualInterestsOther: string) => void;
+  setAboutYou: (aboutYou: string[]) => void;
+  setReligion: (religion: string) => void;
+}) {
+  const selectedCountHint = interestPickCount > 0 ? ` (${interestPickCount} selected)` : "";
+
+  return (
+    <div className="flex max-h-[min(58vh,520px)] flex-col gap-5 overflow-y-auto pr-1">
+      {/* Manipulate here: PERSONAL_INTEREST_GROUPS / ABOUT_YOU / RELIGIONS in onboarding-options.ts */}
+      <p className="text-xs theme-muted">
+        Pick whatever fits you — no need to fill every category. All of this is optional.
+        {selectedCountHint}
+      </p>
+      {PERSONAL_INTEREST_GROUPS.map((group) => (
+        <PillGroup
+          key={group.label}
+          label={`${group.label} (optional)`}
+          options={group.options}
+          selected={draft.casualInterests}
+          multiple
+          onChange={(value) => setCasualInterests(value as string[])}
+        />
+      ))}
+      <div className="flex flex-col gap-3">
+        <label className="onboarding-field-label" htmlFor="casualInterestsOther">
+          Add your own interests (optional)
+        </label>
+        <input
+          id="casualInterestsOther"
+          type="text"
+          className="sign-in-input"
+          placeholder="e.g. Knitting, F1, Pottery — separate with commas"
+          value={draft.casualInterestsOther}
+          onChange={(event) => setCasualInterestsOther(event.target.value)}
+        />
+      </div>
+      <PillGroup
+        label="What would you like people to know about you? (optional)"
+        options={ABOUT_YOU}
+        selected={draft.aboutYou}
+        multiple
+        onChange={(value) => setAboutYou(value as string[])}
+      />
+      <div className="flex flex-col gap-3">
+        <PillGroup
+          label="Optional: belief system or religion?"
+          options={RELIGIONS}
+          selected={draft.religion}
+          onChange={(value) => setReligion(value as string)}
+        />
+        <p className="text-xs leading-relaxed theme-muted">{RELIGION_DISCLAIMER}</p>
+      </div>
+    </div>
+  );
+}
+
+function OnboardingReasonStep({
+  draft,
+  setSignupReason,
+}: {
+  draft: OnboardingDraft;
+  setSignupReason: (signupReason: string[]) => void;
+}) {
+  return (
+    <PillGroup
+      label="What led you to sign up for Devora?"
+      options={SIGNUP_REASONS}
+      selected={draft.signupReason}
+      multiple
+      onChange={(value) => setSignupReason(value as string[])}
+    />
+  );
+}
+
+function OnboardingBioStep({
+  draft,
+  photoFile,
+  setPhotoFile,
+  setBio,
+  setGithub,
+  setLinkedin,
+  setInstagram,
+}: {
+  draft: OnboardingDraft;
+  photoFile: File | null;
+  setPhotoFile: (photoFile: File | null) => void;
+  setBio: (bio: string) => void;
+  setGithub: (github: string) => void;
+  setLinkedin: (linkedin: string) => void;
+  setInstagram: (instagram: string) => void;
+}) {
+  const photoName = photoFile?.name ?? PHOTO_FILE_FALLBACK_LABEL;
+
+  return (
+    <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-3">
+        <label className="onboarding-field-label" htmlFor="photo">
+          Optional profile picture
+        </label>
+        <label className="sign-in-file-picker" htmlFor="photo">
+          <input
+            id="photo"
+            type="file"
+            accept="image/*"
+            className="sign-in-file-input"
+            onChange={(event) => setPhotoFile(readFirstSelectedFile(event.target.files))}
+          />
+          <span className="sign-in-file-btn">Choose photo</span>
+          <span className="sign-in-file-name">{photoName}</span>
+        </label>
+      </div>
+      <div className="flex flex-col gap-3">
+        <label className="onboarding-field-label" htmlFor="bio">
+          Bio ({MINIMUM_BIO_CHARACTER_COUNT}–{MAXIMUM_BIO_CHARACTER_COUNT} characters)
+        </label>
+        <textarea
+          id="bio"
+          className={DETAILS_TEXTAREA_CLASS_NAME}
+          placeholder="A short intro — who you are, what you’re into, who you’d like to meet…"
+          value={draft.bio}
+          onChange={(event) => setBio(event.target.value)}
+          maxLength={MAXIMUM_BIO_CHARACTER_COUNT}
+        />
+        <p className={buildBioCountClassName(draft.bio)}>
+          {draft.bio.trim().length}/{MAXIMUM_BIO_CHARACTER_COUNT}
+        </p>
+      </div>
+      <div className="onboarding-link-group">
+        <p className="onboarding-field-label">Social links (optional)</p>
+        <div className="onboarding-link-field">
+          <span className="onboarding-link-tag">GH</span>
+          <input
+            type="url"
+            className="sign-in-input"
+            placeholder="github.com/username"
+            value={draft.github}
+            onChange={(event) => setGithub(event.target.value)}
+          />
+        </div>
+        <div className="onboarding-link-field">
+          <span className="onboarding-link-tag">IN</span>
+          <input
+            type="url"
+            className="sign-in-input"
+            placeholder="linkedin.com/in/username"
+            value={draft.linkedin}
+            onChange={(event) => setLinkedin(event.target.value)}
+          />
+        </div>
+        <div className="onboarding-link-field">
+          <span className="onboarding-link-tag">IG</span>
+          <input
+            type="url"
+            className="sign-in-input"
+            placeholder="instagram.com/username"
+            value={draft.instagram}
+            onChange={(event) => setInstagram(event.target.value)}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== MAIN COMPONENT =====
+
+/**
+ * Five-step onboarding wizard. Local state stays here until Finish writes Firebase.
+ * @returns The current step form, or a spinner while auth is checked
+ */
+export default function OnboardingForm() {
+  // vocab: useRouter = Next.js helper that navigates without a full reload
+  const router = useRouter();
+  // vocab: useState = store a value and re-render when the setter is called
+  // Manipulate here: start at step 1. Raising ONBOARDING_STEPS also needs a new step check.
+  const [currentStep, setCurrentStep] = useState(IDENTITY_STEP);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Names match Firestore profile fields. Each setter is wired to a pill or input below.
+  // vocab / profile field: classRank = Freshman through Graduate
   const [classRank, setClassRank] = useState("");
-  // vocab / profile field: gender = Woman / Man / etc. (step 1)
   const [gender, setGender] = useState("");
-  // vocab / profile field: age = age pill like "19" or "25+" (step 1)
   const [age, setAge] = useState("");
-  // vocab / profile field: major = CECS major from the dropdown (step 2)
   const [major, setMajor] = useState("");
-  // vocab / profile field: careerNiche = multi-select career tags for that major (step 2)
-  // vocab/symbol: string[] = a list of strings (can pick more than one niche)
   const [careerNiche, setCareerNiche] = useState<string[]>([]);
-  // Free-text extra niche note (optional) — stored as careerNicheOther
   const [careerNicheOther, setCareerNicheOther] = useState("");
-  // vocab/symbol: boolean | null = Yes/No not chosen yet (null), then true or false
-  // null is important: canContinue treats “not answered” differently from “No”
+  // null means Yes/No is still unanswered. canContinue treats that differently from No.
   const [hasExperience, setHasExperience] = useState<boolean | null>(null);
-  // Project / internship write-up (required only if hasExperience is true)
   const [experienceDetails, setExperienceDetails] = useState("");
-  // vocab / profile field: casualInterests = hobby pills from step 3
   const [casualInterests, setCasualInterests] = useState<string[]>([]);
-  // Comma-typed custom interests — merged into casualInterests on save via mergeCasualInterests
   const [casualInterestsOther, setCasualInterestsOther] = useState("");
-  // vocab / profile field: aboutYou = "looking for" tags (friends, coffee chat, etc.)
   const [aboutYou, setAboutYou] = useState<string[]>([]);
-  // Optional religion / belief pill (may stay empty → omitted from Firestore)
   const [religion, setReligion] = useState("");
-  // vocab / profile field: signupReason = why they joined Devora (step 4, multi-select)
   const [signupReason, setSignupReason] = useState<string[]>([]);
-  // vocab / profile field: bio = short intro shown on Discovery (20–150 chars)
-  // Manipulate here: change the 20/150 rules in canContinue AND the textarea maxLength together
+  // Manipulate here: bio length rules live in isBioLengthValid and maxLength together
   const [bio, setBio] = useState("");
-  // Optional social URLs stored under profile.links.{github,linkedin,instagram}
   const [github, setGithub] = useState("");
   const [linkedin, setLinkedin] = useState("");
   const [instagram, setInstagram] = useState("");
-  // vocab: File | null = browser File object from <input type="file">, or null if none chosen
-  // Uploaded only on Finish (not live as they pick the file)
+  // vocab: File | null = the chosen photo, uploaded only when they press Finish
   const [photoFile, setPhotoFile] = useState<File | null>(null);
 
-  // Auth gate — only signed-in students who still need onboarding may use this form.
   // vocab: useEffect = run side effects after render (here: subscribe to Firebase auth)
   useEffect(() => {
-    // onAuthStateChanged fires once with the current user, then again on sign-in/out.
-    // vocab: unsubscribe = function Firebase gives us to stop listening
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // Not signed in — send them to login (they can’t write a profile without Auth).
-      // vocab/symbol: !user means "no user" — Firebase passed null
-      if (!user) {
-        // vocab: router.replace = navigate without adding a history entry (Back won’t return here)
-        // Manipulate here: change "/auth/login" if the login route moves
-        router.replace("/auth/login");
-        return;
-      }
-
-      try {
-        // Already finished onboarding — skip this form and go to Discovery.
-        // vocab: getUserProfile = load users/{uid} document from Firestore
-        // vocab: uid = Firebase Auth user id (unique per Google account)
-        const profile = await getUserProfile(user.uid);
-        // vocab/symbol: ?. = optional chaining — if profile is null, skip onboardingComplete
-        // vocab / profile field: onboardingComplete = true after a successful Finish save
-        if (profile?.onboardingComplete) {
-          // Manipulate here: change "/find-students" if Discovery’s route renames
-          router.replace("/find-students");
-          return;
-        }
-      } catch {
-        setError("Could not load your profile. Refresh and try again.");
-      } finally {
-        // Always hide the spinner once the auth check finishes (success or fail).
-        // vocab: finally = runs after try/catch either way
-        setIsLoading(false);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      void redirectIfOnboardingFormIsUnavailable(user, router, setErrorMessage, setIsLoading);
     });
-
     // vocab: return unsubscribe — React runs this cleanup when the component unmounts
-    // so we don’t keep listening after leaving the page
     return unsubscribe;
   }, [router]);
 
-  // Progress bar percent and derived lists for the current major / interest picks.
-  // Manipulate here: progress math assumes steps are 1…ONBOARDING_STEPS evenly weighted
-  const progress = (step / ONBOARDING_STEPS) * 100;
-  // Niches depend on major — empty list until a major is chosen (hides the PillGroup).
-  // vocab: getCareerNichesForMajor = look up CAREER_NICHES_BY_MAJOR[major] (or [])
-  const careerNicheOptions = getCareerNichesForMajor(major);
-  // How many interest pills + custom items are selected (shown in step 3 hint).
-  const interestPickCount = mergeCasualInterests(
+  const draft: OnboardingDraft = {
+    classRank,
+    gender,
+    age,
+    major,
+    careerNiche,
+    careerNicheOther,
+    hasExperience,
+    experienceDetails,
     casualInterests,
-    casualInterestsOther
-  ).length;
+    casualInterestsOther,
+    aboutYou,
+    religion,
+    signupReason,
+    bio,
+    github,
+    linkedin,
+    instagram,
+  };
 
-  // When major changes, drop career niches that don’t belong to the new major.
-  // Without this, a Software Eng student could keep “VLSI” after switching from CompE.
-  function handleMajorChange(nextMajor: string) {
+  // Manipulate here: progress assumes steps 1 through ONBOARDING_STEPS are weighted evenly
+  const progressPercent = (currentStep / ONBOARDING_STEPS) * PROGRESS_PERCENT_SCALE;
+  const careerNicheOptions = getCareerNichesForMajor(major);
+  const interestPickCount = mergeCasualInterests(casualInterests, casualInterestsOther).length;
+  const canContinue = canLeaveOnboardingStep(currentStep, draft);
+  const stepTitle = STEP_TITLES[currentStep - STEP_TITLE_INDEX_OFFSET];
+
+  const applyMajorChange = (nextMajor: string) => {
     setMajor(nextMajor);
+    // Drop niches from the previous major so a switch cannot keep an unrelated tag.
+    setCareerNiche((currentNiches) => keepCareerNichesForMajor(nextMajor, currentNiches));
+  };
 
-    // Cleared major (back to “Select a CECS major”) — clear niches too.
-    if (!nextMajor) {
-      setCareerNiche([]);
-      return;
-    }
-
-    // Keep only niches that are valid for the newly chosen major.
-    // vocab/symbol: filter = keep items where the callback returns true
-    // vocab/symbol: (current) => … = functional update; uses latest careerNiche safely
-    const allowed = getCareerNichesForMajor(nextMajor);
-    setCareerNiche((current) => current.filter((niche) => allowed.includes(niche)));
-  }
-
-  // Each step has different required fields before Continue / Finish is enabled.
-  // This also drives the disabled state on the primary button.
-  // Manipulate here: relax or tighten a step by editing that case only
-  function canContinue(): boolean {
-    // vocab: switch = pick one case based on step number
-    switch (step) {
-      case 1:
-        // Need class rank, gender, and age (all single-select pills).
-        // vocab: Boolean(x) = true if x is non-empty / truthy
-        return Boolean(classRank && gender && age);
-      case 2:
-        // Need major, ≥1 niche, and experience Yes/No.
-        // If Yes, experienceDetails must be non-empty after trim.
-        return (
-          Boolean(major) &&
-          careerNiche.length > 0 &&
-          hasExperience !== null &&
-          (hasExperience === false || experienceDetails.trim().length > 0)
-        );
-      case 3:
-        // Interests / about-you / religion are fully optional — always allow Continue.
-        return true;
-      case 4:
-        // Need at least one signup reason pill.
-        return signupReason.length > 0;
-      case 5:
-        // Bio must be 20–150 characters (trim ignores leading/trailing spaces).
-        // Photo + social links are optional.
-        return bio.trim().length >= 20 && bio.trim().length <= 150;
-      default:
-        return false;
-    }
-  }
-
-  // Advance to next step, or save everything on the last step.
-  // Continue and Finish are the SAME submit button — behavior branches on `step`.
-  // vocab: FormEvent = browser form submit event (Enter key or Finish/Continue button)
-  async function handleSubmit(event: FormEvent) {
-    // vocab/symbol: preventDefault — stop the browser from doing a full page reload
+  const submitCurrentStep = (event: FormEvent) => {
+    // vocab: preventDefault = stop the browser from reloading the page
     event.preventDefault();
-    setError("");
+    setErrorMessage("");
 
-    // Not on the last step yet — validate, then bump step.
-    if (step < ONBOARDING_STEPS) {
-      if (!canContinue()) {
-        setError("Fill in the required fields before continuing.");
+    if (currentStep < ONBOARDING_STEPS) {
+      if (!canLeaveOnboardingStep(currentStep, draft)) {
+        setErrorMessage(REQUIRED_FIELDS_ERROR_MESSAGE);
         return;
       }
-      // vocab/symbol: (current) => current + 1 = functional update; safest when new value depends on old
-      setStep((current) => current + 1);
+      setCurrentStep((previousStep) => previousStep + 1);
       return;
     }
 
-    // Last step — must still be signed in to write the profile.
-    // vocab: auth.currentUser = whoever Firebase says is logged in right now (or null)
-    // We re-check here because the session could expire while they fill the wizard.
-    const user = auth.currentUser;
-    if (!user) {
-      router.replace("/auth/login");
-      return;
-    }
+    // vocab: void = start the save without making this click handler itself async
+    void finishOnboardingAndOpenWelcome({
+      draft,
+      photoFile,
+      router,
+      setIsSaving,
+      setErrorMessage,
+    });
+  };
 
-    setIsSaving(true);
-    try {
-      // Optional photo upload to Storage FIRST; then save all fields to Firestore.
-      // Order matters: we need the download URL string before calling saveOnboardingProfile.
-      // vocab: Firebase Storage = file bucket for images; Firestore = database for profile fields
-      let photoURL = "";
-      if (photoFile) {
-        // vocab: uploadProfilePhoto = put the file in Storage and return a public download URL string
-        photoURL = await uploadProfilePhoto(user.uid, photoFile);
-      }
-
-      // vocab: saveOnboardingProfile = write all fields + set onboardingComplete: true
-      // After this succeeds, login will skip the wizard and go to Discovery (unless deactivated).
-      // vocab/symbol: ?? = if email is missing, use empty string instead
-      await saveOnboardingProfile(user.uid, user.email ?? "", {
-        classRank,
-        gender,
-        age,
-        major,
-        careerNiche,
-        careerNicheOther: careerNicheOther.trim(),
-        // hasExperience was boolean|null in the UI; Firestore wants a real boolean
-        hasExperience: hasExperience === true,
-        // Clear details if they said No — don’t save leftover text from a flipped Yes→No
-        experienceDetails: hasExperience ? experienceDetails.trim() : "",
-        // Merge pill picks + comma-typed customs into one deduped list
-        casualInterests: mergeCasualInterests(
-          casualInterests,
-          casualInterestsOther
-        ),
-        aboutYou,
-        // vocab/symbol: || undefined = if religion is "", store undefined (field omitted)
-        religion: religion || undefined,
-        signupReason,
-        bio: bio.trim(),
-        photoURL,
-        links: {
-          github: github.trim(),
-          linkedin: linkedin.trim(),
-          instagram: instagram.trim(),
-        },
-      });
-
-      // vocab: router.push = navigate and keep history (Back can return to the form)
-      // Manipulate here: change "/onboarding/welcome" if the congrats route moves
-      router.push("/onboarding/welcome");
-    } catch (err) {
-      // Turn Firebase / Storage errors into a friendly message under the form.
-      // vocab: getAuthErrorMessage = map Firebase error codes to human text
-      setError(getAuthErrorMessage(err));
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  // Loading spinner while we check auth and profile status.
   if (isLoading) {
     return (
       <div className="flex flex-col items-center gap-4 py-8 text-center">
         <span className="sign-in-spinner" />
-        <p className="theme-muted text-sm">Loading your profile…</p>
+        <p className="theme-muted text-sm">{LOADING_PROFILE_MESSAGE}</p>
       </div>
     );
   }
 
   return (
-    // vocab: onSubmit = runs handleSubmit when Continue/Finish is clicked (or Enter)
-    <form className="flex flex-col gap-6" onSubmit={handleSubmit}>
-      {/* Step title + progress bar */}
+    <form className="flex flex-col gap-6" onSubmit={submitCurrentStep}>
       <div>
-        <p className="font-display headline-grad text-xl font-bold">
-          {/* STEP_TITLES is 0-indexed; step is 1-indexed → subtract 1 */}
-          {STEP_TITLES[step - 1]}
-        </p>
+        <h2 className="onboarding-step-heading">{stepTitle}</h2>
         <div className="mt-3 flex items-center justify-between text-xs theme-muted">
-          <span>
-            Step {step} of {ONBOARDING_STEPS}
+          <span className="mono font-bold tracking-wider uppercase">
+            Step {String(currentStep).padStart(2, "0")} / {String(ONBOARDING_STEPS).padStart(2, "0")}
           </span>
-          <span>{Math.round(progress)}%</span>
+          <span className="mono font-bold text-white">{Math.round(progressPercent)}%</span>
         </div>
         <div className="onboarding-progress-track mt-2">
-          {/* width percent drives the filled bar visually */}
-          <div className="onboarding-progress-fill" style={{ width: `${progress}%` }} />
+          <div className="onboarding-progress-fill" style={{ width: `${progressPercent}%` }} />
         </div>
       </div>
 
-      {/* Red error banner — only when error string is non-empty */}
-      {error ? <div className="sign-in-error">{error}</div> : null}
+      {errorMessage ? <div className="sign-in-error">{errorMessage}</div> : null}
 
-      {/* Step 1 — class rank, gender, age (all single-select pills) */}
-      {/* Manipulate here: edit CLASS_RANKS / GENDERS / AGES in onboarding-options.ts to change pills */}
-      {step === 1 ? (
-        <div className="flex flex-col gap-5">
-          <PillGroup
-            label="What is your class rank?"
-            options={CLASS_RANKS}
-            selected={classRank}
-            // vocab/symbol: as string = tell TypeScript this onChange value is one string (not string[])
-            // PillGroup’s onChange type is string | string[]; single-select always returns string
-            onChange={(value) => setClassRank(value as string)}
-          />
-          <PillGroup
-            label="Gender?"
-            options={GENDERS}
-            selected={gender}
-            onChange={(value) => setGender(value as string)}
-          />
-          <PillGroup
-            label="Age?"
-            options={AGES}
-            selected={age}
-            onChange={(value) => setAge(value as string)}
-          />
-        </div>
-      ) : null}
-
-      {/* Step 2 — major dropdown, career niche pills, experience Yes/No */}
-      {/* Manipulate here: MAJORS + CAREER_NICHES_BY_MAJOR live in onboarding-options.ts */}
-      {step === 2 ? (
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-3">
-            <label className="onboarding-field-label" htmlFor="major">
-              What is your major?
-            </label>
-            {/* vocab: <select> = native dropdown; value is controlled by React state */}
-            <select
-              id="major"
-              className="sign-in-input"
-              value={major}
-              onChange={(event) => handleMajorChange(event.target.value)}
-            >
-              <option value="">Select a CECS major</option>
-              {MAJORS.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </div>
-          {/* Career niches only appear after a major is chosen */}
-          {major ? (
-            <PillGroup
-              label="What niche or career are you interested in?"
-              options={careerNicheOptions}
-              selected={careerNiche}
-              // vocab: multiple = allow picking several pills at once
-              multiple
-              onChange={(value) => setCareerNiche(value as string[])}
-            />
-          ) : (
-            <p className="text-xs theme-muted">
-              Select your major first to see career niche options.
-            </p>
-          )}
-          <input
-            type="text"
-            className="sign-in-input"
-            placeholder="More about your niche (optional)"
-            value={careerNicheOther}
-            onChange={(event) => setCareerNicheOther(event.target.value)}
-          />
-          <div className="flex flex-col gap-3">
-            <p className="onboarding-field-label">
-              Do you have any experience or projects to include?
-            </p>
-            <div className="flex gap-3">
-              {/* Yes / No buttons that set hasExperience true or false */}
-              {["Yes", "No"].map((option) => {
-                const active =
-                  (option === "Yes" && hasExperience === true) ||
-                  (option === "No" && hasExperience === false);
-                return (
-                  <button
-                    key={option}
-                    type="button"
-                    className={`onboarding-pill flex-1 ${active ? "onboarding-pill-active" : ""}`}
-                    onClick={() => setHasExperience(option === "Yes")}
-                  >
-                    {option}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-          {/* Details box only when they said Yes to experience */}
-          {hasExperience ? (
-            <textarea
-              className="sign-in-input min-h-[120px] resize-y"
-              placeholder="Tell us about your experience or projects…"
-              value={experienceDetails}
-              onChange={(event) => setExperienceDetails(event.target.value)}
-            />
-          ) : null}
-        </div>
-      ) : null}
-
-      {/* Step 3 — interests, about you, religion (all optional — canContinue always true) */}
-      {/* Manipulate here: PERSONAL_INTEREST_GROUPS / ABOUT_YOU / RELIGIONS in onboarding-options.ts */}
-      {step === 3 ? (
-        <div className="flex max-h-[min(58vh,520px)] flex-col gap-5 overflow-y-auto pr-1">
-          <p className="text-xs theme-muted">
-            Pick whatever fits you — no need to fill every category. All of this is optional.
-            {interestPickCount > 0 ? ` (${interestPickCount} selected)` : ""}
-          </p>
-          {/* One PillGroup per interest category (sports, music, etc.) */}
-          {PERSONAL_INTEREST_GROUPS.map((group) => (
-            <PillGroup
-              key={group.label}
-              label={`${group.label} (optional)`}
-              options={group.options}
-              selected={casualInterests}
-              multiple
-              onChange={(value) => setCasualInterests(value as string[])}
-            />
-          ))}
-          <div className="flex flex-col gap-3">
-            <label className="onboarding-field-label" htmlFor="casualInterestsOther">
-              Add your own interests (optional)
-            </label>
-            <input
-              id="casualInterestsOther"
-              type="text"
-              className="sign-in-input"
-              placeholder="e.g. Knitting, F1, Pottery — separate with commas"
-              value={casualInterestsOther}
-              onChange={(event) => setCasualInterestsOther(event.target.value)}
-            />
-          </div>
-          <PillGroup
-            label="What would you like people to know about you? (optional)"
-            options={ABOUT_YOU}
-            selected={aboutYou}
-            multiple
-            onChange={(value) => setAboutYou(value as string[])}
-          />
-          <div className="flex flex-col gap-3">
-            <PillGroup
-              label="Optional: belief system or religion?"
-              options={RELIGIONS}
-              selected={religion}
-              onChange={(value) => setReligion(value as string)}
-            />
-            <p className="text-xs leading-relaxed theme-muted">{RELIGION_DISCLAIMER}</p>
-          </div>
-        </div>
-      ) : null}
-
-      {/* Step 4 — why they signed up (at least one pill required) */}
-      {/* Manipulate here: edit SIGNUP_REASONS in onboarding-options.ts */}
-      {step === 4 ? (
-        <PillGroup
-          label="What led you to sign up for Devora?"
-          options={SIGNUP_REASONS}
-          selected={signupReason}
-          multiple
-          onChange={(value) => setSignupReason(value as string[])}
+      {currentStep === IDENTITY_STEP ? (
+        <OnboardingIdentityStep
+          draft={draft}
+          setClassRank={setClassRank}
+          setGender={setGender}
+          setAge={setAge}
         />
       ) : null}
 
-      {/* Step 5 — optional photo, required bio (20–150), optional social URLs */}
-      {step === 5 ? (
-        <div className="flex flex-col gap-5">
-          <div className="flex flex-col gap-3">
-            <label className="onboarding-field-label" htmlFor="photo">
-              Optional profile picture
-            </label>
-            <label className="sign-in-file-picker" htmlFor="photo">
-              {/* Hidden native file input; styled button sits beside the file name */}
-              <input
-                id="photo"
-                type="file"
-                accept="image/*"
-                className="sign-in-file-input"
-                onChange={(event) =>
-                  // vocab/symbol: files?.[0] ?? null = first chosen file, or null if none
-                  setPhotoFile(event.target.files?.[0] ?? null)
-                }
-              />
-              <span className="sign-in-file-btn">Choose photo</span>
-              <span className="sign-in-file-name">
-                {photoFile?.name ?? "JPG, PNG, or WebP"}
-              </span>
-            </label>
-          </div>
-          <div className="flex flex-col gap-3">
-            <label className="onboarding-field-label" htmlFor="bio">
-              Bio (20–150 characters)
-            </label>
-            <textarea
-              id="bio"
-              className="sign-in-input min-h-[120px] resize-y"
-              placeholder="A short intro — who you are, what you’re into, who you’d like to meet…"
-              value={bio}
-              onChange={(event) => setBio(event.target.value)}
-              maxLength={150}
-            />
-            {/* Green count style once they hit the 20-char minimum */}
-            <p
-              className={`onboarding-char-count ${
-                bio.trim().length >= 20 ? "onboarding-char-count--valid" : ""
-              }`}
-            >
-              {bio.trim().length}/150
-            </p>
-          </div>
-          {/* Optional GitHub / LinkedIn / Instagram URLs */}
-          <div className="onboarding-link-group">
-            <p className="onboarding-field-label">Social links (optional)</p>
-            <div className="onboarding-link-field">
-              <span className="onboarding-link-tag">GH</span>
-              <input
-                type="url"
-                className="sign-in-input"
-                placeholder="github.com/username"
-                value={github}
-                onChange={(event) => setGithub(event.target.value)}
-              />
-            </div>
-            <div className="onboarding-link-field">
-              <span className="onboarding-link-tag">IN</span>
-              <input
-                type="url"
-                className="sign-in-input"
-                placeholder="linkedin.com/in/username"
-                value={linkedin}
-                onChange={(event) => setLinkedin(event.target.value)}
-              />
-            </div>
-            <div className="onboarding-link-field">
-              <span className="onboarding-link-tag">IG</span>
-              <input
-                type="url"
-                className="sign-in-input"
-                placeholder="instagram.com/username"
-                value={instagram}
-                onChange={(event) => setInstagram(event.target.value)}
-              />
-            </div>
-          </div>
-        </div>
+      {currentStep === CAREER_STEP ? (
+        <OnboardingCareerStep
+          draft={draft}
+          careerNicheOptions={careerNicheOptions}
+          onMajorChange={applyMajorChange}
+          setCareerNiche={setCareerNiche}
+          setCareerNicheOther={setCareerNicheOther}
+          setHasExperience={setHasExperience}
+          setExperienceDetails={setExperienceDetails}
+        />
       ) : null}
 
-      {/* Back (steps 2–5) + Continue / Finish — both live outside the step conditionals */}
-      <div className="flex gap-3">
-        {step > 1 ? (
+      {currentStep === INTERESTS_STEP ? (
+        <OnboardingInterestsStep
+          draft={draft}
+          interestPickCount={interestPickCount}
+          setCasualInterests={setCasualInterests}
+          setCasualInterestsOther={setCasualInterestsOther}
+          setAboutYou={setAboutYou}
+          setReligion={setReligion}
+        />
+      ) : null}
+
+      {currentStep === SIGNUP_REASON_STEP ? (
+        // Manipulate here: edit SIGNUP_REASONS in onboarding-options.ts
+        <OnboardingReasonStep draft={draft} setSignupReason={setSignupReason} />
+      ) : null}
+
+      {currentStep === BIO_STEP ? (
+        <OnboardingBioStep
+          draft={draft}
+          photoFile={photoFile}
+          setPhotoFile={setPhotoFile}
+          setBio={setBio}
+          setGithub={setGithub}
+          setLinkedin={setLinkedin}
+          setInstagram={setInstagram}
+        />
+      ) : null}
+
+      <div className="flex gap-4 pt-3">
+        {currentStep > IDENTITY_STEP ? (
           <button
             type="button"
-            className="sign-in-google-btn flex-1"
-            // Functional update so Back always uses the latest step value
-            onClick={() => setStep((current) => current - 1)}
+            className="btn-ghost onboarding-nav-btn flex-1"
+            onClick={() => setCurrentStep((previousStep) => previousStep - 1)}
             disabled={isSaving}
           >
-            Back
+            {BACK_BUTTON_LABEL}
           </button>
         ) : null}
         <button
           type="submit"
-          className="btn-neon font-display flex-1 rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-[0.12em]"
-          // Disabled while saving OR while required fields on this step are incomplete
-          // Label flips to Finish only on the last step (same button, same handleSubmit)
-          disabled={isSaving || !canContinue()}
+          className="btn-primary onboarding-nav-btn flex-1"
+          disabled={isSaving || !canContinue}
         >
-          {isSaving ? "Saving…" : step === ONBOARDING_STEPS ? "Finish" : "Continue"}
+          {readPrimaryButtonLabel(isSaving, currentStep)}
         </button>
       </div>
+
+      <style jsx>{`
+        .onboarding-step-heading {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 800;
+          font-size: clamp(20px, 2.5vw, 26px);
+          text-transform: uppercase;
+          color: white;
+          letter-spacing: -0.01em;
+          margin: 0;
+        }
+
+        :global(.onboarding-nav-btn) {
+          min-height: 52px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 9999px;
+          font-size: 15px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        :global(.onboarding-nav-btn:disabled) {
+          opacity: 0.45;
+          cursor: not-allowed;
+        }
+      `}</style>
     </form>
   );
 }

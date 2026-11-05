@@ -1,40 +1,52 @@
-// Last-resort error page when even the root layout crashes — renders its own html/body.
-// Flow: root layout failed → this file supplies html/body → show message → reset retries.
+// Last-resort error page when even the root layout crashes. It renders its own html and body.
+// Flow: root layout failed → this file supplies html/body → show the message → reset retries.
 
 "use client";
 
+// ===== IMPORTS =====
+
 import "@/ui/globals.css";
 
-// Must include <html> and <body> because the root layout may have failed.
-// vocab: GlobalError = Next.js special file that replaces the whole document on crash
-export default function GlobalError({
-  error,
-  reset,
-}: {
-  // vocab: digest = optional Next.js error id (useful in production logs)
+// ===== NAMED CONSTANTS =====
+
+const ERROR_HEADING = "Something went wrong";
+const FALLBACK_ERROR_MESSAGE = "An unexpected error occurred.";
+const TRY_AGAIN_LABEL = "Try again";
+const DOCUMENT_LANGUAGE = "en";
+
+// Manipulate here: crash color used when AppWrapper and the theme never load.
+const CRASH_BODY_CLASS = "m-0 bg-[#1a0a2e] text-white";
+
+// ===== TYPES =====
+
+type GlobalErrorPageProps = {
+  // vocab: digest = optional Next.js error id, useful in production logs
   error: Error & { digest?: string };
   // vocab: reset = try rendering again after a root-layout crash
   reset: () => void;
-}) {
+};
+
+// ===== MAIN COMPONENT =====
+
+/**
+ * Full-document error screen used when the root layout itself crashes.
+ * It includes html and body because nothing else is wrapping the page.
+ * @param props.error - The error Next caught at the root
+ * @param props.reset - Call this to try rendering again
+ */
+export default function GlobalError({ error, reset }: GlobalErrorPageProps) {
+  // vocab: GlobalError = Next.js special file that replaces the whole document on a crash
+  const errorMessage = error.message || FALLBACK_ERROR_MESSAGE;
+
   return (
-    // Why own <html>/<body>? Root layout is broken — nothing else wraps this file.
-    <html lang="en">
-      <body className="m-0 bg-[#1a0a2e] text-white">
-        {/* Manipulate here: bg-[#1a0a2e] = standalone crash color (no AppWrapper theme) */}
+    <html lang={DOCUMENT_LANGUAGE}>
+      <body className={CRASH_BODY_CLASS}>
         <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8">
           <div className="surface-panel flex max-w-md flex-col items-center gap-4">
-            <h2 className="text-xl font-semibold">Something went wrong</h2>
-            <p className="text-center text-sm text-white/60">
-              {/* vocab/symbol: || = if error.message is empty, show the fallback text */}
-              {error.message || "An unexpected error occurred."}
-            </p>
-            {/* reset() retries after a root-layout crash */}
-            <button
-              type="button"
-              onClick={reset}
-              className="devora-btn-outline"
-            >
-              Try again
+            <h2 className="text-xl font-semibold">{ERROR_HEADING}</h2>
+            <p className="text-center text-sm text-white/60">{errorMessage}</p>
+            <button type="button" onClick={reset} className="devora-btn-outline">
+              {TRY_AGAIN_LABEL}
             </button>
           </div>
         </div>

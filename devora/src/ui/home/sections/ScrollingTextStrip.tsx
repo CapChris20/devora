@@ -1,59 +1,174 @@
-// Infinite horizontal marquee between the hero and section 01.
-// Duplicate MarqueeRow twice so CSS can scroll seamlessly; id="more" anchors the hero hint.
-// Manipulate here: edit ITEMS to change the scrolling keywords; marquee-track animation is in CSS.
+// Marquee band per DESIGN.md § 5.1B.
+// Wrapper has overflow: hidden, padding-block: 28px, margin-block: -56px, z-index: 5.
+// Band has --grad fill, 3px ink border top & bottom, padding-block: 18px, width: 108%,
+// margin-left: -4%, rotate(-2deg). Seamless loop with 4-point ink stars and alternating outlined text.
 
-import MouseGridBackground from "./MouseGridBackground";
+"use client";
 
-// Keywords that scroll across the strip.
-// Manipulate here: add/remove/reorder strings — MarqueeRow maps them automatically
-const ITEMS = ["CONNECT", "BE MORE CONFIDENT","COLLABORATE", "CREATE", "MEET NEW PEERS" , "DEVELOPER FURTHER BONDS", "SPONSERED BY CECS · UM-DEARBORN", "BUILD THE NETWORK"];
+import { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-// One full pass of keywords + star separators (rendered twice in the track for a seamless loop).
-function MarqueeRow() {
-  return (
-    <div className="flex shrink-0 items-center">
-      {/* vocab: .map = one keyword + star per ITEMS entry */}
-      {ITEMS.map((item, i) => (
-        <span key={item} className="flex items-center">
-          {/* Even indexes solid; odd indexes outlined — alternating look.
-              vocab/symbol: % 2 === 0 means “even index” (0, 2, 4…)
-              Manipulate here: theme-heading / text-outline styles live in globals.css */}
-          <span
-            className={`font-display whitespace-nowrap px-10 text-2xl font-bold uppercase tracking-wider sm:text-3xl ${
-              i % 2 === 0 ? "theme-heading" : "text-outline"
-            }`}
-          >
-            {item}
-          </span>
-          {/* Decorative star between words — pink with a soft glow via text-shadow */}
-          <span className="text-xl text-[#ff5ca8] [text-shadow:0_0_14px_rgba(255,92,168,0.9)]">
-            ✦
-          </span>
-        </span>
-      ))}
-    </div>
-  );
-}
+gsap.registerPlugin(ScrollTrigger);
+
+const MARQUEE_ITEMS = [
+  "Connect",
+  "Be more confident",
+  "Collaborate",
+  "Create",
+  "Meet new peers",
+  "Develop further bonds",
+  "Sponsored by CECS",
+  "UM\u2011Dearborn",
+  "Build the network",
+];
 
 export default function ScrollingTextStrip() {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+
+    // Check prefers-reduced-motion
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+
+    // Base loop
+    const tween = gsap.to(track, {
+      xPercent: -50,
+      duration: 28,
+      ease: "none",
+      repeat: -1,
+    });
+
+    // ScrollTrigger velocity interaction per § 7.4
+    const st = ScrollTrigger.create({
+      trigger: containerRef.current,
+      onUpdate: (self) => {
+        const vel = self.getVelocity();
+        const dir = self.direction || 1;
+        const targetScale = dir * (1 + Math.min(Math.abs(vel) / 250, 6));
+
+        gsap.to(tween, {
+          timeScale: targetScale,
+          duration: 0.25,
+          ease: "power1.out",
+          onComplete: () => {
+            gsap.to(tween, {
+              timeScale: dir,
+              duration: 1.2,
+              ease: "power3.out",
+            });
+          },
+        });
+
+        const skewVal = Math.max(-8, Math.min(8, -vel / 220));
+        gsap.to(track, {
+          skewX: skewVal,
+          duration: 0.25,
+          ease: "power1.out",
+          onComplete: () => {
+            gsap.to(track, {
+              skewX: 0,
+              duration: 0.9,
+              ease: "power3.out",
+            });
+          },
+        });
+      },
+    });
+
+    return () => {
+      tween.kill();
+      st.kill();
+    };
+  }, []);
+
+  const renderItemSequence = (keyPrefix: string) => (
+    <div className="flex items-center flex-shrink-0" key={keyPrefix}>
+      {MARQUEE_ITEMS.map((item, idx) => {
+        const isOdd = idx % 2 === 1;
+        return (
+          <div key={`${keyPrefix}-${idx}`} className="flex items-center flex-shrink-0">
+            <span
+              className="marquee-text"
+              style={{
+                color: isOdd ? "transparent" : "var(--ink)",
+                WebkitTextStroke: isOdd ? "1.6px var(--ink)" : "none",
+              }}
+            >
+              {item}
+            </span>
+            {/* 26px four-point star in ink */}
+            <svg
+              className="marquee-star flex-shrink-0"
+              width="26"
+              height="26"
+              viewBox="0 0 24 24"
+              fill="var(--ink)"
+              aria-hidden="true"
+            >
+              <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z" />
+            </svg>
+          </div>
+        );
+      })}
+    </div>
+  );
+
   return (
-    // as="div" so this isn’t another landmark section; id="more" for scroll-to from HeroScrollHint.
-    // vocab: scroll-mt-* = scroll-margin so the sticky navbar doesn't cover the strip on jump
-    <MouseGridBackground
-      as="div"
-      id="more"
-      className="landing-marquee scroll-mt-28 overflow-hidden border-y border-[#ff5ca8]/25 py-5 sm:scroll-mt-32 sm:py-6"
-    >
-      {/* Top and bottom glow lines framing the strip */}
-      <div className="glow-line absolute inset-x-0 top-0 h-px" />
-      <div className="glow-line absolute inset-x-0 bottom-0 h-px" />
-      {/* Two identical rows — CSS animation translates them as one continuous loop.
-          Why twice? When row A scrolls off, row B is already filling the gap (seamless).
-          Manipulate here: .marquee-track keyframes / duration in globals.css control speed */}
-      <div className="marquee-track">
-        <MarqueeRow />
-        <MarqueeRow />
+    <div ref={containerRef} className="marquee-wrapper" aria-hidden="true">
+      <div className="marquee-band">
+        <div ref={trackRef} className="marquee-track">
+          {renderItemSequence("seq-1")}
+          {renderItemSequence("seq-2")}
+        </div>
       </div>
-    </MouseGridBackground>
+
+      <style jsx>{`
+        .marquee-wrapper {
+          overflow: hidden;
+          padding-block: 28px;
+          margin-block: -56px;
+          position: relative;
+          z-index: 5;
+        }
+
+        .marquee-band {
+          background: var(--grad);
+          border-top: 3px solid var(--ink);
+          border-bottom: 3px solid var(--ink);
+          padding-block: 18px;
+          width: 108%;
+          margin-left: -4%;
+          transform: rotate(-2deg);
+        }
+
+        .marquee-track {
+          display: flex;
+          width: max-content;
+          align-items: center;
+          will-change: transform;
+        }
+
+        .marquee-text {
+          font-family: var(--f-display);
+          font-weight: 800;
+          text-transform: uppercase;
+          font-size: clamp(22px, 2.6vw, 36px);
+          line-height: 1;
+          letter-spacing: -0.02em;
+          padding-inline: 28px;
+          white-space: nowrap;
+        }
+
+        .marquee-star {
+          margin-inline: 4px;
+        }
+      `}</style>
+    </div>
   );
 }

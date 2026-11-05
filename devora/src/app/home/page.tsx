@@ -1,44 +1,30 @@
 // Marketing homepage (/home). Renders all landing sections in order.
 // Flow: mount Lenis smooth scroll → stack nav + hero + feature sections top to bottom.
-// Also starts smooth scrolling on this page only (see useEffect below).
+// Hero (TopSection) is untouched per instruction.
 
 "use client";
 
-// vocab/symbol: Lenis — npm package that animates scroll on the homepage
 import Lenis from "lenis";
 import { useEffect } from "react";
 
 import TopSection from "@/ui/home/hero/TopSection";
-import GoodReasons from "@/ui/home/sections/GoodReasons";
-import FeatureCards from "@/ui/home/sections/FeatureCards";
-import JoinNowSection from "@/ui/home/sections/JoinNowSection";
-import BestUseCases from "@/ui/home/sections/BestUseCases";
-import ScrollingTextStrip from "@/ui/home/sections/ScrollingTextStrip";
 import WhatIsDevora from "@/ui/home/sections/WhatIsDevora";
+import ScrollingTextStrip from "@/ui/home/sections/ScrollingTextStrip";
+import FeatureCards from "@/ui/home/sections/FeatureCards";
+import BestUseCases from "@/ui/home/sections/BestUseCases";
 import WhyDevora from "@/ui/home/sections/WhyDevora";
+import GoodReasons from "@/ui/home/sections/GoodReasons";
+import JoinNowSection from "@/ui/home/sections/JoinNowSection";
 import NavBar from "@/ui/shared/navbar/NavBar";
 
-// TypeScript-only — tells the editor window.smoothScroller may exist.
-// Not code that runs in the browser.
-// vocab: declare global = extend the built-in Window type for this project
 declare global {
   interface Window {
-    // vocab: smoothScroller = Lenis instance NavBar reads for scroll position
     smoothScroller?: Lenis;
   }
 }
 
-// Landing page: nav + hero + feature sections stacked top to bottom.
 export default function LandingPage() {
-  // This effect is the heartbeat of homepage smooth scrolling.
-  // Start Lenis when /home mounts; destroy when the user navigates away.
-  // Stored on window so NavBar knows how far the user has scrolled.
-  // vocab: useEffect = React hook that runs after paint (and cleanup on leave)
-  // vocab/symbol: [] = run this effect once on mount, not on every re-render
   useEffect(() => {
-    // Manipulate here: duration = how long a scroll animation lasts (higher = floatier)
-    // Manipulate here: touchMultiplier = phone swipe strength; raise = faster touch scroll
-    // vocab: autoRaf true = Lenis hooks into requestAnimationFrame itself
     const smoothScroller = new Lenis({
       duration: 1.1,
       smoothWheel: true,
@@ -47,11 +33,8 @@ export default function LandingPage() {
       autoRaf: true,
     });
 
-    // Why window.? NavBar (and anything else) can read scroll without prop-drilling Lenis.
     window.smoothScroller = smoothScroller;
 
-    // Cleanup when leaving /home so other pages don't keep Lenis running.
-    // vocab: return () => ... = React cleanup function for this effect
     return () => {
       smoothScroller.destroy();
       window.smoothScroller = undefined;
@@ -60,27 +43,23 @@ export default function LandingPage() {
 
   return (
     <main className="page-shell min-h-screen">
-      {/*
-        Section order = the story of the landing page top → bottom.
-        Manipulate here: reorder / remove these components to change the homepage narrative
-        vocab: activeItem="Home" = tells NavBar which link looks selected
-      */}
       <NavBar activeItem="Home" />
-      {/* Hero composition: Devora brand, tagline, primary CTAs */}
+      {/* Hero section untouched per user instruction */}
       <TopSection />
-      {/* Moving text marquee between hero and “what is Devora” */}
-      <ScrollingTextStrip />
-      {/* Product pitch: what Devora is */}
+      {/* Redesigned sections per DESIGN.md § 5.1 */}
+      {/* 1. What is Devora (night) */}
       <WhatIsDevora />
-      {/* Feature highlights grid/cards */}
+      {/* 2. Marquee (gradient band) */}
+      <ScrollingTextStrip />
+      {/* 3. Key info (paper) */}
       <FeatureCards />
-      {/* How it works in four steps */}
+      {/* 4. Best use cases (night) */}
       <BestUseCases />
-      {/* Why Devora vs GitHub / LinkedIn / Discord */}
+      {/* 5. Why Devora (pink) */}
       <WhyDevora />
-      {/* Social-proof style reasons to join */}
+      {/* 6. Benefits (orange) */}
       <GoodReasons />
-      {/* Final CTA strip → signup */}
+      {/* 7. Join Now & Footer */}
       <JoinNowSection />
     </main>
   );

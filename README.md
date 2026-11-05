@@ -245,7 +245,7 @@ See [devora/src/docs/firestore-schema.md](devora/src/docs/firestore-schema.md) f
 3. Add environment variables in Vercel settings
 4. Vercel auto-deploys on each push to main branch
 
-**Live URL:** `https://cecs-connect.vercel.app` (once deployed)
+**Live URL:** `https://devora-umich.vercel.app`
 
 ---
 

@@ -1,15 +1,17 @@
-// Settings page content — toggles Discovery visibility, notification prefs, theme.
-// Each toggle saves immediately to Firestore via updateUserSettings() (no separate Save button).
-// Danger zone handles deactivate / reactivate / permanent delete.
-// Theme (dark/light) is device-local via useTheme — it is NOT stored in Firestore.
+// Settings page content per DESIGN.md.
+// Night ground panels with 2px --edge border, Unbounded 700 card titles,
+// signature gradient toggle switches, and clean danger actions.
 
 "use client";
 
+// ===== IMPORTS =====
+
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState, type ReactNode } from "react";
-// vocab: onAuthStateChanged = Firebase listener; fires when user signs in or out
-import { onAuthStateChanged } from "firebase/auth";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { LogOut, PenLine, AlertTriangle, Check } from "lucide-react";
+import { motion } from "framer-motion";
 
 import {
   auth,
@@ -29,27 +31,58 @@ import { useTheme } from "@/ui/shared/theme/DarkLightMode";
 
 import GradientToggle from "../toggles/GradientToggle";
 
+// ===== NAMED CONSTANTS =====
+
+const LOGIN_PATH = "/auth/login";
+const ONBOARDING_PATH = "/onboarding";
+const HOME_PATH = "/home";
+const ACCOUNT_PAGE_PATH = "/account-page";
+const SETTINGS_SAVED_BANNER_MS = 2200;
+const EMPTY_STATUS_MESSAGE = "";
+const DEACTIVATE_CONFIRM_MODE = "deactivate" as const;
+const DELETE_CONFIRM_MODE = "delete" as const;
+const PUBLIC_PROFILE_DEFAULT = true;
+const SETTINGS_SAVED_MESSAGE = "Settings saved.";
+const PROFILE_LOAD_ERROR_MESSAGE = "Could not load your settings. Refresh and try again.";
+const PROFILE_MISSING_MESSAGE = "Could not load your settings.";
+const LOADING_SETTINGS_MESSAGE = "Loading settings…";
+const SAVING_HINT = "Saving…";
+const DELETE_PHRASE_ERROR_MESSAGE = "Type DELETE in all caps to confirm.";
+const DEACTIVATED_SUCCESS_MESSAGE = "Account deactivated. You're hidden from Discovery.";
+const REACTIVATED_SUCCESS_MESSAGE = "Account reactivated. You can appear on Discovery again.";
+const DEACTIVATING_LABEL = "Deactivating…";
+const DEACTIVATE_CONFIRM_LABEL = "Yes, deactivate";
+const DELETING_LABEL = "Deleting…";
+const DELETE_CONFIRM_LABEL = "Yes, delete forever";
+const DARK_THEME_MODE = "dark" as const;
+const LIGHT_THEME_MODE = "light" as const;
+const THEME_MODES = [DARK_THEME_MODE, LIGHT_THEME_MODE] as const;
+const DARK_MODE_LABEL = "Dark mode";
+const LIGHT_MODE_LABEL = "Light mode";
+const MESSAGE_POLICY_EVERYONE = "everyone";
+const MESSAGE_POLICY_CONNECTIONS = "connections";
+const MESSAGE_POLICY_NONE = "none";
+const SHOW_INTERESTS_KEY = "showInterests" as const;
+const SHOW_SKILLS_KEY = "showSkills" as const;
+const SHOW_CLASS_YEAR_KEY = "showClassYear" as const;
+const NOTIFY_MESSAGES_KEY = "notifyMessages" as const;
+const NOTIFY_CONNECTION_REQUESTS_KEY = "notifyConnectionRequests" as const;
+const NOTIFY_PROFILE_VIEWS_KEY = "notifyProfileViews" as const;
+const NOTIFY_EVENT_INVITES_KEY = "notifyEventInvites" as const;
+const NOTIFY_WEEKLY_DIGEST_KEY = "notifyWeeklyDigest" as const;
+const ALLOW_MESSAGES_FROM_KEY = "allowMessagesFrom" as const;
+const SHOW_ONLINE_STATUS_KEY = "showOnlineStatus" as const;
+const SHOW_READ_RECEIPTS_KEY = "showReadReceipts" as const;
+const HIDDEN_WHILE_DEACTIVATED_DESCRIPTION =
+  "Reactivate your account below to appear for other students again.";
+const PUBLIC_PROFILE_DESCRIPTION = "When off, classmates won't see you while browsing.";
+
+// ===== TYPES =====
+
 type SettingsCardProps = {
   title: string;
-  titleClassName?: string;
-  // vocab: ReactNode = anything React can render (JSX, text, null, …)
   children: ReactNode;
 };
-
-// Glass card wrapper for a settings section (title + body rows).
-function SettingsCard({
-  title,
-  titleClassName = "soft-pink",
-  children,
-}: SettingsCardProps) {
-  return (
-    <section className="settings-card glass-card">
-      {/* soft-pink = brand tint without rainbow multi-hues */}
-      <h2 className={`settings-card-title ${titleClassName}`}>{title}</h2>
-      <div className="settings-card-body">{children}</div>
-    </section>
-  );
-}
 
 type SettingsRowProps = {
   label: string;
@@ -59,541 +92,1004 @@ type SettingsRowProps = {
   disabled?: boolean;
 };
 
-// One label + description + GradientToggle row inside a SettingsCard.
-function SettingsRow({ label, description, checked, onChange, disabled }: SettingsRowProps) {
+type DangerConfirmMode = typeof DEACTIVATE_CONFIRM_MODE | typeof DELETE_CONFIRM_MODE;
+
+type SettingsStatusControls = {
+  router: ReturnType<typeof useRouter>;
+  setIsSaving: (isSaving: boolean) => void;
+  setErrorMessage: (message: string) => void;
+  setSuccessMessage: (message: string) => void;
+};
+
+type SettingsWriteInput = SettingsStatusControls & {
+  userId: string;
+  isDeactivated: boolean;
+  nextIsPublic: boolean;
+  nextPreferences: UserPreferences;
+};
+
+// ===== HELPER COMPONENTS =====
+
+function SettingsCard({ title, children }: SettingsCardProps) {
   return (
-    <div className="settings-row">
-      <div className="settings-row-copy">
-        <p className="settings-row-label">{label}</p>
-        {description ? <p className="settings-row-desc">{description}</p> : null}
+    <motion.section
+      className="settings-panel"
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-30px" }}
+      transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+    >
+      <div className="settings-panel-title-wrap">
+        <h2 className="settings-panel-title">{title}</h2>
+        <span className="settings-title-line" aria-hidden="true" />
       </div>
+      <div className="settings-panel-body">{children}</div>
+
+      <style jsx>{`
+        .settings-panel {
+          background: var(--surface, #1c181c);
+          border: 2px solid var(--edge, #3d3439);
+          border-radius: 20px;
+          padding: clamp(20px, 3vw, 28px);
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s var(--spring, cubic-bezier(0.23, 1, 0.32, 1));
+        }
+
+        .settings-panel:hover {
+          border-color: rgb(255 92 168 / 0.32);
+          box-shadow: 0 12px 32px -10px rgb(0 0 0 / 0.6), 0 0 24px -10px rgb(255 92 168 / 0.16);
+        }
+
+        .settings-panel-title-wrap {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgb(255 255 255 / 0.08);
+        }
+
+        .settings-panel-title {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 700;
+          font-size: 17px;
+          text-transform: uppercase;
+          letter-spacing: -0.01em;
+          color: var(--text, #fbf6f8);
+          margin: 0;
+          white-space: nowrap;
+        }
+
+        .settings-title-line {
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, rgb(255 92 168 / 0.3), transparent 70%);
+        }
+
+        .settings-panel-body {
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+      `}</style>
+    </motion.section>
+  );
+}
+
+function SettingsRow({
+  label,
+  description,
+  checked,
+  onChange,
+  disabled = false,
+}: SettingsRowProps) {
+  return (
+    <div className="settings-row-item">
+      <div className="settings-row-text">
+        <span className="settings-row-label">{label}</span>
+        {description && <p className="settings-row-desc">{description}</p>}
+      </div>
+
       <GradientToggle
         label={label}
         checked={checked}
         onChange={onChange}
         disabled={disabled}
       />
+
+      <style jsx>{`
+        .settings-row-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 8px 12px;
+          margin-inline: -12px;
+          border-radius: 12px;
+          transition: background 0.18s ease;
+        }
+
+        .settings-row-item:hover {
+          background: rgb(255 255 255 / 0.035);
+        }
+
+        .settings-row-text {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .settings-row-label {
+          font-size: 15.5px;
+          font-weight: 600;
+          color: var(--text, #fbf6f8);
+        }
+
+        .settings-row-desc {
+          font-size: 14px;
+          color: var(--text-muted, rgb(251 246 248 / 0.7));
+          margin: 0;
+          line-height: 1.4;
+        }
+      `}</style>
     </div>
   );
 }
 
-// Owns settings state: load profile → toggle prefs → deactivate / delete account.
-// Preference keys live on profile.preferences; isPublic / isDeactivated are top-level profile fields.
-export default function SettingsPageContent() {
-  // vocab: useRouter = Next.js helper that lets us navigate after sign-out / delete
-  const router = useRouter();
-  // vocab: useTheme = app dark/light mode context (local to this device, not Firestore)
+function hideSuccessBannerLater(setSuccessMessage: (message: string) => void) {
+  const timeoutId = setTimeout(() => {
+    setSuccessMessage(EMPTY_STATUS_MESSAGE);
+  }, SETTINGS_SAVED_BANNER_MS);
+  return () => clearTimeout(timeoutId);
+}
+
+function resolvePublicFlagForSave(isDeactivated: boolean, nextIsPublic: boolean): boolean {
+  if (isDeactivated) {
+    return false;
+  }
+  return nextIsPublic;
+}
+
+function isDeletePhraseConfirmed(phrase: string): boolean {
+  return phrase.trim() === "DELETE";
+}
+
+async function redirectIfSettingsAreUnavailable(
+  user: User | null,
+  router: ReturnType<typeof useRouter>,
+  setProfile: (profile: UserProfile | null) => void,
+  setIsPublic: (isPublic: boolean) => void,
+  setIsDeactivated: (isDeactivated: boolean) => void,
+  setPreferences: (preferences: UserPreferences) => void,
+  setErrorMessage: (message: string) => void,
+  setIsLoading: (isLoading: boolean) => void
+) {
+  if (!user) {
+    router.replace(LOGIN_PATH);
+    return;
+  }
+
+  try {
+    const loadedProfile = await getUserProfile(user.uid);
+    if (!loadedProfile) {
+      setErrorMessage(PROFILE_MISSING_MESSAGE);
+      setProfile(null);
+      return;
+    }
+
+    if (!loadedProfile.onboardingComplete) {
+      router.replace(ONBOARDING_PATH);
+      return;
+    }
+
+    setProfile(loadedProfile);
+    setIsPublic(loadedProfile.isPublic ?? PUBLIC_PROFILE_DEFAULT);
+    setIsDeactivated(Boolean(loadedProfile.isDeactivated));
+    setPreferences(resolveUserPreferences(loadedProfile.preferences));
+    setErrorMessage(EMPTY_STATUS_MESSAGE);
+  } catch {
+    setErrorMessage(PROFILE_LOAD_ERROR_MESSAGE);
+    setProfile(null);
+  } finally {
+    setIsLoading(false);
+  }
+}
+
+async function writeSettingsToFirestore(input: SettingsWriteInput) {
+  input.setIsSaving(true);
+  input.setErrorMessage(EMPTY_STATUS_MESSAGE);
+
+  try {
+    const isPublicForSave = resolvePublicFlagForSave(input.isDeactivated, input.nextIsPublic);
+    await updateUserSettings(input.userId, {
+      isPublic: isPublicForSave,
+      preferences: input.nextPreferences,
+    });
+    input.setSuccessMessage(SETTINGS_SAVED_MESSAGE);
+  } catch (thrownError) {
+    input.setErrorMessage(getAuthErrorMessage(thrownError));
+  } finally {
+    input.setIsSaving(false);
+  }
+}
+
+function requireSignedInUser(): User {
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    throw new Error("You must be signed in to change settings.");
+  }
+  return currentUser;
+}
+
+async function signOutAndReturnToLogin(router: ReturnType<typeof useRouter>) {
+  await signOutUser();
+  router.replace(LOGIN_PATH);
+}
+
+async function deactivateAccountFromSettings(
+  controls: SettingsStatusControls,
+  setIsDeactivated: (value: boolean) => void,
+  setIsPublic: (value: boolean) => void,
+  setDangerConfirm: (mode: DangerConfirmMode | null) => void
+) {
+  controls.setIsSaving(true);
+  controls.setErrorMessage(EMPTY_STATUS_MESSAGE);
+
+  try {
+    const currentUser = requireSignedInUser();
+    await deactivateAccount(currentUser.uid);
+    setIsDeactivated(true);
+    setIsPublic(false);
+    setDangerConfirm(null);
+    controls.setSuccessMessage(DEACTIVATED_SUCCESS_MESSAGE);
+  } catch (thrownError) {
+    controls.setErrorMessage(getAuthErrorMessage(thrownError));
+  } finally {
+    controls.setIsSaving(false);
+  }
+}
+
+async function reactivateAccountFromSettings(
+  controls: SettingsStatusControls,
+  setIsDeactivated: (value: boolean) => void,
+  setIsPublic: (value: boolean) => void
+) {
+  controls.setIsSaving(true);
+  controls.setErrorMessage(EMPTY_STATUS_MESSAGE);
+
+  try {
+    const currentUser = requireSignedInUser();
+    await reactivateAccount(currentUser.uid);
+    setIsDeactivated(false);
+    setIsPublic(true);
+    controls.setSuccessMessage(REACTIVATED_SUCCESS_MESSAGE);
+  } catch (thrownError) {
+    controls.setErrorMessage(getAuthErrorMessage(thrownError));
+  } finally {
+    controls.setIsSaving(false);
+  }
+}
+
+async function deleteAccountAfterPhraseCheck(
+  phrase: string,
+  controls: SettingsStatusControls
+) {
+  if (!isDeletePhraseConfirmed(phrase)) {
+    controls.setErrorMessage(DELETE_PHRASE_ERROR_MESSAGE);
+    return;
+  }
+
+  controls.setIsSaving(true);
+  controls.setErrorMessage(EMPTY_STATUS_MESSAGE);
+
+  try {
+    await deleteOwnAccount();
+    controls.router.replace(HOME_PATH);
+  } catch (thrownError) {
+    controls.setErrorMessage(getAuthErrorMessage(thrownError));
+    controls.setIsSaving(false);
+  }
+}
+
+function SettingsAppearanceCard() {
   const { theme, setTheme } = useTheme();
-  // vocab: useState = React hook that stores a value and re-renders when you call the setter
-  // vocab: UserProfile | null = loaded Firestore profile, or null until/if it arrives
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  // vocab: UserPreferences = notification + privacy toggles nested on the profile
-  // vocab: resolveUserPreferences = fill defaults when Firestore prefs are missing
-  const [preferences, setPreferences] = useState<UserPreferences>(
-    resolveUserPreferences()
+
+  return (
+    <SettingsCard title="Appearance">
+      <p className="text-[14px] text-[var(--text-muted)] -mt-2">
+        Pick how Devora looks on this device.
+      </p>
+
+      <div className="theme-pills-row">
+        {THEME_MODES.map((mode) => {
+          const isModeActive = theme === mode;
+          const modeLabel = mode === DARK_THEME_MODE ? DARK_MODE_LABEL : LIGHT_MODE_LABEL;
+          return (
+            <button
+              key={mode}
+              type="button"
+              className={`theme-pill-btn ${isModeActive ? "is-selected" : ""}`}
+              onClick={() => setTheme(mode)}
+              aria-pressed={isModeActive}
+            >
+              <span>{modeLabel}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      <style jsx>{`
+        .theme-pills-row {
+          display: flex;
+          gap: 12px;
+          margin-top: 4px;
+        }
+
+        .theme-pill-btn {
+          height: 44px;
+          padding-inline: 20px;
+          border-radius: 9999px;
+          border: 2px solid rgb(255 255 255 / 0.3);
+          background: transparent;
+          color: var(--text, #fbf6f8);
+          font-family: var(--f-mono);
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: translate 0.2s var(--spring), background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .theme-pill-btn:hover {
+          translate: 0 -2px;
+          border-color: #ffffff;
+        }
+
+        .theme-pill-btn.is-selected {
+          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
+          border-color: transparent;
+          color: #0d0b0e;
+          box-shadow: 3px 3px 0 0 #0d0b0e;
+        }
+      `}</style>
+    </SettingsCard>
   );
-  // vocab / profile field: isPublic = show on Discovery Grid when true
-  const [isPublic, setIsPublic] = useState(true);
-  // vocab / profile field: isDeactivated = hidden from Discovery until they reactivate
-  const [isDeactivated, setIsDeactivated] = useState(false);
+}
+
+function SettingsDangerZone({
+  isDeactivated,
+  isSaving,
+  dangerConfirm,
+  deletePhrase,
+  setDangerConfirm,
+  setDeletePhrase,
+  setErrorMessage,
+  onReactivate,
+  onDeactivate,
+  onDelete,
+}: {
+  isDeactivated: boolean;
+  isSaving: boolean;
+  dangerConfirm: DangerConfirmMode | null;
+  deletePhrase: string;
+  setDangerConfirm: (mode: DangerConfirmMode | null) => void;
+  setDeletePhrase: (deletePhrase: string) => void;
+  setErrorMessage: (message: string) => void;
+  onReactivate: () => void;
+  onDeactivate: () => void;
+  onDelete: () => void;
+}) {
+  const isDeactivateConfirmOpen = dangerConfirm === DEACTIVATE_CONFIRM_MODE;
+  const isDeleteConfirmOpen = dangerConfirm === DELETE_CONFIRM_MODE;
+
+  return (
+    <motion.div
+      className="danger-panel"
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: "-30px" }}
+      transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+    >
+      <div className="danger-header">
+        <AlertTriangle size={20} color="var(--danger, #ff8fa0)" />
+        <h2 className="danger-title">Danger zone</h2>
+      </div>
+
+      <p className="danger-desc">
+        {isDeactivated
+          ? "Your account is deactivated. Classmates can't find you on Discovery. Reactivate anytime, or delete everything permanently."
+          : "Deactivate hides you from Discovery but keeps your data. Delete removes your profile, photo, and login — that can't be undone."}
+      </p>
+
+      <div className="danger-actions-row">
+        {isDeactivated ? (
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={onReactivate}
+            disabled={isSaving}
+          >
+            <span>Reactivate account</span>
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="btn-danger"
+            onClick={() => {
+              setDangerConfirm(DEACTIVATE_CONFIRM_MODE);
+              setErrorMessage(EMPTY_STATUS_MESSAGE);
+            }}
+            disabled={isSaving}
+          >
+            <span>Deactivate account</span>
+          </button>
+        )}
+
+        <button
+          type="button"
+          className="btn-danger"
+          onClick={() => {
+            setDangerConfirm(DELETE_CONFIRM_MODE);
+            setDeletePhrase(EMPTY_STATUS_MESSAGE);
+            setErrorMessage(EMPTY_STATUS_MESSAGE);
+          }}
+          disabled={isSaving}
+        >
+          <span>Delete account</span>
+        </button>
+      </div>
+
+      {isDeactivateConfirmOpen && (
+        <div className="danger-confirm-box">
+          <p className="text-[14px] text-[var(--text-body)] m-0">
+            Hide your profile from Discovery? You can sign back in later and reactivate.
+          </p>
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => setDangerConfirm(null)}
+              disabled={isSaving}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn-danger"
+              onClick={onDeactivate}
+              disabled={isSaving}
+            >
+              {isSaving ? DEACTIVATING_LABEL : DEACTIVATE_CONFIRM_LABEL}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {isDeleteConfirmOpen && (
+        <div className="danger-confirm-box">
+          <p className="text-[14px] text-[var(--danger)] m-0">
+            This permanently deletes your profile, photo, and Google login on Devora. Type DELETE to confirm.
+          </p>
+          <input
+            className="danger-input"
+            value={deletePhrase}
+            onChange={(event) => setDeletePhrase(event.target.value)}
+            placeholder="Type DELETE"
+            autoComplete="off"
+            disabled={isSaving}
+          />
+          <div className="flex gap-3">
+            <button
+              type="button"
+              className="btn-ghost"
+              onClick={() => {
+                setDangerConfirm(null);
+                setDeletePhrase(EMPTY_STATUS_MESSAGE);
+              }}
+              disabled={isSaving}
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              className="btn-danger"
+              onClick={onDelete}
+              disabled={isSaving}
+            >
+              {isSaving ? DELETING_LABEL : DELETE_CONFIRM_LABEL}
+            </button>
+          </div>
+        </div>
+      )}
+
+      <style jsx>{`
+        .danger-panel {
+          background: var(--surface, #1c181c);
+          border: 2px solid var(--danger-edge, #7a2a3a);
+          border-radius: 20px;
+          padding: clamp(20px, 3vw, 28px);
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+
+        .danger-header {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid var(--danger-edge, #7a2a3a);
+        }
+
+        .danger-title {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 700;
+          font-size: 17px;
+          text-transform: uppercase;
+          color: var(--danger, #ff8fa0);
+          margin: 0;
+        }
+
+        .danger-desc {
+          font-size: 14.5px;
+          color: var(--text-muted);
+          line-height: 1.5;
+          margin: 0;
+        }
+
+        .danger-actions-row {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 14px;
+        }
+
+        .danger-confirm-box {
+          background: var(--surface-2, #29232a);
+          border: 1px solid var(--danger-edge, #7a2a3a);
+          border-radius: 14px;
+          padding: 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          margin-top: 6px;
+        }
+
+        .danger-input {
+          height: 48px;
+          padding: 0 16px;
+          border-radius: 10px;
+          background: var(--surface, #1c181c);
+          border: 2px solid var(--edge, #3d3439);
+          color: white;
+          font-family: var(--f-mono);
+          font-size: 15px;
+          outline: none;
+        }
+
+        .danger-input:focus {
+          border-color: var(--danger);
+        }
+
+        .btn-danger {
+          height: 44px;
+          padding-inline: 22px;
+          border-radius: 9999px;
+          background: transparent;
+          border: 2px solid var(--danger-edge, #7a2a3a);
+          color: var(--danger, #ff8fa0);
+          font-family: var(--f-mono);
+          font-size: 13.5px;
+          font-weight: 700;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: background 0.2s ease, border-color 0.2s ease;
+        }
+
+        .btn-danger:hover {
+          background: rgb(255 143 160 / 0.1);
+          border-color: var(--danger);
+        }
+
+        .btn-ghost {
+          height: 44px;
+          padding-inline: 22px;
+          border-radius: 9999px;
+          background: transparent;
+          border: 2px solid rgb(255 255 255 / 0.4);
+          color: white;
+          font-family: var(--f-mono);
+          font-size: 13.5px;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .btn-ghost:hover {
+          border-color: white;
+        }
+      `}</style>
+    </motion.div>
+  );
+}
+
+// ===== MAIN COMPONENT =====
+
+export default function SettingsPageContent() {
+  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  // which danger confirm panel is open (null = neither)
-  const [dangerConfirm, setDangerConfirm] = useState<"deactivate" | "delete" | null>(
-    null
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [isPublic, setIsPublic] = useState(PUBLIC_PROFILE_DEFAULT);
+  const [isDeactivated, setIsDeactivated] = useState(false);
+  const [preferences, setPreferences] = useState<UserPreferences>(resolveUserPreferences(null));
+  const [errorMessage, setErrorMessage] = useState(EMPTY_STATUS_MESSAGE);
+  const [successMessage, setSuccessMessage] = useState(EMPTY_STATUS_MESSAGE);
+  const [dangerConfirm, setDangerConfirm] = useState<DangerConfirmMode | null>(null);
+  const [deletePhrase, setDeletePhrase] = useState(EMPTY_STATUS_MESSAGE);
+
+  const statusControls: SettingsStatusControls = useMemo(
+    () => ({
+      router,
+      setIsSaving,
+      setErrorMessage,
+      setSuccessMessage,
+    }),
+    [router]
   );
-  // Must type DELETE exactly before permanent delete is allowed
-  const [deletePhrase, setDeletePhrase] = useState("");
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
 
-  // Auth gate + hydrate toggles from Firestore — same pattern as Account page.
-  // vocab: useEffect = run side effects after render (here: subscribe to Firebase auth)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // Not signed in — settings are private; bounce to login.
-      if (!user) {
-        // vocab: router.replace = navigate without adding a history entry
-        // Manipulate here: change "/auth/login" if the login route moves
-        router.replace("/auth/login");
-        return;
-      }
+    if (!successMessage) return;
+    return hideSuccessBannerLater(setSuccessMessage);
+  }, [successMessage]);
 
-      try {
-        // vocab: getUserProfile = load users/{uid} from Firestore
-        const nextProfile = await getUserProfile(user.uid);
-        // Profile missing or unfinished — finish onboarding before settings.
-        // vocab/symbol: ?. = optional chaining — if nextProfile is null, skip the field
-        if (!nextProfile?.onboardingComplete) {
-          // Manipulate here: change "/onboarding" if that route renames
-          router.replace("/onboarding");
-          return;
-        }
-        setProfile(nextProfile);
-        // vocab / profile field: isPublic = show on Discovery Grid when true
-        // vocab/symbol: ?? true = if isPublic is missing, default to visible
-        setIsPublic(nextProfile.isPublic ?? true);
-        // vocab: Boolean(x) = true for truthy values (handles undefined → false)
-        setIsDeactivated(Boolean(nextProfile.isDeactivated));
-        // Fill missing pref keys with defaults so toggles never see undefined
-        setPreferences(resolveUserPreferences(nextProfile.preferences));
-      } catch {
-        setError("Could not load your settings. Refresh and try again.");
-      } finally {
-        // Always hide the spinner once the auth check finishes.
-        setIsLoading(false);
-      }
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      void redirectIfSettingsAreUnavailable(
+        user,
+        router,
+        setProfile,
+        setIsPublic,
+        setIsDeactivated,
+        setPreferences,
+        setErrorMessage,
+        setIsLoading
+      );
     });
 
-    // vocab: return unsubscribe — React runs this cleanup when the component unmounts
-    return unsubscribe;
+    return () => unsubscribe();
   }, [router]);
 
-  // This function is the heartbeat of every non-danger toggle on the page.
-  // Write isPublic + preferences to Firestore whenever the user flips something.
-  // vocab: useCallback = keep the same function identity unless isDeactivated changes
-  // (so child rows don't see a brand-new save function every render)
-  const saveSettingsToFirestore = useCallback(
-    async (nextPublic: boolean, nextPreferences: UserPreferences) => {
-      // vocab: auth.currentUser = whoever Firebase says is logged in right now
-      const user = auth.currentUser;
-      if (!user) {
-        return;
-      }
-
-      setIsSaving(true);
-      setError("");
-      setSuccess("");
-
-      try {
-        // Deactivated accounts stay hidden on Discovery even if they flip the public toggle.
-        // Force isPublic false while deactivated so Discovery rules stay consistent.
-        // vocab: updateUserSettings = merge isPublic + preferences into users/{uid}
-        await updateUserSettings(user.uid, {
-          isPublic: isDeactivated ? false : nextPublic,
-          preferences: nextPreferences,
-        });
-        setSuccess("Settings saved.");
-        // Clear the success banner after a couple seconds.
-        // vocab: setTimeout = run this callback later (2200 ms ≈ 2.2 seconds)
-        // Manipulate here: raise 2200 if the banner disappears too fast
-        window.setTimeout(() => setSuccess(""), 2200);
-      } catch (err) {
-        setError(getAuthErrorMessage(err));
-      } finally {
-        setIsSaving(false);
-      }
+  const updatePreference = useCallback(
+    <K extends keyof UserPreferences>(key: K, value: UserPreferences[K]) => {
+      const currentUid = auth.currentUser?.uid;
+      if (!profile || !currentUid) return;
+      const nextPreferences = { ...preferences, [key]: value };
+      setPreferences(nextPreferences);
+      void writeSettingsToFirestore({
+        ...statusControls,
+        userId: currentUid,
+        isDeactivated,
+        nextIsPublic: isPublic,
+        nextPreferences,
+      });
     },
-    [isDeactivated]
+    [profile, preferences, isDeactivated, isPublic, statusControls]
   );
 
-  // Update one preference key and save immediately (no separate Save button).
-  // vocab/symbol: <K extends keyof UserPreferences> = TypeScript — key must be a real pref name
-  // Manipulate here: add a new SettingsRow by calling updatePreference("yourNewKey", value)
-  // (and add that key to UserPreferences + resolveUserPreferences in the backend)
-  function updatePreference<K extends keyof UserPreferences>(
-    key: K,
-    value: UserPreferences[K]
-  ) {
-    // Optimistic UI: update local state first, then persist.
-    // vocab/symbol: ...preferences = copy all current prefs, then override [key]
-    const next = { ...preferences, [key]: value };
-    setPreferences(next);
-    // vocab: void = fire-and-forget the promise (don't await in the click handler)
-    void saveSettingsToFirestore(isPublic, next);
-  }
+  const updateDiscoveryVisibility = useCallback(
+    (nextIsPublic: boolean) => {
+      const currentUid = auth.currentUser?.uid;
+      if (!profile || !currentUid) return;
+      setIsPublic(nextIsPublic);
+      void writeSettingsToFirestore({
+        ...statusControls,
+        userId: currentUid,
+        isDeactivated,
+        nextIsPublic,
+        nextPreferences: preferences,
+      });
+    },
+    [profile, preferences, isDeactivated, statusControls]
+  );
 
-  // Toggle Discovery Grid visibility and save.
-  // Separate from updatePreference because isPublic is a top-level profile field, not under preferences.
-  function updatePublic(nextPublic: boolean) {
-    // Deactivated accounts can't appear on Discovery until they reactivate.
-    if (isDeactivated) {
-      return;
-    }
-    setIsPublic(nextPublic);
-    void saveSettingsToFirestore(nextPublic, preferences);
-  }
-
-  // Sign out of Firebase Auth and return to the login page.
-  // vocab: signOutUser = clear the Firebase session on this device
-  async function handleSignOut() {
-    await signOutUser();
-    // Manipulate here: change "/auth/login" if sign-out should land elsewhere
-    router.replace("/auth/login");
-  }
-
-  // Hide profile from Discovery. Account data stays until they reactivate or delete.
-  // Does NOT wipe Auth — they can still sign in and land on /auth/deactivated.
-  // vocab: deactivateAccount = set isDeactivated + hide from Discovery in Firestore
-  async function handleDeactivate() {
-    const user = auth.currentUser;
-    if (!user) {
-      router.replace("/auth/login");
-      return;
-    }
-
-    setIsSaving(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      await deactivateAccount(user.uid);
-      // Keep local UI in sync with what Firestore now says
-      setIsDeactivated(true);
-      setIsPublic(false);
-      setDangerConfirm(null);
-      setSuccess("Account deactivated. You're hidden from Discovery.");
-      window.setTimeout(() => setSuccess(""), 2800);
-    } catch (err) {
-      setError(getAuthErrorMessage(err));
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  // Undo deactivate and show the profile on Discovery again.
-  // vocab: reactivateAccount = clear isDeactivated and restore Discovery visibility
-  async function handleReactivate() {
-    const user = auth.currentUser;
-    if (!user) {
-      router.replace("/auth/login");
-      return;
-    }
-
-    setIsSaving(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      await reactivateAccount(user.uid);
-      setIsDeactivated(false);
-      setIsPublic(true);
-      setSuccess("Account reactivated. You can appear on Discovery again.");
-      window.setTimeout(() => setSuccess(""), 2800);
-    } catch (err) {
-      setError(getAuthErrorMessage(err));
-    } finally {
-      setIsSaving(false);
-    }
-  }
-
-  // Confirm phrase → wipe Storage, Firestore, and Auth, then leave the app.
-  // vocab: deleteOwnAccount = permanent delete (photo + profile + Google login on Devora)
-  // May re-prompt Google to confirm identity before Firebase will delete the Auth user.
-  async function handleDelete() {
-    // Must type DELETE exactly before we call the destructive API.
-    // Manipulate here: change the phrase in BOTH this check and the button's disabled=...
-    if (deletePhrase.trim() !== "DELETE") {
-      setError('Type DELETE in all caps to confirm.');
-      return;
-    }
-
-    setIsSaving(true);
-    setError("");
-    setSuccess("");
-
-    try {
-      await deleteOwnAccount();
-      // Account is gone — send them to the public homepage (not login).
-      // Manipulate here: change "/home" if post-delete landing should differ
-      router.replace("/home");
-    } catch (err) {
-      setError(getAuthErrorMessage(err));
-      // Only re-enable UI on failure — success already navigated away
-      setIsSaving(false);
-    }
-  }
-
-  // Spinner while settings load.
   if (isLoading) {
     return (
-      <div className="flex flex-col items-center gap-4 py-16 text-center">
-        <span className="sign-in-spinner" />
-        <p className="theme-muted text-sm">Loading settings…</p>
+      <div className="flex flex-col items-center gap-4 py-20 text-center">
+        <p className="mono text-[var(--text-muted)]">{LOADING_SETTINGS_MESSAGE}</p>
       </div>
     );
   }
 
-  // Auth succeeded but Firestore profile never arrived.
   if (!profile) {
-    return <div className="sign-in-error">Could not load your settings.</div>;
+    return (
+      <div className="p-8 rounded-2xl bg-[var(--surface)] border-2 border-[var(--danger-edge)] text-[var(--danger)] text-center">
+        {errorMessage || PROFILE_MISSING_MESSAGE}
+      </div>
+    );
   }
 
   return (
-    <div className="settings-page-content">
-      {/* Status banners from save / load / danger actions */}
-      {error ? <div className="sign-in-error">{error}</div> : null}
-      {success ? <div className="account-success-banner">{success}</div> : null}
-      {isSaving ? <p className="settings-saving-hint">Saving…</p> : null}
+    <div className="settings-page-content-wrapper">
+      {/* Status banner */}
+      {successMessage && (
+        <div className="settings-alert-banner success-banner">
+          <Check size={18} color="#0d0b0e" strokeWidth={3} />
+          <span>{successMessage}</span>
+        </div>
+      )}
 
-      <div className="settings-grid">
-        {/* Discovery visibility + what fields show on the public profile */}
-        {/* Manipulate here: wire new privacy toggles via updatePreference("showX", value) */}
-        <SettingsCard title="Profile & Discovery">
+      {errorMessage && (
+        <div className="settings-alert-banner error-banner">
+          <AlertTriangle size={18} />
+          <span>{errorMessage}</span>
+        </div>
+      )}
+
+      {isSaving && (
+        <div className="saving-indicator">
+          <span>{SAVING_HINT}</span>
+        </div>
+      )}
+
+      <div className="settings-grid-stack">
+        {/* Discovery Visibility */}
+        <SettingsCard title="Discovery Grid">
           <SettingsRow
-            label="Show profile to other students"
+            label="Public profile"
             description={
-              isDeactivated
-                ? "Reactivate your account below to appear for other students again."
-                : "When off, classmates won't see you while browsing."
+              isDeactivated ? HIDDEN_WHILE_DEACTIVATED_DESCRIPTION : PUBLIC_PROFILE_DESCRIPTION
             }
-            // Force off visually when deactivated even if local isPublic is stale
-            checked={isPublic && !isDeactivated}
-            onChange={updatePublic}
+            checked={isPublic}
+            onChange={updateDiscoveryVisibility}
             disabled={isSaving || isDeactivated}
           />
           <SettingsRow
-            label="Show interests on profile"
+            label="Show interests"
             checked={preferences.showInterests}
-            onChange={(value) => updatePreference("showInterests", value)}
+            onChange={(value) => updatePreference(SHOW_INTERESTS_KEY, value)}
             disabled={isSaving}
           />
           <SettingsRow
-            label="Show career focus / skills"
+            label="Show career focus &amp; skills"
             checked={preferences.showSkills}
-            onChange={(value) => updatePreference("showSkills", value)}
+            onChange={(value) => updatePreference(SHOW_SKILLS_KEY, value)}
             disabled={isSaving}
           />
           <SettingsRow
             label="Show class year"
             checked={preferences.showClassYear}
-            onChange={(value) => updatePreference("showClassYear", value)}
+            onChange={(value) => updatePreference(SHOW_CLASS_YEAR_KEY, value)}
             disabled={isSaving}
           />
         </SettingsCard>
 
-        {/* Notification toggles + who may message you */}
+        {/* Notifications */}
         <SettingsCard title="Notifications">
           <SettingsRow
             label="New messages"
             checked={preferences.notifyMessages}
-            onChange={(value) => updatePreference("notifyMessages", value)}
+            onChange={(value) => updatePreference(NOTIFY_MESSAGES_KEY, value)}
             disabled={isSaving}
           />
           <SettingsRow
             label="Connection requests"
             checked={preferences.notifyConnectionRequests}
-            onChange={(value) => updatePreference("notifyConnectionRequests", value)}
+            onChange={(value) => updatePreference(NOTIFY_CONNECTION_REQUESTS_KEY, value)}
             disabled={isSaving}
           />
           <SettingsRow
             label="Profile views"
             checked={preferences.notifyProfileViews}
-            onChange={(value) => updatePreference("notifyProfileViews", value)}
+            onChange={(value) => updatePreference(NOTIFY_PROFILE_VIEWS_KEY, value)}
             disabled={isSaving}
           />
           <SettingsRow
             label="Event invites"
             checked={preferences.notifyEventInvites}
-            onChange={(value) => updatePreference("notifyEventInvites", value)}
+            onChange={(value) => updatePreference(NOTIFY_EVENT_INVITES_KEY, value)}
             disabled={isSaving}
           />
           <SettingsRow
             label="Weekly digest email"
             checked={preferences.notifyWeeklyDigest}
-            onChange={(value) => updatePreference("notifyWeeklyDigest", value)}
+            onChange={(value) => updatePreference(NOTIFY_WEEKLY_DIGEST_KEY, value)}
             disabled={isSaving}
           />
 
-          <div className="settings-row settings-row--select">
-            <div className="settings-row-copy">
-              <p className="settings-row-label">Allow messages from</p>
-              <p className="settings-row-desc">Who can start a conversation with you.</p>
+          <div className="policy-select-row">
+            <div>
+              <span className="text-[15.5px] font-semibold text-white">
+                Allow messages from
+              </span>
+              <p className="text-[14px] text-[var(--text-muted)] m-0 mt-0.5">
+                Who can start a conversation with you.
+              </p>
             </div>
-            {/* vocab: MessagePolicy = "everyone" | "connections" | "none" */}
+
             <select
-              className="settings-select"
+              className="policy-select"
               value={preferences.allowMessagesFrom}
               onChange={(event) =>
-                updatePreference("allowMessagesFrom", event.target.value as MessagePolicy)
+                updatePreference(ALLOW_MESSAGES_FROM_KEY, event.target.value as MessagePolicy)
               }
               disabled={isSaving}
             >
-              <option value="everyone">Everyone on Devora</option>
-              <option value="connections">Connections only</option>
-              <option value="none">No one</option>
+              <option value={MESSAGE_POLICY_EVERYONE}>Everyone on Devora</option>
+              <option value={MESSAGE_POLICY_CONNECTIONS}>Connections only</option>
+              <option value={MESSAGE_POLICY_NONE}>No one</option>
             </select>
           </div>
         </SettingsCard>
 
-        {/* Dark / light theme for this device */}
-        <SettingsCard title="Appearance">
-          <p className="settings-row-desc mb-4">Pick how Devora looks on this device.</p>
-          <div className="settings-mode-row">
-            {(["dark", "light"] as const).map((mode) => {
-              const active = theme === mode;
-              return (
-                <button
-                  key={mode}
-                  type="button"
-                  className={`devora-mode-btn ${active ? "devora-mode-btn--active" : ""}`}
-                  onClick={() => setTheme(mode)}
-                >
-                  <span className={active ? "soft-pink font-semibold" : "theme-muted"}>
-                    {mode === "dark" ? "Dark mode" : "Light mode"}
-                  </span>
-                </button>
-              );
-            })}
-          </div>
-        </SettingsCard>
+        {/* Appearance */}
+        <SettingsAppearanceCard />
 
-        {/* Online status + read receipts */}
+        {/* Privacy & Safety */}
         <SettingsCard title="Privacy & Safety">
           <SettingsRow
             label="Show online status"
             checked={preferences.showOnlineStatus}
-            onChange={(value) => updatePreference("showOnlineStatus", value)}
+            onChange={(value) => updatePreference(SHOW_ONLINE_STATUS_KEY, value)}
             disabled={isSaving}
           />
           <SettingsRow
             label="Read receipts"
             checked={preferences.showReadReceipts}
-            onChange={(value) => updatePreference("showReadReceipts", value)}
+            onChange={(value) => updatePreference(SHOW_READ_RECEIPTS_KEY, value)}
             disabled={isSaving}
           />
-          <p className="settings-row-desc mt-2">
-            Blocked users and data export are coming in a future update.
-          </p>
         </SettingsCard>
 
-        {/* Quick links to profile edit and sign out */}
+        {/* Account Info & Actions */}
         <SettingsCard title="Account">
-          <p className="settings-row-desc">{profile.email}</p>
-          <div className="settings-action-row">
-            <Link href="/account-page" className="devora-btn-outline">
-              Edit profile
+          <div className="flex flex-col gap-1">
+            <span className="mono text-[12px] text-[var(--text-muted)]">Signed in as</span>
+            <span className="text-[16px] font-bold text-white">{profile.email}</span>
+          </div>
+
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Link href={ACCOUNT_PAGE_PATH} className="btn-primary">
+              <PenLine size={16} />
+              <span>Edit profile</span>
             </Link>
+
             <button
               type="button"
-              className="devora-btn-outline"
-              onClick={handleSignOut}
-            >
-              Sign out
-            </button>
-          </div>
-        </SettingsCard>
-
-        {/* Deactivate (hide) or permanently delete the account — confirm panels below */}
-        <SettingsCard title="Danger zone">
-          {isDeactivated ? (
-            <p className="settings-row-desc">
-              Your account is deactivated. Classmates can&apos;t find you on
-              Discovery. Reactivate anytime, or delete everything permanently.
-            </p>
-          ) : (
-            <p className="settings-row-desc">
-              Deactivate hides you from Discovery but keeps your data. Delete
-              removes your profile, photo, and login — that can&apos;t be undone.
-            </p>
-          )}
-
-          <div className="settings-action-row">
-            {/* Reactivate vs start deactivate confirm */}
-            {isDeactivated ? (
-              <button
-                type="button"
-                className="devora-btn-outline"
-                onClick={handleReactivate}
-                disabled={isSaving}
-              >
-                Reactivate account
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="page-btn-danger"
-                onClick={() => {
-                  setDangerConfirm("deactivate");
-                  setError("");
-                }}
-                disabled={isSaving}
-              >
-                Deactivate account
-              </button>
-            )}
-            <button
-              type="button"
-              className="page-btn-danger"
+              className="account-signout-btn"
               onClick={() => {
-                setDangerConfirm("delete");
-                setDeletePhrase("");
-                setError("");
+                void signOutAndReturnToLogin(router);
               }}
-              disabled={isSaving}
             >
-              Delete account
+              <LogOut size={16} />
+              <span>Sign out</span>
             </button>
           </div>
-
-          {/* Inline confirm for deactivate */}
-          {dangerConfirm === "deactivate" ? (
-            <div className="settings-danger-confirm">
-              <p className="settings-row-desc">
-                Hide your profile from Discovery? You can sign back in later and
-                reactivate.
-              </p>
-              <div className="settings-action-row">
-                <button
-                  type="button"
-                  className="devora-btn-outline"
-                  onClick={() => setDangerConfirm(null)}
-                  disabled={isSaving}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="page-btn-danger"
-                  onClick={handleDeactivate}
-                  disabled={isSaving}
-                >
-                  {isSaving ? "Deactivating…" : "Yes, deactivate"}
-                </button>
-              </div>
-            </div>
-          ) : null}
-
-          {/* Inline confirm for delete — must type DELETE */}
-          {dangerConfirm === "delete" ? (
-            <div className="settings-danger-confirm">
-              <p className="settings-row-desc">
-                This permanently deletes your profile, photo, and Google login
-                on Devora. Type DELETE, then confirm with Google.
-              </p>
-              <input
-                className="sign-in-input"
-                value={deletePhrase}
-                onChange={(event) => setDeletePhrase(event.target.value)}
-                placeholder="Type DELETE"
-                autoComplete="off"
-                disabled={isSaving}
-              />
-              <div className="settings-action-row">
-                <button
-                  type="button"
-                  className="devora-btn-outline"
-                  onClick={() => {
-                    setDangerConfirm(null);
-                    setDeletePhrase("");
-                  }}
-                  disabled={isSaving}
-                >
-                  Cancel
-                </button>
-                <button
-                  type="button"
-                  className="page-btn-danger"
-                  onClick={handleDelete}
-                  disabled={isSaving || deletePhrase.trim() !== "DELETE"}
-                >
-                  {isSaving ? "Deleting…" : "Yes, delete forever"}
-                </button>
-              </div>
-            </div>
-          ) : null}
         </SettingsCard>
+
+        {/* Danger zone */}
+        <SettingsDangerZone
+          isDeactivated={isDeactivated}
+          isSaving={isSaving}
+          dangerConfirm={dangerConfirm}
+          deletePhrase={deletePhrase}
+          setDangerConfirm={setDangerConfirm}
+          setDeletePhrase={setDeletePhrase}
+          setErrorMessage={setErrorMessage}
+          onReactivate={() => {
+            void reactivateAccountFromSettings(statusControls, setIsDeactivated, setIsPublic);
+          }}
+          onDeactivate={() => {
+            void deactivateAccountFromSettings(
+              statusControls,
+              setIsDeactivated,
+              setIsPublic,
+              setDangerConfirm
+            );
+          }}
+          onDelete={() => {
+            void deleteAccountAfterPhraseCheck(deletePhrase, statusControls);
+          }}
+        />
       </div>
+
+      <style jsx>{`
+        .settings-page-content-wrapper {
+          display: flex;
+          flex-direction: column;
+          gap: 24px;
+        }
+
+        .settings-alert-banner {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 14px 20px;
+          border-radius: 14px;
+          font-family: var(--f-mono);
+          font-size: 14px;
+          font-weight: 700;
+        }
+
+        .success-banner {
+          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
+          color: #0d0b0e;
+        }
+
+        .error-banner {
+          background: rgb(255 143 160 / 0.15);
+          border: 2px solid var(--danger-edge, #7a2a3a);
+          color: var(--danger, #ff8fa0);
+        }
+
+        .saving-indicator {
+          font-family: var(--f-mono);
+          font-size: 13px;
+          color: var(--text-muted);
+          text-align: right;
+        }
+
+        .settings-grid-stack {
+          display: flex;
+          flex-direction: column;
+          gap: 28px;
+        }
+
+        .policy-select-row {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          padding-top: 8px;
+          border-top: 1px solid rgb(255 255 255 / 0.08);
+        }
+
+        @media (min-width: 640px) {
+          .policy-select-row {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+          }
+        }
+
+        .policy-select {
+          height: 44px;
+          padding: 0 16px;
+          border-radius: 12px;
+          background: var(--surface-2, #29232a);
+          border: 2px solid var(--edge, #3d3439);
+          color: white;
+          font-family: var(--f-mono);
+          font-size: 13.5px;
+          outline: none;
+          cursor: pointer;
+        }
+
+        .policy-select:focus {
+          border-color: #ff5ca8;
+          box-shadow: 0 0 0 3px rgb(255 92 168 / 0.2);
+        }
+
+        .account-signout-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          height: 52px;
+          padding-inline: 26px;
+          border-radius: 9999px;
+          background: transparent;
+          border: 2px solid rgb(255 255 255 / 0.4);
+          color: white;
+          font-family: var(--f-body);
+          font-weight: 700;
+          font-size: 16px;
+          cursor: pointer;
+          transition: border-color 0.2s ease, translate 0.2s var(--spring);
+        }
+
+        .account-signout-btn:hover {
+          border-color: white;
+          translate: 0 -2px;
+        }
+      `}</style>
     </div>
   );
 }

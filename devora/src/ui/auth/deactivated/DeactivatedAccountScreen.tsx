@@ -4,10 +4,12 @@
 
 "use client";
 
+// ===== IMPORTS =====
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-// vocab: onAuthStateChanged = Firebase listener; fires when user signs in or out
-import { onAuthStateChanged } from "firebase/auth";
+// vocab: onAuthStateChanged = Firebase listener; fires when the user signs in or out
+import { onAuthStateChanged, type User } from "firebase/auth";
 
 import {
   auth,
@@ -17,79 +19,114 @@ import {
 } from "@/backend/firebase";
 import SignInPageLayout from "../layout/SignInPageLayout";
 
-// Gate screen for deactivated accounts — reactivate or leave.
+// ===== NAMED CONSTANTS =====
+
+const LOGIN_PATH = "/auth/login";
+const ONBOARDING_PATH = "/onboarding";
+const DISCOVERY_PATH = "/find-students";
+const PROFILE_LOAD_ERROR_MESSAGE = "Could not load your account. Refresh and try again.";
+const DEACTIVATED_HEADING = "Account deactivated";
+const DEACTIVATED_BODY =
+  "Your profile is hidden from other students. Reactivate to show up for classmates again. Your data is still here until you delete the account in Settings.";
+const REACTIVATING_LABEL = "Reactivating…";
+const REACTIVATE_LABEL = "Reactivate account";
+
+// ===== HELPER FUNCTIONS =====
+
+async function redirectIfThisScreenDoesNotApply(
+  user: User | null,
+  router: ReturnType<typeof useRouter>,
+  setErrorMessage: (message: string) => void,
+  setIsLoading: (isLoading: boolean) => void
+): Promise<void> {
+  // Not signed in — send them to login.
+  if (!user) {
+    // Manipulate here: change LOGIN_PATH if the login route moves
+    router.replace(LOGIN_PATH);
+    return;
+  }
+
+  try {
+    // vocab: getUserProfile = load users/{uid} from Firestore
+    const profile = await getUserProfile(user.uid);
+    // Onboarding not finished — finish that first (deactivated check comes after).
+    // vocab: ?. = if profile is null, skip the field
+    if (!profile?.onboardingComplete) {
+      router.replace(ONBOARDING_PATH);
+      return;
+    }
+
+    // Already active — they do not belong on this screen.
+    // vocab / profile field: isDeactivated = hidden from Discovery until they reactivate
+    if (!profile.isDeactivated) {
+      // Manipulate here: change DISCOVERY_PATH if Discovery’s route renames
+      router.replace(DISCOVERY_PATH);
+    }
+  } catch {
+    setErrorMessage(PROFILE_LOAD_ERROR_MESSAGE);
+  } finally {
+    // Always hide the spinner once the auth check finishes.
+    setIsLoading(false);
+  }
+}
+
+async function reactivateAccountAndOpenDiscovery(
+  router: ReturnType<typeof useRouter>,
+  setIsSaving: (isSaving: boolean) => void,
+  setErrorMessage: (message: string) => void
+): Promise<void> {
+  // vocab: auth.currentUser = whoever Firebase says is logged in right now (or null)
+  const signedInUser = auth.currentUser;
+  if (!signedInUser) {
+    router.replace(LOGIN_PATH);
+    return;
+  }
+
+  setIsSaving(true);
+  setErrorMessage("");
+
+  try {
+    // vocab: reactivateAccount = clear isDeactivated in Firestore and show on Discovery again
+    // vocab: await = wait for the Firestore write before navigating
+    await reactivateAccount(signedInUser.uid);
+    router.replace(DISCOVERY_PATH);
+  } catch (thrownError) {
+    // vocab: getAuthErrorMessage = turn Firebase errors into a friendly string
+    setErrorMessage(getAuthErrorMessage(thrownError));
+    setIsSaving(false);
+  }
+}
+
+// ===== MAIN COMPONENT =====
+
+/**
+ * Gate screen for deactivated accounts. Reactivate, or leave the profile hidden.
+ * @returns The deactivated-account card, or a spinner while the profile loads
+ */
 export default function DeactivatedAccountScreen() {
-  // vocab: useRouter = Next.js helper that lets us bounce away if they don't belong here
+  // vocab: useRouter = Next.js helper that lets us bounce away if they do not belong here
   const router = useRouter();
-  // vocab: useState = React hook that stores a value and re-renders when you call the setter
+  // vocab: useState = store a value and re-render when the setter is called
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  // If they're signed out or the account isn't deactivated, bounce them.
+  // If they are signed out, or the account is not deactivated, bounce them.
   // vocab: useEffect = run side effects after render (here: subscribe to Firebase auth)
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      // Not signed in — send them to login.
-      if (!user) {
-        // Manipulate here: change "/auth/login" if the login route moves
-        router.replace("/auth/login");
-        return;
-      }
-
-      try {
-        // vocab: getUserProfile = load users/{uid} from Firestore
-        const profile = await getUserProfile(user.uid);
-        // Onboarding not finished — finish that first (deactivated check comes after).
-        // vocab/symbol: ?. = optional chaining — if profile is null, skip the field
-        if (!profile?.onboardingComplete) {
-          router.replace("/onboarding");
-          return;
-        }
-        // Already active — they don't belong on this screen.
-        // vocab / profile field: isDeactivated = hidden from Discovery until they reactivate
-        if (!profile.isDeactivated) {
-          // Manipulate here: change "/find-students" if Discovery’s route renames
-          router.replace("/find-students");
-        }
-      } catch {
-        setError("Could not load your account. Refresh and try again.");
-      } finally {
-        // Always hide the spinner once the auth check finishes.
-        setIsLoading(false);
-      }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      void redirectIfThisScreenDoesNotApply(user, router, setErrorMessage, setIsLoading);
     });
 
     // vocab: return unsubscribe — React runs this cleanup when the component unmounts
     return unsubscribe;
   }, [router]);
 
-  // This handler turns Discovery back on and continues into the app.
-  // Same backend call as Settings → Reactivate; this screen is the post-login path.
-  // vocab: reactivateAccount = clear isDeactivated in Firestore and show on Discovery again
-  async function handleReactivate() {
-    // vocab: auth.currentUser = whoever Firebase says is logged in right now (or null)
-    const user = auth.currentUser;
-    if (!user) {
-      router.replace("/auth/login");
-      return;
-    }
+  const reactivateAndContinue = () => {
+    // Same backend call as Settings → Reactivate; this screen is the post-login path.
+    void reactivateAccountAndOpenDiscovery(router, setIsSaving, setErrorMessage);
+  };
 
-    setIsSaving(true);
-    setError("");
-
-    try {
-      await reactivateAccount(user.uid);
-      // After reactivate, Discovery is the happy path (same as a normal login).
-      router.replace("/find-students");
-    } catch (err) {
-      // vocab: getAuthErrorMessage = turn Firebase errors into a friendly string
-      setError(getAuthErrorMessage(err));
-      setIsSaving(false);
-    }
-  }
-
-  // Spinner while we confirm this account is actually deactivated.
   if (isLoading) {
     return (
       <SignInPageLayout>
@@ -100,26 +137,21 @@ export default function DeactivatedAccountScreen() {
     );
   }
 
-  // Explanation + Reactivate CTA.
+  const reactivateButtonLabel = isSaving ? REACTIVATING_LABEL : REACTIVATE_LABEL;
+
   return (
     <SignInPageLayout>
       <div className="flex flex-col gap-5 text-center">
-        <h1 className="font-display headline-grad text-2xl font-bold">
-          Account deactivated
-        </h1>
-        <p className="theme-muted text-sm leading-relaxed">
-          Your profile is hidden from other students. Reactivate to show up
-          for classmates again. Your data is still here until you delete the
-          account in Settings.
-        </p>
-        {error ? <div className="sign-in-error text-left">{error}</div> : null}
+        <h1 className="font-display headline-grad text-2xl font-bold">{DEACTIVATED_HEADING}</h1>
+        <p className="theme-muted text-sm leading-relaxed">{DEACTIVATED_BODY}</p>
+        {errorMessage ? <div className="sign-in-error text-left">{errorMessage}</div> : null}
         <button
           type="button"
           className="btn-neon font-display rounded-full px-8 py-3 text-sm font-semibold uppercase tracking-[0.12em] text-[#14051c]"
-          onClick={handleReactivate}
+          onClick={reactivateAndContinue}
           disabled={isSaving}
         >
-          {isSaving ? "Reactivating…" : "Reactivate account"}
+          {reactivateButtonLabel}
         </button>
       </div>
     </SignInPageLayout>

@@ -1,6 +1,8 @@
 // Deactivate, reactivate, and permanently delete the signed-in student's account.
-// Flow: Settings Danger zone → Firestore flags first; full wipe only on delete.
-// Delete path: re-auth with Google → wipe Storage → wipe subcollections → delete user doc + Auth.
+// Flow: Settings danger zone sets Firestore flags first. A full wipe happens only on delete.
+// Delete order: re-auth with Google → wipe Storage → wipe subcollections → delete the profile → delete Auth.
+
+// ===== IMPORTS =====
 
 import {
   collection,
@@ -12,22 +14,120 @@ import {
   writeBatch,
 } from "firebase/firestore";
 import { deleteObject, listAll, ref } from "firebase/storage";
-import { deleteUser } from "firebase/auth";
+import { deleteUser, type User } from "firebase/auth";
 
 import { reauthenticateWithGoogle } from "./auth";
+import {
+  deleteDiscoveryProfileProjection,
+  syncDiscoveryProfileProjection,
+} from "./discovery-profile-sync";
 import { auth, db, storage } from "./start-firebase";
+import { getUserProfile } from "./user-profile";
 
-// Nested folders under users/{uid}/ that we wipe on hard delete.
-// Manipulate here: add a collection name here if you create another users/{uid}/… folder
-// vocab/symbol: as const = lock these names so TypeScript knows the exact strings
+// ===== NAMED CONSTANTS =====
+
+// Nested folders under users/{uid}/ that a hard delete wipes.
+// Manipulate here: add a collection name if you create another users/{uid}/… folder.
+// vocab: as const = lock these names so TypeScript knows the exact strings
 const USER_SUBCOLLECTIONS = ["projects", "notifications"] as const;
 
-// Hide this profile from Discovery. Data stays so they can turn it back on later.
-// vocab: uid = Firebase Auth user id (same as users/{uid} document id)
-export async function deactivateAccount(uid: string): Promise<void> {
-  // Why set isPublic false too? Discovery should hide deactivated students immediately.
+const MERGE_EXISTING_DOCUMENT_FIELDS = { merge: true } as const;
+
+const NOT_SIGNED_IN_TO_DELETE_ERROR = "You need to be signed in to delete your account.";
+const WRONG_GOOGLE_ACCOUNT_ERROR = "Pick the same Google account that's signed in.";
+
+type UserSubcollectionName = (typeof USER_SUBCOLLECTIONS)[number];
+
+// ===== HELPER FUNCTIONS =====
+
+function requireSignedInUser(): User {
+  const currentUser = auth.currentUser;
+  if (!currentUser) {
+    throw new Error(NOT_SIGNED_IN_TO_DELETE_ERROR);
+  }
+
+  return currentUser;
+}
+
+// Google requires a fresh login before it will delete an Auth user.
+// After the popup, it must still be the same person.
+async function requireSameUserAfterGoogleReauthentication(originalUserId: string): Promise<User> {
+  // vocab: reauthenticateWithGoogle = popup that refreshes the login ticket
+  await reauthenticateWithGoogle();
+
+  const signedInUser = auth.currentUser;
+  const isSameUser = Boolean(signedInUser) && signedInUser?.uid === originalUserId;
+  if (!signedInUser || !isSameUser) {
+    throw new Error(WRONG_GOOGLE_ACCOUNT_ERROR);
+  }
+
+  return signedInUser;
+}
+
+// A missing Storage folder should not block the rest of the wipe.
+async function deleteUserUploads(userId: string): Promise<void> {
+  // vocab: ref = pointer to a folder in Storage
+  // vocab: Storage = Firebase cloud file storage, not Firestore
+  const userFolderRef = ref(storage, `users/${userId}`);
+
+  try {
+    // vocab: listAll = every file under this path
+    // vocab: Promise.all = wait until every delete finishes
+    const storageFileListing = await listAll(userFolderRef);
+    await Promise.all(
+      storageFileListing.items.map((storageFile) => deleteObject(storageFile))
+    );
+  } catch {
+    // Folder missing or already empty. Keep going so Firestore and Auth still wipe.
+  }
+}
+
+async function deleteUserSubcollection(
+  userId: string,
+  subcollectionName: UserSubcollectionName
+): Promise<void> {
+  // vocab: subcollection = nested documents under a parent doc (users/{uid}/projects/…)
+  // vocab: getDocs = read every document in that collection once
+  const subcollectionSnapshot = await getDocs(
+    collection(db, "users", userId, subcollectionName)
+  );
+
+  if (subcollectionSnapshot.empty) {
+    return;
+  }
+
+  // vocab: writeBatch = group many deletes into one Firestore commit
+  const deleteBatch = writeBatch(db);
+  subcollectionSnapshot.docs.forEach((profileDocument) => {
+    deleteBatch.delete(profileDocument.ref);
+  });
+  await deleteBatch.commit();
+}
+
+async function deleteStoredUserData(userId: string): Promise<void> {
+  await deleteUserUploads(userId);
+
+  for (const subcollectionName of USER_SUBCOLLECTIONS) {
+    await deleteUserSubcollection(userId, subcollectionName);
+  }
+
+  await deleteDiscoveryProfileProjection(userId);
+
+  // vocab: deleteDoc = remove the users/{uid} document
+  await deleteDoc(doc(db, "users", userId));
+}
+
+// ===== MAIN FUNCTIONS =====
+
+/**
+ * Hide this profile from Discovery. The data stays so they can turn it back on later.
+ * @param userId - Firebase Auth user id
+ * @returns Resolves when the deactivated flags are saved
+ */
+export async function deactivateAccount(userId: string): Promise<void> {
+  // Discovery projections key off isPublic, so both flags have to flip or they stay visible.
   await setDoc(
-    doc(db, "users", uid),
+    doc(db, "users", userId),
     {
       isDeactivated: true,
       isPublic: false,
@@ -35,107 +135,51 @@ export async function deactivateAccount(uid: string): Promise<void> {
       deactivatedAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     },
-    // vocab: merge true = change these fields only; keep the rest of the profile
-    { merge: true }
+    MERGE_EXISTING_DOCUMENT_FIELDS
   );
+
+  const profile = await getUserProfile(userId);
+  if (profile) {
+    await syncDiscoveryProfileProjection(userId, profile);
+  } else {
+    await deleteDiscoveryProfileProjection(userId);
+  }
 }
 
-// Undo deactivate — show on Discovery again.
-export async function reactivateAccount(uid: string): Promise<void> {
-  // Manipulate here: set isPublic: false if reactivated accounts should stay private
+/**
+ * Undo deactivate and show the profile on Discovery again.
+ * @param userId - Firebase Auth user id
+ * @returns Resolves when the profile is public again
+ */
+export async function reactivateAccount(userId: string): Promise<void> {
+  // Manipulate here: set isPublic false if reactivated accounts should stay private
   await setDoc(
-    doc(db, "users", uid),
+    doc(db, "users", userId),
     {
       isDeactivated: false,
       isPublic: true,
-      // vocab/symbol: null = clear the old deactivatedAt timestamp
       deactivatedAt: null,
       updatedAt: serverTimestamp(),
     },
-    { merge: true }
+    MERGE_EXISTING_DOCUMENT_FIELDS
   );
-}
 
-// Remove files under users/{uid}/ in Storage (avatar, etc.).
-// vocab: Storage = Firebase cloud file storage (not Firestore)
-async function deleteUserUploads(uid: string): Promise<void> {
-  // vocab: ref = pointer to a folder/file path in Storage
-  const folder = ref(storage, `users/${uid}`);
-
-  try {
-    // List every file in the folder, then delete them all at once.
-    // vocab: listAll = get every file under this Storage path
-    // vocab: Promise.all = wait until every deleteObject finishes
-    // vocab: listing.items = file refs (not subfolders); map each to deleteObject
-    const listing = await listAll(folder);
-    await Promise.all(listing.items.map((item) => deleteObject(item)));
-  } catch {
-    // Folder missing or already empty — keep going so Firestore/Auth still wipe.
-    // Why swallow? Missing Storage folder should not block account deletion.
+  const profile = await getUserProfile(userId);
+  if (profile) {
+    await syncDiscoveryProfileProjection(userId, profile);
   }
 }
 
-// Delete one subcollection under users/{uid} (projects or notifications).
-// vocab: subcollection = nested documents under a parent doc (users/{uid}/projects/…)
-async function deleteUserSubcollection(
-  uid: string,
-  name: (typeof USER_SUBCOLLECTIONS)[number]
-): Promise<void> {
-  // vocab: getDocs = read all documents in a collection once
-  // vocab: collection(db, "users", uid, name) = users/{uid}/{name}
-  const snapshot = await getDocs(collection(db, "users", uid, name));
-
-  // Nothing to delete in this subcollection.
-  if (snapshot.empty) {
-    return;
-  }
-
-  // Batch delete is faster/safer than deleting docs one by one.
-  // vocab: writeBatch = group many deletes into one Firestore commit
-  const batch = writeBatch(db);
-  // vocab: forEach on snapshot.docs = each document in that subcollection
-  snapshot.docs.forEach((item) => batch.delete(item.ref));
-  // vocab: batch.commit() = actually send all those deletes to Firestore
-  await batch.commit();
-}
-
-// Confirm with Google, then erase Storage + Firestore + Auth for this user.
-// Order matters: Storage → nested docs → profile doc → Auth (Auth last so rules still allow writes).
+/**
+ * Confirm with Google, then erase Storage, Firestore, and Auth for the signed-in user.
+ * Auth is deleted last so security rules that need auth.uid still allow the wipe.
+ * @returns Resolves when the account is gone
+ */
 export async function deleteOwnAccount(): Promise<void> {
-  const user = auth.currentUser;
+  const currentUser = requireSignedInUser();
+  const signedInUser = await requireSameUserAfterGoogleReauthentication(currentUser.uid);
 
-  // Must be signed in before we touch any of their data.
-  // vocab/symbol: ! means NOT — runs when currentUser is missing
-  if (!user) {
-    throw new Error("You need to be signed in to delete your account.");
-  }
-
-  const uid = user.uid;
-
-  // Google requires a fresh login before it will delete an auth user.
-  // vocab: reauthenticateWithGoogle = popup that refreshes the login ticket
-  await reauthenticateWithGoogle();
-
-  const signedIn = auth.currentUser;
-
-  // After re-auth, make sure it's still the same person.
-  if (!signedIn || signedIn.uid !== uid) {
-    throw new Error("Pick the same Google account that's signed in.");
-  }
-
-  // 1) Storage uploads (photos)
-  await deleteUserUploads(uid);
-
-  // 2) Nested Firestore collections under this user
-  // vocab: for...of = loop through each subcollection name in order
-  for (const name of USER_SUBCOLLECTIONS) {
-    await deleteUserSubcollection(uid, name);
-  }
-
-  // 3) Main profile doc, then Firebase Auth user
-  // vocab: deleteDoc = remove the users/{uid} document from Firestore
-  // vocab: deleteUser = remove the Auth account so they can’t sign in again
-  // Why Auth last? Once Auth is gone, Firestore rules that need auth.uid may fail mid-wipe.
-  await deleteDoc(doc(db, "users", uid));
-  await deleteUser(signedIn);
+  await deleteStoredUserData(signedInUser.uid);
+  // vocab: deleteUser = remove the Auth account so they cannot sign in again
+  await deleteUser(signedInUser);
 }

@@ -1,15 +1,14 @@
-// Lazy-loads the pyramid WebGL background (no SSR).
-// Same idea as VoronoiShaderBackgroundClient: dynamic(..., { ssr: false }) so the
-// server HTML pass never touches WebGL. BackgroundPicture imports this file.
+// Lazy-loads the pyramid WebGL background so the server HTML pass never touches the GPU.
+// Flow: Next dynamic import with ssr off → render PyramidShaderBackground in the browser.
+// BackgroundPicture imports this file, not the shader file itself.
 
 "use client";
 
+// ===== IMPORTS =====
+
 import dynamic from "next/dynamic";
 
-// vocab: dynamic() = Next.js lazy import; ssr:false = skip server render
-const PyramidShaderBackground = dynamic(() => import("./PyramidShaderBackground"), {
-  ssr: false,
-});
+// ===== TYPES =====
 
 type PyramidShaderBackgroundClientProps = {
   className?: string;
@@ -17,6 +16,22 @@ type PyramidShaderBackgroundClientProps = {
   fixed?: boolean;
 };
 
+// ===== HELPER FUNCTIONS =====
+
+// vocab: dynamic() = Next.js lazy import
+// ssr stays a written false. Next only accepts that flag as a literal in this call.
+const PyramidShaderBackground = dynamic(() => import("./PyramidShaderBackground"), {
+  ssr: false,
+});
+
+// ===== MAIN COMPONENT =====
+
+/**
+ * Browser-only wrapper around the pyramid shader.
+ * @param props.className - Extra classes passed through to the canvas
+ * @param props.fixed - When true, the canvas sticks to the window instead of the parent box
+ * @returns The lazy pyramid shader
+ */
 export default function PyramidShaderBackgroundClient({
   className,
   fixed,

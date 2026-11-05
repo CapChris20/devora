@@ -1,6 +1,22 @@
 // Static filter sidebar copy for the Discovery Grid.
-// These lists match DESIGN_SCOPE.md (not Firestore yet — mock profiles use the same strings).
-// Used by DiscoveryFilterSidebar. Edit options here to change what faculty see in the demo.
+// Flow: these lists fill the sidebar pills, and the grid starts with none of them selected.
+// Used by DiscoveryFilterSidebar and DiscoveryGridContent. Mock profiles reuse the same strings.
+
+// ===== NAMED CONSTANTS =====
+
+// Repeated pill and title classes. The strings match globals.css exactly.
+// Manipulate here: these tokens only change color if the CSS class names stay the same.
+const PILL_CLASS_CYAN = "page-pill-cyan" as const;
+const PILL_CLASS_PURPLE = "page-pill-purple" as const;
+const PILL_CLASS_GOLD = "page-pill-gold" as const;
+const PILL_CLASS_PINK = "page-pill-pink" as const;
+// Empty string = Class Year stays neutral glass, with no cyan/gold chrome.
+const PILL_CLASS_NONE = "" as const;
+
+const LABEL_CLASS_LOGO = "logo-gradient" as const;
+const LABEL_CLASS_DEVORA = "devora-gradient-text" as const;
+const LABEL_CLASS_PINK = "pink-grad" as const;
+const LABEL_CLASS_HEADLINE = "headline-grad" as const;
 
 // vocab: as const = lock the array to these exact strings so TypeScript can autocomplete them
 export const DISCOVERY_MAJORS = [
@@ -125,6 +141,8 @@ export const DISCOVERY_CLASS_YEARS = [
   "Graduate",
 ] as const;
 
+// ===== TYPES =====
+
 // One sidebar block = a label + pill color + the option strings.
 export type FilterSectionId =
   | "majors"
@@ -141,83 +159,88 @@ export type FilterSectionId =
 export type FilterSection = {
   id: FilterSectionId;
   label: string;
-  // Empty string = Class Year (neutral glass, no cyan/gold chrome)
   pillClass: "page-pill-cyan" | "page-pill-purple" | "page-pill-gold" | "page-pill-pink" | "";
   labelClass: string;
   activeLabelClass: string;
   options: readonly string[];
 };
 
+// This list is a constant, but it has to follow FilterSection so each row is type-checked.
 // Section labels cycle the four Devora gradients (DESIGN_SCOPE mapping).
 // Manipulate here: reorder sections or swap pillClass to retint a group
 export const FILTER_SECTIONS: FilterSection[] = [
   {
     id: "majors",
     label: "CECS Major",
-    pillClass: "page-pill-cyan",
-    labelClass: "logo-gradient",
-    activeLabelClass: "logo-gradient",
+    pillClass: PILL_CLASS_CYAN,
+    labelClass: LABEL_CLASS_LOGO,
+    activeLabelClass: LABEL_CLASS_LOGO,
     options: DISCOVERY_MAJORS,
   },
   {
     id: "concentrations",
     label: "CIS / CIA Concentration",
-    pillClass: "page-pill-purple",
-    labelClass: "devora-gradient-text",
-    activeLabelClass: "devora-gradient-text",
+    pillClass: PILL_CLASS_PURPLE,
+    labelClass: LABEL_CLASS_DEVORA,
+    activeLabelClass: LABEL_CLASS_DEVORA,
     options: DISCOVERY_CONCENTRATIONS,
   },
   {
     id: "niches",
     label: "Technical Niche",
-    pillClass: "page-pill-gold",
-    labelClass: "pink-grad",
-    activeLabelClass: "pink-grad",
+    pillClass: PILL_CLASS_GOLD,
+    labelClass: LABEL_CLASS_PINK,
+    activeLabelClass: LABEL_CLASS_PINK,
     options: DISCOVERY_NICHES,
   },
   {
     id: "hobbies",
     label: "Hobbies & Activities",
-    pillClass: "page-pill-pink",
-    labelClass: "headline-grad",
-    activeLabelClass: "headline-grad",
+    pillClass: PILL_CLASS_PINK,
+    labelClass: LABEL_CLASS_HEADLINE,
+    activeLabelClass: LABEL_CLASS_HEADLINE,
     options: DISCOVERY_HOBBIES,
   },
   {
     id: "media",
     label: "Media & Entertainment",
-    pillClass: "page-pill-purple",
-    labelClass: "devora-gradient-text",
-    activeLabelClass: "devora-gradient-text",
+    pillClass: PILL_CLASS_PURPLE,
+    labelClass: LABEL_CLASS_DEVORA,
+    activeLabelClass: LABEL_CLASS_DEVORA,
     options: DISCOVERY_MEDIA,
   },
   {
     id: "clubs",
     label: "Clubs & Orgs",
-    pillClass: "page-pill-cyan",
-    labelClass: "logo-gradient",
-    activeLabelClass: "logo-gradient",
+    pillClass: PILL_CLASS_CYAN,
+    labelClass: LABEL_CLASS_LOGO,
+    activeLabelClass: LABEL_CLASS_LOGO,
     options: DISCOVERY_CLUBS,
   },
   {
     id: "lookingFor",
     label: "Looking For",
-    pillClass: "page-pill-gold",
-    labelClass: "pink-grad",
-    activeLabelClass: "pink-grad",
+    pillClass: PILL_CLASS_GOLD,
+    labelClass: LABEL_CLASS_PINK,
+    activeLabelClass: LABEL_CLASS_PINK,
     options: DISCOVERY_LOOKING_FOR,
   },
   {
     id: "classYear",
     label: "Class Year",
-    pillClass: "",
-    labelClass: "headline-grad",
-    activeLabelClass: "headline-grad",
+    pillClass: PILL_CLASS_NONE,
+    labelClass: LABEL_CLASS_HEADLINE,
+    activeLabelClass: LABEL_CLASS_HEADLINE,
     options: DISCOVERY_CLASS_YEARS,
   },
 ];
 
-// Empty selected map — every section starts with no pills on.
+// ===== MAIN FUNCTIONS =====
+
+/**
+ * Start the sidebar with every section cleared.
+ * @returns A map whose keys are the section ids and whose values are empty lists
+ */
 export function emptyFilterSelection(): Record<FilterSectionId, string[]> {
   return {
     majors: [],
@@ -231,7 +254,14 @@ export function emptyFilterSelection(): Record<FilterSectionId, string[]> {
   };
 }
 
-// How many pills are on across every section (drives “Clear N filters”).
-export function countActiveFilters(selected: Record<FilterSectionId, string[]>): number {
-  return FILTER_SECTIONS.reduce((sum, section) => sum + selected[section.id].length, 0);
+/**
+ * Count how many pills are on across every section.
+ * The sidebar uses this for the “Clear N filters” label.
+ * @param selectedFilters - Pills that are currently on, grouped by section id
+ * @returns The total number of selected pills
+ */
+export function countActiveFilters(selectedFilters: Record<FilterSectionId, string[]>): number {
+  return FILTER_SECTIONS.reduce((runningTotal, section) => {
+    return runningTotal + selectedFilters[section.id].length;
+  }, 0);
 }

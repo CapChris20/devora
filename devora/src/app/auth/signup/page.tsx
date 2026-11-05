@@ -1,12 +1,16 @@
-// Sign-up route — collects name and Michigan email before Google account creation.
-// Flow: render SignInPageLayout chrome → SignupCard (name, email, Google button).
+// Sign-up route. Collects a name and Michigan email before Google account creation.
+// Flow: render SignInPageLayout → SignupCard (name, email, Google button).
+
+// ===== IMPORTS =====
 
 import SignInPageLayout from "@/ui/auth/layout/SignInPageLayout";
 import SignupCard from "@/ui/auth/signup/SignupCard";
 
-// Thin route: auth chrome + SignupCard (name, email, Google button).
-// vocab: page.tsx = Next.js App Router file that owns the /auth/signup URL
-// Real Google / Firestore logic lives in SignupCard → sign-in-actions.ts
+// ===== MAIN COMPONENT =====
+
+/**
+ * The /auth/signup page. Google and Firestore work lives in SignupCard.
+ */
 export default function SignupPage() {
   return (
     <SignInPageLayout>

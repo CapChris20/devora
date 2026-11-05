@@ -1,13 +1,18 @@
-// Login route — Google sign-in card inside the shared auth layout.
-// Flow: render SignInPageLayout chrome → LoginCard (email hint + Google button).
+// Login route. The shared auth chrome wraps the Google sign-in card.
+// Flow: render SignInPageLayout → LoginCard (email field + Google button).
+
+// ===== IMPORTS =====
 
 import SignInPageLayout from "@/ui/auth/layout/SignInPageLayout";
 import LoginCard from "@/ui/auth/login/LoginCard";
 
-// Thin route: auth chrome + LoginCard (email hint + Google button).
-// vocab: page.tsx = Next.js App Router file that owns the /auth/login URL
-// Real Google / Firestore logic lives in LoginCard → sign-in-actions.ts
+// ===== MAIN COMPONENT =====
+
+/**
+ * The /auth/login page. Google and Firestore work lives in LoginCard.
+ */
 export default function LoginPage() {
+  // vocab: page.tsx = the Next.js file that owns this URL
   return (
     <SignInPageLayout>
       <LoginCard />

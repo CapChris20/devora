@@ -40,30 +40,6 @@
 | Account page UI | ✓ Complete | View + edit profile, discovery preview, profile strength bar |
 | Auth / onboarding UI | ✓ Complete | Login, signup, 5-step onboarding, welcome screen |
 
-**Screenshots** *(captured Sep 2, 2026 via Playwright — see `assets/`)*
-
-#### Homepage
-
-![Homepage hero — nav, title, credits, and call-to-action](../assets/homepage-screenshot.png)
-
-![Homepage feature sections below the fold](../assets/homepage-features.png)
-
-#### Authentication
-
-![Login page — Google sign-in for @umich.edu](../assets/auth-login.png)
-
-![Sign up page — name fields + Google sign-in](../assets/auth-signup.png)
-
-#### Shell Pages (coming soon)
-
-![Discovery Grid shell — Peaks background](../assets/discovery-grid-shell.png)
-
-![Settings shell — City background](../assets/settings-shell.png)
-
-![FAQs shell — Peaks background](../assets/faqs-shell.png)
-
-![Activity Center shell — Pyramids background](../assets/activity-center-shell.png)
-
 ---
 
 ### Documentation Created
@@ -216,7 +192,6 @@ Several Week 4+ items were started early during infrastructure work:
 | Design scope | `devora/src/docs/DESIGN_SCOPE.md` |
 | Firestore schema | `devora/src/docs/firestore-schema.md` |
 | Mobile roadmap | `devora/src/docs/mobile-app-roadmap.md` |
-| Screenshot assets | `assets/` (9 PNGs — homepage, auth, shell pages) |
 
 ---
 

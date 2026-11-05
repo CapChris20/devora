@@ -41,3 +41,4 @@ functions/lib
 firebase-debug.log
 firebase-debug.*.log
 pglite-debug.log
+.env*

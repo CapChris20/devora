@@ -1,29 +1,38 @@
 // Sun/moon navbar button that toggles dark vs light mode.
-// Shows a sun when dark (click for light), moon when light (click for dark).
-// Reads/writes theme through useTheme() from DarkLightMode (ThemeProvider must wrap the app).
+// Flow: read theme → show the icon for the mode a click will switch to → toggleTheme().
+// Reads and writes theme through useTheme() from DarkLightMode. ThemeProvider must wrap the app.
 
 "use client";
+
+// ===== IMPORTS =====
 
 import { Moon, Sun } from "lucide-react";
 import { useTheme } from "./DarkLightMode";
 
+// ===== NAMED CONSTANTS =====
+
+const DARK_THEME_NAME = "dark";
+const LIGHT_MODE_BUTTON_LABEL = "Switch to light mode";
+const DARK_MODE_BUTTON_LABEL = "Switch to dark mode";
+const THEME_TOGGLE_CLASS = "theme-toggle";
+const THEME_ICON_CLASS = "h-4 w-4";
+
+// ===== MAIN COMPONENT =====
+
+/**
+ * Navbar control that flips the app between dark and light.
+ * The icon is the destination: sun means "go light", moon means "go dark".
+ * @returns The theme toggle button
+ */
 export default function DarkLightButton() {
-  // vocab/symbol: { theme, toggleTheme } = destructure the values from the theme hook
-  // theme = "dark" | "light"; toggleTheme flips and persists via ThemeProvider
+  // vocab/symbol: { theme, toggleTheme } = the current "dark" | "light" value and the flip function
   const { theme, toggleTheme } = useTheme();
+  const isDarkTheme = theme === DARK_THEME_NAME;
+  const buttonLabel = isDarkTheme ? LIGHT_MODE_BUTTON_LABEL : DARK_MODE_BUTTON_LABEL;
 
   return (
-    <button
-      type="button"
-      onClick={toggleTheme}
-      // Accessible name describes the *destination* mode, matching the icon
-      aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-      // theme-toggle styles (size, hover) live in globals.css
-      className="theme-toggle"
-    >
-      {/* Icon = what you'll switch TO (sun means “go light”, moon means “go dark”).
-          vocab/symbol: ? : = show Sun when dark (click→light), Moon when light (click→dark) */}
-      {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+    <button type="button" onClick={toggleTheme} aria-label={buttonLabel} className={THEME_TOGGLE_CLASS}>
+      {isDarkTheme ? <Sun className={THEME_ICON_CLASS} /> : <Moon className={THEME_ICON_CLASS} />}
     </button>
   );
 }

@@ -14,7 +14,7 @@
 | Homepage (`/home`) | **Live** — full landing |
 | Voronoi shader backgrounds | **Live** — `PageLayout` + home hero |
 | Nav + theme toggle | **Live** — right-aligned glass pill, full-link hit targets |
-| Discovery Grid (`/find-students`) | **Shell** — Filters overlay live; student cards / peek deferred until Firestore browse ([discovery-grid.md](./discovery-grid.md)) |
+| Discovery Grid (`/find-students`) | **Live** — Filters + conditional card grid + peek from Firestore ([discovery-grid.md](./discovery-grid.md)) |
 | Settings, FAQs | **Live** — real Settings + FAQ accordion |
 | Activity Center | **Shell** — coming-soon messaging |
 | Account (`/account-page`) | **Live** — view + edit own profile from Firestore |
@@ -187,7 +187,7 @@ Rebuild pages using these — do not reinvent:
 
 **Route:** `/find-students` (do not rename) · **Nav / title:** Discovery Grid · **Shell:** `PageLayout wide` · **Title class:** `page-title-grad`  
 **Copy:** Find friends, colleagues, and people in your career niche across CECS.  
-**UI:** `src/ui/discovery/` — `DiscoveryGridContent.tsx` (filters live). Cards + peek are **not mounted**; rebuild from [discovery-grid.md](./discovery-grid.md).
+**UI:** `src/ui/discovery/` — `DiscoveryGridContent.tsx` mounts filters, the 4-up card grid, and peek. Data flow: [discovery-grid.md](./discovery-grid.md).
 
 Call this **Discovery Grid** in nav, page title, welcome, and settings. Do not relabel it “People”.
 

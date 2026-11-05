@@ -1,24 +1,66 @@
 // Pill-shaped button group for onboarding and account edit — single or multi-select.
-// Parent owns selected state; this only toggles and reports the new value via onChange.
-// Used by OnboardingForm + AccountProfileEditor with the same option lists.
+// Flow: parent owns the selection → a click toggles or replaces it → onChange reports the next value.
+// Used by OnboardingForm and AccountProfileEditor with the same option lists.
 
 "use client";
 
+// ===== NAMED CONSTANTS =====
+
+const PILL_GROUP_CLASS = "flex flex-col gap-3";
+const PILL_ROW_CLASS = "flex flex-wrap gap-2";
+const PILL_LABEL_CLASS = "onboarding-field-label";
+const PILL_CLASS = "onboarding-pill";
+const PILL_ACTIVE_CLASS = "onboarding-pill-active";
+
+// ===== TYPES =====
+
 type PillGroupProps = {
   label: string;
-  // vocab: readonly string[] = list of option labels that this component won't mutate
+  // vocab: readonly string[] = list of option labels this component will not mutate
   options: readonly string[];
   // Single-select passes one string; multi-select passes a string[]
   selected: string | string[];
-  // vocab: multiple? = optional prop; when true, clicking toggles pills on/off
-  // Omit (or false) = picking a pill replaces the previous single choice
+  // When true, clicking toggles pills on and off. Omit it to replace the one selected pill.
   multiple?: boolean;
   // Parent callback — receives the next selected value after a click
-  // Manipulate here: parent stores this in useState and often casts: value as string / string[]
+  // Manipulate here: parent stores this in useState
   onChange: (value: string | string[]) => void;
 };
 
-// Renders a labeled row of clickable pills.
+// ===== HELPER FUNCTIONS =====
+
+function readSelectedList(selected: string | string[]): string[] {
+  // vocab/symbol: Array.isArray = true when selected is already a list
+  if (Array.isArray(selected)) return [...selected];
+  if (selected) return [selected];
+  return [];
+}
+
+function toggleMultiSelect(selectedList: string[], option: string): string[] {
+  const isAlreadySelected = selectedList.includes(option);
+  if (isAlreadySelected) {
+    return selectedList.filter((item) => item !== option);
+  }
+  // vocab/symbol: ...spread = copy the list and append the new pick
+  return [...selectedList, option];
+}
+
+function buildPillClass(isOptionSelected: boolean): string {
+  if (!isOptionSelected) return PILL_CLASS;
+  return `${PILL_CLASS} ${PILL_ACTIVE_CLASS}`;
+}
+
+// ===== MAIN COMPONENT =====
+
+/**
+ * Labeled row of pills. The parent owns what is selected.
+ * @param props.label - Field label above the pills
+ * @param props.options - Pill labels to show
+ * @param props.selected - One string, or a list when multiple is set
+ * @param props.multiple - Toggle mode when true. Replace mode when omitted.
+ * @param props.onChange - Called with the next string or string list
+ * @returns The pill row
+ */
 export default function PillGroup({
   label,
   options,
@@ -26,45 +68,31 @@ export default function PillGroup({
   multiple,
   onChange,
 }: PillGroupProps) {
-  // Normalize selected into an array so includes() works for both modes.
-  // vocab/symbol: Array.isArray = true when selected is already a list
-  // vocab/symbol: selected ? [selected] : [] = wrap a single string, or empty if blank
-  const selectedList = Array.isArray(selected) ? selected : selected ? [selected] : [];
+  const selectedList = readSelectedList(selected);
+  const isMultiSelect = Boolean(multiple);
 
-  // This function is the heartbeat of the pill row.
-  // Single-select picks one pill; multi-select toggles pills on and off.
-  function toggle(option: string) {
-    if (multiple) {
-      // Already selected → remove it; otherwise add it.
-      // vocab/symbol: includes = true if this option is already in the list
-      // vocab/symbol: filter = keep every item except the one being removed
-      // vocab/symbol: [...selectedList, option] = copy the list and append the new pick
-      const next = selectedList.includes(option)
-        ? selectedList.filter((item) => item !== option)
-        : [...selectedList, option];
-      onChange(next);
+  const selectPillOption = (option: string) => {
+    if (isMultiSelect) {
+      onChange(toggleMultiSelect(selectedList, option));
       return;
     }
-    // Single-select — replace whatever was selected with this option.
-    // Clicking the same pill again still calls onChange(option) (stays selected).
+    // Clicking the current pill again still reports that same option.
     onChange(option);
-  }
+  };
 
   return (
-    <div className="flex flex-col gap-3">
-      <p className="onboarding-field-label">{label}</p>
-      <div className="flex flex-wrap gap-2">
-        {/* One button per option; active class when it's in selectedList */}
-        {/* Manipulate here: change options upstream (onboarding-options.ts), not hardcode here */}
+    <div className={PILL_GROUP_CLASS}>
+      <p className={PILL_LABEL_CLASS}>{label}</p>
+      <div className={PILL_ROW_CLASS}>
+        {/* Manipulate here: change options upstream (onboarding-options.ts), not in this file */}
         {options.map((option) => {
-          const active = selectedList.includes(option);
+          const isOptionSelected = selectedList.includes(option);
           return (
             <button
               key={option}
               type="button"
-              // onboarding-pill-active = filled/selected look (CSS in globals.css)
-              className={`onboarding-pill ${active ? "onboarding-pill-active" : ""}`}
-              onClick={() => toggle(option)}
+              className={buildPillClass(isOptionSelected)}
+              onClick={() => selectPillOption(option)}
             >
               {option}
             </button>

@@ -1,9 +1,13 @@
-// Shared Google sign-in for login + signup pages.
-// This is the “brain” after the student clicks Continue with Google.
-// Flow: check UMich email → Google popup → load/create Firestore profile → pick a redirect.
+// Shared Google sign-in for the login and signup pages.
+// Flow: check the Michigan email → Google popup → load or create the Firestore profile → pick a redirect.
+// Both cards catch thrown Errors and show them in the red banner.
+
 "use client";
 
+// ===== IMPORTS =====
+
 import type { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import type { User } from "firebase/auth";
 
 import {
   getAuthErrorMessage,
@@ -11,11 +15,27 @@ import {
   isUmichEmail,
   saveSignupProfile,
   signInWithGoogle,
+  type UserProfile,
 } from "@/backend/firebase";
 
-// vocab: SignInMode = which form called us
-// "login" skips name save (unless profile is missing); "signup" requires first + last name
-type SignInMode = "login" | "signup";
+// ===== NAMED CONSTANTS =====
+
+export const MICHIGAN_EMAIL_REQUIRED_MESSAGE =
+  "Enter your @umich.edu or @umd.umich.edu school email.";
+
+export const SIGNUP_NAME_REQUIRED_MESSAGE = "Enter your first and last name.";
+
+export const UNEXPECTED_SIGN_IN_ERROR_MESSAGE = "Something went wrong. Please try again.";
+
+const ONBOARDING_PATH = "/onboarding";
+const DEACTIVATED_ACCOUNT_PATH = "/auth/deactivated";
+const DISCOVERY_GRID_PATH = "/find-students";
+const FALLBACK_FIRST_NAME = "Student";
+
+// ===== TYPES =====
+
+// "login" skips the name save unless the profile is missing. "signup" requires both names.
+export type SignInMode = "login" | "signup";
 
 type SignInOptions = {
   firstName?: string;
@@ -23,102 +43,160 @@ type SignInOptions = {
   schoolEmail: string;
 };
 
-// This function is the whole Google auth pipeline for both LoginCard and SignupCard.
-// Callers catch thrown Errors and show them in the red banner.
-// vocab: AppRouterInstance = Next.js router object (has .push / .replace)
+// ===== HELPER FUNCTIONS =====
+
+function assertSchoolEmailIsMichigan(schoolEmail: string): void {
+  // Why before Google? A Gmail address should fail here instead of opening a wasted popup.
+  // Manipulate here: domain rules live in isUmichEmail, not in this message alone
+  if (!isUmichEmail(schoolEmail)) {
+    throw new Error(MICHIGAN_EMAIL_REQUIRED_MESSAGE);
+  }
+}
+
+function assertSignupIncludesBothNames(mode: SignInMode, options: SignInOptions): void {
+  const isSignup = mode === "signup";
+  const hasFirstName = Boolean(options.firstName);
+  const hasLastName = Boolean(options.lastName);
+
+  if (isSignup && (!hasFirstName || !hasLastName)) {
+    throw new Error(SIGNUP_NAME_REQUIRED_MESSAGE);
+  }
+}
+
+// Brand-new Google users can fail Firestore rules until the login ticket includes the email.
+async function refreshLoginToken(signedInUser: User): Promise<void> {
+  // vocab: getIdToken(true) = force a fresh Firebase login ticket. true means do not reuse a cached one.
+  await signedInUser.getIdToken(true);
+}
+
+async function saveProfileFromSignupForm(
+  signedInUser: User,
+  googleEmail: string,
+  options: SignInOptions
+): Promise<void> {
+  await saveSignupProfile(signedInUser.uid, googleEmail, {
+    firstName: options.firstName ?? "",
+    lastName: options.lastName ?? "",
+  });
+}
+
+// Someone hit Log in before they ever signed up. Invent names from Google's display name.
+async function saveProfileFromGoogleDisplayName(
+  signedInUser: User,
+  googleEmail: string
+): Promise<void> {
+  // vocab: split(/\s+/) = cut the name on one or more spaces. "Mary Ann Lee" → ["Mary", "Ann", "Lee"]
+  const displayName = signedInUser.displayName ?? FALLBACK_FIRST_NAME;
+  const nameParts = displayName.trim().split(/\s+/);
+  const firstName = nameParts[0] ?? FALLBACK_FIRST_NAME;
+  // vocab: slice(1).join(" ") = every word after the first, joined back with spaces
+  const lastName = nameParts.slice(1).join(" ");
+
+  await saveSignupProfile(signedInUser.uid, googleEmail, { firstName, lastName });
+}
+
+async function ensureProfileExistsAfterGoogleSignIn(
+  signedInUser: User,
+  googleEmail: string,
+  mode: SignInMode,
+  options: SignInOptions
+): Promise<UserProfile | null> {
+  // vocab: uid = Firebase user id. It stays the same for this Google account forever.
+  // vocab: getUserProfile = read users/{uid}, or null if this is their first time on Devora
+  let userProfile = await getUserProfile(signedInUser.uid);
+  const isSignupWithNames = mode === "signup" && Boolean(options.firstName) && Boolean(options.lastName);
+
+  if (isSignupWithNames) {
+    // Trust the names typed on our form, not Google's display name.
+    // vocab: saveSignupProfile does not set onboardingComplete
+    await saveProfileFromSignupForm(signedInUser, googleEmail, options);
+    return getUserProfile(signedInUser.uid);
+  }
+
+  if (!userProfile) {
+    await saveProfileFromGoogleDisplayName(signedInUser, googleEmail);
+    userProfile = await getUserProfile(signedInUser.uid);
+  }
+
+  return userProfile;
+}
+
+function redirectAfterGoogleSignIn(
+  router: AppRouterInstance,
+  userProfile: UserProfile | null
+): void {
+  // vocab: ?. = if the profile is null, treat onboarding as not complete
+  // vocab: onboardingComplete = true only after Finish on the onboarding form
+  // Manipulate here: change ONBOARDING_PATH if you rename that route
+  if (!userProfile?.onboardingComplete) {
+    router.push(ONBOARDING_PATH);
+    return;
+  }
+
+  // vocab: isDeactivated = classmates cannot find them on the grid
+  // Manipulate here: change DEACTIVATED_ACCOUNT_PATH if you move that screen
+  if (userProfile.isDeactivated) {
+    router.push(DEACTIVATED_ACCOUNT_PATH);
+    return;
+  }
+
+  // Manipulate here: change DISCOVERY_GRID_PATH to send them somewhere else after login
+  router.push(DISCOVERY_GRID_PATH);
+}
+
+/**
+ * Read a thrown value into one banner sentence.
+ * @param thrownValue - Whatever a catch block received
+ * @returns The error message, or a generic fallback
+ */
+export function readThrownErrorMessage(thrownValue: unknown): string {
+  // vocab: instanceof Error = true when the value is a real Error with .message
+  if (thrownValue instanceof Error) {
+    return thrownValue.message;
+  }
+
+  return UNEXPECTED_SIGN_IN_ERROR_MESSAGE;
+}
+
+// ===== MAIN FUNCTION =====
+
+/**
+ * Run the Google sign-in pipeline for login or signup, then redirect.
+ * Callers catch thrown Errors and show them in the red banner.
+ * @param router - Next.js router used for the redirect
+ * @param mode - "login" or "signup"
+ * @param options - School email, plus first and last name on signup
+ * @returns Resolves after a redirect has been started
+ */
 export async function handleGoogleSignIn(
   router: AppRouterInstance,
   mode: SignInMode,
   options: SignInOptions
 ) {
-  // Strip accidental spaces so " alex@umich.edu " still counts as valid.
-  // vocab: .trim() = remove whitespace at the start and end of the string
+  // vocab: AppRouterInstance = Next.js router object (has .push / .replace)
+  // vocab: .trim() = remove spaces so " alex@umich.edu " still counts
   const schoolEmail = options.schoolEmail.trim();
-
-  // Gate 1 — school email must be Michigan before we open Google.
-  // Why before Google? Saves a wasted popup if they typed Gmail by mistake.
-  // vocab: isUmichEmail = true only for @umich.edu or @umd.umich.edu
-  // vocab/symbol: ! means NOT — this block runs when the email is NOT Michigan
-  // Manipulate here: change the allowed domains inside isUmichEmail (backend), not this throw text alone
-  if (!isUmichEmail(schoolEmail)) {
-    throw new Error("Enter your @umich.edu or @umd.umich.edu school email.");
-  }
-
-  // Gate 2 — signup form must have both names (they get written into Firestore).
-  // Login can skip this because returning users already have a profile.
-  if (mode === "signup" && (!options.firstName || !options.lastName)) {
-    throw new Error("Enter your first and last name.");
-  }
+  assertSchoolEmailIsMichigan(schoolEmail);
+  assertSignupIncludesBothNames(mode, options);
 
   try {
-    // Step A — open Google’s account picker and wait until they finish (or cancel).
-    // vocab: signInWithGoogle = Firebase Auth popup; returns a result with .user
-    // vocab: await = pause this function until the popup flow finishes
-    const result = await signInWithGoogle(schoolEmail);
-    const user = result.user;
-    // Google always has an email in normal cases; ?? "" keeps TypeScript/Firestore happy if not.
-    // vocab/symbol: ?? means “if left side is null/undefined, use the right side”
-    const email = user.email ?? "";
+    // vocab: await = pause until the Google popup finishes
+    // vocab: signInWithGoogle = Firebase popup. The result includes .user
+    const signInResult = await signInWithGoogle(schoolEmail);
+    const signedInUser = signInResult.user;
+    // vocab: ?? = if email is missing, use an empty string
+    const googleEmail = signedInUser.email ?? "";
 
-    // Step B — refresh the login ticket so Firestore security rules see the latest email claim.
-    // Without this, a brand-new Google user can briefly fail rules that check request.auth.token.email.
-    // vocab: getIdToken(true) = force-refresh the Firebase Auth JWT (true = don’t reuse a cached one)
-    await user.getIdToken(true);
-
-    // Step C — load users/{uid} from Firestore (null = first time on Devora).
-    // vocab: uid = Firebase Auth user id (unique per Google account, stable forever)
-    // vocab: getUserProfile = read the users/{uid} document, or null if it doesn’t exist yet
-    let profile = await getUserProfile(user.uid);
-
-    // Step D — make sure a starter profile exists (names + email).
-    // Signup path — trust the names they typed on our form (not Google’s displayName).
-    // vocab: saveSignupProfile = create/merge early profile fields; does NOT set onboardingComplete
-    if (mode === "signup" && options.firstName && options.lastName) {
-      await saveSignupProfile(user.uid, email, {
-        firstName: options.firstName,
-        lastName: options.lastName,
-      });
-      // Re-read so the redirect checks below see the fresh document.
-      profile = await getUserProfile(user.uid);
-    }
-    // Login path with no profile yet — invent names from Google’s displayName string.
-    // Happens when someone hits Log in before ever signing up.
-    else if (!profile) {
-      // Break "Alex Chen" into ["Alex", "Chen"].
-      // vocab/symbol: split(/\s+/) = split on one-or-more whitespace characters
-      const nameParts = (user.displayName ?? "Student").trim().split(/\s+/);
-      await saveSignupProfile(user.uid, email, {
-        firstName: nameParts[0] ?? "Student",
-        // Last name = every word after the first ("Mary Ann Lee" → "Ann Lee").
-        // vocab: slice(1).join(" ") = words from index 1 onward, rejoined with spaces
-        lastName: nameParts.slice(1).join(" "),
-      });
-      profile = await getUserProfile(user.uid);
-    }
-
-    // Redirect 1 — onboarding wizard if they never hit Finish.
-    // vocab / profile field: onboardingComplete = true only after Finish on the onboarding form
-    // vocab/symbol: ?. = optional chaining — if profile is null, treat as “not complete”
-    // Manipulate here: change "/onboarding" if you rename the onboarding route
-    if (!profile?.onboardingComplete) {
-      router.push("/onboarding");
-      return;
-    }
-
-    // Redirect 2 — Settings deactivate path: account exists but is hidden from Discovery.
-    // vocab / profile field: isDeactivated = true means classmates can’t find them on the grid
-    // Manipulate here: change "/auth/deactivated" if you move that gate screen
-    if (profile.isDeactivated) {
-      router.push("/auth/deactivated");
-      return;
-    }
-
-    // Redirect 3 — happy path: finished + active → Discovery Grid.
-    // Manipulate here: change "/find-students" to send them somewhere else after login
-    router.push("/find-students");
+    await refreshLoginToken(signedInUser);
+    const userProfile = await ensureProfileExistsAfterGoogleSignIn(
+      signedInUser,
+      googleEmail,
+      mode,
+      options
+    );
+    redirectAfterGoogleSignIn(router, userProfile);
   } catch (error) {
-    // Turn Firebase / Google error codes into a sentence the UI banner can show.
-    // vocab: getAuthErrorMessage = map Firebase error codes (auth/popup-closed, etc.) to friendly text
+    // vocab: getAuthErrorMessage = map Firebase codes such as auth/popup-closed to a sentence
     throw new Error(getAuthErrorMessage(error));
   }
 }

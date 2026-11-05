@@ -1,22 +1,66 @@
 // Animated pyramid-scale background — a ShaderToy "Pyramid Pattern" port.
-// Flow: React boots WebGL → each frame sends time + theme → GPU builds offset
-// pyramid cells → we throw away the demo's blue/red lighting and paint Devora colors.
+// Flow: boot WebGL → each frame sends time and theme → the GPU paints Devora-colored scales.
 // Default background for inner pages, the homepage hero, and auth screens.
 // Pass background="voronoi" on PageLayout to put the crystal field back.
 
 "use client";
 
+// ===== IMPORTS =====
+
 import { useEffect, useRef } from "react";
 
-type PyramidShaderBackgroundProps = {
-  className?: string;
-  // true = stick to the whole browser window (inner pages). false = fill the parent box.
-  fixed?: boolean;
-};
+// ===== NAMED CONSTANTS =====
 
+const WEBGL_CONTEXT_NAME = "webgl" as const;
+const LOW_POWER_GPU_PREFERENCE = "low-power" as const;
+const WEBGL_ALPHA_ENABLED = false;
+const WEBGL_ANTIALIAS_ENABLED = false;
+const WEBGL_DEPTH_ENABLED = false;
+const WEBGL_STENCIL_ENABLED = false;
+const WEBGL_PRESERVE_DRAWING_BUFFER = false;
+const PYRAMID_SHADER_LOG_LABEL = "[PyramidShader]";
+const REDUCED_MOTION_MEDIA_QUERY = "(prefers-reduced-motion: reduce)";
+const DOCUMENT_THEME_ATTRIBUTE = "data-theme";
+const LIGHT_THEME_ATTRIBUTE_VALUE = "light";
+const LIGHT_THEME_UNIFORM_VALUE = 1;
+const DARK_THEME_UNIFORM_VALUE = 0;
+const POSITION_ATTRIBUTE_NAME = "aPos";
+const RESOLUTION_UNIFORM_NAME = "uResolution";
+const TIME_UNIFORM_NAME = "uTime";
+const THEME_UNIFORM_NAME = "uTheme";
+const VERTEX_FLOATS_PER_POSITION = 2;
+const ARE_VERTEX_FLOATS_NORMALIZED = false;
+const VERTEX_STRIDE_BYTES = 0;
+const VERTEX_OFFSET_BYTES = 0;
+const DRAW_START_VERTEX = 0;
+const FULLSCREEN_QUAD_VERTEX_COUNT = 6;
+const FULLSCREEN_QUAD_CORNERS = new Float32Array([
+  -1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1,
+]);
+// Manipulate here: lower = smoother drift and more GPU; 33 is about 30fps
+const FRAME_INTERVAL_MS = 33;
+const MILLISECONDS_PER_SECOND = 1000;
+const INITIAL_SHADER_TIME_SECONDS = 0;
+const FROZEN_SHADER_TIME_SECONDS = 0;
+const NO_ANIMATION_FRAME_ID = 0;
+const RESET_DRAW_TIMESTAMP_MS = 0;
+// Internal pixels stay close to full size so the hatch lines do not turn to mush.
+// Manipulate here: 0.8 = sharper scales; lower = cheaper and blurrier
+const PYRAMID_CANVAS_RESOLUTION_SCALE = 0.8;
+const MINIMUM_CANVAS_DIMENSION_PX = 2;
+const RESIZE_EVENT = "resize";
+const VISIBILITY_CHANGE_EVENT = "visibilitychange";
+const PYRAMID_CANVAS_CLASS = "pyramid-shader-bg pointer-events-none";
+const FIXED_CANVAS_POSITION_CLASS = "fixed inset-0";
+const ABSOLUTE_CANVAS_POSITION_CLASS = "absolute inset-0";
+const DEFAULT_CLASS_NAME = "";
+const DEFAULT_IS_FIXED = false;
+
+// Single-letter names inside the shader (p, n, g, uv, rd) are GPU math locals.
+// They stay short on purpose. The formulas below must stay byte-for-byte.
 // --- VERTEX SHADER ---
 // vocab: vertex shader = places the corners of the full-screen rectangle
-const VERT = `
+const VERTEX_SHADER_SOURCE = `
 attribute vec2 aPos;
 void main() {
   // vocab: gl_Position = where this corner lands (−1..1 = full canvas)
@@ -28,7 +72,7 @@ void main() {
 // vocab: fragment shader = runs once per pixel and picks that pixel's color
 // Shape math is the pyramid demo. Color ramps are copied from VoronoiShaderBackground
 // so both backgrounds share one palette (dark trench → purple → magenta → orange → gold).
-const FRAG = `
+const FRAGMENT_SHADER_SOURCE = `
 precision highp float;
 
 // vocab: uniform = a value JavaScript pushes in for every pixel this frame
@@ -227,174 +271,418 @@ void main() {
 }
 `;
 
-function compile(gl: WebGLRenderingContext, type: number, source: string) {
-  const shader = gl.createShader(type);
+
+// ===== TYPES =====
+
+type PyramidShaderBackgroundProps = {
+  className?: string;
+  // true = stick to the whole browser window (inner pages). false = fill the parent box.
+  fixed?: boolean;
+};
+
+type PyramidDrawSession = {
+  webglContext: WebGLRenderingContext;
+  shaderProgram: WebGLProgram;
+  vertexBuffer: WebGLBuffer | null;
+  canvas: HTMLCanvasElement;
+  shouldReduceMotion: boolean;
+  positionAttributeLocation: number;
+  resolutionUniformLocation: WebGLUniformLocation | null;
+  timeUniformLocation: WebGLUniformLocation | null;
+  themeUniformLocation: WebGLUniformLocation | null;
+};
+
+type PyramidAnimationState = {
+  animationFrameId: number;
+  isDisposed: boolean;
+  lastDrawTimestampMs: number;
+  startTimestampMs: number;
+  shouldReduceMotion: boolean;
+};
+
+type PyramidListenerInput = {
+  canvas: HTMLCanvasElement;
+  resizeCanvas: () => void;
+  pauseWhenTabHidden: () => void;
+  themeObserver: MutationObserver;
+};
+
+type PyramidReleaseInput = {
+  animation: PyramidAnimationState;
+  detachListeners: () => void;
+  webglContext: WebGLRenderingContext;
+  shaderProgram: WebGLProgram;
+  vertexBuffer: WebGLBuffer | null;
+};
+
+// ===== HELPER FUNCTIONS =====
+
+function createLowPowerWebglContext(canvas: HTMLCanvasElement): WebGLRenderingContext | null {
+  // vocab: WebGL = the browser GPU drawing API. These flags stay off: the quad is opaque.
+  return canvas.getContext(WEBGL_CONTEXT_NAME, {
+    alpha: WEBGL_ALPHA_ENABLED,
+    antialias: WEBGL_ANTIALIAS_ENABLED,
+    depth: WEBGL_DEPTH_ENABLED,
+    stencil: WEBGL_STENCIL_ENABLED,
+    powerPreference: LOW_POWER_GPU_PREFERENCE,
+    preserveDrawingBuffer: WEBGL_PRESERVE_DRAWING_BUFFER,
+  });
+}
+
+function compileShader(
+  webglContext: WebGLRenderingContext,
+  shaderType: number,
+  shaderSource: string,
+): WebGLShader | null {
+  const shader = webglContext.createShader(shaderType);
   if (!shader) return null;
-  gl.shaderSource(shader, source);
-  gl.compileShader(shader);
-  if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-    console.warn("[PyramidShader]", gl.getShaderInfoLog(shader));
-    gl.deleteShader(shader);
-    return null;
-  }
-  return shader;
+
+  webglContext.shaderSource(shader, shaderSource);
+  webglContext.compileShader(shader);
+
+  const didCompile = webglContext.getShaderParameter(shader, webglContext.COMPILE_STATUS);
+  if (didCompile) return shader;
+
+  console.warn(PYRAMID_SHADER_LOG_LABEL, webglContext.getShaderInfoLog(shader));
+  webglContext.deleteShader(shader);
+  return null;
 }
 
-function linkProgram(gl: WebGLRenderingContext, vsSource: string, fsSource: string) {
-  const vs = compile(gl, gl.VERTEX_SHADER, vsSource);
-  const fs = compile(gl, gl.FRAGMENT_SHADER, fsSource);
-  if (!vs || !fs) {
-    if (vs) gl.deleteShader(vs);
-    if (fs) gl.deleteShader(fs);
-    return null;
-  }
-  const prog = gl.createProgram();
-  if (!prog) return null;
-  gl.attachShader(prog, vs);
-  gl.attachShader(prog, fs);
-  gl.linkProgram(prog);
-  gl.deleteShader(vs);
-  gl.deleteShader(fs);
-  if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) {
-    console.warn("[PyramidShader]", gl.getProgramInfoLog(prog));
-    gl.deleteProgram(prog);
-    return null;
-  }
-  return prog;
+function deleteShaderIfPresent(webglContext: WebGLRenderingContext, shader: WebGLShader | null): void {
+  if (!shader) return;
+  webglContext.deleteShader(shader);
 }
 
+function linkShaderProgram(
+  webglContext: WebGLRenderingContext,
+  vertexShaderSource: string,
+  fragmentShaderSource: string,
+): WebGLProgram | null {
+  const vertexShader = compileShader(webglContext, webglContext.VERTEX_SHADER, vertexShaderSource);
+  const fragmentShader = compileShader(
+    webglContext,
+    webglContext.FRAGMENT_SHADER,
+    fragmentShaderSource,
+  );
+  if (!vertexShader || !fragmentShader) {
+    deleteShaderIfPresent(webglContext, vertexShader);
+    deleteShaderIfPresent(webglContext, fragmentShader);
+    return null;
+  }
+
+  const shaderProgram = webglContext.createProgram();
+  if (!shaderProgram) return null;
+
+  webglContext.attachShader(shaderProgram, vertexShader);
+  webglContext.attachShader(shaderProgram, fragmentShader);
+  webglContext.linkProgram(shaderProgram);
+  webglContext.deleteShader(vertexShader);
+  webglContext.deleteShader(fragmentShader);
+
+  const didLink = webglContext.getProgramParameter(shaderProgram, webglContext.LINK_STATUS);
+  if (didLink) return shaderProgram;
+
+  console.warn(PYRAMID_SHADER_LOG_LABEL, webglContext.getProgramInfoLog(shaderProgram));
+  webglContext.deleteProgram(shaderProgram);
+  return null;
+}
+
+function createFullscreenQuadBuffer(webglContext: WebGLRenderingContext): WebGLBuffer | null {
+  const vertexBuffer = webglContext.createBuffer();
+  webglContext.bindBuffer(webglContext.ARRAY_BUFFER, vertexBuffer);
+  webglContext.bufferData(webglContext.ARRAY_BUFFER, FULLSCREEN_QUAD_CORNERS, webglContext.STATIC_DRAW);
+  return vertexBuffer;
+}
+
+function readThemeUniformValue(): number {
+  const themeAttribute = document.documentElement.getAttribute(DOCUMENT_THEME_ATTRIBUTE);
+  const isLightTheme = themeAttribute === LIGHT_THEME_ATTRIBUTE_VALUE;
+  if (isLightTheme) return LIGHT_THEME_UNIFORM_VALUE;
+  return DARK_THEME_UNIFORM_VALUE;
+}
+
+function createPyramidDrawSession(
+  webglContext: WebGLRenderingContext,
+  shaderProgram: WebGLProgram,
+  vertexBuffer: WebGLBuffer | null,
+  canvas: HTMLCanvasElement,
+  shouldReduceMotion: boolean,
+): PyramidDrawSession {
+  return {
+    webglContext,
+    shaderProgram,
+    vertexBuffer,
+    canvas,
+    shouldReduceMotion,
+    positionAttributeLocation: webglContext.getAttribLocation(shaderProgram, POSITION_ATTRIBUTE_NAME),
+    resolutionUniformLocation: webglContext.getUniformLocation(shaderProgram, RESOLUTION_UNIFORM_NAME),
+    timeUniformLocation: webglContext.getUniformLocation(shaderProgram, TIME_UNIFORM_NAME),
+    themeUniformLocation: webglContext.getUniformLocation(shaderProgram, THEME_UNIFORM_NAME),
+  };
+}
+
+function paintPyramidFrame(session: PyramidDrawSession, timeSeconds: number): void {
+  const { webglContext } = session;
+  webglContext.useProgram(session.shaderProgram);
+  webglContext.bindBuffer(webglContext.ARRAY_BUFFER, session.vertexBuffer);
+  webglContext.enableVertexAttribArray(session.positionAttributeLocation);
+  webglContext.vertexAttribPointer(
+    session.positionAttributeLocation,
+    VERTEX_FLOATS_PER_POSITION,
+    webglContext.FLOAT,
+    ARE_VERTEX_FLOATS_NORMALIZED,
+    VERTEX_STRIDE_BYTES,
+    VERTEX_OFFSET_BYTES,
+  );
+  // vocab: uniform = a value JavaScript pushes in for every pixel this frame
+  webglContext.uniform2f(session.resolutionUniformLocation, session.canvas.width, session.canvas.height);
+  const shaderTimeSeconds = session.shouldReduceMotion ? FROZEN_SHADER_TIME_SECONDS : timeSeconds;
+  webglContext.uniform1f(session.timeUniformLocation, shaderTimeSeconds);
+  webglContext.uniform1f(session.themeUniformLocation, readThemeUniformValue());
+  webglContext.drawArrays(webglContext.TRIANGLES, DRAW_START_VERTEX, FULLSCREEN_QUAD_VERTEX_COUNT);
+}
+
+function resizePyramidCanvas(
+  canvas: HTMLCanvasElement,
+  webglContext: WebGLRenderingContext,
+  isFixedToViewport: boolean,
+): void {
+  const parentElement = canvas.parentElement;
+  const layoutWidth = isFixedToViewport
+    ? window.innerWidth
+    : parentElement?.clientWidth || window.innerWidth;
+  const layoutHeight = isFixedToViewport
+    ? window.innerHeight
+    : parentElement?.clientHeight || window.innerHeight;
+  const pixelWidth = Math.max(
+    MINIMUM_CANVAS_DIMENSION_PX,
+    Math.floor(layoutWidth * PYRAMID_CANVAS_RESOLUTION_SCALE),
+  );
+  const pixelHeight = Math.max(
+    MINIMUM_CANVAS_DIMENSION_PX,
+    Math.floor(layoutHeight * PYRAMID_CANVAS_RESOLUTION_SCALE),
+  );
+
+  if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
+    canvas.width = pixelWidth;
+    canvas.height = pixelHeight;
+  }
+
+  canvas.style.width = `${layoutWidth}px`;
+  canvas.style.height = `${layoutHeight}px`;
+  webglContext.viewport(0, 0, pixelWidth, pixelHeight);
+}
+
+function createPyramidAnimationState(shouldReduceMotion: boolean): PyramidAnimationState {
+  return {
+    animationFrameId: NO_ANIMATION_FRAME_ID,
+    isDisposed: false,
+    lastDrawTimestampMs: RESET_DRAW_TIMESTAMP_MS,
+    startTimestampMs: performance.now(),
+    shouldReduceMotion,
+  };
+}
+
+function createPyramidFrameLoop(
+  animation: PyramidAnimationState,
+  paintFrame: (timeSeconds: number) => void,
+): (now: number) => void {
+  // This function is the heartbeat. The browser keeps calling it; we decide whether to repaint.
+  const runAnimationFrame = (now: number) => {
+    // vocab: now = timestamp in milliseconds from requestAnimationFrame
+    // vocab: isDisposed = tear down already happened — don't touch WebGL
+    if (animation.isDisposed) return;
+
+    // vocab: requestAnimationFrame = call this again right before the next screen refresh
+    animation.animationFrameId = window.requestAnimationFrame(runAnimationFrame);
+    if (animation.shouldReduceMotion) return;
+
+    // Manipulate here: lower FRAME_INTERVAL_MS = smoother but heavier; raise = calmer on laptops
+    const millisecondsSinceLastPaint = now - animation.lastDrawTimestampMs;
+    if (millisecondsSinceLastPaint < FRAME_INTERVAL_MS) return;
+
+    animation.lastDrawTimestampMs = now;
+    const elapsedSeconds = (now - animation.startTimestampMs) / MILLISECONDS_PER_SECOND;
+    paintFrame(elapsedSeconds);
+  };
+
+  return runAnimationFrame;
+}
+
+function pausePyramidWhenTabIsHidden(
+  animation: PyramidAnimationState,
+  runAnimationFrame: (now: number) => void,
+): void {
+  const isTabHidden = document.hidden;
+  if (isTabHidden) {
+    window.cancelAnimationFrame(animation.animationFrameId);
+    animation.animationFrameId = NO_ANIMATION_FRAME_ID;
+    return;
+  }
+
+  const isLoopStopped = animation.animationFrameId === NO_ANIMATION_FRAME_ID;
+  const shouldRestartLoop = !animation.shouldReduceMotion && isLoopStopped;
+  if (!shouldRestartLoop) return;
+
+  animation.lastDrawTimestampMs = RESET_DRAW_TIMESTAMP_MS;
+  animation.animationFrameId = window.requestAnimationFrame(runAnimationFrame);
+}
+
+function createThemeRepaintObserver(
+  animation: PyramidAnimationState,
+  paintFrame: (timeSeconds: number) => void,
+): MutationObserver {
+  // vocab: MutationObserver = watch the DOM. The sun/moon toggle changes data-theme on <html>.
+  return new MutationObserver(() => {
+    const elapsedSeconds = (performance.now() - animation.startTimestampMs) / MILLISECONDS_PER_SECOND;
+    paintFrame(elapsedSeconds);
+  });
+}
+
+function attachPyramidPageListeners(input: PyramidListenerInput): () => void {
+  window.addEventListener(RESIZE_EVENT, input.resizeCanvas);
+  document.addEventListener(VISIBILITY_CHANGE_EVENT, input.pauseWhenTabHidden);
+  input.themeObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: [DOCUMENT_THEME_ATTRIBUTE],
+  });
+
+  // vocab: ResizeObserver = fires when the parent box changes size, not only the window
+  const parentResizeObserver = new ResizeObserver(input.resizeCanvas);
+  if (input.canvas.parentElement) parentResizeObserver.observe(input.canvas.parentElement);
+
+  return () => {
+    window.removeEventListener(RESIZE_EVENT, input.resizeCanvas);
+    document.removeEventListener(VISIBILITY_CHANGE_EVENT, input.pauseWhenTabHidden);
+    input.themeObserver.disconnect();
+    parentResizeObserver.disconnect();
+  };
+}
+
+function bootPyramidFrames(
+  animation: PyramidAnimationState,
+  resizeCanvas: () => void,
+  paintFrame: (timeSeconds: number) => void,
+  runAnimationFrame: (now: number) => void,
+): void {
+  resizeCanvas();
+  paintFrame(INITIAL_SHADER_TIME_SECONDS);
+  if (animation.shouldReduceMotion) return;
+  animation.animationFrameId = window.requestAnimationFrame(runAnimationFrame);
+}
+
+function releasePyramidGpuResources(input: PyramidReleaseInput): void {
+  input.animation.isDisposed = true;
+  window.cancelAnimationFrame(input.animation.animationFrameId);
+  input.detachListeners();
+  input.webglContext.deleteProgram(input.shaderProgram);
+  input.webglContext.deleteBuffer(input.vertexBuffer);
+}
+
+function openPyramidDrawSession(
+  canvas: HTMLCanvasElement,
+  webglContext: WebGLRenderingContext,
+  shaderProgram: WebGLProgram,
+  shouldReduceMotion: boolean,
+) {
+  const vertexBuffer = createFullscreenQuadBuffer(webglContext);
+  const session = createPyramidDrawSession(
+    webglContext,
+    shaderProgram,
+    vertexBuffer,
+    canvas,
+    shouldReduceMotion,
+  );
+  const animation = createPyramidAnimationState(shouldReduceMotion);
+  const paintFrame = (timeSeconds: number) => paintPyramidFrame(session, timeSeconds);
+  const runAnimationFrame = createPyramidFrameLoop(animation, paintFrame);
+  return { vertexBuffer, animation, paintFrame, runAnimationFrame };
+}
+
+function startPyramidRenderLoop(
+  canvas: HTMLCanvasElement,
+  webglContext: WebGLRenderingContext,
+  shaderProgram: WebGLProgram,
+  isFixedToViewport: boolean,
+  shouldReduceMotion: boolean,
+): () => void {
+  const drawSession = openPyramidDrawSession(canvas, webglContext, shaderProgram, shouldReduceMotion);
+  const resizeCanvas = () => resizePyramidCanvas(canvas, webglContext, isFixedToViewport);
+  const themeObserver = createThemeRepaintObserver(drawSession.animation, drawSession.paintFrame);
+  const pauseWhenTabHidden = () => {
+    pausePyramidWhenTabIsHidden(drawSession.animation, drawSession.runAnimationFrame);
+  };
+
+  bootPyramidFrames(
+    drawSession.animation,
+    resizeCanvas,
+    drawSession.paintFrame,
+    drawSession.runAnimationFrame,
+  );
+  const detachListeners = attachPyramidPageListeners({
+    canvas,
+    resizeCanvas,
+    pauseWhenTabHidden,
+    themeObserver,
+  });
+
+  return () =>
+    releasePyramidGpuResources({
+      animation: drawSession.animation,
+      detachListeners,
+      webglContext,
+      shaderProgram,
+      vertexBuffer: drawSession.vertexBuffer,
+    });
+}
+
+function mountPyramidShader(
+  canvas: HTMLCanvasElement,
+  isFixedToViewport: boolean,
+): (() => void) | void {
+  const shouldReduceMotion = window.matchMedia(REDUCED_MOTION_MEDIA_QUERY).matches;
+  const webglContext = createLowPowerWebglContext(canvas);
+  if (!webglContext) return;
+
+  const shaderProgram = linkShaderProgram(webglContext, VERTEX_SHADER_SOURCE, FRAGMENT_SHADER_SOURCE);
+  if (!shaderProgram) return;
+
+  return startPyramidRenderLoop(
+    canvas,
+    webglContext,
+    shaderProgram,
+    isFixedToViewport,
+    shouldReduceMotion,
+  );
+}
+
+// ===== MAIN COMPONENT =====
+
+/**
+ * Full-screen pyramid scale field. Pauses when the tab is hidden or motion is reduced.
+ * @param props.className - Extra classes on the canvas
+ * @param props.fixed - Stick to the window when true, otherwise fill the parent box
+ * @returns The WebGL canvas
+ */
 export default function PyramidShaderBackground({
-  className = "",
-  fixed = false,
+  className = DEFAULT_CLASS_NAME,
+  fixed = DEFAULT_IS_FIXED,
 }: PyramidShaderBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
+  // vocab: useEffect = run setup after paint; the returned function runs when this leaves the page
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-    const gl = canvas.getContext("webgl", {
-      alpha: false,
-      antialias: false,
-      depth: false,
-      stencil: false,
-      powerPreference: "low-power",
-      preserveDrawingBuffer: false,
-    });
-    if (!gl) return;
-
-    const prog = linkProgram(gl, VERT, FRAG);
-    if (!prog) return;
-
-    const buf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-    gl.bufferData(
-      gl.ARRAY_BUFFER,
-      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-      gl.STATIC_DRAW
-    );
-
-    const aPos = gl.getAttribLocation(prog, "aPos");
-    const uResolution = gl.getUniformLocation(prog, "uResolution");
-    const uTime = gl.getUniformLocation(prog, "uTime");
-    const uTheme = gl.getUniformLocation(prog, "uTheme");
-
-    let raf = 0;
-    let disposed = false;
-    let lastDraw = 0;
-    const start = performance.now();
-    // Heavier than Voronoi (each pixel samples the height field many times).
-    // Manipulate here: lower FRAME_MS = smoother drift, more GPU; 33 ≈ 30fps
-    const FRAME_MS = 33;
-
-    const readTheme = () =>
-      document.documentElement.getAttribute("data-theme") === "light" ? 1 : 0;
-
-    // Internal pixels stay closer to full size than Voronoi (0.55) because the
-    // hatch lines disappear into mush if we scale them down too far.
-    // Manipulate here: 0.8 = sharper scales; 0.55 = cheaper, blurrier
-    const resize = () => {
-      const parent = canvas.parentElement;
-      const w = fixed ? window.innerWidth : parent?.clientWidth || window.innerWidth;
-      const h = fixed ? window.innerHeight : parent?.clientHeight || window.innerHeight;
-      const scale = 0.8;
-      const pw = Math.max(2, Math.floor(w * scale));
-      const ph = Math.max(2, Math.floor(h * scale));
-      if (canvas.width !== pw || canvas.height !== ph) {
-        canvas.width = pw;
-        canvas.height = ph;
-      }
-      canvas.style.width = `${w}px`;
-      canvas.style.height = `${h}px`;
-      gl.viewport(0, 0, pw, ph);
-    };
-
-    const draw = (timeSec: number) => {
-      gl.useProgram(prog);
-      gl.bindBuffer(gl.ARRAY_BUFFER, buf);
-      gl.enableVertexAttribArray(aPos);
-      gl.vertexAttribPointer(aPos, 2, gl.FLOAT, false, 0, 0);
-      gl.uniform2f(uResolution, canvas.width, canvas.height);
-      gl.uniform1f(uTime, reduceMotion ? 0 : timeSec);
-      gl.uniform1f(uTheme, readTheme());
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
-    };
-
-    const frame = (now: number) => {
-      if (disposed) return;
-      raf = window.requestAnimationFrame(frame);
-      if (reduceMotion) return;
-      if (now - lastDraw < FRAME_MS) return;
-      lastDraw = now;
-      draw((now - start) / 1000);
-    };
-
-    const themeObserver = new MutationObserver(() => {
-      draw((performance.now() - start) / 1000);
-    });
-
-    const onVisibility = () => {
-      if (document.hidden) {
-        window.cancelAnimationFrame(raf);
-        raf = 0;
-      } else if (!reduceMotion && !raf) {
-        lastDraw = 0;
-        raf = window.requestAnimationFrame(frame);
-      }
-    };
-
-    resize();
-    draw(0);
-    if (!reduceMotion) raf = window.requestAnimationFrame(frame);
-
-    window.addEventListener("resize", resize);
-    document.addEventListener("visibilitychange", onVisibility);
-    themeObserver.observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ["data-theme"],
-    });
-
-    const ro = new ResizeObserver(resize);
-    if (canvas.parentElement) ro.observe(canvas.parentElement);
-
-    return () => {
-      disposed = true;
-      window.cancelAnimationFrame(raf);
-      window.removeEventListener("resize", resize);
-      document.removeEventListener("visibilitychange", onVisibility);
-      themeObserver.disconnect();
-      ro.disconnect();
-      gl.deleteProgram(prog);
-      gl.deleteBuffer(buf);
-    };
+    return mountPyramidShader(canvas, fixed);
   }, [fixed]);
+
+  const positionClass = fixed ? FIXED_CANVAS_POSITION_CLASS : ABSOLUTE_CANVAS_POSITION_CLASS;
 
   return (
     <canvas
       ref={canvasRef}
-      className={`pyramid-shader-bg pointer-events-none ${fixed ? "fixed inset-0" : "absolute inset-0"} ${className}`.trim()}
+      className={`${PYRAMID_CANVAS_CLASS} ${positionClass} ${className}`.trim()}
       aria-hidden="true"
     />
   );

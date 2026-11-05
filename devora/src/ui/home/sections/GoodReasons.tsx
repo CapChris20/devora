@@ -1,180 +1,187 @@
-// Section 05 — bento grid of six benefit cards (“what you get out of it”).
-// Flow: mouse-grid → chapter label → signal header → uneven bento cards (PNG icons + Gemini star).
-// Manipulate here: edit BENEFITS (featured/accent/copy); CSS benefits-bento-cell-N places each cell.
+// Section 05 — Benefits: "What you get out of it" per DESIGN.md § 5.1F.
+// Orange field (--orange), chapter rail ("Benefits"), torn seam at entry.
+// 6 paper poster cards (3x2 >= 1100px, 2x3 >= 640px, 1-col mobile). Equal heights.
+// Each card: 58px icon inline before h3.t-card (gap 16), then 16px ink-body paragraph.
 
 "use client";
 
-// vocab: StaticImageData = typed import of a local PNG used by next/image
-import Image, { type StaticImageData } from "next/image";
-import MouseGridBackground from "./MouseGridBackground";
-import { SectionNumber, FadeIn } from "./FadeInWhenScrolling";
+import Image from "next/image";
+import TornEdge from "@/ui/shared/TornEdge";
+import ChapterRail from "./ChapterRail";
 
-import anxietyIcon from "@/ui/shared/assets/small-assets/benefit-anxiety.png";
-import learningIcon from "@/ui/shared/assets/small-assets/benefit-learning.png";
-import verifiedIcon from "@/ui/shared/assets/small-assets/benefit-verified.png";
-import portfolioIcon from "@/ui/shared/assets/small-assets/benefit-portfolio.png";
-import launchIcon from "@/ui/shared/assets/small-assets/benefit-launch.png";
+import bAnxiety from "@/ui/shared/assets/small-assets/recolored/benefit-anxiety.png";
+import bLearning from "@/ui/shared/assets/small-assets/recolored/benefit-learning.png";
+import bVerified from "@/ui/shared/assets/small-assets/recolored/benefit-verified.png";
+import bPortfolio from "@/ui/shared/assets/small-assets/recolored/benefit-portfolio.png";
+import bLaunch from "@/ui/shared/assets/small-assets/recolored/benefit-launch.png";
 
-// Card data: PNG (or “gemini” for the standout star), copy, featured flag, accent family.
-// featured: true → benefit-card-featured (bigger / highlighted in the bento CSS).
-// Manipulate here: flip featured, swap icon imports, rewrite titles/descs
-const BENEFITS: {
-  icon: StaticImageData | "gemini";
+type BenefitItem = {
   title: string;
-  desc: string;
-  featured: boolean;
-  accent: "logo" | "headline";
-}[] = [
+  text: string;
+  icon?: typeof bAnxiety;
+  isStar?: boolean;
+};
+
+const BENEFITS: BenefitItem[] = [
   {
-    icon: anxietyIcon,
-    title: "Less Social Anxiety",
-    desc: "Skip the cold approach. Warm intros to people who already share your courses, skills, and goals — so reaching out feels human, not scary.",
-    featured: true,
-    accent: "logo",
+    icon: bAnxiety,
+    title: "Less social anxiety",
+    text: "Skip the cold approach. Warm intros to people who already share your courses, skills and goals, so reaching out feels human, not scary.",
   },
   {
-    icon: learningIcon,
-    title: "Learn Together",
-    desc: "Study groups, peer mentoring, and upperclassmen who've survived the exact classes you're about to take.",
-    featured: false,
-    accent: "headline",
+    icon: bLearning,
+    title: "Learn together",
+    text: "Study groups, peer mentoring, and upperclassmen who've survived the exact classes you're about to take.",
   },
   {
-    icon: verifiedIcon,
-    title: "Verified & Exclusive",
-    desc: "Every member is a confirmed CECS @ UM-Dearborn student. Your campus network — no bots, no randos.",
-    featured: false,
-    accent: "logo",
+    icon: bVerified,
+    title: "Verified and exclusive",
+    text: "Every member is a confirmed CECS student at UM\u2011Dearborn. Your campus network, with no bots and no randos.",
   },
   {
-    icon: portfolioIcon,
-    title: "Showcase Everything",
-    desc: "One profile for projects, skills, niches, socials, goals, and interests. Stop scattering yourself across five apps.",
-    featured: false,
-    accent: "headline",
+    icon: bPortfolio,
+    title: "Showcase everything",
+    text: "One profile for projects, skills, niches, socials, goals and interests. Stop scattering yourself across five apps.",
   },
   {
-    icon: launchIcon,
-    title: "Launch Your Career",
-    desc: "Alumni connections, internship referrals, and people in your career niche — not just another résumé line.",
-    featured: true,
-    accent: "logo",
+    icon: bLaunch,
+    title: "Launch your career",
+    text: "Alumni connections, internship referrals and people in your career niche, not just another r\u00e9sum\u00e9 line.",
   },
   {
-    // Stand Out — Gemini-style 4-point star (dark pink → orange). No @lobehub/icons (React 19 peer conflict).
-    icon: "gemini",
-    title: "Stand Out",
-    desc: "Get discovered for who you are and where you’re headed — not buried under a generic résumé in a recruiter feed.",
-    featured: false,
-    accent: "headline",
+    isStar: true,
+    title: "Stand out",
+    text: "Get discovered for who you are and where you're headed, not buried under a generic r\u00e9sum\u00e9 in a recruiter feed.",
   },
 ];
 
-// Gemini-style 4-point star with dark pink → orange fill.
-// Manipulate here: change stopColor values to recolor the standout star
-function StandoutGeminiStar({ size = 56 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 24 24"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className="benefit-gemini-star"
-      aria-hidden="true"
-    >
-      <defs>
-        {/* vocab: linearGradient = SVG paint that blends two colors across the star */}
-        <linearGradient id="benefitGeminiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#be185d" />
-          <stop offset="55%" stopColor="#ff5ca8" />
-          <stop offset="100%" stopColor="#ff9a3d" />
-        </linearGradient>
-      </defs>
-      <path
-        fill="url(#benefitGeminiGrad)"
-        d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z"
-      />
-    </svg>
-  );
-}
-
 export default function GoodReasons() {
   return (
-    <MouseGridBackground className="landing-section-alt">
-      <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
-        <FadeIn>
-          <SectionNumber num="05" title="Benefits" />
-        </FadeIn>
+    <section
+      id="benefits"
+      className="scene scene-orange"
+      style={{
+        background: "var(--orange)",
+        color: "var(--ink)",
+        position: "relative",
+      }}
+    >
+      <TornEdge color="var(--orange)" />
 
-        {/* Signal header — same energy as Key Info / Why Devora */}
-        <FadeIn delay={0.08}>
-          <div className="benefits-header mt-6 lg:mt-7">
-            <p className="benefits-eyebrow font-pixel">
-              <span className="soft-pink">PAYOFF</span>
-              <span className="benefits-eyebrow-sep" aria-hidden="true">
-                /
-              </span>
-              <span className="theme-faint">SIX REASONS</span>
+      <div className="wrap">
+        <div className="chapter-grid">
+          <ChapterRail label="Benefits" field="orange" />
+
+          <div>
+            <h2 className="t-title text-[var(--ink)]">What you get out of it</h2>
+            <p className="lead text-[var(--ink)] mt-4 mb-12">
+              Concrete wins for CECS students who want friends, colleagues and a
+              network that actually helps their career.
             </p>
-            <h2 className="benefits-title font-display soft-headline">
-              What you get
-              <br />
-              out of it.
-            </h2>
-            <p className="benefits-lead">
-              Not vibes. Concrete wins for CECS students who want friends, colleagues, and a
-              network that actually helps your career.
-            </p>
-          </div>
-        </FadeIn>
 
-        {/* Bento layout — CSS places each cell by benefits-bento-cell-N */}
-        <div className="benefits-bento mt-6 lg:mt-7">
-          {BENEFITS.map((b, i) => {
-            const logo = b.accent === "logo";
-            // vocab: padStart(2,"0") = turn 1 into "01"
-            const code = String(i + 1).padStart(2, "0");
-
-            return (
-              <FadeIn
-                key={b.title}
-                delay={0.07 * i}
-                className={`benefits-bento-cell benefits-bento-cell-${i + 1}`}
-              >
-                <article
-                  className={`benefit-card group h-full ${b.featured ? "benefit-card-featured" : ""} ${logo ? "benefit-card-logo" : "benefit-card-headline"}`}
-                >
-                  <div className="benefit-card-top">
-                    <div
-                      className={`benefit-icon-wrap ${logo ? "benefit-icon-wrap-logo" : "benefit-icon-wrap-headline"}`}
-                    >
-                      {b.icon === "gemini" ? (
-                        <StandoutGeminiStar size={40} />
+            {/* 6 Paper poster cards */}
+            <div className="benefits-grid">
+              {BENEFITS.map((item, idx) => (
+                <div key={idx} className="poster benefit-card">
+                  <div className="benefit-card-header">
+                    <div className="benefit-icon-box">
+                      {item.isStar ? (
+                        <svg
+                          width="58"
+                          height="58"
+                          viewBox="0 0 24 24"
+                          className="standout-star"
+                          stroke="var(--ink)"
+                          strokeWidth="0.8"
+                          aria-hidden="true"
+                        >
+                          <defs>
+                            <linearGradient
+                              id="starGrad"
+                              x1="0%"
+                              y1="0%"
+                              x2="100%"
+                              y2="100%"
+                            >
+                              <stop offset="0%" stopColor="#ff9a3d" />
+                              <stop offset="52%" stopColor="#ff5ca8" />
+                              <stop offset="100%" stopColor="#ff2bd6" />
+                            </linearGradient>
+                          </defs>
+                          <path
+                            d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z"
+                            fill="url(#starGrad)"
+                          />
+                        </svg>
                       ) : (
                         <Image
-                          src={b.icon}
+                          src={item.icon!}
                           alt=""
-                          width={40}
-                          height={40}
-                          className="benefit-icon-img"
-                          aria-hidden="true"
+                          width={58}
+                          height={58}
+                          className="object-contain"
                         />
                       )}
                     </div>
-                    <span className="benefit-code font-pixel soft-pink">{code}</span>
+
+                    <h3 className="t-card text-[var(--ink)]">{item.title}</h3>
                   </div>
 
-                  {/* Solid heading — icon wells carry the color, titles stay readable */}
-                  <h3 className="benefit-card-title font-display theme-heading">{b.title}</h3>
-                  <p className="benefit-card-desc">{b.desc}</p>
-                  <span className="benefit-card-accent" aria-hidden="true" />
-                </article>
-              </FadeIn>
-            );
-          })}
+                  <p className="text-[16px] leading-[1.55] text-[var(--ink-body)] mt-2">
+                    {item.text}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-    </MouseGridBackground>
+
+      <style jsx>{`
+        .benefits-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 28px;
+          grid-auto-rows: 1fr;
+        }
+
+        @media (min-width: 640px) {
+          .benefits-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (min-width: 1100px) {
+          .benefits-grid {
+            grid-template-columns: repeat(3, 1fr);
+          }
+        }
+
+        .benefit-card {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+        }
+
+        .benefit-card-header {
+          display: flex;
+          align-items: center;
+          gap: 16px;
+        }
+
+        .benefit-icon-box {
+          width: 58px;
+          height: 58px;
+          flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .standout-star {
+          filter: drop-shadow(2px 2px 0 rgba(13, 11, 14, 0.25));
+        }
+      `}</style>
+    </section>
   );
 }

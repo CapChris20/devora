@@ -1,232 +1,410 @@
-// Section 03 — eight “best use cases” (formerly FourSteps), shown four at a time.
-// Flow: MouseGridBackground → chapter label → headline → one vertical panel.
-//       Dots + a filling progress bar auto-cycle 01–04 ↔ 05–08.
-// Manipulate here: edit STEPS for copy/icons; CARD_CYCLE_MS in CardCycle.tsx for speed.
+// Section 03 — Best use cases per DESIGN.md § 5.1D.
+// Night field, mouse-lit grid, chapter rail ("How it works").
+// Pinned sideways scroll: cards are in ONE continuous horizontal row and move
+// towards the left as you scroll down.
+// Each card has a layered 2-card structure:
+// - A primary card in front (paper ground, ink border) showing the information.
+// - A second card behind it with the orange-pink-magenta gradient (--grad).
 
 "use client";
 
-import { AnimatePresence, motion } from "framer-motion";
-// vocab: AnimatePresence = keeps the old page mounted until its exit animation finishes
-// vocab: StaticImageData = typed import of a local PNG used by next/image
-import Image, { type StaticImageData } from "next/image";
+import { useEffect, useRef } from "react";
+import Image from "next/image";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+import TornEdge from "@/ui/shared/TornEdge";
+import ChapterRail from "./ChapterRail";
 import MouseGridBackground from "./MouseGridBackground";
-import { SectionNumber, FadeIn } from "./FadeInWhenScrolling";
-import { CARD_CYCLE_MS, CardCycleBar, useCardCycle } from "./CardCycle";
 
-// Custom use-case icons (one PNG per stop — filenames match the theme of each card).
-// Manipulate here: swap any import path to change which artwork sits on a stop
-import peersIcon from "@/ui/shared/assets/small-assets/use-case-peers.png";
-import studyIcon from "@/ui/shared/assets/small-assets/use-case-study.png";
-import eventsIcon from "@/ui/shared/assets/small-assets/use-case-events.png";
-import networkIcon from "@/ui/shared/assets/small-assets/use-case-network.png";
-import anxietyIcon from "@/ui/shared/assets/small-assets/use-case-anxiety.png";
-import feedbackIcon from "@/ui/shared/assets/small-assets/use-case-feedback.png";
-import decisionsIcon from "@/ui/shared/assets/small-assets/use-case-decisions.png";
-import helpIcon from "@/ui/shared/assets/small-assets/use-case-help.png";
+import ucPeers from "@/ui/shared/assets/small-assets/recolored/use-case-peers.png";
+import ucStudy from "@/ui/shared/assets/small-assets/recolored/use-case-study.png";
+import ucEvents from "@/ui/shared/assets/small-assets/recolored/use-case-events.png";
+import ucNetwork from "@/ui/shared/assets/small-assets/recolored/use-case-network.png";
+import ucAnxiety from "@/ui/shared/assets/small-assets/recolored/use-case-anxiety.png";
+import ucFeedback from "@/ui/shared/assets/small-assets/recolored/use-case-feedback.png";
+import ucDecisions from "@/ui/shared/assets/small-assets/recolored/use-case-decisions.png";
+import ucHelp from "@/ui/shared/assets/small-assets/recolored/use-case-help.png";
 
-// Ordered list of use-case stops (icon, copy, and which accent color to use).
-// accent keys must match step-accent-* card chrome in globals.css.
-// titleCompact = slightly smaller title font for long labels that wrap awkwardly.
-// Icon mapping (easy to remember):
-//   peers balance → Finding a Friend/Peer
-//   study laptop → Searching for Study Groups
-//   trophy envelope → Looking for Events/Opportunities
-//   globe network → Building a Professional Network
-//   anxiety figure → Reduce Anxiety for Commuter Students
-//   thumbs-up bubble → Request Feedback on Experiences
-//   yes/no bubbles → Navigating Academic Decisions
-//   help laptop → Getting Help from Classmates
-// Manipulate here: reorder, rewrite titles/descs, swap icon imports, or change accent.
-const STEPS: {
-  icon: StaticImageData;
-  title: string;
-  desc: string;
-  accent: "logo" | "devora" | "pink" | "headline";
-  // Manipulate here: set true on long titles so they fit the card without overflowing
-  titleCompact?: boolean;
-}[] = [
+gsap.registerPlugin(ScrollTrigger);
+
+const USE_CASES = [
   {
-    icon: peersIcon,
-    title: "Finding a Friend/Peer",
-    desc: "Find someone who shares your interests, goals, or experiences. This can be a friend, a study partner, or a mentor.",
-    accent: "logo",
+    num: "01",
+    icon: ucPeers,
+    title: "Finding a friend or peer",
+    text: "Find someone who shares your interests, goals or experiences. This can be a friend, a study partner or a mentor.",
   },
   {
-    icon: studyIcon,
-    title: "Searching for Study Groups",
-    desc: "Find a study group that meets your needs. This can be a study group for a specific course, a study group for a specific project, or a study group for a specific interest.",
-    accent: "devora",
+    num: "02",
+    icon: ucStudy,
+    title: "Searching for study groups",
+    text: "Find a study group that meets your needs: for a specific course, a specific project or a specific interest.",
   },
   {
-    icon: eventsIcon,
-    title: "Looking for Events/Opportunities",
-    desc: "This can be a job fair, a workshop, a hackathon, a study session, or a social event. This is a great way to meet new people and get involved in the community.",
-    accent: "pink",
-    titleCompact: true,
+    num: "03",
+    icon: ucEvents,
+    title: "Events and opportunities",
+    text: "A job fair, a workshop, a hackathon, a study session or a social event. A great way to meet new people and get involved.",
   },
   {
-    icon: networkIcon,
-    title: "Building a Professional Network ",
-    desc: "Build a professional network by connecting with people who share your interests, goals, or experiences. Whether it be a mentor, a colleague, or a friend.",
-    accent: "headline",
+    num: "04",
+    icon: ucNetwork,
+    title: "Building a professional network",
+    text: "Connect with people who share your interests, goals or experiences, whether a mentor, a colleague or a friend.",
   },
   {
-    icon: anxietyIcon,
-    title: "Reduce Anxiety for Commuter Students",
-    desc: "However you may feel, its always important to know who you align with emotionally and professionally. Another reason to join Devora is to reduce anxiety and feel more connected to the community.",
-    accent: "logo",
+    num: "05",
+    icon: ucAnxiety,
+    title: "Less anxiety for commuters",
+    text: "Know who you align with, emotionally and professionally, and feel more connected to the community even when you're off campus.",
   },
   {
-    icon: feedbackIcon,
-    title: "Request Feedback on Experiences",
-    desc: "Not everyone is confident in what they do, and with Devora, it's an efficient method to get the best feedback as humanly possible..",
-    accent: "devora",
+    num: "06",
+    icon: ucFeedback,
+    title: "Feedback on your experiences",
+    text: "Not everyone is confident in what they do. Devora is a quick way to get honest feedback from peers.",
   },
   {
-    icon: decisionsIcon,
-    title: "Navigating Academic Decisions",
-    desc: "This can be asking upperclassmen which classes are worth it, finding certain reviews on professors, etc.",
-    accent: "pink",
+    num: "07",
+    icon: ucDecisions,
+    title: "Navigating academic decisions",
+    text: "Ask upperclassmen which classes are worth it, and find reviews on professors.",
   },
   {
-    icon: helpIcon,
-    title: "Getting Help from Classmates",
-    desc: "Ask peers who’ve already taken the class, navigated the same major, or been through the same career questions.",
-    accent: "headline",
+    num: "08",
+    icon: ucHelp,
+    title: "Help from classmates",
+    text: "Ask peers who've already taken the class, navigated the same major or been through the same career questions.",
   },
 ];
 
-// How many use cases show in the panel at once. Dots = remaining groups.
-// Manipulate here: 4 = two pages of eight; 8 would show everything with no pager
-const PAGE_SIZE = 4;
-const PAGE_COUNT = Math.ceil(STEPS.length / PAGE_SIZE);
-
 export default function BestUseCases() {
-  // Auto-advances first four ↔ last four. Dots still jump immediately.
-  // vocab: useCardCycle = shared hook — index, pause-on-hover, restart-on-dot
-  const cycle = useCardCycle(PAGE_COUNT);
-  const page = cycle.index;
+  const sectionRef = useRef<HTMLElement>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const barRef = useRef<HTMLDivElement>(null);
+  const countRef = useRef<HTMLSpanElement>(null);
 
-  // Slice the full list down to the four stops for this page.
-  // vocab: slice(start, end) = copy from start up to (not including) end
-  const visible = STEPS.slice(page * PAGE_SIZE, page * PAGE_SIZE + PAGE_SIZE);
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const section = sectionRef.current;
+    const track = trackRef.current;
+    const bar = barRef.current;
+    const count = countRef.current;
+    if (!section || !track) return;
+
+    // Calculate total horizontal travel distance:
+    // How far the track needs to travel left so the last card reaches the viewport
+    const getTravelDistance = () => {
+      const scrollW = track.scrollWidth;
+      const winW = window.innerWidth;
+      return Math.max(0, scrollW - winW + Math.min(winW * 0.45, 520));
+    };
+
+    const ctx = gsap.context(() => {
+      const travelDist = getTravelDistance();
+      if (travelDist <= 0) return;
+
+      gsap.to(track, {
+        x: () => -getTravelDistance(),
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          pin: true,
+          start: "top 68px", // Pinned just below the 68px navigation bar
+          end: () => `+=${Math.max(1600, getTravelDistance() * 1.25)}`,
+          scrub: 0.8,
+          invalidateOnRefresh: true,
+          anticipatePin: 1,
+          onUpdate: (self) => {
+            // Update progress bar scale
+            if (bar) {
+              bar.style.transform = `scaleX(${Math.max(0.125, self.progress)})`;
+            }
+            // Update "01 / 08" counter
+            if (count) {
+              const currentNum = Math.min(8, Math.max(1, Math.ceil(self.progress * 8)));
+              count.textContent = `${String(currentNum).padStart(2, "0")} / 08`;
+            }
+          },
+        },
+      });
+    }, section);
+
+    // Refresh after DOM layout and images settle
+    const refreshTimer = setTimeout(() => {
+      ScrollTrigger.refresh();
+    }, 300);
+
+    const handleResize = () => {
+      ScrollTrigger.refresh();
+    };
+    window.addEventListener("resize", handleResize);
+
+    return () => {
+      clearTimeout(refreshTimer);
+      window.removeEventListener("resize", handleResize);
+      ctx.revert();
+    };
+  }, []);
 
   return (
-    // landing-section-alt = alternating section background tint from globals.css
-    <MouseGridBackground className="landing-section-alt">
-      <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
-        {/* Chapter label: “03 · How It Works” — FadeIn animates when scrolled into view */}
-        <FadeIn>
-          <SectionNumber num="03" title="How It Works" />
-        </FadeIn>
-        {/* vocab: delay={0.1} = wait 0.1s after entering view before fading in */}
-        <FadeIn delay={0.1}>
-          <h2 className="font-display soft-headline mt-6 max-w-3xl text-3xl font-bold leading-tight sm:text-4xl lg:text-[2.65rem]">
-            Best Use Cases for Devora!
-          </h2>
-        </FadeIn>
+    <section
+      ref={sectionRef}
+      id="best-use-cases"
+      className="scene scene-night relative overflow-hidden"
+      style={{
+        background: "var(--night)",
+        color: "var(--text)",
+        position: "relative",
+      }}
+    >
+      <TornEdge color="var(--night)" />
 
-        {/* One vertical glass panel — four stops, then dots swap in the other four */}
-        <FadeIn delay={0.12}>
-          <article
-            className="use-cases-panel mt-6 lg:mt-7"
-            onMouseEnter={() => cycle.setPaused(true)}
-            onMouseLeave={() => cycle.setPaused(false)}
-          >
-            <CardCycleBar
-              count={PAGE_COUNT}
-              activeIndex={cycle.index}
-              durationMs={CARD_CYCLE_MS}
-              paused={cycle.paused}
-              cycleKey={cycle.cycleKey}
-              reduceMotion={cycle.reduceMotion}
-              onComplete={cycle.onComplete}
-            />
-            {/*
-              vocab: mode="wait" = finish the outgoing fade before the incoming one starts
-              vocab: key={page} = tells React this is a NEW list when the page changes
-            */}
-            <AnimatePresence mode="wait">
-              <motion.ol
-                key={page}
-                className="use-cases-track"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                // Manipulate here: duration = how fast the four-pack crossfades
-                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {visible.map((s, i) => {
-                  // Global index so numbers stay 01–08 across pages (not restarting at 01).
-                  const globalIndex = page * PAGE_SIZE + i;
+      <MouseGridBackground as="div">
+        <div className="wrap">
+          <div className="chapter-grid">
+            <ChapterRail label="How it works" field="night" />
 
-                  return (
-                    <li
-                      key={s.title}
-                      className={`step-stop step-accent-${s.accent}`}
-                    >
-                      {/* Number + icon “beacon” sitting on the circuit node */}
-                      <div className="step-beacon-wrap">
-                        <span className="step-beacon-num font-pixel soft-pink">
-                          {/* vocab: padStart(2,"0") = turn 1 into "01", 2 into "02", etc. */}
-                          {String(globalIndex + 1).padStart(2, "0")}
-                        </span>
-                        <div className="step-beacon">
-                          {/* Custom PNG icon — counter-rotated so it reads upright inside the diamond beacon.
-                              vocab: next/image = optimized <img> with sizing + lazy loading */}
-                          <Image
-                            src={s.icon}
-                            alt=""
-                            className="step-beacon-icon-img"
-                            width={40}
-                            height={40}
-                            aria-hidden="true"
-                          />
-                        </div>
-                      </div>
+            {/* Header row */}
+            <div className="use-cases-header-row">
+              <div>
+                <h2 className="t-title text-[var(--text)]">Best use cases</h2>
+                <p className="lead text-[var(--text-body)] mt-2">
+                  Eight things CECS students open Devora for. Keep scrolling to
+                  move through them.
+                </p>
+              </div>
 
-                      {/* Title + description card for this use case */}
-                      <div className="step-stop-card landing-surface-card">
-                        <h3
-                          className={`step-stop-title landing-card-title font-pixel theme-heading${
-                            s.titleCompact ? " step-stop-title-compact" : ""
-                          }`}
-                        >
-                          {s.title}
-                        </h3>
-                        <p className="step-stop-desc">{s.desc}</p>
-                      </div>
-                    </li>
-                  );
-                })}
-              </motion.ol>
-            </AnimatePresence>
-
-            {/* Pager dots — bottom-right. Click to change which four are showing.
-                Manipulate here: PAGE_COUNT grows if you add more STEPS */}
-            <div className="use-cases-pager" role="tablist" aria-label="Use case pages">
-              {Array.from({ length: PAGE_COUNT }, (_, i) => {
-                const selected = i === page;
-                const from = i * PAGE_SIZE + 1;
-                const to = Math.min((i + 1) * PAGE_SIZE, STEPS.length);
-
-                return (
-                  <button
-                    key={i}
-                    type="button"
-                    role="tab"
-                    // vocab: aria-selected = tells assistive tech which page is showing
-                    aria-selected={selected}
-                    aria-label={`Show use cases ${from} to ${to}`}
-                    className={`use-cases-dot ${selected ? "use-cases-dot-active" : ""}`}
-                    onClick={() => cycle.goTo(i)}
+              {/* Progress block */}
+              <div className="use-cases-progress-block">
+                <span
+                  ref={countRef}
+                  className="mono text-white text-[14px] font-bold"
+                  style={{ fontVariantNumeric: "tabular-nums" }}
+                >
+                  01 / 08
+                </span>
+                <div className="use-cases-track-bar">
+                  <div
+                    ref={barRef}
+                    className="use-cases-fill-bar"
+                    style={{ transform: "scaleX(0.125)" }}
                   />
-                );
-              })}
+                </div>
+              </div>
             </div>
-          </article>
-        </FadeIn>
-      </div>
-    </MouseGridBackground>
+          </div>
+        </div>
+
+        {/* Horizontal Track — Always in ONE horizontal row moving towards the left */}
+        <div className="use-cases-viewport">
+          <div ref={trackRef} className="use-cases-track">
+            {USE_CASES.map((uc) => (
+              <div key={uc.num} className="use-case-card-wrapper">
+                {/* Second card behind it with gradient */}
+                <div className="card-behind-gradient" aria-hidden="true" />
+
+                {/* Primary card in front showing the information */}
+                <div className="primary-card-face">
+                  {/* Big faint number top-right */}
+                  <span className="card-faint-number" aria-hidden="true">
+                    {uc.num}
+                  </span>
+
+                  <div className="card-icon-container">
+                    <Image
+                      src={uc.icon}
+                      alt=""
+                      width={54}
+                      height={54}
+                      className="object-contain"
+                    />
+                  </div>
+
+                  <h3 className="t-card card-title">{uc.title}</h3>
+
+                  <p className="card-text">
+                    {uc.text}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </MouseGridBackground>
+
+      <style jsx>{`
+        :global(#best-use-cases) {
+          padding-top: 16px !important;
+          padding-bottom: 24px !important;
+        }
+
+        .use-cases-header-row {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          margin-bottom: 18px;
+        }
+
+        @media (min-width: 768px) {
+          .use-cases-header-row {
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-end;
+          }
+        }
+
+        .use-cases-progress-block {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 10px;
+          flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+          .use-cases-progress-block {
+            align-items: flex-end;
+          }
+        }
+
+        .use-cases-track-bar {
+          width: 140px;
+          height: 6px;
+          border-radius: 999px;
+          background: var(--surface-2);
+          overflow: hidden;
+        }
+
+        .use-cases-fill-bar {
+          height: 100%;
+          width: 100%;
+          border-radius: 999px;
+          background: var(--grad);
+          transform-origin: left;
+          transition: transform 60ms linear;
+        }
+
+        .use-cases-viewport {
+          width: 100%;
+          overflow: visible;
+          padding-block: 8px 24px;
+        }
+
+        /* ONE horizontal row, no wrapping */
+        .use-cases-track {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          gap: 28px;
+          width: max-content;
+          will-change: transform;
+          padding-left: max(
+            calc((100vw - 1240px) / 2 + var(--gutter) + 198px),
+            var(--gutter)
+          );
+          padding-right: 25vw;
+        }
+
+        @media (max-width: 1099px) {
+          .use-cases-track {
+            padding-left: max(var(--gutter), 24px);
+            padding-right: 20vw;
+          }
+        }
+
+        /* Card Wrapper holding the two-card layer */
+        .use-case-card-wrapper {
+          position: relative;
+          width: clamp(280px, 78vw, 340px);
+          min-width: clamp(280px, 78vw, 340px);
+          flex-shrink: 0;
+          user-select: none;
+        }
+
+        /* Second card behind it: orange-pink-magenta gradient */
+        .card-behind-gradient {
+          position: absolute;
+          inset: 0;
+          border-radius: 16px;
+          background: var(--grad);
+          border: 2px solid var(--ink);
+          transform: translate(8px, 8px);
+          z-index: 1;
+          pointer-events: none;
+          transition: transform 0.25s var(--spring);
+        }
+
+        /* Primary card in front: paper face, ink border, showing information */
+        .primary-card-face {
+          position: relative;
+          z-index: 2;
+          border-radius: 16px;
+          background: var(--paper);
+          color: var(--ink);
+          border: 2px solid var(--ink);
+          padding: 22px 20px 18px;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          min-height: 250px;
+          height: 100%;
+          transition: transform 0.25s var(--spring);
+        }
+
+        /* Hover: primary card lifts, second card behind extends */
+        .use-case-card-wrapper:hover .primary-card-face {
+          transform: translate(-3px, -3px);
+        }
+
+        .use-case-card-wrapper:hover .card-behind-gradient {
+          transform: translate(12px, 12px);
+        }
+
+        .use-case-card-wrapper:active .primary-card-face {
+          transform: translate(4px, 4px);
+        }
+
+        .use-case-card-wrapper:active .card-behind-gradient {
+          transform: translate(4px, 4px);
+        }
+
+        .card-icon-container {
+          width: 54px;
+          height: 54px;
+          flex-shrink: 0;
+          margin-bottom: 2px;
+        }
+
+        .card-title {
+          color: var(--ink);
+          font-size: clamp(16.5px, 1.4vw, 19px);
+          line-height: 1.2;
+          margin: 0;
+        }
+
+        .card-text {
+          font-size: 14px;
+          line-height: 1.48;
+          color: var(--ink-body);
+          margin: 0;
+        }
+
+        .card-faint-number {
+          position: absolute;
+          top: 16px;
+          right: 18px;
+          font-family: var(--f-display);
+          font-weight: 800;
+          font-size: 34px;
+          line-height: 1;
+          color: var(--paper-2);
+          user-select: none;
+          pointer-events: none;
+        }
+      `}</style>
+    </section>
   );
 }

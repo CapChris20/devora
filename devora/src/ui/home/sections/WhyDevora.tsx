@@ -1,210 +1,446 @@
-// Section 04 — “Why Devora” matchup vs GitHub, LinkedIn, and Discord.
-// Flow: mouse-grid → chapter label → signal header → ONE matchup card.
-//       Dots + a filling progress bar auto-cycle GitHub → LinkedIn → Discord.
-// Manipulate here: edit COMPARISONS for rivals/copy; CARD_CYCLE_MS in CardCycle.tsx for speed.
+// Section 04 — Why Devora: "Not another platform. The platform." per DESIGN.md § 5.1E.
+// Pink field (--pink), chapter rail ("Why Devora"), torn seam into it.
+// 3 tab pills: vs GitHub, vs LinkedIn, vs Discord / Slack.
+// 8s auto-advance through one full pass (pauses on hover/focus, stops on manual click).
+// Grid: Them (paper poster) -> 72px ink VS disc -> Devora (ink poster with 5 wins).
 
 "use client";
 
-// vocab: AnimatePresence = keeps the old panel mounted until its exit animation finishes
-import { AnimatePresence, motion } from "framer-motion";
-import githubAnimation from "@/ui/shared/assets/lottie-animations/why-devora-github.json";
-import linkedinAnimation from "@/ui/shared/assets/lottie-animations/why-devora-linkedin.json";
-import discordAnimation from "@/ui/shared/assets/lottie-animations/why-devora-discord.json";
-import type { DevoraLottiePreset } from "@/ui/shared/assets/lottie-animations/recolor-lottie";
-import MouseGridBackground from "./MouseGridBackground";
-import { SectionNumber, FadeIn } from "./FadeInWhenScrolling";
-import WhyMatchupLottie from "./WhyMatchupLottie";
-import { CARD_CYCLE_MS, CardCycleBar, useCardCycle } from "./CardCycle";
+import { useEffect, useRef, useState, useCallback } from "react";
+import { Check, Hash } from "lucide-react";
+import { GithubIcon, LinkedinIcon } from "@/ui/discovery/cards/DiscoverySocialIcons";
+import TornEdge from "@/ui/shared/TornEdge";
+import ChapterRail from "./ChapterRail";
+import MovingAnimation from "./MovingAnimation";
 
-// One comparison object per rival platform.
-// preset picks which Devora palette recolorLottie applies to the Lottie JSON.
-// Manipulate here: rewrite any bullet / punchline (alt) — keep 4–5 punchy lines per rival
-const COMPARISONS: Array<{
-  vs: string;
-  preset: DevoraLottiePreset;
-  animation: object;
-  alt: string;
-  devora: string[];
-}> = [
+import githubLottie from "@/ui/shared/assets/lottie-animations/recolored/why-devora-github.json";
+import linkedinLottie from "@/ui/shared/assets/lottie-animations/recolored/why-devora-linkedin.json";
+import discordLottie from "@/ui/shared/assets/lottie-animations/recolored/why-devora-discord.json";
+
+type TabData = {
+  id: "github" | "linkedin" | "discord";
+  label: string;
+  renderIcon: () => React.ReactNode;
+  lottie: object;
+  name: string;
+  quote: string;
+  stillGoodFor: string;
+  wins: string[];
+};
+
+const TABS: TabData[] = [
   {
-    vs: "GitHub",
-    preset: "github",
-    animation: githubAnimation,
-    alt: "Great for hosting code. Terrible for finding the junior who knows Unity and sits two rows behind you in CIS 350.",
-    // Manipulate here: keep bullets concrete (course / skill / scenario) — avoid vague “better networking”
-    devora: [
-      "Find React + Unity classmates in seconds — not by stalking commit histories",
-      "Profiles built for finding people (skills, courses, interests), not just green contribution squares",
-      "Ask “who’s taking DSA this semester?” and get real people — not silent repos and READMEs",
-      "Warm intros between verified CECS peers — no cold DMs to random GitHub usernames",
-      "Friendships, study crews, and career chats start here; GitHub stays where the code lives",
+    id: "github",
+    label: "vs GitHub",
+    renderIcon: () => <GithubIcon size={18} />,
+    lottie: githubLottie,
+    name: "GitHub",
+    quote:
+      "Great for hosting code. Terrible for finding the junior who knows Unity and sits two rows behind you in CIS 350.",
+    stillGoodFor: "Hosting code",
+    wins: [
+      "Find React and Unity classmates in seconds, not by stalking commit histories",
+      "Profiles built for finding people: skills, courses and interests, not just green squares",
+      "Ask who is taking DSA this semester and get real people, not silent repos",
+      "Warm intros between verified CECS peers, no cold DMs to random usernames",
+      "Friendships, study crews and career chats start here. GitHub stays where the code lives",
     ],
   },
   {
-    vs: "LinkedIn",
-    preset: "linkedin",
-    animation: linkedinAnimation,
-    alt: "A sea of recruiters, strangers, and “open to work” banners. Nobody there cares about your ECE 270 study group.",
-    devora: [
-      "Everyone here is CECS @ UM-Dearborn — zero recruiter spam, zero out-of-school noise",
-      "Find React devs taking DSA this semester in seconds — not scrolling LinkedIn for hours",
-      "Meet verified peers in your niche — not collect endorsements from randos",
-      "Student-first discovery for friends, study groups, and people in your field — not job-hunt theater",
-      "Message people who share your major and goals — not “Hi, I saw your profile” templates",
+    id: "linkedin",
+    label: "vs LinkedIn",
+    renderIcon: () => <LinkedinIcon size={18} />,
+    lottie: linkedinLottie,
+    name: "LinkedIn",
+    quote:
+      "A sea of recruiters, strangers and \"open to work\" banners. Nobody there cares about your ECE 270 study group.",
+    stillGoodFor: "R\u00e9sum\u00e9s and recruiters",
+    wins: [
+      "Everyone here is CECS at UM\u2011Dearborn, with zero recruiter spam",
+      "Find React devs taking DSA this semester in seconds",
+      "Meet verified peers in your niche instead of collecting endorsements",
+      "Student-first discovery for friends, study groups and people in your field",
+      "Message people who share your major and goals, without templates",
     ],
   },
   {
-    vs: "Discord / Slack",
-    preset: "discord",
-    animation: discordAnimation,
-    alt: "Forty fragmented servers, dead #general channels, and no way to know who actually knows React.",
-    devora: [
-      "One searchable directory for the whole school — not 40 half-dead Discord servers",
-      "Verified UM-Dearborn identities — no anonymous lurkers or “who is this?” moments",
-      "Filter by skill, course, or interest — not scrolling chat history hoping someone replies",
-      "Profiles answer “do we actually click?” before you even open a DM",
-      "Built for finding your people fast; Discord stays for the group chat once you’ve found them",
+    id: "discord",
+    label: "vs Discord / Slack",
+    renderIcon: () => <Hash size={18} />,
+    lottie: discordLottie,
+    name: "Discord / Slack",
+    quote:
+      "Forty fragmented servers, dead #general channels, and no way to know who actually knows React.",
+    stillGoodFor: "Group chat, once you have found them",
+    wins: [
+      "One searchable directory for the whole school, not 40 half-dead servers",
+      "Verified UM\u2011Dearborn identities, no anonymous lurkers",
+      "Filter by skill, course or interest instead of scrolling chat history",
+      "Profiles answer \"do we actually click?\" before you open a DM",
+      "Built for finding your people fast. Discord stays for the group chat",
     ],
   },
 ];
 
 export default function WhyDevora() {
-  // Auto-advances GitHub → LinkedIn → Discord. Dots still jump immediately.
-  // vocab: useCardCycle = shared hook — index, pause-on-hover, restart-on-dot
-  const cycle = useCardCycle(COMPARISONS.length);
-  const c = COMPARISONS[cycle.index];
-  // vocab: padStart(2,"0") = turn 1 into "01"
-  const code = String(cycle.index + 1).padStart(2, "0");
+  const [activeTabIdx, setActiveTabIdx] = useState(0);
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const passesRef = useRef(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const activeTab = TABS[activeTabIdx];
+
+  const handleSelectTab = useCallback(
+    (index: number, manual = true) => {
+      setActiveTabIdx(index);
+      if (manual) {
+        setHasInteracted(true);
+      }
+    },
+    []
+  );
+
+  // Auto-advance every 8s through one full pass per § 5.1E
+  useEffect(() => {
+    if (hasInteracted || isPaused) return;
+
+    const timer = setInterval(() => {
+      setActiveTabIdx((prev) => {
+        const next = prev + 1;
+        if (next >= TABS.length) {
+          passesRef.current += 1;
+          if (passesRef.current >= 1) {
+            clearInterval(timer);
+            return prev;
+          }
+          return 0;
+        }
+        return next;
+      });
+    }, 8000);
+
+    return () => clearInterval(timer);
+  }, [hasInteracted, isPaused]);
+
+  // Arrow key navigation per § 5.1E
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowRight") {
+      handleSelectTab((activeTabIdx + 1) % TABS.length, true);
+    } else if (e.key === "ArrowLeft") {
+      handleSelectTab((activeTabIdx - 1 + TABS.length) % TABS.length, true);
+    }
+  };
 
   return (
-    <MouseGridBackground className="landing-section">
-      <div className="mx-auto max-w-[90rem] px-4 sm:px-6 lg:px-8">
-        {/* Chapter label */}
-        <FadeIn>
-          <SectionNumber num="04" title="Why Devora" />
-        </FadeIn>
+    <section
+      id="why-devora"
+      className="scene scene-pink"
+      style={{
+        background: "var(--grad)",
+        color: "var(--ink)",
+        position: "relative",
+      }}
+    >
+      <TornEdge color="var(--grad)" />
 
-        {/* Signal header — matches What is Devora / Key Info energy */}
-        <FadeIn delay={0.08}>
-          <div className="why-header mt-6 lg:mt-7">
-            <p className="why-eyebrow font-pixel">
-              <span className="soft-pink">MATCHUP</span>
-              <span className="why-eyebrow-sep" aria-hidden="true">
-                /
-              </span>
-              <span className="theme-faint">THREE KOs</span>
-            </p>
-            <h2 className="why-title font-display soft-headline">
-              Not another platform.
-              <br />
-              The platform.
+      <div
+        ref={containerRef}
+        className="wrap"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onFocus={() => setIsPaused(true)}
+        onBlur={() => setIsPaused(false)}
+      >
+        <div className="chapter-grid">
+          <ChapterRail label="Why Devora" field="pink" />
+
+          <div>
+            <h2 className="t-title text-[var(--ink)]">
+              Not another platform. The platform.
             </h2>
-            <p className="why-lead">
-              GitHub hosts code. LinkedIn hosts résumés. Discord hosts chaos. Devora hosts the
-              CECS people you actually want to know.
+            <p className="lead text-[var(--ink)] mt-4">
+              GitHub hosts code. LinkedIn hosts r&eacute;sum&eacute;s. Discord
+              hosts chaos. Devora hosts the CECS people you actually want to
+              know.
             </p>
-          </div>
-        </FadeIn>
 
-        {/* One matchup card — dots + auto-cycle bar swap GitHub / LinkedIn / Discord */}
-        <FadeIn delay={0.12}>
-          <article
-            className="why-matchup mt-6 lg:mt-7"
-            // Hover pauses the fill so the card does not switch mid-read.
-            onMouseEnter={() => cycle.setPaused(true)}
-            onMouseLeave={() => cycle.setPaused(false)}
-          >
-            <CardCycleBar
-              count={COMPARISONS.length}
-              activeIndex={cycle.index}
-              durationMs={CARD_CYCLE_MS}
-              paused={cycle.paused}
-              cycleKey={cycle.cycleKey}
-              reduceMotion={cycle.reduceMotion}
-              onComplete={cycle.onComplete}
-            />
-            {/*
-              vocab: mode="wait" = finish the outgoing fade before the incoming one starts
-              vocab: key={c.vs} = tells React this is a NEW panel when the rival changes
-            */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={c.vs}
-                className="why-matchup-inner"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -8 }}
-                // Manipulate here: duration = how fast the card content crossfades
-                transition={{ duration: 0.28, ease: [0.16, 1, 0.3, 1] }}
-              >
-                {/* Copy column — KO header, win rails, punchline */}
-                <div className="why-matchup-copy">
-                  <div className="why-matchup-top">
-                    <span className="why-matchup-code font-pixel soft-pink">{code}</span>
-                    <span className="why-matchup-ko font-pixel">KO</span>
-                    <span className="why-matchup-vs">
-                      vs{" "}
-                      <span className="why-matchup-name font-display theme-heading">{c.vs}</span>
-                    </span>
-                  </div>
-
-                  <div className="why-matchup-winner">
-                    <span className="why-matchup-devora font-pixel soft-peach">DEVORA</span>
-                    <ul className="why-matchup-wins">
-                      {c.devora.map((d) => (
-                        <li key={d} className="why-matchup-win">
-                          {/* Fake “code comment” marker — {"//"} so JSX doesn’t treat // as a comment */}
-                          <span className="why-matchup-marker font-pixel" aria-hidden="true">
-                            {"//"}
-                          </span>
-                          <span className="why-matchup-win-text">{d}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  <div className="why-matchup-footer">
-                    <div className="glow-line h-px w-full" aria-hidden="true" />
-                    <p className="why-matchup-punchline">{c.alt}</p>
-                  </div>
-                </div>
-
-                {/* Lottie sits in a glass frame — not a tiny floating watermark */}
-                <div className="why-matchup-media">
-                  <div className="why-matchup-lottie-frame">
-                    <div className="why-matchup-lottie-glow" aria-hidden="true" />
-                    <WhyMatchupLottie
-                      animationData={c.animation}
-                      preset={c.preset}
-                      ariaLabel={`${c.vs} animation`}
-                    />
-                  </div>
-                </div>
-              </motion.div>
-            </AnimatePresence>
-
-            {/* Pager dots — bottom-right of the card. Click to change activeIndex.
-                Manipulate here: order matches COMPARISONS; add a 4th rival = add a 4th button */}
-            <div className="why-matchup-pager" role="tablist" aria-label="Why Devora matchups">
-              {COMPARISONS.map((rival, i) => {
-                const selected = i === cycle.index;
+            {/* Tab list */}
+            <div
+              role="tablist"
+              aria-label="Comparison tabs"
+              className="why-tab-list"
+              onKeyDown={handleKeyDown}
+            >
+              {TABS.map((tab, idx) => {
+                const isSelected = activeTabIdx === idx;
                 return (
                   <button
-                    key={rival.vs}
-                    type="button"
+                    key={tab.id}
                     role="tab"
-                    // vocab: aria-selected = tells assistive tech which rival is showing
-                    aria-selected={selected}
-                    aria-label={`Show Devora vs ${rival.vs}`}
-                    className={`why-matchup-dot ${selected ? "why-matchup-dot-active" : ""}`}
-                    onClick={() => cycle.goTo(i)}
-                  />
+                    id={`tab-${tab.id}`}
+                    aria-selected={isSelected}
+                    aria-controls={`panel-${tab.id}`}
+                    tabIndex={isSelected ? 0 : -1}
+                    onClick={() => handleSelectTab(idx, true)}
+                    className="why-pill"
+                    style={{
+                      background: isSelected ? "var(--orange)" : "transparent",
+                      color: "var(--ink)",
+                      border: "2px solid var(--ink)",
+                      boxShadow: isSelected ? "3px 3px 0 0 var(--ink)" : "none",
+                    }}
+                  >
+                    {tab.renderIcon()}
+                    <span>{tab.label}</span>
+                  </button>
                 );
               })}
             </div>
-          </article>
-        </FadeIn>
+
+            {/* Comparison Panel */}
+            <div
+              id={`panel-${activeTab.id}`}
+              role="tabpanel"
+              aria-labelledby={`tab-${activeTab.id}`}
+              className="why-panel-grid"
+            >
+              {/* Them (paper poster) */}
+              <div className="poster poster-them">
+                <div className="them-header">
+                  <div className="them-lottie-circle">
+                    <MovingAnimation
+                      animationData={activeTab.lottie}
+                      ariaLabel={`${activeTab.name} animation`}
+                      className="w-[85%] h-[85%]"
+                    />
+                  </div>
+                  <h3 className="t-card text-[clamp(22px,2.2vw,30px)] text-[var(--ink)]">
+                    {activeTab.name}
+                  </h3>
+                </div>
+
+                <p className="them-quote">{activeTab.quote}</p>
+
+                <div className="them-footer">
+                  <span className="mono text-[var(--ink-muted)]">
+                    Still good for
+                  </span>
+                  <span className="them-stamp">{activeTab.stillGoodFor}</span>
+                </div>
+              </div>
+
+              {/* VS disc */}
+              <div className="vs-disc-wrapper">
+                <div className="vs-disc">VS</div>
+              </div>
+
+              {/* Devora (ink poster, white text) */}
+              <div className="poster poster-devora">
+                <div className="devora-header">
+                  <h3 className="t-card text-[clamp(22px,2.2vw,30px)] text-white">
+                    Devora
+                  </h3>
+                  <span className="devora-wins-stamp">5 wins</span>
+                </div>
+
+                <div className="devora-wins-list">
+                  {activeTab.wins.map((win, i) => (
+                    <div key={i} className="devora-win-row">
+                      <div className="win-check">
+                        <Check size={18} color="#ff9a3d" strokeWidth={3} />
+                      </div>
+                      <span className="text-[15.5px] leading-[1.45] text-white">
+                        {win}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </MouseGridBackground>
+
+      <style jsx>{`
+        .why-tab-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-top: 40px;
+          margin-bottom: 40px;
+        }
+
+        .why-pill {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          height: 44px;
+          padding-inline: 20px;
+          border-radius: 9999px;
+          font-family: var(--f-mono);
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: translate 0.2s var(--spring), box-shadow 0.2s var(--spring);
+        }
+
+        .why-pill:hover {
+          translate: 0 -2px;
+        }
+
+        .why-pill:active {
+          translate: 2px 2px;
+          box-shadow: none;
+        }
+
+        .why-panel-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 24px;
+          align-items: stretch;
+        }
+
+        @media (min-width: 980px) {
+          .why-panel-grid {
+            grid-template-columns: 1fr auto 1.25fr;
+            gap: 28px;
+          }
+        }
+
+        .poster-them {
+          background: var(--paper);
+          color: var(--ink);
+          box-shadow: var(--shadow);
+        }
+
+        .them-header {
+          display: flex;
+          align-items: center;
+          gap: 20px;
+          margin-bottom: 24px;
+        }
+
+        .them-lottie-circle {
+          width: 100px;
+          height: 100px;
+          border-radius: 50%;
+          background: var(--ink);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+
+        @media (min-width: 640px) {
+          .them-lottie-circle {
+            width: 120px;
+            height: 120px;
+          }
+        }
+
+        .them-quote {
+          font-family: var(--f-display);
+          font-weight: 700;
+          font-size: clamp(19px, 1.6vw, 22px);
+          line-height: 1.35;
+          color: var(--ink);
+          margin-bottom: 28px;
+        }
+
+        .them-footer {
+          margin-top: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          padding-top: 20px;
+          border-top: 1px solid var(--paper-2);
+        }
+
+        .them-stamp {
+          display: inline-block;
+          align-self: flex-start;
+          padding: 4px 12px;
+          border-radius: 4px;
+          border: 2px dashed var(--ink);
+          font-family: var(--f-mono);
+          font-size: 13px;
+          font-weight: 700;
+          text-transform: uppercase;
+        }
+
+        .vs-disc-wrapper {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 8px 0;
+        }
+
+        .vs-disc {
+          width: 72px;
+          height: 72px;
+          border-radius: 50%;
+          background: var(--ink);
+          color: var(--paper);
+          font-family: var(--f-display);
+          font-weight: 800;
+          font-size: 20px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transform: rotate(-8deg);
+          box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.25);
+          flex-shrink: 0;
+        }
+
+        .poster-devora {
+          background: var(--ink);
+          color: white;
+          box-shadow: 7px 7px 0 0 var(--ink);
+        }
+
+        .devora-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 20px;
+        }
+
+        .devora-wins-stamp {
+          display: inline-block;
+          padding: 3px 10px;
+          border-radius: 4px;
+          border: 2px dashed #ff9a3d;
+          background: var(--grad);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-family: var(--f-mono);
+          font-size: 12px;
+          font-weight: 700;
+          text-transform: uppercase;
+        }
+
+        .devora-wins-list {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+
+        .devora-win-row {
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+          background: var(--surface-2);
+          border-radius: 10px;
+          padding: 14px 16px;
+        }
+
+        .win-check {
+          flex-shrink: 0;
+          margin-top: 1px;
+        }
+      `}</style>
+    </section>
   );
 }

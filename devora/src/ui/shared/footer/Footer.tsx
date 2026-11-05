@@ -1,57 +1,108 @@
-// Site-wide footer — DEVORA wordmark, quick links, and copyright / capstone credits.
-// Used by PageLayout and JoinNowSection. Privacy/Terms currently route to FAQs.
+// Shared site footer per DESIGN.md § 5.5.
+// A single row on night with a 1px top border at 10% white and 28px vertical padding.
+// Left: "DEVORA" (Unbounded 800 18px)
+// Middle: FAQs, Privacy, Terms, Contact links (Space Mono uppercase)
+// Right: "© 2026 Devora, Chris Shina, UM‑Dearborn CECS"
+
+"use client";
 
 import Link from "next/link";
+import { BUSINESS_CONTACT_EMAIL } from "@/ui/legal/legal-document-copy";
 
-// Footer nav — Privacy/Terms currently point at FAQs until dedicated pages exist.
-// Manipulate here: change hrefs when real Privacy/Terms routes ship; mailto opens the mail app.
 const FOOTER_LINKS = [
-  { label: "Privacy", href: "/faqs-page" },
-  { label: "Terms", href: "/faqs-page" },
   { label: "FAQs", href: "/faqs-page" },
-  { label: "Contact", href: "mailto:devora@umich.edu" },
-] as const;
-// vocab: as const = treat these link objects as fixed read-only data
-
+  { label: "Privacy", href: "/privacy-page" },
+  { label: "Terms", href: "/terms-page" },
+  { label: "Contact", href: `mailto:${BUSINESS_CONTACT_EMAIL}` },
+];
 
 export default function Footer() {
-  // Fresh year each render so copyright stays current without hardcoding.
-  // vocab: getFullYear() = 4-digit year from the computer clock (e.g. 2026)
-  const year = new Date().getFullYear();
-
   return (
-    // site-footer-* classes (border, link hover, muted copy) live in globals.css
-    // Manipulate here: py / gap = footer height — keep this a slim bar, not a third page
-    <div className="site-footer-bar relative border-t px-4 py-2.5 sm:px-6">
-      <div className="site-footer-inner mx-auto flex max-w-6xl flex-col items-center gap-1.5 text-center sm:flex-row sm:justify-between sm:gap-4 sm:text-left">
-        {/* Small pixel wordmark — logo-gradient = brand fill */}
-        <span className="logo-gradient font-pixel text-[10px] tracking-[0.1em]">DEVORA</span>
+    <footer
+      role="contentinfo"
+      style={{
+        background: "var(--night, #0d0b0e)",
+        borderTop: "1px solid rgb(255 255 255 / .10)",
+        paddingBlock: 28,
+        color: "var(--text-muted, rgb(251 246 248 / .70))",
+        position: "relative",
+        zIndex: 10,
+      }}
+    >
+      <div
+        style={{
+          maxWidth: 1240,
+          marginInline: "auto",
+          paddingInline: "clamp(20px, 4.5vw, 64px)",
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 20,
+        }}
+      >
+        {/* Left: DEVORA */}
+        <span
+          style={{
+            fontFamily: "var(--font-display), 'Arial Black', sans-serif",
+            fontWeight: 800,
+            fontSize: 18,
+            letterSpacing: "0.02em",
+            color: "var(--text, #fbf6f8)",
+            textTransform: "uppercase",
+          }}
+        >
+          DEVORA
+        </span>
 
-        {/* Quick links — one row with the wordmark on desktop */}
-        <nav aria-label="Footer" className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+        {/* Center: Links */}
+        <nav
+          aria-label="Footer links"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            flexWrap: "wrap",
+            gap: "24px",
+          }}
+        >
           {FOOTER_LINKS.map((link) => (
-            // vocab: key={link.label} = React identity for each link in the list
             <Link
               key={link.label}
               href={link.href}
-              className="site-footer-link font-display text-[10px] font-semibold uppercase tracking-[0.14em]"
+              className="footer-nav-link"
+              style={{
+                fontFamily: "var(--font-mono), monospace",
+                fontSize: 12,
+                textTransform: "uppercase",
+                letterSpacing: "0.08em",
+                color: "var(--text-muted, rgb(251 246 248 / .70))",
+                transition: "color 180ms ease",
+                textDecoration: "none",
+              }}
             >
               {link.label}
             </Link>
           ))}
         </nav>
 
-        {/* One-line credits so the bar stays short */}
-        <p className="site-footer-copy font-display text-[10px] leading-none">
-          <span className="theme-muted">© {year} </span>
-          <span className="soft-pink font-bold">Devora</span>
-          <span className="theme-faint"> · </span>
-          <span className="soft-peach font-bold">Chris Shina</span>
-          <span className="theme-faint"> · </span>
-          <span className="theme-muted">UM-Dearborn </span>
-          <span className="theme-heading font-bold">CECS</span>
-        </p>
+        {/* Right: Copyright */}
+        <span
+          style={{
+            fontFamily: "var(--font-mono), monospace",
+            fontSize: 12,
+            letterSpacing: "0.04em",
+            color: "var(--text-muted, rgb(251 246 248 / .70))",
+          }}
+        >
+          &copy; 2026 Devora, Chris Shina, UM&#8209;Dearborn CECS
+        </span>
       </div>
-    </div>
+
+      <style jsx>{`
+        :global(.footer-nav-link:hover) {
+          color: var(--text, #fbf6f8) !important;
+        }
+      `}</style>
+    </footer>
   );
 }

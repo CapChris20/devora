@@ -1,147 +1,738 @@
-// Discovery Grid shell — Filters overlay only until Firestore browse is wired.
-// Flow: Filters button → left glass drawer (search + pills). Cards / peek stay unmounted.
-// When data lands, mount the grid from src/docs/discovery-grid.md (not mock-profiles).
+// Discovery Grid Content per DISCOVERY_GRID.md.
+// Toolbar (filters ghost button, search pill, tabular count, active chips)
+// 3-column .dgrid (max 3 cols, 1fr rows), no-match state, empty state,
+// animated filters drawer and profile peek with session-local connect & toast notifications.
 
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
-import { createPortal } from "react-dom";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { SlidersHorizontal, X } from "lucide-react";
+// ===== IMPORTS =====
 
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
+import { onAuthStateChanged, type User } from "firebase/auth";
+import { Search, SlidersHorizontal, X } from "lucide-react";
+
+import { auth, getUserProfile, listPublicProfiles, type UserProfile } from "@/backend/firebase";
+
+import DiscoveryProfileCard from "./cards/DiscoveryProfileCard";
+import DiscoveryProfilePeek from "./cards/DiscoveryProfilePeek";
+import DiscoveryEmptyState from "./DiscoveryEmptyState";
 import DiscoveryFilterSidebar from "./filters/DiscoveryFilterSidebar";
 import {
   countActiveFilters,
   emptyFilterSelection,
   type FilterSectionId,
 } from "./filter-options";
+import { buildDiscoveryBrowseList } from "./map-discovery-profile";
+import type { DiscoveryProfile } from "./mock-profiles";
 
-// Paint the drawer on <body> so it covers navbar + footer.
-// Why? PageLayout wraps content in `relative z-10`. A `position: fixed` drawer
-// inside that column stays trapped — the footer paints over the bottom of it.
-// vocab: createPortal = React still owns the tree, DOM node goes on document.body
-// vocab: useState(false) + useEffect = wait one paint so we don't touch document during SSR
-function OverlayPortal({ children }: { children: ReactNode }) {
-  const [mounted, setMounted] = useState(false);
+// ===== NAMED CONSTANTS =====
+
+const LOGIN_PATH = "/auth/login";
+const ONBOARDING_PATH = "/onboarding";
+const TOAST_DURATION_MS = 3200;
+
+// ===== TYPES =====
+
+type OverlayPortalProps = {
+  children: ReactNode;
+};
+
+// ===== HELPER FUNCTIONS =====
+
+function OverlayPortal({ children }: OverlayPortalProps) {
+  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    setIsMounted(true);
   }, []);
 
-  if (!mounted) return null;
+  if (!isMounted) return null;
   return createPortal(children, document.body);
 }
 
+function matchesSearch(profile: DiscoveryProfile, query: string): boolean {
+  const trimmed = query.trim().toLowerCase();
+  if (!trimmed) return true;
+  const words = trimmed.split(/\s+/).filter(Boolean);
+  const haystack = [
+    profile.displayName,
+    profile.major,
+    profile.majorShort,
+    profile.concentration,
+    profile.classRank,
+    ...(profile.careerNiche || []),
+    ...(profile.casualInterests || []),
+    ...(profile.clubs || []),
+    ...(profile.lookingFor || []),
+    profile.bio,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  return words.every((w) => haystack.includes(w));
+}
+
+function matchesFilters(
+  profile: DiscoveryProfile,
+  selected: Record<FilterSectionId, string[]>
+): boolean {
+  // Major
+  if (selected.majors.length > 0) {
+    const passed = selected.majors.some(
+      (m) =>
+        m.toLowerCase() === profile.major?.toLowerCase() ||
+        m.toLowerCase() === profile.majorShort?.toLowerCase()
+    );
+    if (!passed) return false;
+  }
+  // Concentration
+  if (selected.concentrations.length > 0) {
+    if (!profile.concentration) return false;
+    const passed = selected.concentrations.some(
+      (c) => c.toLowerCase() === profile.concentration?.toLowerCase()
+    );
+    if (!passed) return false;
+  }
+  // Niches
+  if (selected.niches.length > 0) {
+    const passed = selected.niches.some((n) =>
+      profile.careerNiche?.some((item) => item.toLowerCase() === n.toLowerCase())
+    );
+    if (!passed) return false;
+  }
+  // Hobbies
+  if (selected.hobbies.length > 0) {
+    const passed = selected.hobbies.some((h) =>
+      profile.casualInterests?.some((item) => item.toLowerCase() === h.toLowerCase())
+    );
+    if (!passed) return false;
+  }
+  // Media
+  if (selected.media.length > 0) {
+    const passed = selected.media.some((m) =>
+      profile.casualInterests?.some((item) => item.toLowerCase() === m.toLowerCase())
+    );
+    if (!passed) return false;
+  }
+  // Clubs
+  if (selected.clubs.length > 0) {
+    const passed = selected.clubs.some((cl) =>
+      profile.clubs?.some((item) => item.toLowerCase() === cl.toLowerCase())
+    );
+    if (!passed) return false;
+  }
+  // Looking for
+  if (selected.lookingFor.length > 0) {
+    const passed = selected.lookingFor.some((item) =>
+      profile.lookingFor?.some((target) => target.toLowerCase() === item.toLowerCase())
+    );
+    if (!passed) return false;
+  }
+  // Class year
+  if (selected.classYear.length > 0) {
+    const passed = selected.classYear.some(
+      (y) => y.toLowerCase() === profile.classRank?.toLowerCase()
+    );
+    if (!passed) return false;
+  }
+  return true;
+}
+
+// ===== MAIN COMPONENT =====
+
 export default function DiscoveryGridContent() {
-  // vocab: useState = React hook that stores a value and re-renders when you call the setter
+  const router = useRouter();
+  const shouldReduceMotion = useReducedMotion();
+
+  // Search with 120ms debounce per § 4.3
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState(emptyFilterSelection);
-  const [filtersOpen, setFiltersOpen] = useState(false);
-  // vocab: useReducedMotion = Framer hook — skip the slide when OS Reduce motion is on
-  const reduceMotion = useReducedMotion();
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 120);
+    return () => clearTimeout(timer);
+  }, [query]);
 
-  const activeCount = countActiveFilters(selected);
+  // Selected filters
+  const [selectedFilters, setSelectedFilters] = useState(emptyFilterSelection);
+  const [areFiltersOpen, setAreFiltersOpen] = useState(false);
 
-  function toggleFilter(sectionId: FilterSectionId, option: string) {
-    setSelected((prev) => {
+  // Data fetching
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const [browseProfiles, setBrowseProfiles] = useState<DiscoveryProfile[]>([]);
+  const [viewerProfile, setViewerProfile] = useState<UserProfile | null>(null);
+
+  // Selection & Interactions
+  const [selectedProfileId, setSelectedProfileId] = useState("");
+  const [requestedProfileIds, setRequestedProfileIds] = useState<string[]>([]);
+  const [toastText, setToastText] = useState("");
+  const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const activeFilterCount = countActiveFilters(selectedFilters);
+  const hasActiveFilters = activeFilterCount > 0;
+
+  // Filter computation
+  const filteredProfiles = useMemo(() => {
+    return browseProfiles.filter(
+      (p) => matchesSearch(p, debouncedQuery) && matchesFilters(p, selectedFilters)
+    );
+  }, [browseProfiles, debouncedQuery, selectedFilters]);
+
+  const selectedProfile =
+    filteredProfiles.find((p) => p.id === selectedProfileId) ?? null;
+
+  // Stale peek guard per DISCOVERY_GRID.md § 4.9:
+  // "Do not open peek from a stale id after filters change."
+  useEffect(() => {
+    if (selectedProfileId && !selectedProfile) {
+      setSelectedProfileId("");
+    }
+  }, [selectedProfileId, selectedProfile]);
+
+  function showToast(message: string) {
+    if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+    setToastText(message);
+    toastTimeoutRef.current = setTimeout(() => {
+      setToastText("");
+    }, TOAST_DURATION_MS);
+  }
+
+  function toggleSelectedFilter(sectionId: FilterSectionId, option: string) {
+    setSelectedFilters((prev) => {
       const current = prev[sectionId];
-      const nextValues = current.includes(option)
+      const next = current.includes(option)
         ? current.filter((item) => item !== option)
         : [...current, option];
-      return { ...prev, [sectionId]: nextValues };
+      return { ...prev, [sectionId]: next };
     });
   }
 
-  function clearFilters() {
+  function clearSearchAndFilters() {
     setQuery("");
-    setSelected(emptyFilterSelection());
+    setDebouncedQuery("");
+    setSelectedFilters(emptyFilterSelection());
   }
 
-  // Escape closes the filter drawer.
-  // vocab: useEffect = run after paint; the return function is cleanup (remove the listener)
+  function handleConnect(profile: DiscoveryProfile) {
+    if (!requestedProfileIds.includes(profile.id)) {
+      setRequestedProfileIds((prev) => [...prev, profile.id]);
+    }
+    showToast(`Connect request sent to ${profile.displayName}.`);
+  }
+
+  // Load public students from Firestore
   useEffect(() => {
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key !== "Escape") {
+    let isCancelled = false;
+
+    async function loadBrowseProfiles(signedInUser: User) {
+      const viewer = await getUserProfile(signedInUser.uid);
+      if (isCancelled) return;
+      if (!viewer?.onboardingComplete) {
+        router.replace(ONBOARDING_PATH);
         return;
       }
-      setFiltersOpen(false);
+      setViewerProfile(viewer);
+
+      try {
+        const records = await listPublicProfiles();
+        if (isCancelled) return;
+        setBrowseProfiles(buildDiscoveryBrowseList(records, signedInUser.uid));
+        setErrorMessage("");
+      } catch {
+        if (isCancelled) return;
+        setBrowseProfiles([]);
+        setErrorMessage("Could not load students. Try again.");
+      } finally {
+        if (!isCancelled) setIsLoading(false);
+      }
     }
 
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+    setIsLoading(true);
+    const unsubscribe = onAuthStateChanged(auth, (signedInUser) => {
+      if (!signedInUser) {
+        router.replace(LOGIN_PATH);
+        return;
+      }
+      void loadBrowseProfiles(signedInUser);
+    });
+
+    return () => {
+      isCancelled = true;
+      unsubscribe();
+    };
+  }, [loadAttempt, router]);
+
+  // Escape key closes peek first, then filters drawer
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        if (selectedProfileId) {
+          setSelectedProfileId("");
+          return;
+        }
+        setAreFiltersOpen(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [selectedProfileId]);
+
+  // Flatten active filter chips for easy pill display
+  const activeChips: Array<{ sectionId: FilterSectionId; option: string }> = [];
+  (Object.keys(selectedFilters) as FilterSectionId[]).forEach((sec) => {
+    selectedFilters[sec].forEach((opt) => {
+      activeChips.push({ sectionId: sec, option: opt });
+    });
+  });
 
   return (
-    <div className="discovery-root">
-      {/* Toolbar stays so the real grid can sit full-width under it later. */}
-      <div className="discovery-toolbar">
+    <div className="discovery-container">
+      {/* ── 4.3 High-Finish Toolbar Deck ── */}
+      <div className="dtools-dock">
+        {/* Filters ghost button */}
         <button
           type="button"
-          className="discovery-menu-btn"
-          aria-expanded={filtersOpen}
+          id="filtersBtn"
+          className={`dtools-filter-btn ${activeFilterCount > 0 ? "has-active" : ""}`}
+          aria-expanded={areFiltersOpen}
           aria-controls="discovery-filters-drawer"
-          onClick={() => setFiltersOpen(true)}
+          onClick={() => setAreFiltersOpen(true)}
         >
-          <SlidersHorizontal size={18} aria-hidden="true" />
+          <SlidersHorizontal size={18} className="dtools-icon" />
           <span>Filters</span>
-          {activeCount > 0 ? (
-            <span className="discovery-menu-badge">{activeCount}</span>
-          ) : null}
+          {activeFilterCount > 0 && (
+            <span className="dtools-badge">{activeFilterCount}</span>
+          )}
         </button>
+
+        {/* Search input pill */}
+        <div className="dtools-search-pill">
+          <span className="dtools-search-icon" aria-hidden="true">
+            <Search size={18} />
+          </span>
+          <input
+            type="search"
+            aria-label="Search by name, major, niche or club"
+            placeholder="Search by name, major, niche or club…"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {query && (
+            <button
+              type="button"
+              className="dtools-clear-query"
+              aria-label="Clear search"
+              onClick={() => setQuery("")}
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
+
+        {/* Student Count Chip */}
+        <div className="dtools-count-chip tnum" aria-live="polite">
+          <span className="live-dot" aria-hidden="true" />
+          <span>
+            {isLoading
+              ? "Loading…"
+              : `${filteredProfiles.length} student${filteredProfiles.length === 1 ? "" : "s"}`}
+          </span>
+        </div>
       </div>
 
-      {/*
-        Grid / peek are intentionally not rendered.
-        Rebuild from src/docs/discovery-grid.md when users/{uid} browse exists.
-      */}
+      {/* ── Active filter chips ── */}
+      {activeChips.length > 0 && (
+        <div className="active-filters-bar" aria-label="Active filters">
+          <div className="active-chips-scroll">
+            {activeChips.map(({ sectionId, option }) => (
+              <button
+                key={`${sectionId}-${option}`}
+                type="button"
+                className="fchip-elevated"
+                onClick={() => toggleSelectedFilter(sectionId, option)}
+                aria-label={`Remove filter ${option}`}
+              >
+                <span>{option}</span>
+                <X size={14} className="fchip-x" />
+              </button>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="clear-all-btn"
+            onClick={clearSearchAndFilters}
+          >
+            Clear all
+          </button>
+        </div>
+      )}
 
+      {/* ── Results / Conditional States ── */}
+      {isLoading ? (
+        <div className="flex flex-col items-center gap-4 py-20 text-center">
+          <p className="mono text-[var(--text-muted)]">Loading students…</p>
+        </div>
+      ) : errorMessage ? (
+        <div className="no-match">
+          <h3 className="t-card text-[var(--danger)]">{errorMessage}</h3>
+          <button
+            type="button"
+            className="btn btn-ghost"
+            onClick={() => setLoadAttempt((prev) => prev + 1)}
+          >
+            Try again
+          </button>
+        </div>
+      ) : browseProfiles.length === 0 ? (
+        /* 4.10 Empty state when no public students exist yet */
+        <DiscoveryEmptyState
+          hasPublicStudents={false}
+          onClearFilters={clearSearchAndFilters}
+          viewerProfile={viewerProfile}
+          onToast={showToast}
+        />
+      ) : filteredProfiles.length === 0 ? (
+        /* 4.7 No match when search or filters return 0 results */
+        <div className="no-match">
+          <h3 className="t-card text-[var(--text)]">
+            No students match these filters
+          </h3>
+          <p className="text-[var(--text-body)]">
+            Try removing a filter or searching a shorter word.
+          </p>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={clearSearchAndFilters}
+          >
+            Clear filters
+          </button>
+        </div>
+      ) : (
+        /* 4.4 / 4.5 3-column discovery grid */
+        <div className="dgrid">
+          {filteredProfiles.map((profile, i) => (
+            <DiscoveryProfileCard
+              key={profile.id}
+              profile={profile}
+              index={i}
+              isRequested={requestedProfileIds.includes(profile.id)}
+              onView={(p) => setSelectedProfileId(p.id)}
+            />
+          ))}
+        </div>
+      )}
+
+      {/* ── Overlays: Filters Drawer & Profile Peek ── */}
       <OverlayPortal>
         <AnimatePresence>
-          {filtersOpen ? (
+          {/* 4.8 Filters Drawer */}
+          {areFiltersOpen && (
             <motion.div
-              className="discovery-drawer-backdrop"
-              onClick={() => setFiltersOpen(false)}
-              initial={reduceMotion ? false : { opacity: 0 }}
+              className="drawer-backdrop"
+              onClick={() => setAreFiltersOpen(false)}
+              initial={shouldReduceMotion ? false : { opacity: 0 }}
               animate={{ opacity: 1 }}
-              exit={reduceMotion ? undefined : { opacity: 0 }}
+              exit={shouldReduceMotion ? undefined : { opacity: 0 }}
               transition={{ duration: 0.22 }}
             >
               <motion.div
                 id="discovery-filters-drawer"
-                className="discovery-drawer"
+                className="drawer"
                 role="dialog"
                 aria-modal="true"
                 aria-label="Filters"
                 onClick={(e) => e.stopPropagation()}
-                // vocab: x = slide from the left; 0 = rest position
-                initial={reduceMotion ? false : { x: -28, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={reduceMotion ? undefined : { x: -24, opacity: 0 }}
+                initial={shouldReduceMotion ? false : { x: -60 }}
+                animate={{ x: 0 }}
+                exit={shouldReduceMotion ? undefined : { x: -60 }}
                 transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
               >
-                <div className="discovery-drawer-head">
-                  <p className="discovery-drawer-title">Filters</p>
+                <div className="drawer-head">
+                  <h2 className="t-card" style={{ margin: 0, color: "var(--text)" }}>
+                    Filters
+                  </h2>
                   <button
                     type="button"
-                    className="page-icon-btn"
+                    className="round-btn"
                     aria-label="Close filters"
-                    onClick={() => setFiltersOpen(false)}
+                    onClick={() => setAreFiltersOpen(false)}
                   >
-                    <X size={16} />
+                    <X size={20} />
                   </button>
                 </div>
+
                 <DiscoveryFilterSidebar
-                  query={query}
-                  onQueryChange={setQuery}
-                  selected={selected}
-                  onToggle={toggleFilter}
-                  onClear={clearFilters}
+                  selected={selectedFilters}
+                  onToggle={toggleSelectedFilter}
                 />
+
+                <div className="drawer-foot">
+                  <button
+                    type="button"
+                    className="link"
+                    onClick={clearSearchAndFilters}
+                    disabled={!hasActiveFilters}
+                  >
+                    Clear filters
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    onClick={() => setAreFiltersOpen(false)}
+                  >
+                    Show {filteredProfiles.length} student{filteredProfiles.length === 1 ? "" : "s"}
+                  </button>
+                </div>
               </motion.div>
             </motion.div>
-          ) : null}
+          )}
+
+          {/* 4.9 Profile Peek */}
+          {selectedProfile && (
+            <DiscoveryProfilePeek
+              key={selectedProfile.id}
+              profile={selectedProfile}
+              requested={requestedProfileIds.includes(selectedProfile.id)}
+              onClose={() => setSelectedProfileId("")}
+              onConnect={() => handleConnect(selectedProfile)}
+            />
+          )}
         </AnimatePresence>
+
+        {/* 4.6 Toast notification */}
+        <div
+          className={`toast ${toastText ? "show" : ""}`}
+          role="status"
+          aria-live="polite"
+        >
+          {toastText}
+        </div>
       </OverlayPortal>
+
+      <style jsx>{`
+        .dtools-dock {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 12px 16px;
+          padding: 8px 14px 8px 10px;
+          border-radius: 9999px;
+          background: rgb(24 20 25 / 0.72);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 2px solid rgb(255 255 255 / 0.14);
+          box-shadow: 0 12px 36px -12px rgb(0 0 0 / 0.65);
+          margin-bottom: 24px;
+        }
+
+        @media (max-width: 640px) {
+          .dtools-dock {
+            border-radius: 20px;
+            padding: 12px;
+          }
+        }
+
+        .dtools-filter-btn {
+          height: 48px;
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 0 20px;
+          border-radius: 9999px;
+          background: rgb(255 255 255 / 0.08);
+          border: 2px solid rgb(255 255 255 / 0.18);
+          color: white;
+          font-family: var(--f-body, sans-serif);
+          font-size: 14.5px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .dtools-filter-btn:hover {
+          background: rgb(255 92 168 / 0.15);
+          border-color: #ff5ca8;
+          transform: translateY(-1px);
+        }
+
+        .dtools-filter-btn.has-active {
+          background: rgb(255 92 168 / 0.18);
+          border-color: #ff5ca8;
+          box-shadow: 0 0 16px rgb(255 92 168 / 0.25);
+        }
+
+        :global(.dtools-icon) {
+          color: #ff5ca8;
+        }
+
+        .dtools-badge {
+          display: inline-grid;
+          place-items: center;
+          min-width: 22px;
+          height: 22px;
+          padding: 0 6px;
+          border-radius: 999px;
+          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
+          color: #0d0b0e;
+          font-family: var(--f-mono);
+          font-size: 11.5px;
+          font-weight: 800;
+        }
+
+        .dtools-search-pill {
+          flex: 1 1 300px;
+          position: relative;
+          display: flex;
+          align-items: center;
+          min-height: 48px;
+          border-radius: 9999px;
+          background: rgb(13 11 14 / 0.7);
+          border: 2px solid rgb(255 255 255 / 0.14);
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .dtools-search-pill:focus-within {
+          border-color: #ff5ca8;
+          box-shadow: 0 0 0 3px rgb(255 92 168 / 0.22);
+        }
+
+        .dtools-search-icon {
+          position: absolute;
+          left: 16px;
+          color: #ff5ca8;
+          display: flex;
+          align-items: center;
+          pointer-events: none;
+        }
+
+        .dtools-search-pill input {
+          width: 100%;
+          height: 44px;
+          background: transparent;
+          border: none;
+          outline: none;
+          padding-left: 46px;
+          padding-right: 36px;
+          color: white;
+          font-family: var(--f-body, sans-serif);
+          font-size: 14.5px;
+        }
+
+        .dtools-search-pill input::placeholder {
+          color: var(--text-muted, rgb(251 246 248 / 0.5));
+          font-size: 14px;
+        }
+
+        .dtools-clear-query {
+          position: absolute;
+          right: 12px;
+          width: 24px;
+          height: 24px;
+          border-radius: 50%;
+          background: rgb(255 255 255 / 0.15);
+          border: none;
+          color: white;
+          display: grid;
+          place-items: center;
+          cursor: pointer;
+          transition: background 0.15s ease;
+        }
+
+        .dtools-clear-query:hover {
+          background: rgb(255 92 168 / 0.5);
+        }
+
+        .dtools-count-chip {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 16px;
+          border-radius: 999px;
+          background: rgb(255 255 255 / 0.05);
+          border: 1px solid rgb(255 255 255 / 0.12);
+          color: var(--text-muted);
+          font-family: var(--f-mono);
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: 0.04em;
+          text-transform: uppercase;
+          white-space: nowrap;
+        }
+
+        .live-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #ff5ca8;
+          box-shadow: 0 0 8px #ff5ca8;
+        }
+
+        .active-filters-bar {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 24px;
+        }
+
+        .active-chips-scroll {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+        }
+
+        .fchip-elevated {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          min-height: 36px;
+          padding: 0 10px 0 14px;
+          border-radius: 999px;
+          background: rgb(255 92 168 / 0.09);
+          border: 1.5px solid rgb(255 92 168 / 0.4);
+          color: white;
+          font-weight: 600;
+          font-size: 13.5px;
+          cursor: pointer;
+          transition: all 0.18s ease;
+        }
+
+        .fchip-elevated:hover {
+          background: rgb(255 92 168 / 0.2);
+          border-color: #ff5ca8;
+          transform: translateY(-1px);
+        }
+
+        :global(.fchip-x) {
+          color: #ff5ca8;
+        }
+
+        .clear-all-btn {
+          background: transparent;
+          border: none;
+          color: var(--text-muted);
+          font-family: var(--f-mono);
+          font-size: 12.5px;
+          font-weight: 700;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+          cursor: pointer;
+          padding: 4px 8px;
+          transition: color 0.15s ease;
+        }
+
+        .clear-all-btn:hover {
+          color: #ff5ca8;
+        }
+      `}</style>
     </div>
   );
 }
