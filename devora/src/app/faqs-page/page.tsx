@@ -32,52 +32,62 @@ export default function FaqsPage() {
       <div className="relative z-10 min-h-screen">
         <NavBar activeItem={FAQ_NAV_LABEL} />
 
-        {/* ── Gradient band combining with shader ── */}
+        {/* ── Header with solid opaque overlay card ── */}
         <section
           aria-label="FAQs header"
           style={{
-            background: "linear-gradient(120deg, rgba(255, 154, 61, 0.35) 0%, rgba(255, 92, 168, 0.35) 52%, rgba(255, 43, 214, 0.35) 100%)",
-            color: "#ffffff",
-            paddingBlock: "clamp(88px, 9vw, 104px)",
-            paddingTop: "calc(clamp(88px, 9vw, 104px) + 68px)",
+            paddingTop: "calc(clamp(72px, 8vw, 96px) + 60px)",
+            paddingBottom: 24,
             position: "relative",
           }}
         >
           <div
             style={{
-              maxWidth: 1240,
+              maxWidth: 980,
               marginInline: "auto",
               paddingInline: "clamp(20px, 4.5vw, 64px)",
             }}
           >
-            <h1
+            <div
               style={{
-                fontFamily: "var(--font-display), 'Arial Black', sans-serif",
-                fontWeight: 800,
-                fontSize: "clamp(40px, 7.4vw, 112px)",
-                lineHeight: 0.9,
-                letterSpacing: "-0.035em",
-                textTransform: "uppercase",
-                textWrap: "balance",
-                color: "#ffffff",
-                margin: 0,
+                background: "#0c0a0e",
+                border: "2px solid rgba(255, 92, 168, 0.35)",
+                borderRadius: 24,
+                padding: "clamp(28px, 4vw, 44px)",
+                boxShadow: "0 16px 36px -10px rgba(0, 0, 0, 0.75), 0 0 24px -8px rgba(255, 92, 168, 0.25)",
               }}
             >
-              FAQs
-            </h1>
-            <p
-              style={{
-                fontFamily: "var(--font-mono), monospace",
-                fontSize: "clamp(18px, 1.5vw, 21px)",
-                lineHeight: 1.5,
-                maxWidth: "34em",
-                marginTop: 24,
-                color: "rgba(255, 255, 255, 0.85)",
-              }}
-            >
-              Answers about Devora, networking, privacy and how the CECS hub
-              works.
-            </p>
+              <h1
+                style={{
+                  fontFamily: "var(--font-display), 'Arial Black', sans-serif",
+                  fontWeight: 800,
+                  fontSize: "clamp(38px, 6.5vw, 88px)",
+                  lineHeight: 0.95,
+                  letterSpacing: "-0.035em",
+                  textTransform: "uppercase",
+                  textWrap: "balance",
+                  color: "#ffffff",
+                  margin: 0,
+                  textShadow: "0 2px 16px rgba(0,0,0,0.6)",
+                }}
+              >
+                FAQs
+              </h1>
+              <p
+                style={{
+                  fontFamily: "var(--font-mono), monospace",
+                  fontSize: "clamp(16px, 1.4vw, 19px)",
+                  lineHeight: 1.55,
+                  maxWidth: "42em",
+                  marginTop: 18,
+                  marginBottom: 0,
+                  color: "rgba(255, 255, 255, 0.92)",
+                }}
+              >
+                Answers about Devora, networking, privacy and how the CECS hub
+                works.
+              </p>
+            </div>
           </div>
         </section>
 

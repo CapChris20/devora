@@ -118,61 +118,51 @@ function SettingsCard({ title, children }: SettingsCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
+      style={{
+        background: "#0e0b12",
+        border: "2px solid #2f2536",
+        borderRadius: 20,
+        padding: "clamp(20px, 3vw, 28px)",
+        display: "flex",
+        flexDirection: "column",
+        gap: 20,
+        boxShadow: "0 14px 36px -10px rgba(0, 0, 0, 0.8), 0 0 20px -8px rgba(255, 92, 168, 0.15)",
+      }}
     >
-      <div className="settings-panel-title-wrap">
-        <h2 className="settings-panel-title">{title}</h2>
-        <span className="settings-title-line" aria-hidden="true" />
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: 16,
+          paddingBottom: 12,
+          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
+        }}
+      >
+        <h2
+          style={{
+            fontFamily: "var(--font-display), 'Arial Black', sans-serif",
+            fontWeight: 700,
+            fontSize: 18,
+            textTransform: "uppercase",
+            letterSpacing: "-0.01em",
+            color: "#ffffff",
+            margin: 0,
+            whiteSpace: "nowrap",
+            textShadow: "0 1px 6px rgba(0,0,0,0.6)",
+          }}
+        >
+          {title}
+        </h2>
+        <span
+          style={{
+            flex: 1,
+            height: 1,
+            background: "linear-gradient(90deg, rgba(255, 92, 168, 0.4), transparent 75%)",
+          }}
+          aria-hidden="true"
+        />
       </div>
-      <div className="settings-panel-body">{children}</div>
-
-      <style jsx>{`
-        .settings-panel {
-          background: var(--surface, #1c181c);
-          border: 2px solid var(--edge, #3d3439);
-          border-radius: 20px;
-          padding: clamp(20px, 3vw, 28px);
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-          transition: border-color 0.22s ease, box-shadow 0.22s ease, transform 0.22s var(--spring, cubic-bezier(0.23, 1, 0.32, 1));
-        }
-
-        .settings-panel:hover {
-          border-color: rgb(255 92 168 / 0.32);
-          box-shadow: 0 12px 32px -10px rgb(0 0 0 / 0.6), 0 0 24px -10px rgb(255 92 168 / 0.16);
-        }
-
-        .settings-panel-title-wrap {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid rgb(255 255 255 / 0.08);
-        }
-
-        .settings-panel-title {
-          font-family: var(--font-display), "Arial Black", sans-serif;
-          font-weight: 700;
-          font-size: 17px;
-          text-transform: uppercase;
-          letter-spacing: -0.01em;
-          color: var(--text, #fbf6f8);
-          margin: 0;
-          white-space: nowrap;
-        }
-
-        .settings-title-line {
-          flex: 1;
-          height: 1px;
-          background: linear-gradient(90deg, rgb(255 92 168 / 0.3), transparent 70%);
-        }
-
-        .settings-panel-body {
-          display: flex;
-          flex-direction: column;
-          gap: 18px;
-        }
-      `}</style>
+      <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>{children}</div>
     </motion.section>
   );
 }
@@ -185,10 +175,42 @@ function SettingsRow({
   disabled = false,
 }: SettingsRowProps) {
   return (
-    <div className="settings-row-item">
-      <div className="settings-row-text">
-        <span className="settings-row-label">{label}</span>
-        {description && <p className="settings-row-desc">{description}</p>}
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 16,
+        padding: "12px 16px",
+        borderRadius: 14,
+        background: "#15101a",
+        border: "1.5px solid rgba(255, 255, 255, 0.08)",
+        transition: "background 0.18s ease, border-color 0.18s ease",
+      }}
+    >
+      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+        <span
+          style={{
+            fontSize: 16,
+            fontWeight: 700,
+            color: "#ffffff",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          {label}
+        </span>
+        {description && (
+          <p
+            style={{
+              fontSize: 14,
+              color: "#d8cdd5",
+              margin: 0,
+              lineHeight: 1.45,
+            }}
+          >
+            {description}
+          </p>
+        )}
       </div>
 
       <GradientToggle
@@ -197,42 +219,6 @@ function SettingsRow({
         onChange={onChange}
         disabled={disabled}
       />
-
-      <style jsx>{`
-        .settings-row-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          padding: 8px 12px;
-          margin-inline: -12px;
-          border-radius: 12px;
-          transition: background 0.18s ease;
-        }
-
-        .settings-row-item:hover {
-          background: rgb(255 255 255 / 0.035);
-        }
-
-        .settings-row-text {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .settings-row-label {
-          font-size: 15.5px;
-          font-weight: 600;
-          color: var(--text, #fbf6f8);
-        }
-
-        .settings-row-desc {
-          font-size: 14px;
-          color: var(--text-muted, rgb(251 246 248 / 0.7));
-          margin: 0;
-          line-height: 1.4;
-        }
-      `}</style>
     </div>
   );
 }
@@ -397,11 +383,11 @@ function SettingsAppearanceCard() {
 
   return (
     <SettingsCard title="Appearance">
-      <p className="text-[14px] text-[var(--text-muted)] -mt-2">
+      <p style={{ fontSize: 14, color: "#d8cdd5", margin: "-4px 0 0" }}>
         Pick how Devora looks on this device.
       </p>
 
-      <div className="theme-pills-row">
+      <div style={{ display: "flex", gap: 12, marginTop: 4, flexWrap: "wrap" }}>
         {THEME_MODES.map((mode) => {
           const isModeActive = theme === mode;
           const modeLabel = mode === DARK_THEME_MODE ? DARK_MODE_LABEL : LIGHT_MODE_LABEL;
@@ -409,49 +395,30 @@ function SettingsAppearanceCard() {
             <button
               key={mode}
               type="button"
-              className={`theme-pill-btn ${isModeActive ? "is-selected" : ""}`}
               onClick={() => setTheme(mode)}
               aria-pressed={isModeActive}
+              style={{
+                height: 44,
+                paddingInline: 22,
+                borderRadius: 9999,
+                border: isModeActive ? "2px solid #000000" : "2px solid #382d40",
+                background: isModeActive
+                  ? "linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%)"
+                  : "#15101a",
+                color: isModeActive ? "#0d0b0e" : "#ffffff",
+                boxShadow: isModeActive ? "3px 3px 0 0 #0d0b0e" : "0 4px 12px rgba(0,0,0,0.5)",
+                fontFamily: "var(--font-mono), monospace",
+                fontSize: 14,
+                fontWeight: 700,
+                cursor: "pointer",
+                transition: "all 0.2s ease",
+              }}
             >
               <span>{modeLabel}</span>
             </button>
           );
         })}
       </div>
-
-      <style jsx>{`
-        .theme-pills-row {
-          display: flex;
-          gap: 12px;
-          margin-top: 4px;
-        }
-
-        .theme-pill-btn {
-          height: 44px;
-          padding-inline: 20px;
-          border-radius: 9999px;
-          border: 2px solid rgb(255 255 255 / 0.3);
-          background: transparent;
-          color: var(--text, #fbf6f8);
-          font-family: var(--f-mono);
-          font-size: 14px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: translate 0.2s var(--spring), background 0.2s ease, border-color 0.2s ease;
-        }
-
-        .theme-pill-btn:hover {
-          translate: 0 -2px;
-          border-color: #ffffff;
-        }
-
-        .theme-pill-btn.is-selected {
-          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
-          border-color: transparent;
-          color: #0d0b0e;
-          box-shadow: 3px 3px 0 0 #0d0b0e;
-        }
-      `}</style>
     </SettingsCard>
   );
 }

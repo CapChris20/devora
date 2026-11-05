@@ -2,6 +2,7 @@
 // Wrapper has overflow: hidden, padding-block: 28px, margin-block: -56px, z-index: 5.
 // Band has --grad fill, 3px ink border top & bottom, padding-block: 18px, width: 108%,
 // margin-left: -4%, rotate(-2deg). Seamless loop with 4-point ink stars and alternating outlined text.
+// Uses Devora's signature display font Unbounded (var(--font-display)).
 
 "use client";
 
@@ -12,15 +13,15 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 gsap.registerPlugin(ScrollTrigger);
 
 const MARQUEE_ITEMS = [
-  "Connect",
-  "Be more confident",
-  "Collaborate",
-  "Create",
-  "Meet new peers",
-  "Develop further bonds",
-  "Sponsored by CECS",
-  "UM\u2011Dearborn",
-  "Build the network",
+  "CONNECT",
+  "BE MORE CONFIDENT",
+  "COLLABORATE",
+  "CREATE",
+  "MEET NEW PEERS",
+  "DEVELOP FURTHER BONDS",
+  "SPONSORED BY CECS",
+  "UM\u2011DEARBORN",
+  "BUILD THE NETWORK",
 ];
 
 export default function ScrollingTextStrip() {
@@ -88,16 +89,20 @@ export default function ScrollingTextStrip() {
   }, []);
 
   const renderItemSequence = (keyPrefix: string) => (
-    <div className="flex items-center flex-shrink-0" key={keyPrefix}>
+    <div className="marquee-row flex items-center flex-shrink-0" key={keyPrefix}>
       {MARQUEE_ITEMS.map((item, idx) => {
         const isOdd = idx % 2 === 1;
         return (
           <div key={`${keyPrefix}-${idx}`} className="flex items-center flex-shrink-0">
             <span
-              className="marquee-text"
+              className="marquee-text font-display uppercase font-extrabold select-none"
               style={{
-                color: isOdd ? "transparent" : "var(--ink)",
-                WebkitTextStroke: isOdd ? "1.6px var(--ink)" : "none",
+                fontFamily: 'var(--font-display), "Unbounded", system-ui, sans-serif',
+                fontWeight: 800,
+                color: isOdd ? "transparent" : "var(--ink, #0d0b0e)",
+                WebkitTextStroke: isOdd ? "2px var(--ink, #0d0b0e)" : "none",
+                letterSpacing: "-0.015em",
+                textTransform: "uppercase",
               }}
             >
               {item}
@@ -108,7 +113,7 @@ export default function ScrollingTextStrip() {
               width="26"
               height="26"
               viewBox="0 0 24 24"
-              fill="var(--ink)"
+              fill="var(--ink, #0d0b0e)"
               aria-hidden="true"
             >
               <path d="M12 2C12.4 7.2 16.8 11.6 22 12C16.8 12.4 12.4 16.8 12 22C11.6 16.8 7.2 12.4 2 12C7.2 11.6 11.6 7.2 12 2Z" />
@@ -127,48 +132,6 @@ export default function ScrollingTextStrip() {
           {renderItemSequence("seq-2")}
         </div>
       </div>
-
-      <style jsx>{`
-        .marquee-wrapper {
-          overflow: hidden;
-          padding-block: 28px;
-          margin-block: -56px;
-          position: relative;
-          z-index: 5;
-        }
-
-        .marquee-band {
-          background: var(--grad);
-          border-top: 3px solid var(--ink);
-          border-bottom: 3px solid var(--ink);
-          padding-block: 18px;
-          width: 108%;
-          margin-left: -4%;
-          transform: rotate(-2deg);
-        }
-
-        .marquee-track {
-          display: flex;
-          width: max-content;
-          align-items: center;
-          will-change: transform;
-        }
-
-        .marquee-text {
-          font-family: var(--f-display);
-          font-weight: 800;
-          text-transform: uppercase;
-          font-size: clamp(22px, 2.6vw, 36px);
-          line-height: 1;
-          letter-spacing: -0.02em;
-          padding-inline: 28px;
-          white-space: nowrap;
-        }
-
-        .marquee-star {
-          margin-inline: 4px;
-        }
-      `}</style>
     </div>
   );
 }

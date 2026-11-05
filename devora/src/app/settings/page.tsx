@@ -23,13 +23,23 @@ export default function SettingsPage() {
       <div className="relative z-10 flex flex-col min-h-screen">
         <NavBar activeItem="Settings" />
 
-        {/* ── Page Header ── */}
+        {/* ── Page Header with solid overlay card ── */}
         <section className="settings-header-band">
           <div className="settings-header-inner">
-            <h1 className="t-band text-white">Settings</h1>
-            <p className="lead text-[var(--text-body)] mt-3">
-              Control how you show up on Devora, what you get notified about, and how the app looks.
-            </p>
+            <div
+              style={{
+                background: "#0d0a11",
+                border: "2px solid rgba(255, 92, 168, 0.35)",
+                borderRadius: 24,
+                padding: "clamp(28px, 4vw, 40px)",
+                boxShadow: "0 16px 36px -10px rgba(0, 0, 0, 0.75), 0 0 24px -8px rgba(255, 92, 168, 0.2)",
+              }}
+            >
+              <h1 className="t-band text-white" style={{ margin: 0, textShadow: "0 2px 14px rgba(0,0,0,0.7)" }}>Settings</h1>
+              <p className="lead mt-3 mb-0" style={{ color: "rgba(255, 255, 255, 0.92)", fontSize: "clamp(16px, 1.4vw, 19px)" }}>
+                Control how you show up on Devora, what you get notified about, and how the app looks.
+              </p>
+            </div>
           </div>
         </section>
 
