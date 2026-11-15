@@ -1,7 +1,8 @@
-// Route redirect from /activity-center to the Activity Center (/activity)
+// Route redirect from /activity-center to /messages-page
 
 import { redirect } from "next/navigation";
 
 export default function ActivityCenterRedirectPage() {
-  redirect("/activity");
+  redirect("/messages-page");
 }
+

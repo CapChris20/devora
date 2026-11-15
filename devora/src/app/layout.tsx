@@ -8,7 +8,6 @@ import type { Metadata } from "next";
 
 import { Press_Start_2P, Space_Mono, Unbounded } from "next/font/google";
 import AppWrapper from "@/ui/shared/theme/AppWrapper";
-import { NB_FONT_CLASS_NAME } from "@/ui/shared/design-law/nb-fonts";
 import "@/ui/globals.css";
 
 // ===== NAMED CONSTANTS =====
@@ -50,9 +49,7 @@ const pressStart = Press_Start_2P({
   variable: "--font-pixel",
 });
 
-// NB_FONT_CLASS_NAME adds the Design Law fonts (Archivo Black + Space Grotesk) used by the
-// Activity Center, Messages and Connections, including their pop-up modals.
-const APP_FONT_CLASS_NAME = `${spaceMono.variable} ${unbounded.variable} ${pressStart.variable} ${NB_FONT_CLASS_NAME}`;
+const APP_FONT_CLASS_NAME = `${spaceMono.variable} ${unbounded.variable} ${pressStart.variable}`;
 
 // ===== MAIN =====
 

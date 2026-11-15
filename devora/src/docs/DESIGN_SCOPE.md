@@ -29,7 +29,7 @@
 | Discovery Grid | `/find-students` | Voronoi via `PageLayout` |
 | Settings | `/settings` | City |
 | FAQs | `/faqs-page` | Peaks |
-| Activity Center | `/activity` | Design Law (paper, no shader) |
+| Activity Center | `/messages-page` | Pyramids |
 
 ### Auth routes
 
