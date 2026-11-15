@@ -21,7 +21,10 @@ const navItems = [
   { label: "Discovery Grid", href: "/find-students" },
   { label: "Settings", href: "/settings" },
   { label: "FAQs", href: "/faqs-page" },
-  { label: "Activity Center", href: "/messages-page" },
+  // Activity Center = Study Groups + Clubs tabs (the older /messages-page shell is no longer linked)
+  { label: "Activity Center", href: "/activity" },
+  { label: "Messages", href: "/messages" },
+  { label: "Connections", href: "/connections" },
 ];
 
 type NavBarProps = {
@@ -140,9 +143,9 @@ export default function NavBar({ activeItem }: NavBarProps) {
             hasScrolled ? "navbar-shell-scrolled" : ""
           }`}
         >
-          {/* Desktop link row — hidden below the md breakpoint (hamburger takes over) */}
+          {/* Desktop link row — hidden below the lg breakpoint (hamburger takes over) */}
           <nav
-            className="navbar-desktop-nav hidden min-w-0 md:block"
+            className="navbar-desktop-nav hidden min-w-0 lg:block"
             aria-label="Main navigation"
           >
             <ul className="flex flex-nowrap items-center gap-1 md:gap-1.5 xl:gap-2">
@@ -165,12 +168,12 @@ export default function NavBar({ activeItem }: NavBarProps) {
             </ul>
           </nav>
 
-          {/* Theme toggle always visible; hamburger only on small screens (md:hidden) */}
+          {/* Theme toggle always visible; hamburger only on small screens (lg:hidden — 8 links need ~1024px) */}
           <div className="flex shrink-0 items-center gap-2 pl-0.5 md:pl-1">
             <DarkLightButton />
             <button
               type="button"
-              className="nav-icon-btn relative touch-manipulation md:hidden"
+              className="nav-icon-btn relative touch-manipulation lg:hidden"
               // Flip open ↔ closed from the previous value (safe if clicks fire fast).
               // vocab/symbol: !prev = boolean NOT — true becomes false, false becomes true
               onClick={() => setIsMobileMenuOpen((prev) => !prev)}
@@ -199,7 +202,7 @@ export default function NavBar({ activeItem }: NavBarProps) {
           vocab/symbol: && = only render the overlay JSX when the menu is open */}
       {isMobileMenuOpen && (
         // vocab: z-[210] = above the fixed header (200) so the panel covers it
-        <div className="fixed inset-0 z-[210] md:hidden">
+        <div className="fixed inset-0 z-[210] lg:hidden">
           {/* Invisible full-screen hit target + blur — clicking outside the panel closes */}
           <button
             type="button"
