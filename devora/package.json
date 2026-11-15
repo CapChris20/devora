@@ -7,7 +7,9 @@
     "dev:turbo": "next dev --turbo -p 3000",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "build:static": "STATIC_EXPORT=1 next build",
+    "deploy:surge": "npm run build:static && surge ./out devora-umich.surge.sh"
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",

@@ -1,17 +1,8 @@
-// Activity Center page: weekly hours, connect/messages, study groups, campus events.
-// Flow: route mounts (/messages-page) → ActivityCenterContent.
+// Old Activity Center URL. The Activity Center is now the tabbed Design Law page at /activity
+// (Study Groups + Clubs). Messages and Connections have their own NavBar links.
 
-"use client";
+import { redirect } from "next/navigation";
 
-// ===== IMPORTS =====
-
-import ActivityCenterContent from "@/ui/activity/ActivityCenterContent";
-
-// ===== MAIN COMPONENT =====
-
-/**
- * The Activity Center page. Weekly hours, messages, study groups, campus events.
- */
 export default function MessagesPage() {
-  return <ActivityCenterContent />;
+  redirect("/activity");
 }

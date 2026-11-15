@@ -9892,4 +9892,80 @@ html[data-theme="light"] .discovery-peek-backdrop {
 }
 
 
+/* ===== DESIGN LAW NAVBAR =====
+   NavBar restyle for pages wrapped in .nb-law (Activity Center, Messages, Connections):
+   same neo-brutalist look as Coach Connect — white pill, 3px ink outline, hard ink shadow,
+   active link = pink→orange gradient pill. Other pages keep the original glass navbar.
+   vocab: :root .nb-law ... = extra specificity so these beat the html[data-theme] rules above.
+   Manipulate here: change the gradient in the active-link rule to recolor the current page pill. */
+:root .nb-law .navbar-shell,
+:root .nb-law .navbar-shell-scrolled {
+  background: #ffffff;
+  border: 3px solid #0a0a0a;
+  box-shadow: 4px 4px 0 #0a0a0a;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:root .nb-law .nav-link {
+  font-family: var(--font-nb-body), system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0;
+  -webkit-tap-highlight-color: rgba(255, 107, 157, 0.25);
+}
+
+:root .nb-law .nav-link-default {
+  color: #0a0a0a;
+  text-shadow: none;
+}
+
+:root .nb-law .nav-link-default:hover {
+  background: #f2f2f0;
+}
+
+:root .nb-law .nav-link-default:hover .nav-link-text {
+  background: none;
+  -webkit-text-fill-color: #0a0a0a;
+  color: #0a0a0a;
+  filter: none;
+}
+
+:root .nb-law .nav-link-active {
+  background: linear-gradient(135deg, #ff6b9d 0%, #fb923c 100%);
+  border: 2px solid #0a0a0a;
+  box-shadow: 2px 2px 0 #0a0a0a;
+}
+
+:root .nb-law .nav-link-active .nav-link-text,
+:root .nb-law .nav-link-active .soft-pink {
+  background: none;
+  -webkit-text-fill-color: #0a0a0a;
+  color: #0a0a0a;
+}
+
+:root .nb-law .theme-toggle,
+:root .nb-law .nav-icon-btn {
+  background: #ffffff;
+  border: 2px solid #0a0a0a;
+  color: #0a0a0a;
+  box-shadow: 2px 2px 0 #0a0a0a;
+}
+
+:root .nb-law .theme-toggle:hover,
+:root .nb-law .nav-icon-btn:hover {
+  background: #f2f2f0;
+  box-shadow: 3px 3px 0 #0a0a0a;
+}
+
+:root .nb-law .navbar-mobile-panel {
+  background: #ffffff;
+  border: 3px solid #0a0a0a;
+  box-shadow: 5px 5px 0 #0a0a0a;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:root .nb-law .theme-mobile-backdrop {
+  background: rgba(10, 10, 10, 0.3);
+}
 

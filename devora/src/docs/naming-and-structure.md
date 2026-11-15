@@ -51,7 +51,10 @@ src/docs/             → Project documentation
 | `/find-students` | `find-students/` | **Discovery Grid** (nav + title). Do not rename the URL. |
 | `/settings` | `settings/` | Settings shell |
 | `/faqs-page` | `faqs-page/` | **Kept** `-page` suffix (user choice) |
-| `/messages-page` | `messages-page/` | Activity Center shell; nav label **Activity Center** |
+| `/activity` | `activity/` | **Activity Center** — Study Groups + Clubs tabs (`src/ui/activity-tabs/`) |
+| `/messages` | `messages/` | 1:1 DMs, own NavBar link (`src/ui/messages/`) |
+| `/connections` | `connections/` | Connected students, own NavBar link (`src/ui/connections/`) |
+| `/messages-page` | `messages-page/` | Old Activity Center URL — redirects to `/activity` |
 | `/account-page` | `account-page/` | Account shell |
 | `/auth/login` | `auth/login/` | Google sign-in |
 | `/auth/signup` | `auth/signup/` | First/last name + Google |

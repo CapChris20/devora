@@ -36,7 +36,7 @@ export default function DesignLawPage({
 }) {
   return (
     <div
-      className={`${NB_FONT_CLASS_NAME} relative min-h-screen bg-nb-paper font-nb-body text-nb-ink antialiased`}
+      className={`${NB_FONT_CLASS_NAME} nb-law relative min-h-screen bg-nb-paper font-nb-body text-nb-ink antialiased`}
     >
       <NavBar activeItem={navLabel} />
 

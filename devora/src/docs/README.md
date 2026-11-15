@@ -43,7 +43,9 @@ Copy `.env.example` → `.env.local` and fill in Firebase keys (`NEXT_PUBLIC_FIR
 | Discovery Grid | `/find-students` |
 | Settings | `/settings` |
 | FAQs | `/faqs-page` |
-| Activity Center | `/messages-page` |
+| Activity Center | `/activity` (Study Groups, Clubs tabs) |
+| Messages | `/messages` |
+| Connections | `/connections` |
 | Account | `/account-page` |
 | Login | `/auth/login` |
 | Sign up | `/auth/signup` |
