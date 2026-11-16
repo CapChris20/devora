@@ -16,6 +16,7 @@ const config: Config = {
         // Design Law (neo-brutalist) fonts — loaded in src/ui/shared/design-law/nb-fonts.ts
         "nb-display": ["var(--font-nb-display)", "Arial Black", "sans-serif"],
         "nb-body": ["var(--font-nb-body)", "system-ui", "sans-serif"],
+        "nb-mono": ["var(--font-nb-mono)", "ui-monospace", "monospace"],
       },
       // ===== DESIGN LAW TOKENS (same as Coach Connect's light theme) =====
       // Black/white/gray neo-brutalist chrome; gradients are SECONDARY accents only
@@ -48,6 +49,8 @@ const config: Config = {
         nb: "4px 4px 0 0 #0A0A0A",
         "nb-card": "5px 5px 0 0 #0A0A0A",
         "nb-lg": "6px 6px 0 0 #0A0A0A",
+        "nb-modal": "9px 9px 0 0 #0A0A0A",
+        "nb-toast": "5px 5px 0 0 #FB923C",
       },
       // Secondary accent gradients. Text on any of these is always ink.
       // nb-brand / orchid / sky / blush = Coach Connect accentGradients pairs; nb-accent = brand ramp.

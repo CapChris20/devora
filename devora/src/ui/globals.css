@@ -37,105 +37,62 @@ html {
   --text-subtle: rgba(244, 238, 252, 0.45);
   --text-soft: rgba(244, 238, 252, 0.62);
   --text-placeholder: rgba(244, 238, 252, 0.42);
-  --surface-glass: rgba(10, 4, 20, 0.38);
-  --surface-glass-mid: rgba(10, 4, 20, 0.45);
-  --surface-glass-strong: rgba(10, 4, 20, 0.62);
-  --surface-glass-subtle: rgba(10, 4, 20, 0.28);
-  --surface-card: rgba(13, 7, 22, 0.82);
-  --surface-card-deep: rgba(13, 7, 22, 0.88);
-  --surface-elevated: rgba(255, 255, 255, 0.04);
-  --surface-input: rgba(255, 255, 255, 0.06);
+  --surface-glass: #0e0918;
+  --surface-glass-mid: #120c1e;
+  --surface-glass-strong: #160e24;
+  --surface-glass-subtle: #0b0714;
+  --surface-card: #0e0918;
+  --surface-card-deep: #120c1e;
+  --surface-elevated: #160e24;
+  --surface-input: #120c1e;
   --surface-page-accent: #1a0a2e;
-  --border-subtle: rgba(255, 255, 255, 0.1);
-  --border-faint: rgba(255, 255, 255, 0.08);
-  --border-divider: rgba(255, 255, 255, 0.06);
-  --border-chip: rgba(255, 255, 255, 0.12);
+  --border-subtle: #ff5ca8;
+  --border-faint: rgba(255, 92, 168, 0.4);
+  --border-divider: #281838;
+  --border-chip: #ff5ca8;
   --sky-overlay: rgba(11, 5, 24, 0.55);
-  --btn-3d-depth: 6px;
-  --btn-3d-depth-hover: 10px;
+  --btn-3d-depth: 4px;
+  --btn-3d-depth-hover: 6px;
   --btn-3d-ease: cubic-bezier(0.34, 1.25, 0.64, 1);
-  --btn-3d-shadow: #3a2a4a;
-  --btn-3d-shadow-mid: #4a3a5c;
-  --btn-3d-shadow-pink: #5c2a45;
-  --btn-3d-shadow-red: #5c1010;
-  --btn-3d-highlight: inset 0 2px 0 rgba(255, 255, 255, 0.22);
-  --btn-3d-inner: inset 0 -3px 0 rgba(0, 0, 0, 0.45);
+  --btn-3d-shadow: #000000;
+  --btn-3d-shadow-mid: #000000;
+  --btn-3d-shadow-pink: #ff5ca8;
+  --btn-3d-shadow-red: #ef4444;
+  --btn-3d-highlight: none;
+  --btn-3d-inner: none;
   --btn-3d-stack:
-    inset 2px 0 0 rgba(255, 255, 255, 0.1),
-    inset -2px 0 0 rgba(0, 0, 0, 0.28),
-    var(--btn-3d-highlight),
-    var(--btn-3d-inner),
-    0 var(--btn-3d-depth) 0 var(--btn-3d-shadow),
-    calc(var(--btn-3d-depth) * 0.65) 0 0 var(--btn-3d-shadow-mid),
-    calc(var(--btn-3d-depth) * 0.65) var(--btn-3d-depth) 0 #241828,
-    0 calc(var(--btn-3d-depth) + 8px) 22px rgba(0, 0, 0, 0.55),
-    0 0 0 1px rgba(255, 255, 255, 0.12);
+    3px 3px 0px #000000,
+    4px 4px 0px #ff5ca8;
   --btn-3d-stack-hover:
-    inset 2px 0 0 rgba(255, 255, 255, 0.14),
-    inset -2px 0 0 rgba(0, 0, 0, 0.24),
-    inset 0 2px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -3px 0 rgba(0, 0, 0, 0.4),
-    0 var(--btn-3d-depth-hover) 0 var(--btn-3d-shadow),
-    calc(var(--btn-3d-depth-hover) * 0.65) 0 0 var(--btn-3d-shadow-mid),
-    calc(var(--btn-3d-depth-hover) * 0.65) var(--btn-3d-depth-hover) 0 #241828,
-    0 calc(var(--btn-3d-depth-hover) + 10px) 26px rgba(0, 0, 0, 0.58),
-    0 0 0 1px rgba(255, 255, 255, 0.16);
+    5px 5px 0px #000000,
+    6px 6px 0px #ff5ca8;
   --btn-3d-stack-active:
-    0 2px 0 var(--btn-3d-shadow),
-    0 4px 12px rgba(0, 0, 0, 0.38),
-    inset 0 4px 8px rgba(0, 0, 0, 0.38);
+    1px 1px 0px #000000;
   --btn-3d-stack-pink:
-    0 var(--btn-3d-depth) 0 var(--btn-3d-shadow-pink),
-    0 calc(var(--btn-3d-depth) + 2px) 0 #2a1520,
-    0 calc(var(--btn-3d-depth) + 10px) 24px rgba(0, 0, 0, 0.5),
-    var(--btn-3d-highlight),
-    var(--btn-3d-inner);
+    3px 3px 0px #000000,
+    4px 4px 0px #ff2bd6;
   --btn-3d-stack-pink-hover:
-    0 var(--btn-3d-depth-hover) 0 var(--btn-3d-shadow-pink),
-    0 calc(var(--btn-3d-depth-hover) + 3px) 0 #2a1520,
-    0 calc(var(--btn-3d-depth-hover) + 14px) 28px rgba(0, 0, 0, 0.52),
-    inset 0 2px 0 rgba(255, 255, 255, 0.28),
-    inset 0 -4px 0 rgba(0, 0, 0, 0.36);
+    5px 5px 0px #000000,
+    6px 6px 0px #ff2bd6;
   --btn-3d-stack-pink-active:
-    0 2px 0 var(--btn-3d-shadow-pink),
-    0 4px 14px rgba(255, 0, 110, 0.32),
-    inset 0 4px 8px rgba(0, 0, 0, 0.36);
+    1px 1px 0px #000000;
   --btn-3d-stack-red:
-    0 var(--btn-3d-depth) 0 var(--btn-3d-shadow-red),
-    0 calc(var(--btn-3d-depth) + 2px) 0 rgba(0, 0, 0, 0.45),
-    0 calc(var(--btn-3d-depth) + 8px) 22px rgba(239, 68, 68, 0.28),
-    inset 0 2px 0 rgba(255, 255, 255, 0.14),
-    inset 0 -4px 0 rgba(0, 0, 0, 0.34);
-  --surface-3d-depth: 9px;
-  --surface-3d-depth-hover: 12px;
+    3px 3px 0px #000000,
+    4px 4px 0px #ef4444;
+  --surface-3d-depth: 5px;
+  --surface-3d-depth-hover: 8px;
   --surface-3d-stack:
-    inset 0 2px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.5),
-    inset 2px 0 0 rgba(255, 255, 255, 0.1),
-    inset -2px 0 0 rgba(0, 0, 0, 0.28),
-    0 var(--surface-3d-depth) 0 #4a3a5c,
-    0 calc(var(--surface-3d-depth) + 3px) 0 #352840,
-    0 calc(var(--surface-3d-depth) + 6px) 0 #241828;
+    5px 5px 0px #000000,
+    6px 6px 0px #ff5ca8;
   --surface-3d-stack-hover:
-    inset 0 2px 0 rgba(255, 255, 255, 0.26),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.45),
-    inset 2px 0 0 rgba(255, 255, 255, 0.12),
-    inset -2px 0 0 rgba(0, 0, 0, 0.24),
-    0 var(--surface-3d-depth-hover) 0 #564866,
-    0 calc(var(--surface-3d-depth-hover) + 3px) 0 #3d3048,
-    0 calc(var(--surface-3d-depth-hover) + 6px) 0 #2a1f34;
+    7px 7px 0px #000000,
+    8px 8px 0px #ff5ca8;
   --surface-3d-stack-pink:
-    inset 0 2px 0 rgba(255, 255, 255, 0.2),
-    inset 0 -3px 0 rgba(0, 0, 0, 0.48),
-    0 var(--surface-3d-depth) 0 #5c3a4e,
-    0 calc(var(--surface-3d-depth) + 3px) 0 #422a3a,
-    0 calc(var(--surface-3d-depth) + 6px) 0 #2a1824;
+    5px 5px 0px #000000,
+    6px 6px 0px #ff2bd6;
   --surface-3d-stack-pink-hover:
-    inset 0 2px 0 rgba(255, 255, 255, 0.26),
-    inset 0 -3px 0 rgba(0, 0, 0, 0.42),
-    0 var(--surface-3d-depth-hover) 0 #6a4658,
-    0 calc(var(--surface-3d-depth-hover) + 3px) 0 #4a3240,
-    0 calc(var(--surface-3d-depth-hover) + 6px) 0 #301f2c;
+    7px 7px 0px #000000,
+    8px 8px 0px #ff2bd6;
   --extrude: 8px;
   --extrude-hover: 10px;
   --extrude-chrome: 4px;
@@ -248,26 +205,40 @@ html[data-theme="light"] {
   --text-subtle: rgba(26, 10, 46, 0.45);
   --text-soft: rgba(26, 10, 46, 0.62);
   --text-placeholder: rgba(26, 10, 46, 0.55);
-  --surface-glass: rgba(255, 255, 255, 0.82);
-  --surface-glass-mid: rgba(255, 255, 255, 0.78);
-  --surface-glass-strong: rgba(255, 255, 255, 0.92);
-  --surface-glass-subtle: rgba(255, 255, 255, 0.65);
-  --surface-card: rgba(255, 255, 255, 0.85);
-  --surface-card-deep: rgba(255, 255, 255, 0.92);
-  --surface-elevated: rgba(255, 255, 255, 0.72);
-  --surface-input: rgba(255, 255, 255, 0.95);
+  --surface-glass: #ffffff;
+  --surface-glass-mid: #faf8fc;
+  --surface-glass-strong: #ffffff;
+  --surface-glass-subtle: #f5f0fa;
+  --surface-card: #ffffff;
+  --surface-card-deep: #faf8fc;
+  --surface-elevated: #ffffff;
+  --surface-input: #ffffff;
   --surface-page-accent: #e8f4fc;
-  --border-subtle: rgba(26, 10, 46, 0.12);
-  --border-faint: rgba(26, 10, 46, 0.1);
-  --border-divider: rgba(26, 10, 46, 0.08);
-  --border-chip: rgba(26, 10, 46, 0.14);
+  --border-subtle: #0d0b0e;
+  --border-faint: rgba(13, 11, 14, 0.4);
+  --border-divider: #0d0b0e;
+  --border-chip: #0d0b0e;
   --sky-overlay: rgba(255, 248, 230, 0.35);
-  --btn-3d-shadow: #d4a8c0;
-  --btn-3d-shadow-mid: #c08aab;
+  --btn-3d-shadow: #0d0b0e;
+  --btn-3d-shadow-mid: #0d0b0e;
   --btn-3d-shadow-pink: #be185d;
   --btn-3d-shadow-red: #991b1b;
-  --btn-3d-highlight: inset 0 2px 0 rgba(255, 255, 255, 0.92);
-  --btn-3d-inner: inset 0 -3px 0 rgba(26, 10, 46, 0.12);
+  --btn-3d-highlight: none;
+  --btn-3d-inner: none;
+  --btn-3d-stack:
+    3px 3px 0px #0d0b0e;
+  --btn-3d-stack-hover:
+    5px 5px 0px #0d0b0e;
+  --btn-3d-stack-active:
+    1px 1px 0px #0d0b0e;
+  --btn-3d-stack-pink:
+    3px 3px 0px #0d0b0e,
+    4px 4px 0px #be185d;
+  --btn-3d-stack-pink-hover:
+    5px 5px 0px #0d0b0e,
+    6px 6px 0px #be185d;
+  --btn-3d-stack-pink-active:
+    1px 1px 0px #0d0b0e;
   --devora-extrude-lg:
     inset 0 1px 0 rgba(255, 255, 255, 0.9),
     inset 1px 0 0 rgba(255, 92, 168, 0.12),
@@ -321,31 +292,15 @@ html[data-theme="light"] {
   --surface-3d-depth: 8px;
   --surface-3d-depth-hover: 12px;
   --surface-3d-stack:
-    inset 0 2px 0 rgba(255, 255, 255, 0.85),
-    inset 0 -2px 0 rgba(26, 10, 46, 0.14),
-    inset 2px 0 0 rgba(255, 255, 255, 0.5),
-    inset -2px 0 0 rgba(26, 10, 46, 0.1),
-    0 var(--surface-3d-depth) 0 #d4a8c0,
-    0 calc(var(--surface-3d-depth) + 3px) 0 #c08aab,
-    0 calc(var(--surface-3d-depth) + 6px) 0 #a87294;
+    5px 5px 0px #0d0b0e;
   --surface-3d-stack-hover:
-    inset 0 2px 0 rgba(255, 255, 255, 0.92),
-    inset 0 -2px 0 rgba(26, 10, 46, 0.1),
-    inset 2px 0 0 rgba(255, 255, 255, 0.6),
-    inset -2px 0 0 rgba(26, 10, 46, 0.08),
-    0 var(--surface-3d-depth-hover) 0 #d4a8c0,
-    0 calc(var(--surface-3d-depth-hover) + 3px) 0 #c08aab,
-    0 calc(var(--surface-3d-depth-hover) + 6px) 0 #a87294;
+    7px 7px 0px #0d0b0e;
   --surface-3d-stack-pink:
-    inset 0 2px 0 rgba(255, 255, 255, 0.92),
-    inset 0 -3px 0 rgba(26, 10, 46, 0.12),
-    0 var(--surface-3d-depth) 0 #db2777,
-    0 calc(var(--surface-3d-depth) + 3px) 0 #be185d,
-    0 calc(var(--surface-3d-depth) + 6px) 0 #9d174d;
+    5px 5px 0px #0d0b0e,
+    6px 6px 0px #be185d;
   --surface-3d-stack-pink-hover:
-    inset 0 2px 0 rgba(255, 255, 255, 0.95),
-    inset 0 -3px 0 rgba(26, 10, 46, 0.1),
-    0 var(--surface-3d-depth-hover) 0 #db2777,
+    7px 7px 0px #0d0b0e,
+    8px 8px 0px #be185d,
     0 calc(var(--surface-3d-depth-hover) + 3px) 0 #be185d,
     0 calc(var(--surface-3d-depth-hover) + 6px) 0 #9d174d;
   --control-3d-stack:
@@ -363,19 +318,14 @@ html[data-theme="light"] {
 
 @layer components {
   .navbar-shell {
-    background: linear-gradient(
-        135deg,
-        rgba(255, 154, 61, 0.22) 0%,
-        rgba(255, 92, 168, 0.28) 50%,
-        rgba(182, 36, 255, 0.22) 100%
-      ),
-      rgba(14, 8, 20, 0.72);
-    border: 2px solid rgba(255, 92, 168, 0.85);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
+    background: #0e0918;
+    border: 2.5px solid #ff5ca8;
+    border-radius: 8px;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     box-shadow:
-      4px 4px 0px rgba(0, 0, 0, 0.9),
-      0 0 16px rgba(255, 92, 168, 0.25);
+      4px 4px 0px rgba(0, 0, 0, 0.95),
+      5px 5px 0px #ff5ca8;
     isolation: isolate;
     transform: translateY(0);
     transition:
@@ -445,17 +395,11 @@ html[data-theme="light"] {
   }
 
   .navbar-shell-scrolled {
-    background: linear-gradient(
-        135deg,
-        rgba(255, 154, 61, 0.28) 0%,
-        rgba(255, 92, 168, 0.35) 50%,
-        rgba(182, 36, 255, 0.28) 100%
-      ),
-      rgba(10, 4, 16, 0.88);
+    background: #0b0614;
     border-color: #ff5ca8;
     box-shadow:
-      4px 4px 0px rgba(0, 0, 0, 0.95),
-      0 0 20px rgba(255, 92, 168, 0.35);
+      5px 5px 0px rgba(0, 0, 0, 0.95),
+      6px 6px 0px #ff5ca8;
   }
 
   .site-footer-bar {
@@ -604,11 +548,11 @@ html[data-theme="light"] {
     width: 100%;
     max-width: 32rem;
     padding: 1.5rem 1.75rem;
-    border-radius: 1.5rem;
-    background: rgba(18, 12, 22, 0.88);
-    border: 2.5px solid rgba(255, 92, 168, 0.88);
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
+    border-radius: 6px;
+    background: #0e0918;
+    border: 2.5px solid #ff5ca8;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     transform: translate(0, 0);
     box-shadow:
       6px 6px 0px rgba(0, 0, 0, 0.95),
@@ -1146,11 +1090,11 @@ html[data-theme="light"] {
     justify-content: center;
     flex-shrink: 0;
     padding: clamp(0.85rem, 2vw, 1.35rem) clamp(1.1rem, 2.8vw, 2rem);
-    border-radius: 1.5rem;
-    background: rgba(18, 12, 22, 0.85);
-    border: 2.5px solid rgba(255, 92, 168, 0.85);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+    border-radius: 6px;
+    background: #0e0918;
+    border: 2.5px solid #ff5ca8;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
     box-shadow:
       5px 5px 0px rgba(0, 0, 0, 0.95),
       6px 6px 0px #ff5ca8;
@@ -1741,8 +1685,7 @@ body.nav-menu-open {
   pointer-events: none;
 }
 
-/* Glass rectangle behind nav-page titles (FAQs, My Profile, Settings, …).
-   Manipulate here: padding / max-width / radius — keep rectangular (not rounded-full) */
+/* Neo-Brutalist rectangle behind nav-page titles (FAQs, My Profile, Settings, …). */
 .page-header-glass {
   position: relative;
   z-index: 1;
@@ -1752,17 +1695,18 @@ body.nav-menu-open {
   width: 100%;
   max-width: 42rem;
   padding: 1.15rem 1.75rem 1.25rem;
-  border-radius: 1.15rem;
-  border: 1px solid rgba(255, 92, 168, 0.28);
+  border-radius: 6px;
+  border: 2.5px solid #ff5ca8;
   background: var(--surface-glass-strong);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow: var(--card-3d-stack);
 }
 
 html[data-theme="light"] .page-header-glass {
-  background: rgba(255, 255, 255, 0.88);
-  border-color: rgba(255, 92, 168, 0.3);
+  background: #ffffff;
+  border-color: #0d0b0e;
+  border-width: 2.5px;
   box-shadow: var(--card-3d-stack);
 }
 
@@ -2048,16 +1992,16 @@ html[data-theme="light"] .soft-violet {
 
 .faq-search-input {
   width: 100%;
-  border-radius: 1.15rem;
-  border: 1px solid rgba(255, 92, 168, 0.35);
+  border-radius: 6px;
+  border: 2px solid #ff5ca8;
   background: var(--surface-glass-strong);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   padding: 0.95rem 1.1rem 0.95rem 3.1rem;
   font-size: 0.95rem;
   color: var(--text-primary);
   outline: none;
-  box-shadow: var(--control-3d-stack);
+  box-shadow: 4px 4px 0px #000000;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease,
@@ -2070,21 +2014,21 @@ html[data-theme="light"] .soft-violet {
 }
 
 .faq-search-input:focus {
-  border-color: rgba(255, 92, 168, 0.65);
-  box-shadow: var(--control-3d-stack-focus);
+  border-color: #22d3ee;
+  box-shadow: 4px 4px 0px #000000, 5px 5px 0px #22d3ee;
 }
 
 .faq-empty {
-  border-radius: 1.15rem;
-  border: 1px solid rgba(255, 92, 168, 0.22);
+  border-radius: 6px;
+  border: 2px solid #ff5ca8;
   background: var(--surface-glass);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   padding: 2rem 1.25rem;
   text-align: center;
   font-size: 0.95rem;
   color: var(--text-muted);
-  box-shadow: var(--raised-3d-stack);
+  box-shadow: var(--surface-3d-stack);
 }
 
 .faq-list {
@@ -2111,33 +2055,33 @@ html[data-theme="light"] .soft-violet {
   position: relative;
   min-width: 0;
   overflow: hidden;
-  border-radius: 1.15rem;
-  border: 1px solid rgba(255, 92, 168, 0.22);
+  border-radius: 6px;
+  border: 2px solid #2f1e44;
   background: var(--surface-glass);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
   box-shadow: var(--card-3d-stack);
   transition:
-    border-color 0.25s ease,
-    box-shadow 0.25s var(--card-3d-ease),
-    transform 0.25s var(--card-3d-ease),
-    background-color 0.25s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s var(--card-3d-ease),
+    transform 0.2s var(--card-3d-ease),
+    background-color 0.2s ease;
 }
 
 .faq-item:hover {
-  border-color: rgba(255, 92, 168, 0.4);
-  transform: translateY(-2px);
+  border-color: #ff5ca8;
+  transform: translate(-2px, -2px);
   box-shadow: var(--card-3d-stack-hover);
 }
 
 .faq-item-open {
-  border-color: rgba(255, 92, 168, 0.55);
+  border-color: #ff5ca8;
   background: var(--surface-glass-strong);
   box-shadow: var(--card-3d-stack-pink);
 }
 
 .faq-item-open:hover {
-  transform: translateY(-2px);
+  transform: translate(-2px, -2px);
   box-shadow: var(--card-3d-stack-pink-hover);
 }
 
@@ -2242,12 +2186,12 @@ html[data-theme="light"] .soft-violet {
   max-height: min(78dvh, 34rem);
   flex-direction: column;
   overflow: hidden;
-  border-radius: 1.35rem;
-  border: 1px solid rgba(255, 92, 168, 0.35);
-  background: var(--surface-glass-strong);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: var(--card-3d-stack-pink);
+  border-radius: 6px;
+  border: 2.5px solid #ff5ca8;
+  background: #0e0918;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: 8px 8px 0px #000000, 9px 9px 0px #ff5ca8;
 }
 
 .faq-dialog-header {
@@ -4515,25 +4459,16 @@ html[data-theme="light"] .neon-card {
 }
 
 html[data-theme="light"] .navbar-shell {
-  background: linear-gradient(
-      135deg,
-      rgba(255, 154, 61, 0.2) 0%,
-      rgba(255, 92, 168, 0.24) 50%,
-      rgba(182, 36, 255, 0.18) 100%
-    ),
-    rgba(255, 255, 255, 0.86);
+  background: #ffffff;
+  border-radius: 8px;
   border: 2.5px solid #0d0b0e;
   box-shadow: 4px 4px 0px #0d0b0e;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 html[data-theme="light"] .navbar-shell-scrolled {
-  background: linear-gradient(
-      135deg,
-      rgba(255, 154, 61, 0.25) 0%,
-      rgba(255, 92, 168, 0.3) 50%,
-      rgba(182, 36, 255, 0.22) 100%
-    ),
-    rgba(255, 255, 255, 0.94);
+  background: #ffffff;
   border-color: #0d0b0e;
   box-shadow: 5px 5px 0px #0d0b0e;
 }
@@ -4647,7 +4582,8 @@ html[data-theme="light"] .logo-gradient {
 }
 
 html[data-theme="light"] .hero-info-card {
-  background: rgba(255, 255, 255, 0.94);
+  background: #ffffff;
+  border-radius: 6px;
   border: 2.5px solid #0d0b0e;
   box-shadow: 6px 6px 0px #0d0b0e;
   transform: translate(0, 0);
@@ -4862,43 +4798,109 @@ html[data-theme="light"] .marquee-track span.text-outline {
   transition: background-color 0.45s ease;
 }
 
-/* ── Page mock layouts (concept UI) — glass synthwave, not all-pink ── */
+/* ── Neo-Brutalist Panels & Cards ── */
 .page-panel {
   background: var(--surface-glass-subtle);
-  border: 1px solid var(--border-faint);
-  border-radius: 1.25rem;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  transform: translateY(0);
+  border: 2px solid var(--border-subtle);
+  border-radius: 6px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: translate(0, 0);
   box-shadow: var(--card-3d-stack);
   transition:
-    transform 0.25s var(--card-3d-ease),
-    box-shadow 0.35s ease,
-    border-color 0.35s ease;
+    transform 0.2s var(--card-3d-ease),
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .page-panel:hover {
-  transform: translateY(-4px);
+  transform: translate(-3px, -3px);
   box-shadow: var(--card-3d-stack-hover);
 }
 
 .glass-card {
   background: var(--surface-glass);
-  border: 1px solid var(--border-subtle);
-  border-radius: 1rem;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  transform: translateY(0);
+  border: 2px solid var(--border-subtle);
+  border-radius: 6px;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  transform: translate(0, 0);
   box-shadow: var(--card-3d-stack);
   transition:
-    transform 0.25s var(--card-3d-ease),
-    border-color 0.35s ease,
-    box-shadow 0.35s var(--card-3d-ease);
+    transform 0.2s var(--card-3d-ease),
+    border-color 0.2s ease,
+    box-shadow 0.2s var(--card-3d-ease);
 }
 
 .glass-card:hover {
-  transform: translateY(-4px);
+  transform: translate(-3px, -3px);
   box-shadow: var(--card-3d-stack-hover);
+}
+
+/* ── Neo-Brutalist Legal Document Styles ── */
+.legal-document {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 54rem;
+  margin: 0 auto;
+}
+
+.legal-intro {
+  background: var(--surface-glass);
+  border: 2.5px solid var(--border-subtle);
+  border-radius: 6px;
+  box-shadow: var(--card-3d-stack);
+  padding: 1.5rem 1.75rem;
+}
+
+.legal-section-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.legal-section-card {
+  background: var(--surface-glass);
+  border: 2px solid var(--border-subtle);
+  border-radius: 6px;
+  box-shadow: var(--card-3d-stack);
+  padding: 1.5rem 1.75rem;
+  transition: transform 0.2s var(--card-3d-ease), box-shadow 0.2s ease;
+}
+
+.legal-section-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--card-3d-stack-hover);
+}
+
+.legal-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border-divider);
+}
+
+.legal-section-code {
+  font-size: 0.75rem;
+  color: #ff5ca8;
+  font-weight: 700;
+}
+
+.legal-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--heading-color);
+  margin: 0;
+}
+
+.legal-section-copy {
+  color: var(--text-body);
+  line-height: 1.65;
+  margin-bottom: 0.75rem;
 }
 
 .page-divider {
@@ -5260,14 +5262,81 @@ html[data-theme="light"] .marquee-track span.text-outline {
 
 html[data-theme="light"] .page-panel,
 html[data-theme="light"] .glass-card {
-  background: rgba(255, 255, 255, 0.72);
-  border-color: rgba(26, 10, 46, 0.1);
+  background: #ffffff;
+  border-color: #0d0b0e;
+  border-width: 2.5px;
   box-shadow: var(--card-3d-stack);
 }
 
 html[data-theme="light"] .glass-card:hover {
-  transform: translateY(-4px);
+  transform: translate(-3px, -3px);
   box-shadow: var(--card-3d-stack-hover);
+}
+
+/* ── Neo-Brutalist Legal Document Styles ── */
+.legal-document {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 54rem;
+  margin: 0 auto;
+}
+
+.legal-intro {
+  background: var(--surface-glass);
+  border: 2.5px solid var(--border-subtle);
+  border-radius: 6px;
+  box-shadow: var(--card-3d-stack);
+  padding: 1.5rem 1.75rem;
+}
+
+.legal-section-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.legal-section-card {
+  background: var(--surface-glass);
+  border: 2px solid var(--border-subtle);
+  border-radius: 6px;
+  box-shadow: var(--card-3d-stack);
+  padding: 1.5rem 1.75rem;
+  transition: transform 0.2s var(--card-3d-ease), box-shadow 0.2s ease;
+}
+
+.legal-section-card:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--card-3d-stack-hover);
+}
+
+.legal-section-header {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+  margin-bottom: 0.85rem;
+  padding-bottom: 0.65rem;
+  border-bottom: 1px solid var(--border-divider);
+}
+
+.legal-section-code {
+  font-size: 0.75rem;
+  color: #ff5ca8;
+  font-weight: 700;
+}
+
+.legal-section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--heading-color);
+  margin: 0;
+}
+
+.legal-section-copy {
+  color: var(--text-body);
+  line-height: 1.65;
+  margin-bottom: 0.75rem;
 }
 
 html[data-theme="light"] .page-search-wrap {
@@ -5435,11 +5504,13 @@ html[data-theme="light"] .page-tab-active {
 }
 
 .sign-in-card {
-  border-color: rgba(255, 255, 255, 0.14);
-  background: var(--surface, #1c181c);
-  border-radius: 24px;
-  box-shadow: 0 16px 48px -12px rgb(0 0 0 / 0.75);
-  transform: translateY(0);
+  border: 2.5px solid #ff5ca8;
+  background: #0e0918;
+  border-radius: 6px;
+  box-shadow:
+    6px 6px 0px rgba(0, 0, 0, 0.95),
+    7px 7px 0px #ff5ca8;
+  transform: translate(0, 0);
   transition:
     transform 0.25s var(--card-3d-ease),
     box-shadow 0.35s ease,
@@ -5447,11 +5518,11 @@ html[data-theme="light"] .page-tab-active {
 }
 
 .sign-in-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(255, 92, 168, 0.38);
+  transform: translate(-3px, -3px);
+  border-color: #ff5ca8;
   box-shadow:
-    0 20px 56px -12px rgb(0 0 0 / 0.8),
-    0 0 32px rgba(255, 92, 168, 0.12);
+    9px 9px 0px rgba(0, 0, 0, 0.95),
+    10px 10px 0px #ff5ca8;
 }
 
 .app-secondary-btn {
@@ -5508,26 +5579,26 @@ html[data-theme="light"] .page-tab-active {
 
 .sign-in-input {
   width: 100%;
-  border-radius: 0.75rem;
-  border: 1px solid rgba(34, 211, 238, 0.32);
-  background-color: var(--surface-input);
+  border-radius: 4px;
+  border: 2px solid #ff5ca8;
+  background-color: #120c1e;
   color: var(--text-primary);
   padding: 0.7rem 0.9rem;
   font-size: 0.9rem;
   line-height: 1.45;
-  box-shadow: var(--control-3d-stack);
+  box-shadow: 3px 3px 0px #000000;
   transition:
     border-color 0.25s ease,
     box-shadow 0.25s ease,
     background 0.25s ease,
     transform 0.18s var(--btn-3d-ease);
   outline: none;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .sign-in-input:hover {
-  box-shadow: var(--control-3d-stack-hover);
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .sign-in-input::placeholder {
@@ -5535,9 +5606,9 @@ html[data-theme="light"] .page-tab-active {
 }
 
 .sign-in-input:focus {
-  border-color: rgba(34, 211, 238, 0.65);
-  box-shadow: var(--control-3d-stack-focus);
-  background-color: var(--surface-input);
+  border-color: #22d3ee;
+  box-shadow: 3px 3px 0px #000000, 4px 4px 0px #22d3ee;
+  background-color: #120c1e;
 }
 
 select.sign-in-input {
@@ -5555,9 +5626,9 @@ select.sign-in-input {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border-radius: 9999px;
-  border: 1px solid rgba(255, 92, 168, 0.45);
-  background: var(--surface-elevated);
+  border-radius: 6px;
+  border: 2px solid #ff5ca8;
+  background: #160e24;
   color: var(--text-primary);
   padding: 0.7rem 1rem;
   font-size: 0.9rem;
@@ -5565,28 +5636,28 @@ select.sign-in-input {
   cursor: pointer;
   user-select: none;
   transform: translateY(0);
-  box-shadow: var(--btn-3d-stack);
+  box-shadow: 4px 4px 0px #000000, 5px 5px 0px #ff5ca8;
   transition:
     transform 0.18s var(--btn-3d-ease),
     background 0.25s ease,
     color 0.25s ease,
     border-color 0.25s ease,
     box-shadow 0.18s var(--btn-3d-ease);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .sign-in-google-btn:hover:not(:disabled) {
-  transform: translateY(-3px);
+  transform: translate(-2px, -2px);
   background: linear-gradient(135deg, #ff006e 0%, #ff6b35 100%);
   color: #fff;
-  border-color: transparent;
-  box-shadow: var(--btn-3d-stack-pink-hover);
+  border-color: #ffffff;
+  box-shadow: 6px 6px 0px #000000, 7px 7px 0px #ff5ca8;
 }
 
 .sign-in-google-btn:active:not(:disabled) {
-  transform: translateY(var(--btn-3d-depth));
-  box-shadow: var(--btn-3d-stack-pink-active);
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0px #000000;
 }
 
 .sign-in-google-btn:disabled {
@@ -5873,8 +5944,15 @@ html[data-theme="light"] .sign-in-grid {
 }
 
 html[data-theme="light"] .sign-in-card {
-  border-color: rgba(26, 10, 46, 0.12);
-  box-shadow: var(--card-3d-stack);
+  background: #ffffff;
+  border: 2.5px solid #0d0b0e;
+  border-radius: 6px;
+  box-shadow: 6px 6px 0px #0d0b0e;
+}
+
+html[data-theme="light"] .sign-in-card:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: 9px 9px 0px #0d0b0e;
 }
 
 html[data-theme="light"] .sign-in-error {

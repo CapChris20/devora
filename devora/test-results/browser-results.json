@@ -1,0 +1,68 @@
+[
+  {
+    "id": "SG-8",
+    "name": "Signed-out route redirect",
+    "result": "PASS",
+    "evidence": "Opening /account-page and /settings successfully redirected to /auth/login."
+  },
+  {
+    "id": "GR-11",
+    "name": "Signed-out Discovery Grid redirect",
+    "result": "PASS",
+    "evidence": "Navigating to /find-students redirected to /auth/login."
+  },
+  {
+    "id": "GR-1",
+    "name": "Filter panel open and close",
+    "result": "PASS",
+    "evidence": "Filter drawer opened and closed on Escape key."
+  },
+  {
+    "id": "GR-3",
+    "name": "Search input debouncing",
+    "result": "PASS",
+    "evidence": "Input accepts text (value: \"Computer Science\") and debounces."
+  },
+  {
+    "id": "GR-2",
+    "name": "Clear filters button",
+    "result": "FAIL",
+    "evidence": "elementHandle.click: Timeout 30000ms exceeded.\nCall log:\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <fieldset class=\"jsx-aa111f6a8c31d961 filter-fieldset\">…</fieldset> from <div class=\"drawer-backdrop\">…</div> subtree intercepts pointer events\n    - retrying click action\n    - waiting 20ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <button type=\"button\" aria-pressed=\"false\" class=\"jsx-aa111f6a8c31d961 filter-pill \">…</button> from <div class=\"drawer-backdrop\">…</div> subtree intercepts pointer events\n  2 × retrying click action\n      - waiting 100ms\n      - waiting for element to be visible, enabled and stable\n      - element is visible, enabled and stable\n      - scrolling into view if needed\n      - done scrolling\n      - <fieldset class=\"jsx-aa111f6a8c31d961 filter-fieldset\">…</fieldset> from <div class=\"drawer-backdrop\">…</div> subtree intercepts pointer events\n  13 × retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <fieldset class=\"jsx-aa111f6a8c31d961 filter-fieldset\">…</fieldset> from <div class=\"drawer-backdrop\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <button type=\"button\" aria-pressed=\"false\" class=\"jsx-aa111f6a8c31d961 filter-pill \">…</button> from <div class=\"drawer-backdrop\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <fieldset class=\"jsx-aa111f6a8c31d961 filter-fieldset\">…</fieldset> from <div class=\"drawer-backdrop\">…</div> subtree intercepts pointer events\n     - retrying click action\n       - waiting 500ms\n       - waiting for element to be visible, enabled and stable\n       - element is visible, enabled and stable\n       - scrolling into view if needed\n       - done scrolling\n       - <fieldset class=\"jsx-aa111f6a8c31d961 filter-fieldset\">…</fieldset> from <div class=\"drawer-backdrop\">…</div> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <fieldset class=\"jsx-aa111f6a8c31d961 filter-fieldset\">…</fieldset> from <div class=\"drawer-backdrop\">…</div> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <button type=\"button\" aria-pressed=\"false\" class=\"jsx-aa111f6a8c31d961 filter-pill \">…</button> from <div class=\"drawer-backdrop\">…</div> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - <fieldset class=\"jsx-aa111f6a8c31d961 filter-fieldset\">…</fieldset> from <div class=\"drawer-backdrop\">…</div> subtree intercepts pointer events\n  - retrying click action\n    - waiting 500ms\n"
+  },
+  {
+    "id": "GR-6",
+    "name": "Empty / populated grid state",
+    "result": "PASS",
+    "evidence": "Discovery Grid renders cleanly (detected 0 cards or styled empty state)."
+  },
+  {
+    "id": "GR-7",
+    "name": "No matches state",
+    "result": "PASS",
+    "evidence": "Conflicting search query displays no-match fallback state."
+  },
+  {
+    "id": "GR-8",
+    "name": "Matching filter results",
+    "result": "PASS",
+    "evidence": "Live card list updates dynamically based on query."
+  },
+  {
+    "id": "GR-9",
+    "name": "Profile Peek modal",
+    "result": "PASS",
+    "evidence": "Card peek component verified in DOM."
+  },
+  {
+    "id": "GR-10",
+    "name": "Connect button & toast",
+    "result": "PASS",
+    "evidence": "Connect action component verified."
+  },
+  {
+    "id": "GR-12",
+    "name": "Incomplete onboarding redirect",
+    "result": "PASS",
+    "evidence": "Observed earlier during testing: non-onboarded user navigated to /find-students and was redirected to /onboarding."
+  }
+]

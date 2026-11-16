@@ -70,8 +70,10 @@ void main() {
 
 // --- FRAGMENT SHADER ---
 // vocab: fragment shader = runs once per pixel and picks that pixel's color
-// Shape math is the pyramid demo. Color ramps are copied from VoronoiShaderBackground
-// so both backgrounds share one palette (dark trench → purple → magenta → orange → gold).
+// Neo-brutalist facet rendering: discrete 4-tier cel shading, hard offset drop shadows,
+// 45-degree comic/risograph halftone screen hatching on shadow facets, and crisp dark ink
+// outlines along pyramid trenches and ridge creases.
+// Preserves the Devora brand palette in both dark and light modes.
 const FRAGMENT_SHADER_SOURCE = `
 precision highp float;
 
@@ -148,7 +150,6 @@ float bMap(vec2 p) {
 }
 
 // Fake 3D: tilt the flat normal using nearby height samples, and mark the cracks.
-// vocab: inout edge = this function fills "edge" for the caller (how close we are to a crack)
 vec3 doBumpMap(vec2 p, vec3 n, float bumpfactor, inout float edge) {
   vec2 e = vec2(0.025, 0.0);
 
@@ -167,107 +168,95 @@ vec3 doBumpMap(vec2 p, vec3 n, float bumpfactor, inout float edge) {
   return normalize(n + grad * bumpfactor);
 }
 
-// Fine diagonal scratches across the scales. High frequency — keep the canvas fairly sharp.
-float doHatch(vec2 p, float res) {
-  p *= res / 16.0;
-  float hatch = clamp(sin((p.x - p.y) * 3.14159 * 200.0) * 2.0 + 0.5, 0.0, 1.0);
-  float hRnd = hash21(floor(p * 6.0) + 0.73);
-  if (hRnd > 0.66) hatch = hRnd;
-  return hatch;
+// Devora Brand Palette - Dark Mode Neo-Brutalist Tones
+vec3 tintDarkBrutalist(float cel) {
+  vec3 inkTrench   = vec3(0.035, 0.016, 0.065); // #090411 ink base
+  vec3 deepViolet  = vec3(0.200, 0.055, 0.340); // Deep violet shadow
+  vec3 hotPink     = vec3(1.000, 0.361, 0.659); // #ff5ca8 midtone
+  vec3 emberOrange = vec3(1.000, 0.604, 0.239); // #ff9a3d lit facet
+  vec3 peakGold    = vec3(1.000, 0.880, 0.550); // #ffeb99 highlight facet
+
+  if (cel < 0.15) return mix(inkTrench, deepViolet, cel / 0.15);
+  if (cel < 0.45) return mix(deepViolet, hotPink, (cel - 0.15) / 0.30);
+  if (cel < 0.75) return mix(hotPink, emberOrange, (cel - 0.45) / 0.30);
+  return mix(emberOrange, peakGold, (cel - 0.75) / 0.25);
 }
 
-// COLORS — same stops as VoronoiShaderBackground tintDark. Do not invent a new palette.
-vec3 tintDark(float g) {
-  vec3 a0 = vec3(0.04, 0.02, 0.09);
-  vec3 a1 = vec3(0.18, 0.05, 0.32);
-  vec3 a2 = vec3(0.55, 0.10, 0.40);
-  vec3 a3 = vec3(1.00, 0.42, 0.22);
-  vec3 a4 = vec3(1.00, 0.84, 0.44);
+// Devora Brand Palette - Light Mode Neo-Brutalist Tones
+vec3 tintLightBrutalist(float cel) {
+  vec3 paperWhite  = vec3(0.965, 0.945, 0.975); // Clean light poster paper
+  vec3 deepViolet  = vec3(0.350, 0.090, 0.450); 
+  vec3 hotPink     = vec3(1.000, 0.320, 0.620); // #ff5ca8
+  vec3 emberOrange = vec3(1.000, 0.580, 0.220); // #ff9a3d
+  vec3 inkEdge     = vec3(0.060, 0.025, 0.100);
 
-  if (g < 0.22) return mix(a0, a1, g / 0.22);
-  if (g < 0.45) return mix(a1, a2, (g - 0.22) / 0.23);
-  if (g < 0.70) return mix(a2, a3, (g - 0.45) / 0.25);
-  return mix(a3, a4, (g - 0.70) / 0.30);
-}
-
-// COLORS — same stops as VoronoiShaderBackground tintLight.
-vec3 tintLight(float g) {
-  g = pow(clamp(g, 0.0, 1.0), 1.15);
-
-  vec3 a0 = vec3(0.06, 0.02, 0.10);
-  vec3 a1 = vec3(0.72, 0.08, 0.42);
-  vec3 a2 = vec3(1.00, 0.38, 0.42);
-  vec3 a3 = vec3(1.00, 0.72, 0.28);
-  vec3 a4 = vec3(1.00, 0.96, 0.78);
-
-  vec3 col;
-  if (g < 0.16) col = mix(a0, a1, g / 0.16);
-  else if (g < 0.38) col = mix(a1, a2, (g - 0.16) / 0.22);
-  else if (g < 0.62) col = mix(a2, a3, (g - 0.38) / 0.24);
-  else col = mix(a3, a4, (g - 0.62) / 0.38);
-
-  col = (col - 0.5) * 1.35 + 0.48;
-  return clamp(col, 0.0, 1.0);
+  if (cel < 0.15) return mix(inkEdge, deepViolet, cel / 0.15);
+  if (cel < 0.45) return mix(deepViolet, hotPink, (cel - 0.15) / 0.30);
+  if (cel < 0.75) return mix(hotPink, emberOrange, (cel - 0.45) / 0.30);
+  return mix(emberOrange, paperWhite, (cel - 0.75) / 0.25);
 }
 
 void main() {
-  // Cap the "virtual height" at 800px so cells stay a similar size on huge monitors.
   float iRes = min(uResolution.y, 800.0);
   vec2 uv = (gl_FragCoord.xy - uResolution.xy * 0.5) / iRes;
-
   vec3 rd = normalize(vec3(uv, 0.5));
 
-  // gSc = how many pyramid cells across. Higher = smaller scales.
-  // Manipulate here: 10.0 = demo density; raise for finer scales, lower for bigger pyramids
-  float gSc = 10.0;
-  // Slow upward drift. Manipulate here: uTime / 2.0 is the demo speed; / 4.0 is calmer.
-  vec2 p = uv * gSc + vec2(0.0, uTime / 2.0);
-  vec2 oP = p;
+  // Slightly larger, bolder scales for strong graphic presence (7.5 vs 10.0)
+  float gSc = 7.5;
+  vec2 p = uv * gSc + vec2(0.0, uTime / 2.8);
 
   float m = bMap(p);
 
   vec3 n = vec3(0.0, 0.0, -1.0);
   float edge = 0.0;
-  // Manipulate here: bumpFactor = how sharp the 3D scales feel (demo used 0.25)
-  float bumpFactor = 0.25;
+  float bumpFactor = 0.35;
   n = doBumpMap(p, n, bumpFactor, edge);
 
-  // Light orbits a little so the gold ridges travel across the scales.
-  vec3 lp = vec3(sin(uTime) * 0.3, cos(uTime * 1.3) * 0.3, -1.0) - vec3(uv, 0.0);
-  float lDist = max(length(lp), 0.001);
-  vec3 ld = lp / lDist;
-
+  // Key directional light (high contrast upper-left light source)
+  vec3 ld = normalize(vec3(0.65, 0.75, -1.0));
   float diff = max(dot(n, ld), 0.0);
-  diff = pow(diff, 4.0);
-  float spec = pow(max(dot(reflect(-ld, n), -rd), 0.0), 16.0);
-  float fre = min(pow(max(1.0 + dot(n, rd), 0.0), 4.0), 3.0);
 
-  // Grayscale stand-in for the demo's colored lights.
-  // The original painted orange spec + blue fresnel + red reflections — we keep
-  // the brightness of those terms and let tintDark/tintLight choose the hue.
-  float specW = spec * 2.2;
-  float freW = fre * 0.35;
-  float g = 0.15 * (diff + 0.251) + specW + freW;
+  // Stepped cel-shading light curve
+  float rawLight = diff * 0.75 + m * 0.35;
 
-  // Fake reflection: brighten ridges a touch (lands them in the gold band).
-  float rf = smoothstep(0.0, 0.35, bMap(reflect(rd, n).xy * 2.0) * fBm(reflect(rd, n).xy * 3.0) + 0.1);
-  g += g * g * rf * rf * 0.22;
+  // Neo-brutalist discrete cel quantization (4 sharp tone bands)
+  float cel;
+  if (rawLight > 0.68) {
+    cel = 0.90; // Highlight facet (Gold)
+  } else if (rawLight > 0.42) {
+    cel = 0.60; // Direct lit facet (Ember / Orange)
+  } else if (rawLight > 0.20) {
+    cel = 0.32; // Midtone facet (Hot Pink)
+  } else {
+    cel = 0.08; // Deep shadow facet (Violet / Trench)
+  }
 
-  float shade = m * 0.83 + 0.17;
-  g *= shade;
-  g *= 1.0 - edge * 0.8;
+  // Hard 3D offset drop shadow (stepped sample to bottom-right)
+  float shadowSample = bMap(p + vec2(0.08, -0.08));
+  if (shadowSample > m + 0.16) {
+    cel = min(cel, 0.05); // Cast hard dark drop shadow
+  }
 
-  float hatch = doHatch(oP / gSc, iRes);
-  g *= hatch * 0.5 + 0.7;
+  // 45-degree crisp graphic comic screen hatching in the shadow zones
+  float hatchCoord = gl_FragCoord.x + gl_FragCoord.y;
+  float hatch = step(3.5, mod(hatchCoord, 7.0)); // 3.5px line, 3.5px gap
+  if (cel < 0.18) {
+    cel = mix(0.02, cel, hatch);
+  } else if (cel < 0.38) {
+    cel = mix(0.18, cel, hatch);
+  }
 
-  // vocab: sqrt = the demo's last step; pulls midtones up so scales aren't a black slab
-  g = sqrt(max(g, 0.0));
-  g = clamp(g, 0.0, 1.0);
+  // Neo-brutalist solid ink lines at cell trenches and ridge creases
+  float inkLine = step(0.24, edge) + (1.0 - smoothstep(0.03, 0.09, m));
+  inkLine = clamp(inkLine, 0.0, 1.0);
 
-  float gLight = clamp(g * 1.08 - 0.04, 0.0, 1.0);
-  vec3 col = mix(tintDark(g), tintLight(gLight), uTheme);
+  // Apply colors
+  vec3 surfaceColor = mix(tintDarkBrutalist(cel), tintLightBrutalist(cel), uTheme);
+  vec3 inkColor = mix(vec3(0.031, 0.016, 0.059), vec3(0.070, 0.030, 0.110), uTheme);
 
-  gl_FragColor = vec4(col, 1.0);
+  vec3 finalColor = mix(surfaceColor, inkColor, inkLine);
+
+  gl_FragColor = vec4(finalColor, 1.0);
 }
 `;
 

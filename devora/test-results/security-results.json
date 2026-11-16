@@ -1,0 +1,142 @@
+[
+  {
+    "id": "SG-9",
+    "testName": "Classmate attempt to query users/ directly",
+    "category": "Rules",
+    "result": "PASS",
+    "evidence": "Permission denied: rules block direct classmate reads on users/{uid}."
+  },
+  {
+    "id": "SG-10",
+    "testName": "Owner read of own private fields",
+    "category": "Rules",
+    "result": "PASS",
+    "evidence": "Owner successfully retrieved private fields (religion, email) from users/{uid}."
+  },
+  {
+    "id": "SG-11",
+    "testName": "Peer read of public card via discoveryProfiles",
+    "category": "Rules",
+    "result": "PASS",
+    "evidence": "Classmate retrieved discoverable projection with public fields only."
+  },
+  {
+    "id": "SG-12",
+    "testName": "Peer read of hidden card via discoveryProfiles",
+    "category": "Rules",
+    "result": "PASS",
+    "evidence": "Permission denied: isDiscoverableProjection rule blocked hidden profile read."
+  },
+  {
+    "id": "MAT-1",
+    "testName": "Owner read users/{uid}",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Owner can read full profile."
+  },
+  {
+    "id": "MAT-2",
+    "testName": "Classmate read users/{uid}",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied classmate read."
+  },
+  {
+    "id": "MAT-3",
+    "testName": "Non-UM read users/{uid}",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied non-UM read."
+  },
+  {
+    "id": "MAT-4",
+    "testName": "Unauthenticated read users/{uid}",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied anonymous read."
+  },
+  {
+    "id": "MAT-5",
+    "testName": "Owner write users/{uid}",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Owner allowed to update profile document."
+  },
+  {
+    "id": "MAT-6",
+    "testName": "Classmate write users/{uid}",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied classmate write."
+  },
+  {
+    "id": "MAT-7",
+    "testName": "Non-UM write users/{uid}",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied non-UM write."
+  },
+  {
+    "id": "MAT-8",
+    "testName": "Unauthenticated write users/{uid}",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied anonymous write."
+  },
+  {
+    "id": "MAT-9",
+    "testName": "Classmate read public discovery profile",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Classmate allowed to read public discoverable projection."
+  },
+  {
+    "id": "MAT-10",
+    "testName": "Classmate read deactivated profile",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied read on deactivated card."
+  },
+  {
+    "id": "MAT-11",
+    "testName": "Non-UM read public discovery profile",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied non-UM read."
+  },
+  {
+    "id": "MAT-12",
+    "testName": "Unauthenticated read discovery profile",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied anonymous read."
+  },
+  {
+    "id": "MAT-13",
+    "testName": "Owner write discovery profile",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Owner allowed to update discovery profile."
+  },
+  {
+    "id": "MAT-14",
+    "testName": "Classmate write discovery profile",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied classmate write."
+  },
+  {
+    "id": "MAT-15",
+    "testName": "Owner write private field to discoveryProfiles",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules rejected write containing sensitive field 'email' (discoveryProfileHasNoPrivateFields)."
+  },
+  {
+    "id": "MAT-16",
+    "testName": "Non-UM write discovery profile",
+    "category": "Security Matrix",
+    "result": "PASS",
+    "evidence": "Rules denied non-UM write."
+  }
+]

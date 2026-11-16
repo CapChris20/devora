@@ -33,24 +33,25 @@ type FaqItem = {
 // ===== DESIGN TOKENS (inline — mirrors DESIGN.md § 1) =====
 
 const T = {
-  night:     "#0d0b0e",
-  surface:   "#0c182b",
-  surface2:  "#13233e",
-  edge:      "#1d3a66",
+  night:     "#08040f",
+  surface:   "#0e0918",
+  surface2:  "#160e24",
+  edge:      "#2a183d",
   paper:     "#f4eef0",
   paper2:    "#e8dde2",
   orange:    "#ff9a3d",
   pink:      "#ff5ca8",
   magenta:   "#ff2bd6",
+  gold:      "#ffeb99",
   grad:      "linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%)",
   text:      "#ffffff",
-  textBody:  "#f1f5f9",
-  textMuted: "#94a3b8",
-  ink:       "#0d0b0e",
+  textBody:  "#f4eefc",
+  textMuted: "rgba(244, 238, 252, 0.65)",
+  ink:       "#08040f",
   inkBody:   "#2a2226",
   inkMuted:  "#574a50",
-  shadow:    "7px 7px 0 0 #0d0b0e",
-  gradShadow:"0 0 0 1px #ff2bd6, 6px 6px 0 0 #ff9a3d",
+  shadow:    "5px 5px 0 0 #000000",
+  gradShadow:"5px 5px 0 0 #000000, 6px 6px 0 0 #ff5ca8",
   display:   "var(--font-display, 'Arial Black', sans-serif)",
   mono:      "var(--font-mono, monospace)",
 };
@@ -228,15 +229,15 @@ function Stamp({ children }: { children: ReactNode }) {
         height: 28,
         lineHeight: "24px",
         padding: "0 12px",
-        border: "1.5px solid #38bdf8",
-        borderRadius: 6,
+        border: "1.5px solid #ff9a3d",
+        borderRadius: 4,
         fontFamily: T.mono,
         fontSize: 12,
         fontWeight: 700,
         textTransform: "uppercase",
         letterSpacing: "0.08em",
-        color: "#7dd3fc",
-        background: "#152642",
+        color: "#ffeb99",
+        background: "#1e1028",
         whiteSpace: "nowrap",
         flexShrink: 0,
       }}
@@ -246,7 +247,7 @@ function Stamp({ children }: { children: ReactNode }) {
   );
 }
 
-/** Single accordion row — Solid Blue Card per user request. */
+/** Single accordion row — Neo-Brutalist Devora Card. */
 function AccordionRow({
   faq,
   isOpen,
@@ -261,12 +262,12 @@ function AccordionRow({
   return (
     <div
       style={{
-        background: isOpen ? "#0e1e36" : "#0c182b",
-        borderRadius: 18,
-        border: isOpen ? "2px solid #38bdf8" : "2px solid #1d3a66",
+        background: isOpen ? "#160e24" : "#0e0918",
+        borderRadius: 6,
+        border: isOpen ? "2.5px solid #ff5ca8" : "2px solid #2a183d",
         boxShadow: isOpen
-          ? "0 0 0 1px #38bdf8, 6px 6px 0 0 #1d4ed8, 0 16px 36px -8px rgba(0, 0, 0, 0.8)"
-          : "0 8px 24px -6px rgba(0, 0, 0, 0.65), 0 0 16px -4px rgba(29, 58, 102, 0.3)",
+          ? "5px 5px 0 0 #000000, 6px 6px 0 0 #ff5ca8"
+          : "5px 5px 0 0 #000000, 6px 6px 0 0 #2a183d",
         overflow: "hidden",
         transition: "border-color 220ms ease, box-shadow 220ms ease, background 220ms ease",
       }}
@@ -294,7 +295,7 @@ function AccordionRow({
           }}
           onFocus={(e) => {
             e.currentTarget.style.outlineOffset = "-4px";
-            e.currentTarget.style.outline = "3px solid #38bdf8";
+            e.currentTarget.style.outline = "3px solid #ff5ca8";
           }}
           onBlur={(e) => {
             e.currentTarget.style.outline = "none";
@@ -309,7 +310,6 @@ function AccordionRow({
               lineHeight: 1.4,
               maxWidth: "58ch",
               color: "#ffffff",
-              textShadow: "0 1px 4px rgba(0,0,0,0.5)",
             }}
           >
             {faq.question}
@@ -329,14 +329,14 @@ function AccordionRow({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              background: isOpen ? "#38bdf8" : "#162846",
-              border: isOpen ? "2px solid #ffffff" : "2px solid #2a4d7d",
-              color: isOpen ? "#0c182b" : "#ffffff",
+              background: isOpen ? "#ff5ca8" : "#1a1028",
+              border: isOpen ? "2px solid #ffffff" : "2px solid #2a183d",
+              color: isOpen ? "#08040f" : "#ff5ca8",
               transition:
                 "background 220ms ease, border-color 220ms ease, color 220ms ease, transform 260ms cubic-bezier(.23,1,.32,1)",
               transform: isOpen ? "rotate(180deg)" : "rotate(0deg)",
               flexShrink: 0,
-              boxShadow: "0 4px 12px rgba(0,0,0,0.4)",
+              boxShadow: "2px 2px 0 0 #000000",
             }}
           >
             <ChevronDown size={20} strokeWidth={2.5} />
@@ -364,7 +364,7 @@ function AccordionRow({
                   padding: "0 24px 26px",
                   fontSize: 17,
                   lineHeight: 1.65,
-                  color: "#e2e8f0",
+                  color: "#f4eefc",
                   maxWidth: "68ch",
                 }}
               >
@@ -470,7 +470,7 @@ export default function FAQAccordion() {
               left: 20,
               top: "50%",
               transform: "translateY(-50%)",
-              color: "#38bdf8",
+              color: "#ff5ca8",
               display: "flex",
               alignItems: "center",
             }}
@@ -488,25 +488,25 @@ export default function FAQAccordion() {
               height: 60,
               paddingLeft: 56,
               paddingRight: searchQuery ? 52 : 20,
-              borderRadius: 999,
-              background: "#0c182b",
-              border: "2px solid #1d3a66",
+              borderRadius: 6,
+              background: "#0e0918",
+              border: "2.5px solid #ff5ca8",
               color: "#ffffff",
               fontSize: 16,
               fontFamily: T.mono,
               fontWeight: 600,
               outline: "none",
               boxSizing: "border-box",
-              boxShadow: "0 8px 24px -6px rgba(0, 0, 0, 0.65)",
+              boxShadow: "4px 4px 0 0 #000000",
               transition: "border-color 180ms ease, box-shadow 180ms ease",
             }}
             onFocus={(e) => {
-              e.currentTarget.style.borderColor = "#38bdf8";
-              e.currentTarget.style.boxShadow = "0 0 0 2px rgba(56, 189, 248, 0.3), 0 8px 24px -6px rgba(0, 0, 0, 0.75)";
+              e.currentTarget.style.borderColor = "#ff2bd6";
+              e.currentTarget.style.boxShadow = "4px 4px 0 0 #000000, 5px 5px 0 0 #ff2bd6";
             }}
             onBlur={(e) => {
-              e.currentTarget.style.borderColor = "#1d3a66";
-              e.currentTarget.style.boxShadow = "0 8px 24px -6px rgba(0, 0, 0, 0.65)";
+              e.currentTarget.style.borderColor = "#ff5ca8";
+              e.currentTarget.style.boxShadow = "4px 4px 0 0 #000000";
             }}
           />
           {searchQuery && (
@@ -522,13 +522,13 @@ export default function FAQAccordion() {
                 width: 32,
                 height: 32,
                 borderRadius: "50%",
-                background: "#162846",
-                border: "1px solid #2a4d7d",
+                background: "#1e1028",
+                border: "1.5px solid #ff5ca8",
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#cbd5e1",
+                color: "#ff5ca8",
               }}
             >
               <X size={16} strokeWidth={2.5} />
@@ -557,10 +557,10 @@ export default function FAQAccordion() {
                 style={{
                   height: 44,
                   paddingInline: 20,
-                  borderRadius: 999,
-                  border: isSelected ? "2px solid #000000" : "2px solid #1d3a66",
-                  background: isSelected ? "#ff9a3d" : "#0c182b",
-                  color: isSelected ? "#0a0a0f" : "#ffffff",
+                  borderRadius: 6,
+                  border: isSelected ? "2.5px solid #000000" : "2px solid #2a183d",
+                  background: isSelected ? "#ff9a3d" : "#0e0918",
+                  color: isSelected ? "#08040f" : "#ffffff",
                   fontFamily: T.mono,
                   fontSize: 15,
                   fontWeight: 700,
@@ -569,8 +569,8 @@ export default function FAQAccordion() {
                   alignItems: "center",
                   gap: 8,
                   boxShadow: isSelected
-                    ? "3px 3px 0 0 #000000"
-                    : "0 6px 16px rgba(0, 0, 0, 0.5)",
+                    ? "4px 4px 0 0 #000000"
+                    : "3px 3px 0 0 #000000",
                   transition:
                     "background 200ms cubic-bezier(.34,1.56,.64,1), box-shadow 200ms cubic-bezier(.34,1.56,.64,1), border-color 200ms ease",
                 }}
@@ -609,12 +609,12 @@ export default function FAQAccordion() {
               letterSpacing: "0.08em",
               textTransform: "uppercase",
               fontWeight: 700,
-              color: "#e2e8f0",
-              background: "#0c182b",
-              border: "1.5px solid #1d3a66",
-              borderRadius: 999,
+              color: "#f4eefc",
+              background: "#0e0918",
+              border: "1.5px solid #2a183d",
+              borderRadius: 6,
               padding: "8px 18px",
-              boxShadow: "0 4px 14px rgba(0, 0, 0, 0.5)",
+              boxShadow: "3px 3px 0 0 #000000",
             }}
           >
             Showing {filteredFaqs.length} of {FAQS.length} questions
@@ -625,9 +625,9 @@ export default function FAQAccordion() {
               type="button"
               onClick={handleExpandCollapse}
               style={{
-                background: "#0c182b",
-                border: "1.5px solid #1d3a66",
-                borderRadius: 999,
+                background: "#0e0918",
+                border: "1.5px solid #ff5ca8",
+                borderRadius: 6,
                 padding: "8px 18px",
                 cursor: "pointer",
                 display: "inline-flex",
@@ -637,18 +637,20 @@ export default function FAQAccordion() {
                 fontSize: 12,
                 letterSpacing: "0.08em",
                 textTransform: "uppercase",
-                color: "#38bdf8",
+                color: "#ff5ca8",
                 fontWeight: 700,
-                boxShadow: "0 4px 14px rgba(0, 0, 0, 0.5)",
+                boxShadow: "3px 3px 0 0 #000000",
                 transition: "all 0.2s ease",
               }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.borderColor = "#38bdf8";
+                e.currentTarget.style.borderColor = "#ff2bd6";
                 e.currentTarget.style.color = "#ffffff";
+                e.currentTarget.style.background = "#ff2bd6";
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.borderColor = "#1d3a66";
-                e.currentTarget.style.color = "#38bdf8";
+                e.currentTarget.style.borderColor = "#ff5ca8";
+                e.currentTarget.style.color = "#ff5ca8";
+                e.currentTarget.style.background = "#0e0918";
               }}
             >
               <ChevronsUpDown size={15} strokeWidth={2.5} />
@@ -676,9 +678,10 @@ export default function FAQAccordion() {
             style={{
               textAlign: "center",
               padding: "48px 24px",
-              borderRadius: 18,
-              border: `2px solid ${T.edge}`,
+              borderRadius: 6,
+              border: "2.5px solid #ff5ca8",
               background: T.surface,
+              boxShadow: "5px 5px 0 0 #000000, 6px 6px 0 0 #ff5ca8",
             }}
           >
             <p

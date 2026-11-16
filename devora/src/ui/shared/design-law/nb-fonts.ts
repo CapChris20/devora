@@ -1,10 +1,10 @@
 // Design Law fonts, loaded once and shared by every page that uses the neo-brutalist look.
 // Flow: next/font downloads + self-hosts at build time → NB_FONT_CLASS_NAME sets the CSS variables
-// → tailwind.config.ts maps font-nb-display / font-nb-body to those variables.
+// → tailwind.config.ts maps font-nb-display / font-nb-body / font-nb-mono to those variables.
 
 // ===== IMPORTS =====
 
-import { Archivo_Black, Space_Grotesk } from "next/font/google";
+import { Archivo_Black, Space_Grotesk, Space_Mono } from "next/font/google";
 
 // ===== MAIN EXPORTS =====
 
@@ -22,5 +22,11 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-nb-body",
 });
 
+const spaceMono = Space_Mono({
+  weight: ["400", "700"],
+  subsets: ["latin"],
+  variable: "--font-nb-mono",
+});
+
 // Put this on the outermost element of a Design Law page
-export const NB_FONT_CLASS_NAME = `${archivoBlack.variable} ${spaceGrotesk.variable}`;
+export const NB_FONT_CLASS_NAME = `${archivoBlack.variable} ${spaceGrotesk.variable} ${spaceMono.variable}`;

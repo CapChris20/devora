@@ -20,6 +20,8 @@
 # misc
 .DS_Store
 *.pem
+*session*.json
+*auth-token*.json
 
 # debug
 npm-debug.log*
@@ -40,5 +42,6 @@ next-env.d.ts
 functions/lib
 firebase-debug.log
 firebase-debug.*.log
+firestore-debug.log
 pglite-debug.log
 .env*

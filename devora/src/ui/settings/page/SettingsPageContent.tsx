@@ -119,14 +119,14 @@ function SettingsCard({ title, children }: SettingsCardProps) {
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
       style={{
-        background: "#0e0b12",
-        border: "2px solid #2f2536",
-        borderRadius: 20,
+        background: "#0e0918",
+        border: "2.5px solid #ff5ca8",
+        borderRadius: 6,
         padding: "clamp(20px, 3vw, 28px)",
         display: "flex",
         flexDirection: "column",
         gap: 20,
-        boxShadow: "0 14px 36px -10px rgba(0, 0, 0, 0.8), 0 0 20px -8px rgba(255, 92, 168, 0.15)",
+        boxShadow: "6px 6px 0px 0px #000000, 7px 7px 0px 0px #ff5ca8",
       }}
     >
       <div
@@ -457,13 +457,13 @@ function SettingsDangerZone({
       transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
       style={{
         background: "#160a10",
-        border: "2px solid #6b1d28",
-        borderRadius: 20,
+        border: "2.5px solid #ef4444",
+        borderRadius: 6,
         padding: "clamp(20px, 3vw, 28px)",
         display: "flex",
         flexDirection: "column",
         gap: 18,
-        boxShadow: "0 14px 36px -10px rgba(0, 0, 0, 0.8), 0 0 20px -8px rgba(255, 60, 80, 0.2)",
+        boxShadow: "6px 6px 0px 0px #000000, 7px 7px 0px 0px #ef4444",
       }}
     >
       <div

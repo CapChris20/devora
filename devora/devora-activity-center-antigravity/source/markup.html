@@ -1,0 +1,66 @@
+<!-- Devora Activity Center: static page skeleton (tab panels are rendered by app.js). -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="brand"><span class="brand-mark" aria-hidden="true"></span>devora</div>
+    <span class="crumb">CECS student hub · UM-Dearborn</span>
+    <div class="me"><span class="avatar xs g1" aria-hidden="true">YU</span>You</div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <div>
+      <p class="eyebrow"><span class="dot"></span>Mon, Nov 16 · Week 12 of fall</p>
+      <h1 id="title" aria-label="Activity Center"><span class="line" aria-hidden="true">Activity</span><span class="line" aria-hidden="true">Center</span></h1>
+      <div class="strip" id="strip" aria-hidden="true"></div>
+      <p class="lede" id="lede">Events, study groups and the people you study with. Built for commuters who can't hang around campus.</p>
+    </div>
+    <div class="bento" id="bento" aria-label="Your week at a glance">
+      <button class="tile next" data-go="events" id="tile-next">
+        <span class="k">Next up</span>
+        <span class="title">CIS 310 Exam 2 Review Session</span>
+        <span class="s">Wed, Nov 18 · 4:00 PM · Engineering Lab Building</span>
+        <span class="arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"></path></svg></span>
+      </button>
+      <button class="tile" data-go="connections">
+        <span class="k">Requests</span>
+        <span class="v" data-count="requests">2</span>
+        <span class="s">Waiting on you</span>
+      </button>
+      <button class="tile" data-go="messaging">
+        <span class="k">Unread</span>
+        <span class="v" data-count="unread">2</span>
+        <span class="s">New messages</span>
+      </button>
+      <button class="tile" data-go="study-groups">
+        <span class="k">Your groups</span>
+        <span class="v" data-count="groups">1</span>
+        <span class="s">Study groups joined</span>
+      </button>
+      <button class="tile" data-go="events">
+        <span class="k">Saved</span>
+        <span class="v" data-count="saved">0</span>
+        <span class="s">Events on your list</span>
+      </button>
+    </div>
+  </div>
+</section>
+
+<div class="ticker" aria-hidden="true"><div class="ticker-track" id="ticker"></div></div>
+
+<nav class="tabbar" aria-label="Activity Center sections">
+  <div class="wrap">
+    <div class="tabs" id="tabs" role="tablist">
+      <span class="pill" id="pill" aria-hidden="true"></span>
+      <button class="tab" role="tab" data-tab="events" id="tab-events">Events</button>
+      <button class="tab" role="tab" data-tab="study-groups" id="tab-study-groups">Study Groups</button>
+      <button class="tab" role="tab" data-tab="connections" id="tab-connections">Connections <span class="count" data-count="requests">2</span></button>
+      <button class="tab" role="tab" data-tab="messaging" id="tab-messaging">Messaging <span class="count" data-count="unread">2</span></button>
+    </div>
+  </div>
+</nav>
+
+<main class="panel"><div class="wrap" id="panel" role="tabpanel"></div></main>
+
+<div id="modal-root"></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>

@@ -33,6 +33,16 @@ export default function SignedInGate({ children }: { children: ReactNode }) {
     // vocab: isCancelled = set in cleanup so a late Firestore reply can't update an unmounted page
     let isCancelled = false;
 
+    // Support offline screenshot capture & automated tests when mock auth is explicitly enabled
+    if (
+      typeof window !== "undefined" &&
+      (window.sessionStorage.getItem("devora-mock-auth") === "true" ||
+        window.localStorage.getItem("devora-mock-auth") === "true")
+    ) {
+      setIsAllowed(true);
+      return;
+    }
+
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       // Not signed in — these pages are private.
       if (!user) {

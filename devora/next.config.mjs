@@ -46,7 +46,22 @@ const securityHeaders = [
   { key: "Content-Security-Policy", value: contentSecurityPolicy },
 ];
 
+// Surge deploys (npm run deploy:surge) need plain static files, so that build sets STATIC_EXPORT=1.
+// vocab: output: "export" = Next.js writes every page as .html into ./out (no server needed).
+// Static hosts can't send custom headers or optimize images on the fly, so those switch off there.
+// Vercel builds never set STATIC_EXPORT, so they keep the headers and image optimization.
+const isStaticExport = process.env.STATIC_EXPORT === "1";
+
+const staticExportOptions = isStaticExport
+  ? {
+      output: "export",
+      // /activity → /activity/index.html, which Surge serves at /activity/
+      trailingSlash: true,
+    }
+  : {};
+
 const nextConfig = {
+  ...staticExportOptions,
   experimental: {
     optimizePackageImports: [
       "lucide-react",
@@ -59,6 +74,7 @@ const nextConfig = {
     ],
   },
   images: {
+    unoptimized: isStaticExport,
     remotePatterns: [
       {
         protocol: "https",
@@ -73,6 +89,8 @@ const nextConfig = {
     ],
   },
   async headers() {
+    // Static export can't apply headers (Surge serves files as-is).
+    if (isStaticExport) return [];
     return [
       {
         source: "/:path*",

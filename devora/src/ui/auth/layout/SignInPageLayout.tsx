@@ -18,7 +18,7 @@ const EMPTY_NAV_ACTIVE_ITEM = "";
 const BACK_TO_HOME_LABEL = "← Back to home";
 const WIDE_CARD_MAX_WIDTH_CLASS = "max-w-2xl";
 const DEFAULT_CARD_MAX_WIDTH_CLASS = "max-w-md";
-const CARD_SHELL_CLASS_NAME = "sign-in-card glass-card w-full rounded-2xl p-6 sm:p-8";
+const CARD_SHELL_CLASS_NAME = "sign-in-card glass-card w-full rounded-md p-6 sm:p-8";
 
 // ===== TYPES =====
 

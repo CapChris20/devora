@@ -442,10 +442,10 @@ export default function AccountProfileView({
 
         .glass-panel {
           background: #0f0b13;
-          border: 2px solid #2f2536;
-          border-radius: 20px;
+          border: 2.5px solid #ff5ca8;
+          border-radius: 6px;
           padding: 24px;
-          box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.8), 0 0 20px -8px rgba(255, 92, 168, 0.15);
+          box-shadow: 6px 6px 0px #000000, 7px 7px 0px #ff5ca8;
         }
 
         .identity-row {
