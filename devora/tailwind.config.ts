@@ -25,14 +25,24 @@ const config: Config = {
       // Manipulate here: change a hex once and every Design Law page follows.
       colors: {
         nb: {
-          ink: "#0A0A0A",
-          paper: "#F2F2F0",
-          white: "#FFFFFF",
-          soft: "#E3E3DF",
-          muted: "#575757",
+          ink: "var(--nb-ink, #0A0A0A)",
+          paper: "var(--nb-paper, #F2F2F0)",
+          white: "var(--nb-white, #FFFFFF)",
+          soft: "var(--nb-soft, #E3E3DF)",
+          muted: "var(--nb-muted, #575757)",
           // Solid accents for tiny details (dots, underlines)
-          pink: "#FF6B9D",
-          orange: "#FB923C",
+          pink: "var(--nb-pink, #FF6B9D)",
+          orange: "var(--nb-orange, #FB923C)",
+        },
+      },
+      borderColor: {
+        nb: {
+          ink: "var(--nb-border, #0A0A0A)",
+          paper: "var(--nb-paper, #F2F2F0)",
+          white: "var(--nb-white, #FFFFFF)",
+          soft: "var(--nb-soft, #E3E3DF)",
+          pink: "var(--nb-pink, #FF6B9D)",
+          orange: "var(--nb-orange, #FB923C)",
         },
       },
       // 3px ink outline on cards/buttons/tabs (Coach Connect nb.borderWidth); border-2 for chips.
@@ -45,11 +55,11 @@ const config: Config = {
       // Hard offset shadows — ink, zero blur, ever. Pressed state = shadow-nb-sm + translate 2px.
       // Manipulate here: bigger first two numbers = chunkier "lifted" look.
       boxShadow: {
-        "nb-sm": "2px 2px 0 0 #0A0A0A",
-        nb: "4px 4px 0 0 #0A0A0A",
-        "nb-card": "5px 5px 0 0 #0A0A0A",
-        "nb-lg": "6px 6px 0 0 #0A0A0A",
-        "nb-modal": "9px 9px 0 0 #0A0A0A",
+        "nb-sm": "2px 2px 0 0 var(--nb-shadow, #0A0A0A)",
+        nb: "4px 4px 0 0 var(--nb-shadow, #0A0A0A)",
+        "nb-card": "5px 5px 0 0 var(--nb-shadow, #0A0A0A)",
+        "nb-lg": "6px 6px 0 0 var(--nb-shadow, #0A0A0A)",
+        "nb-modal": "9px 9px 0 0 var(--nb-shadow, #0A0A0A)",
         "nb-toast": "5px 5px 0 0 #FB923C",
       },
       // Secondary accent gradients. Text on any of these is always ink.

@@ -154,25 +154,25 @@ export default function WeekTiles() {
         onClick={() => router.push("/activity-center/events")}
         className="bento-tile col-span-2 relative text-left flex flex-col justify-between gap-2.5 min-h-[128px] p-4 bg-nb-brand border-nb border-nb-ink rounded-nb shadow-nb-card transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
       >
-        <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] uppercase text-nb-ink">
+        <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] uppercase text-[#0A0A0A]">
           Next up
         </span>
         {nextEvent ? (
           <>
-            <span className="text-[20px] sm:text-[22px] font-bold leading-tight text-nb-ink line-clamp-1">
+            <span className="text-[20px] sm:text-[22px] font-bold leading-tight text-[#0A0A0A] line-clamp-1">
               {nextEvent.title}
             </span>
-            <span className="text-[13px] font-semibold text-nb-ink line-clamp-1">
+            <span className="text-[13px] font-semibold text-[#0A0A0A] line-clamp-1">
               {nextEvent.dow ? `${nextEvent.dow}, ` : ""}
               {nextEvent.mon} {nextEvent.day} · {nextEvent.time} · {nextEvent.location}
             </span>
           </>
         ) : (
           <>
-            <span className="text-[18px] sm:text-[20px] font-bold leading-tight text-nb-ink">
+            <span className="text-[18px] sm:text-[20px] font-bold leading-tight text-[#0A0A0A]">
               No events scheduled yet
             </span>
-            <span className="text-[13px] font-semibold text-nb-ink/80">
+            <span className="text-[13px] font-semibold text-[#0A0A0A]/80">
               Post an event to see it here on your week
             </span>
           </>

@@ -90,7 +90,7 @@ export default function MessagesScreen() {
               strokeWidth="2.3"
               strokeLinecap="round"
               strokeLinejoin="round"
-              className="text-nb-ink"
+              className="text-[#0A0A0A]"
             >
               <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
               <line x1="8" y1="10" x2="16" y2="10" />
@@ -191,7 +191,7 @@ export default function MessagesScreen() {
                       <li key={message.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
                         <div
                           className={`max-w-[78%] rounded-nb border-nb border-nb-ink px-4 py-2.5 text-[15px] shadow-nb-sm ${
-                            isMine ? "bg-nb-brand text-nb-ink" : "bg-nb-white text-nb-ink"
+                            isMine ? "bg-nb-brand text-[#0A0A0A]" : "bg-nb-white text-nb-ink"
                           }`}
                         >
                           <p className="whitespace-pre-wrap break-words">{message.text}</p>

@@ -93,7 +93,7 @@ export default function EventFeed() {
           <button
             type="button"
             onClick={openPostEventModal}
-            className="btn primary inline-flex items-center gap-2 min-h-[44px] px-5 rounded-nb border-nb border-nb-ink bg-nb-brand text-nb-ink font-bold text-sm tracking-normal shadow-nb transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
+            className="btn primary inline-flex items-center gap-2 min-h-[44px] px-5 rounded-nb border-nb border-nb-ink bg-nb-brand text-[#0A0A0A] font-bold text-sm tracking-normal shadow-nb transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
           >
             <svg
               aria-hidden="true"
@@ -167,7 +167,7 @@ export default function EventFeed() {
             <button
               type="button"
               onClick={openPostEventModal}
-              className="btn primary inline-flex items-center gap-2 min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-nb-ink font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
+              className="btn primary inline-flex items-center gap-2 min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-[#0A0A0A] font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
             >
               <svg
                 aria-hidden="true"

@@ -54,7 +54,7 @@ export default function EventTicker() {
                   key={`${copyIndex}-${event.id}`}
                   className="inline-flex items-center gap-3.5 pr-7 font-nb-mono text-[13px] font-bold tracking-[0.12em] uppercase"
                 >
-                  <b className="px-2 py-0.5 rounded-full bg-nb-brand text-nb-ink font-bold">
+                  <b className="px-2 py-0.5 rounded-full bg-nb-brand text-[#0A0A0A] font-bold">
                     {event.mon} {event.day}
                   </b>
                   <span>{event.title}</span>

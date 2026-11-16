@@ -17,7 +17,7 @@ export default function Tag({ children, tone = "default", className = "" }: TagP
   const toneClass =
     tone === "default"
       ? "bg-nb-white text-nb-ink"
-      : `${tone} text-nb-ink`;
+      : `${tone} text-[#0A0A0A]`;
 
   return (
     <span

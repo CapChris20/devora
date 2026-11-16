@@ -53,7 +53,7 @@ export default function EmptyState({
             strokeWidth="2.4"
             strokeLinecap="round"
             strokeLinejoin="round"
-            className="text-nb-ink"
+            className="text-[#0A0A0A]"
           >
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />

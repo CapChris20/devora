@@ -93,7 +93,7 @@ export default function GroupCard({
       {/* Rotated sticker on the featured group */}
       {isFeatured && (
         <span
-          className="sticker absolute -top-3.5 right-4 rotate-4 px-2.5 py-1 rounded-[8px] border-nb border-nb-ink bg-nb-brand font-nb-mono text-[11px] font-bold tracking-[0.1em] uppercase shadow-nb-sm pointer-events-none select-none text-nb-ink"
+          className="sticker absolute -top-3.5 right-4 rotate-4 px-2.5 py-1 rounded-[8px] border-nb border-nb-ink bg-nb-brand font-nb-mono text-[11px] font-bold tracking-[0.1em] uppercase shadow-nb-sm pointer-events-none select-none text-[#0A0A0A]"
         >
           Most active
         </span>

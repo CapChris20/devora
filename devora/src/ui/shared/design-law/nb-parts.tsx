@@ -22,11 +22,11 @@ export const NB_TONE: Record<NbTone, string> = {
   ink: "bg-nb-ink text-nb-white",
   white: "bg-nb-white text-nb-ink",
   soft: "bg-nb-soft text-nb-ink",
-  brand: "bg-nb-brand text-nb-ink",
-  orchid: "bg-nb-orchid text-nb-ink",
-  sky: "bg-nb-sky text-nb-ink",
-  blush: "bg-nb-blush text-nb-ink",
-  accent: "bg-nb-accent text-nb-white",
+  brand: "bg-nb-brand text-[#0A0A0A]",
+  orchid: "bg-nb-orchid text-[#0A0A0A]",
+  sky: "bg-nb-sky text-[#0A0A0A]",
+  blush: "bg-nb-blush text-[#0A0A0A]",
+  accent: "bg-nb-accent text-white",
 };
 
 // Gradients rotated through lists (avatars, club badges, course tags)

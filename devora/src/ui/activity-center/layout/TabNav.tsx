@@ -130,8 +130,8 @@ export default function TabNav() {
                 aria-selected={isActive}
                 className={`tab relative z-10 flex-shrink-0 inline-flex items-center gap-2 h-[50px] px-5 sm:px-5.5 rounded-full border-nb border-nb-ink font-bold text-[15px] whitespace-nowrap transition-transform duration-150 hover:-translate-y-0.5 ${
                   isActive
-                    ? "!bg-transparent !border-transparent text-nb-ink"
-                    : "bg-nb-white text-nb-ink"
+                    ? "!bg-transparent !border-transparent !text-[#0A0A0A] font-black"
+                    : "bg-nb-white text-nb-ink font-bold"
                 }`}
               >
                 <span>{tab.label}</span>

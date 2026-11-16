@@ -402,7 +402,7 @@ export default function PostEventModal() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="btn primary min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-nb-ink font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50"
+            className="btn primary min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-[#0A0A0A] font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50"
           >
             {isSubmitting ? "Posting..." : "Post Event"}
           </button>

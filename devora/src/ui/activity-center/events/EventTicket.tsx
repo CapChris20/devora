@@ -60,13 +60,13 @@ export default function EventTicket({ event }: EventTicketProps) {
       <div
         className={`flex flex-col items-center justify-center gap-0.5 p-3 sm:py-3.5 sm:px-2 border-r-nb border-nb-ink ${dateTone}`}
       >
-        <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] text-nb-ink">
+        <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] text-[#0A0A0A]">
           {event.mon}
         </span>
-        <span className="font-nb-display text-[30px] sm:text-[38px] leading-none text-nb-ink">
+        <span className="font-nb-display text-[30px] sm:text-[38px] leading-none text-[#0A0A0A]">
           {event.day}
         </span>
-        <span className="font-nb-mono text-[10px] font-bold tracking-[0.12em] text-nb-ink">
+        <span className="font-nb-mono text-[10px] font-bold tracking-[0.12em] text-[#0A0A0A]">
           {event.dow}
         </span>
       </div>
@@ -194,7 +194,7 @@ export default function EventTicket({ event }: EventTicketProps) {
           aria-pressed={isSaved}
           className={`btn sm min-h-[40px] px-3.5 rounded-nb border-nb border-nb-ink font-bold text-sm tracking-normal whitespace-nowrap shadow-nb transition-all duration-120 hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm ${
             isSaved
-              ? "bg-nb-brand text-nb-ink"
+              ? "bg-nb-brand text-[#0A0A0A]"
               : "bg-nb-white text-nb-ink"
           }`}
         >
