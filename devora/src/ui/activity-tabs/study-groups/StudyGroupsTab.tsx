@@ -207,14 +207,40 @@ export default function StudyGroupsTab() {
       </div>
 
       {visibleGroups.length === 0 ? (
-        <NbCard className="flex flex-col items-center justify-center p-10 text-center motion-safe:animate-nb-rise">
-          <div className="w-12 h-12 rounded-full border-2 border-nb-ink bg-nb-brand grid place-items-center text-xl font-bold mb-2">
-            📚
+        <NbCard className="relative overflow-hidden flex flex-col items-center justify-center p-10 text-center motion-safe:animate-nb-rise">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none select-none absolute top-3 right-4 font-mono text-[10px] font-bold tracking-[0.2em] text-nb-ink/20 uppercase"
+          >
+            COURSES // 00_EMPTY
+          </span>
+          <div className="relative mb-4 flex items-center justify-center w-16 h-16 rounded-nb border-2 border-nb-ink bg-nb-brand shadow-[4px_4px_0px_#000000] -rotate-2 transition-transform duration-200 hover:rotate-0">
+            <svg
+              aria-hidden="true"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-nb-ink"
+            >
+              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              <line x1="9" y1="7" x2="15" y2="7" />
+              <line x1="9" y1="11" x2="13" y2="11" />
+            </svg>
+          </div>
+          <div className="inline-flex items-center gap-2 mb-2 px-3 py-1 rounded-full border-2 border-nb-ink bg-nb-paper font-mono text-[10px] font-bold tracking-[0.16em] uppercase text-nb-ink">
+            <span className="w-2 h-2 rounded-full bg-nb-brand animate-pulse border border-nb-ink" />
+            <span>COHORT // 0_ACTIVE_GROUPS</span>
           </div>
           <p className="text-xl font-bold">
             {selectedCourse === ALL_COURSES ? "No study groups yet" : `No ${selectedCourse} groups yet`}
           </p>
-          <p className="mt-2 text-nb-muted">
+          <p className="mt-2 text-nb-muted max-w-[44ch] leading-relaxed">
             {selectedCourse === ALL_COURSES
               ? "Start the first study group for your course to collaborate with classmates."
               : `Be the first to start a group for ${selectedCourse}.`}

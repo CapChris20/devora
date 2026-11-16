@@ -127,40 +127,65 @@ export default function EventFeed() {
           ))}
         </div>
       ) : filteredEvents.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-12 px-6 bg-nb-white border-nb border-nb-ink rounded-nb shadow-nb-card text-center">
-          <EmptyState
-            title={
-              eventFilter === "all"
-                ? "No events posted yet"
-                : `No ${eventFilter} events found`
-            }
-            description={
-              eventFilter === "all"
-                ? "Be the first student to post an event, review session, or meetup!"
-                : `No events tagged with "${eventFilter}" yet. Switch filters or post one now.`
-            }
-          />
-          <button
-            type="button"
-            onClick={openPostEventModal}
-            className="mt-4 btn primary inline-flex items-center gap-2 min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-nb-ink font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5"
-          >
+        <EmptyState
+          statusTag={
+            eventFilter === "all"
+              ? "EVENTS // 0_SCHEDULED"
+              : `FILTER // 0_${eventFilter.toUpperCase()}`
+          }
+          icon={
             <svg
               aria-hidden="true"
-              width="16"
-              height="16"
+              width="28"
+              height="28"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
-              strokeWidth="2.5"
+              strokeWidth="2.3"
               strokeLinecap="round"
               strokeLinejoin="round"
+              className="text-nb-ink"
             >
-              <path d="M12 5v14M5 12h14" />
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
+              <circle cx="12" cy="15" r="2" />
             </svg>
-            <span>Post the first event</span>
-          </button>
-        </div>
+          }
+          title={
+            eventFilter === "all"
+              ? "No events posted yet"
+              : `No ${eventFilter} events found`
+          }
+          description={
+            eventFilter === "all"
+              ? "Be the first student to post an exam review, club meeting, or campus meetup!"
+              : `No events currently match "${eventFilter}". Select another tag or post one now.`
+          }
+          action={
+            <button
+              type="button"
+              onClick={openPostEventModal}
+              className="btn primary inline-flex items-center gap-2 min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-nb-ink font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
+            >
+              <svg
+                aria-hidden="true"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 5v14M5 12h14" />
+              </svg>
+              <span>Post the first event</span>
+            </button>
+          }
+        />
       ) : (
         /* Weeks groups */
         <div className="flex flex-col gap-7.5">

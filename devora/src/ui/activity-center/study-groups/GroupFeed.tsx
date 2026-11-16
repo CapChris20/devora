@@ -147,6 +147,30 @@ export default function GroupFeed() {
         </div>
       ) : filteredGroups.length === 0 ? (
         <EmptyState
+          statusTag={
+            courseFilter === "All"
+              ? "GROUPS // 0_ACTIVE"
+              : `COURSE // 0_${courseFilter}`
+          }
+          icon={
+            <svg
+              aria-hidden="true"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-nb-ink"
+            >
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          }
           title={
             courseFilter === "All"
               ? "No study groups yet"
@@ -161,9 +185,9 @@ export default function GroupFeed() {
             <button
               type="button"
               onClick={openCreateGroupModal}
-              className="btn min-h-[46px] px-5 rounded-nb border-nb border-nb-ink bg-nb-ink text-nb-white font-bold text-[15px] shadow-nb transition-all duration-120 hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5"
+              className="btn min-h-[46px] px-6 rounded-nb border-nb border-nb-ink bg-nb-ink text-nb-white font-bold text-[15px] shadow-nb transition-all duration-120 hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5"
             >
-              Start a group
+              + Start a group
             </button>
           }
         />

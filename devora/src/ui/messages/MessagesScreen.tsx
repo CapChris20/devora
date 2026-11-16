@@ -72,13 +72,38 @@ export default function MessagesScreen() {
   return (
     <section aria-label="Messages">
       {conversations.length === 0 ? (
-        <NbCard className="flex flex-col items-center justify-center p-12 sm:p-16 text-center motion-safe:animate-nb-rise">
-          <div className="w-16 h-16 rounded-full border-2 border-nb-ink bg-nb-brand grid place-items-center text-3xl font-bold mb-4">
-            💬
+        <NbCard className="relative overflow-hidden flex flex-col items-center justify-center p-10 sm:p-16 text-center motion-safe:animate-nb-rise">
+          <span
+            aria-hidden="true"
+            className="pointer-events-none select-none absolute top-3 right-4 font-mono text-[10px] font-bold tracking-[0.2em] text-nb-ink/20 uppercase"
+          >
+            INBOX // 00_STANDBY
+          </span>
+          <div className="relative mb-4 flex items-center justify-center w-16 h-16 rounded-nb border-2 border-nb-ink bg-nb-brand shadow-[4px_4px_0px_#000000] -rotate-2 transition-transform duration-200 hover:rotate-0">
+            <svg
+              aria-hidden="true"
+              width="28"
+              height="28"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="text-nb-ink"
+            >
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              <line x1="8" y1="10" x2="16" y2="10" />
+              <line x1="8" y1="14" x2="13" y2="14" />
+            </svg>
           </div>
-          <h2 className="text-2xl font-bold">No messages yet</h2>
-          <p className="mt-2 text-base text-nb-muted max-w-[46ch]">
-            When you connect with classmates on Devora, you can message them directly here.
+          <div className="inline-flex items-center gap-2 mb-2 px-3 py-1 rounded-full border-2 border-nb-ink bg-nb-paper font-mono text-[10px] font-bold tracking-[0.16em] uppercase text-nb-ink">
+            <span className="w-2 h-2 rounded-full bg-nb-brand animate-pulse border border-nb-ink" />
+            <span>MESSAGING // 0_ACTIVE_THREADS</span>
+          </div>
+          <h2 className="m-0 text-2xl font-bold tracking-tight text-nb-ink">No messages yet</h2>
+          <p className="mt-2 text-base text-nb-muted max-w-[46ch] leading-relaxed">
+            When you connect with classmates on Devora, you can message them directly here to coordinate assignments and study sessions.
           </p>
           <NbLinkButton href="/find-students" tone="ink" className="mt-6">
             Find classmates on Discovery Grid
