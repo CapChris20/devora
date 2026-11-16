@@ -107,11 +107,11 @@ export default function WhatIsDevora() {
                     {/* Footer row */}
                     <div className="what-is-footer-row">
                       <div className="concept-connector">
-                        <span className="mono text-white">Classmates</span>
+                        <span className="mono what-is-connector-label">Classmates</span>
                         <div className="connector-arrow">
                           <ArrowRight size={22} color="#ff5ca8" />
                         </div>
-                        <span className="mono text-white">Friends</span>
+                        <span className="mono what-is-connector-label">Friends</span>
                       </div>
 
                       <Link href="/find-students" className="btn-primary">
@@ -136,8 +136,15 @@ export default function WhatIsDevora() {
           position: relative;
           padding: clamp(18px, 2.2vw, 32px);
           border-radius: 24px;
-          background: linear-gradient(180deg, rgb(28 24 28 / .92), rgb(18 15 18 / .92));
+          background: linear-gradient(180deg, rgb(28 24 28 / .95), rgb(18 15 18 / .95));
           border: 2px solid var(--edge);
+          transition: background 0.25s ease, border-color 0.25s ease;
+        }
+
+        :global(html[data-theme="light"]) .what-is-poster-panel {
+          background: #ffffff;
+          border: 3px solid #0d0b0e;
+          box-shadow: 6px 6px 0 0 #0d0b0e;
         }
 
         .what-is-poster-panel::before {
@@ -186,6 +193,9 @@ export default function WhatIsDevora() {
         .prompt-text {
           color: var(--text-muted);
         }
+        :global(html[data-theme="light"]) .prompt-text {
+          color: #574a50;
+        }
         .prompt-caret {
           display: inline-block;
           width: 9px;
@@ -202,6 +212,9 @@ export default function WhatIsDevora() {
         .what-is-headline {
           color: var(--text);
           margin-bottom: 18px;
+        }
+        :global(html[data-theme="light"]) .what-is-headline {
+          color: #0d0b0e;
         }
 
         .what-is-columns {
@@ -230,6 +243,10 @@ export default function WhatIsDevora() {
           justify-content: center;
           overflow: hidden;
           padding: 12px;
+        }
+        :global(html[data-theme="light"]) .lottie-frame {
+          background: #faf6f8;
+          border: 2.5px solid #0d0b0e;
         }
 
         .lottie-glow {
@@ -260,10 +277,16 @@ export default function WhatIsDevora() {
           font-size: clamp(15px, 1.3vw, 17.5px);
           line-height: 1.45;
         }
+        :global(html[data-theme="light"]) .what-is-lead {
+          color: #2a2226;
+        }
 
         .what-is-lead strong {
           color: var(--text);
           font-weight: 700;
+        }
+        :global(html[data-theme="light"]) .what-is-lead strong {
+          color: #0d0b0e;
         }
 
         .claims-grid {
@@ -281,6 +304,11 @@ export default function WhatIsDevora() {
           padding: 10px 14px;
           border: 2px solid transparent;
           transition: border-color 0.2s ease, translate 0.2s var(--spring);
+        }
+        :global(html[data-theme="light"]) .claim-row {
+          background: #f7f2f5;
+          border: 2px solid #0d0b0e;
+          box-shadow: 3px 3px 0 0 #0d0b0e;
         }
 
         .claim-row:hover {
@@ -308,9 +336,23 @@ export default function WhatIsDevora() {
           font-weight: 700;
           color: var(--text);
         }
+        :global(html[data-theme="light"]) .claim-title {
+          color: #0d0b0e;
+        }
 
         .claim-text {
           color: var(--text-muted);
+        }
+        :global(html[data-theme="light"]) .claim-text {
+          color: #4a3e45;
+        }
+
+        .what-is-connector-label {
+          color: var(--text);
+          font-weight: 700;
+        }
+        :global(html[data-theme="light"]) .what-is-connector-label {
+          color: #0d0b0e;
         }
 
         .what-is-footer-row {

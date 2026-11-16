@@ -181,7 +181,7 @@ export default function BestUseCases() {
               <div className="use-cases-progress-block">
                 <span
                   ref={countRef}
-                  className="mono text-white text-[14px] font-bold"
+                  className="mono text-[var(--text)] text-[14px] font-bold"
                   style={{ fontVariantNumeric: "tabular-nums" }}
                 >
                   01 / 08

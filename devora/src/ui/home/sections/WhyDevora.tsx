@@ -431,7 +431,8 @@ export default function WhyDevora() {
           display: flex;
           align-items: flex-start;
           gap: 14px;
-          background: var(--surface-2);
+          background: #19141d;
+          border: 1.5px solid rgba(255, 255, 255, 0.14);
           border-radius: 10px;
           padding: 14px 16px;
         }
