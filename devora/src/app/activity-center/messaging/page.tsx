@@ -1,8 +1,8 @@
-// Messaging tab page for the Activity Center (/activity-center/messaging).
-// Renders direct message conversation list and interactive chat thread.
+// Redirect from /activity-center/messaging to top-level /messages.
+// Messages has its own dedicated navigation link in the top bar.
 
-import MessagingFeed from "@/ui/activity-center/messaging/MessagingFeed";
+import { redirect } from "next/navigation";
 
 export default function ActivityCenterMessagingPage() {
-  return <MessagingFeed />;
+  redirect("/messages");
 }

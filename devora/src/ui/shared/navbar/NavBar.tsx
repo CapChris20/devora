@@ -21,7 +21,7 @@ const navItems = [
   { label: "Discovery Grid", href: "/find-students" },
   { label: "Settings", href: "/settings" },
   { label: "FAQs", href: "/faqs-page" },
-  // Activity Center = Events, Study Groups, Connections, Messaging
+  // Activity Center = Events, Study Groups
   { label: "Activity Center", href: "/activity-center" },
   { label: "Messages", href: "/messages" },
   { label: "Connections", href: "/connections" },

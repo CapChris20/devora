@@ -1,5 +1,5 @@
 // Bento grid of summary tiles for the user's weekly activity.
-// Shows Next up event, pending requests, unread messages, joined groups, and saved events.
+// Shows Next up event, joined study groups, and saved events.
 // Tiles are clickable navigation buttons whose numbers count up and pop on change.
 
 "use client";
@@ -20,22 +20,16 @@ export default function WeekTiles() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const {
-    requestsCount,
-    unreadTotalCount,
     joinedGroupsCount,
     savedEventsCount,
   } = useActivityCenter();
 
   // References to count text elements for GSAP count-up tweens
-  const requestsElRef = useRef<HTMLSpanElement>(null);
-  const unreadElRef = useRef<HTMLSpanElement>(null);
   const groupsElRef = useRef<HTMLSpanElement>(null);
   const savedElRef = useRef<HTMLSpanElement>(null);
 
   // Store previous values to detect changes
   const prevCountsRef = useRef({
-    requests: requestsCount,
-    unread: unreadTotalCount,
     groups: joinedGroupsCount,
     saved: savedEventsCount,
   });
@@ -59,8 +53,6 @@ export default function WeekTiles() {
 
         // Count up initial numbers
         const targets = [
-          { ref: requestsElRef, target: requestsCount },
-          { ref: unreadElRef, target: unreadTotalCount },
           { ref: groupsElRef, target: joinedGroupsCount },
           { ref: savedElRef, target: savedEventsCount },
         ];
@@ -98,8 +90,6 @@ export default function WeekTiles() {
       value: number;
       ref: React.RefObject<HTMLSpanElement>;
     }> = [
-      { key: "requests", value: requestsCount, ref: requestsElRef },
-      { key: "unread", value: unreadTotalCount, ref: unreadElRef },
       { key: "groups", value: joinedGroupsCount, ref: groupsElRef },
       { key: "saved", value: savedEventsCount, ref: savedElRef },
     ];
@@ -144,12 +134,10 @@ export default function WeekTiles() {
     });
 
     prevCountsRef.current = {
-      requests: requestsCount,
-      unread: unreadTotalCount,
       groups: joinedGroupsCount,
       saved: savedEventsCount,
     };
-  }, [requestsCount, unreadTotalCount, joinedGroupsCount, savedEventsCount]);
+  }, [joinedGroupsCount, savedEventsCount]);
 
   return (
     <div
@@ -189,42 +177,6 @@ export default function WeekTiles() {
             <path d="M5 12h14M13 6l6 6-6 6" />
           </svg>
         </span>
-      </button>
-
-      {/* Requests tile */}
-      <button
-        type="button"
-        onClick={() => router.push("/activity-center/connections")}
-        className="bento-tile relative text-left flex flex-col justify-between gap-2.5 min-h-[108px] p-4 bg-nb-white border-nb border-nb-ink rounded-nb shadow-nb-card transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
-      >
-        <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] uppercase text-nb-ink">
-          Requests
-        </span>
-        <span
-          ref={requestsElRef}
-          className="font-nb-display text-4xl sm:text-[40px] leading-none tabular-nums text-nb-ink"
-        >
-          {requestsCount}
-        </span>
-        <span className="text-[13px] text-nb-muted">Waiting on you</span>
-      </button>
-
-      {/* Unread tile */}
-      <button
-        type="button"
-        onClick={() => router.push("/activity-center/messaging")}
-        className="bento-tile relative text-left flex flex-col justify-between gap-2.5 min-h-[108px] p-4 bg-nb-white border-nb border-nb-ink rounded-nb shadow-nb-card transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
-      >
-        <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] uppercase text-nb-ink">
-          Unread
-        </span>
-        <span
-          ref={unreadElRef}
-          className="font-nb-display text-4xl sm:text-[40px] leading-none tabular-nums text-nb-ink"
-        >
-          {unreadTotalCount}
-        </span>
-        <span className="text-[13px] text-nb-muted">New messages</span>
       </button>
 
       {/* Your groups tile */}

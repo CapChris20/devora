@@ -1,8 +1,8 @@
-// Connections tab page for the Activity Center (/activity-center/connections).
-// Renders incoming connection request deck and searchable connections directory.
+// Redirect from /activity-center/connections to top-level /connections.
+// Connections has its own dedicated navigation link in the top bar.
 
-import ConnectionsFeed from "@/ui/activity-center/connections/ConnectionsFeed";
+import { redirect } from "next/navigation";
 
 export default function ActivityCenterConnectionsPage() {
-  return <ConnectionsFeed />;
+  redirect("/connections");
 }

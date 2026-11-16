@@ -1,5 +1,6 @@
 // Sticky navigation tab bar for Activity Center sections.
-// Displays the 4 primary tabs: Events, Study Groups, Connections, and Messaging.
+// Displays the primary tabs: Events and Study Groups.
+// (Connections and Messages live in their own dedicated top-level nav links: /connections and /messages).
 // Sliding neo-brutalist gradient pill animates with GSAP back.out ease to track route changes.
 
 "use client";
@@ -12,15 +13,12 @@ import { usePathname } from "next/navigation";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
-import { useActivityCenter } from "../ActivityCenterContext";
-
 // ===== TAB DEFINITIONS =====
 
 type TabDefinition = {
   key: string;
   label: string;
   href: string;
-  hasCount?: "requests" | "unread";
 };
 
 const TABS: TabDefinition[] = [
@@ -29,18 +27,6 @@ const TABS: TabDefinition[] = [
     key: "study-groups",
     label: "Study Groups",
     href: "/activity-center/study-groups",
-  },
-  {
-    key: "connections",
-    label: "Connections",
-    href: "/activity-center/connections",
-    hasCount: "requests",
-  },
-  {
-    key: "messaging",
-    label: "Messaging",
-    href: "/activity-center/messaging",
-    hasCount: "unread",
   },
 ];
 
@@ -52,8 +38,6 @@ export default function TabNav() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLSpanElement>(null);
   const tabButtonRefs = useRef<Record<string, HTMLAnchorElement | null>>({});
-
-  const { requestsCount, unreadTotalCount } = useActivityCenter();
 
   // Determine active tab key from URL pathname
   const activeTabKey =
@@ -134,12 +118,6 @@ export default function TabNav() {
 
           {TABS.map((tab) => {
             const isActive = activeTabKey === tab.key;
-            const badgeCount =
-              tab.hasCount === "requests"
-                ? requestsCount
-                : tab.hasCount === "unread"
-                ? unreadTotalCount
-                : 0;
 
             return (
               <Link
@@ -157,13 +135,6 @@ export default function TabNav() {
                 }`}
               >
                 <span>{tab.label}</span>
-                {badgeCount > 0 && (
-                  <span
-                    className="min-w-[22px] h-[22px] px-1.5 inline-grid place-items-center rounded-full bg-nb-ink text-nb-white font-nb-mono text-[11px] font-bold"
-                  >
-                    {badgeCount}
-                  </span>
-                )}
               </Link>
             );
           })}
