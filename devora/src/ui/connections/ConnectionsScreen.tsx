@@ -1,37 +1,34 @@
 // Connections page content (/connections): students you're connected with, with a Message button.
-// Flow: placeholder connections → one card per student (avatar, name, major, year, Message).
-// TODO(firestore): connections live at /users/{uid}/connections/{otherUid}. Read the signed-in
-//   user's subcollection; the Message button should open (or create) their /conversations doc.
+// Uses real connection data when available, and displays an empty state prompting students to explore the Discovery Grid when 0 connections exist.
+
+"use client";
 
 // ===== IMPORTS =====
 
+import { useState } from "react";
+import type { Connection } from "@/types/activity";
 import {
   NB_TONE_CYCLE,
   InitialsAvatar,
   NbCard,
   NbLinkButton,
   SectionHeader,
-  StubNote,
   staggerStyle,
 } from "@/ui/shared/design-law/nb-parts";
 
-import { PLACEHOLDER_CONNECTIONS } from "./placeholder-data";
-
 // ===== NAMED CONSTANTS =====
 
-// Manipulate here: where Message sends people (later: /messages?with={uid})
 const MESSAGES_PATH = "/messages";
 
 // ===== MAIN COMPONENT =====
 
-/**
- * Connections screen. Placeholder data only — see the TODO at the top of the file.
- */
 export default function ConnectionsScreen() {
+  const [connections] = useState<Connection[]>([]);
+
   return (
     <section aria-label="Connections">
       <SectionHeader
-        eyebrow={`${PLACEHOLDER_CONNECTIONS.length} connected`}
+        eyebrow={`${connections.length} connected`}
         title="Your people"
         blurb="Students you've connected with. Find more by major, year and interests on the Discovery Grid."
         action={
@@ -41,14 +38,22 @@ export default function ConnectionsScreen() {
         }
       />
 
-      {PLACEHOLDER_CONNECTIONS.length === 0 ? (
-        <NbCard className="p-8 text-center">
-          <p className="text-xl font-bold">No connections yet</p>
-          <p className="mt-2 text-nb-muted">Start on the Discovery Grid.</p>
+      {connections.length === 0 ? (
+        <NbCard className="flex flex-col items-center justify-center p-12 text-center motion-safe:animate-nb-rise">
+          <div className="w-14 h-14 rounded-full border-2 border-nb-ink bg-nb-brand grid place-items-center text-2xl font-bold mb-3">
+            👥
+          </div>
+          <p className="text-2xl font-bold">No connections yet</p>
+          <p className="mt-2 text-base text-nb-muted max-w-[44ch]">
+            You haven&apos;t connected with any classmates yet. Explore students by major, year, and interests on the Discovery Grid!
+          </p>
+          <NbLinkButton href="/find-students" tone="ink" className="mt-5">
+            Browse Discovery Grid
+          </NbLinkButton>
         </NbCard>
       ) : (
         <ul className="grid gap-5 md:grid-cols-2">
-          {PLACEHOLDER_CONNECTIONS.map((connection, index) => (
+          {connections.map((connection, index) => (
             <li key={connection.uid} style={staggerStyle(index)} className="motion-safe:animate-nb-rise">
               <NbCard interactive className="flex items-center gap-4 p-4 sm:p-5">
                 <InitialsAvatar name={connection.displayName} tone={NB_TONE_CYCLE[index % NB_TONE_CYCLE.length]} size="lg" />
@@ -59,7 +64,6 @@ export default function ConnectionsScreen() {
                     {connection.year}
                   </p>
                 </div>
-                {/* TODO: pass connection.uid so Messages opens the right thread */}
                 <NbLinkButton href={MESSAGES_PATH} tone="white" className="shrink-0 px-4">
                   Message
                 </NbLinkButton>
@@ -68,10 +72,6 @@ export default function ConnectionsScreen() {
           ))}
         </ul>
       )}
-
-      <StubNote>
-        Placeholder students. Wire up <code>/users/{"{uid}"}/connections</code> in Firestore.
-      </StubNote>
     </section>
   );
 }

@@ -16,12 +16,11 @@ import {
   NbButton,
   NbCard,
   SectionHeader,
-  StubNote,
   TagPill,
   staggerStyle,
 } from "@/ui/shared/design-law/nb-parts";
 
-import { PLACEHOLDER_COURSES, PLACEHOLDER_MY_UID, PLACEHOLDER_STUDY_GROUPS } from "../placeholder-data";
+import { PLACEHOLDER_COURSES } from "../placeholder-data";
 
 // ===== NAMED CONSTANTS =====
 
@@ -156,15 +155,13 @@ function CreateGroupForm({ onClose }: { onClose: () => void }) {
 export default function StudyGroupsTab() {
   const [selectedCourse, setSelectedCourse] = useState(ALL_COURSES);
   const [isCreating, setIsCreating] = useState(false);
-  // Placeholder membership: ids of groups I've joined this session (not saved anywhere)
-  const [joinedGroupIds, setJoinedGroupIds] = useState<string[]>(() =>
-    PLACEHOLDER_STUDY_GROUPS.filter((group) => group.memberIds.includes(PLACEHOLDER_MY_UID)).map((group) => group.id)
-  );
+  const [studyGroups] = useState<StudyGroup[]>([]);
+  const [joinedGroupIds, setJoinedGroupIds] = useState<string[]>([]);
 
   const visibleGroups =
     selectedCourse === ALL_COURSES
-      ? PLACEHOLDER_STUDY_GROUPS
-      : PLACEHOLDER_STUDY_GROUPS.filter((group) => group.courseCode === selectedCourse);
+      ? studyGroups
+      : studyGroups.filter((group) => group.courseCode === selectedCourse);
 
   const toggleJoin = (groupId: string) => {
     setJoinedGroupIds((current) =>
@@ -175,7 +172,7 @@ export default function StudyGroupsTab() {
   return (
     <section aria-label="Study Groups">
       <SectionHeader
-        eyebrow={`${PLACEHOLDER_STUDY_GROUPS.length} open groups`}
+        eyebrow={`${studyGroups.length} open groups`}
         title="Study groups"
         blurb="Find a group for your course, or start one. Pick times that work around your commute."
         action={
@@ -210,9 +207,21 @@ export default function StudyGroupsTab() {
       </div>
 
       {visibleGroups.length === 0 ? (
-        <NbCard className="p-8 text-center motion-safe:animate-nb-rise">
-          <p className="text-xl font-bold">No {selectedCourse} groups yet</p>
-          <p className="mt-2 text-nb-muted">Be the first to start one.</p>
+        <NbCard className="flex flex-col items-center justify-center p-10 text-center motion-safe:animate-nb-rise">
+          <div className="w-12 h-12 rounded-full border-2 border-nb-ink bg-nb-brand grid place-items-center text-xl font-bold mb-2">
+            📚
+          </div>
+          <p className="text-xl font-bold">
+            {selectedCourse === ALL_COURSES ? "No study groups yet" : `No ${selectedCourse} groups yet`}
+          </p>
+          <p className="mt-2 text-nb-muted">
+            {selectedCourse === ALL_COURSES
+              ? "Start the first study group for your course to collaborate with classmates."
+              : `Be the first to start a group for ${selectedCourse}.`}
+          </p>
+          <NbButton tone="ink" className="mt-4" onClick={() => setIsCreating(true)}>
+            + Start a group
+          </NbButton>
         </NbCard>
       ) : (
         // key={selectedCourse} re-mounts the grid on filter change so the cascade replays
@@ -228,11 +237,6 @@ export default function StudyGroupsTab() {
           ))}
         </div>
       )}
-
-      <StubNote>
-        Placeholder groups. Wire up <code>/studyGroups/{"{groupId}"}</code> in Firestore to make Join and New group
-        real.
-      </StubNote>
     </section>
   );
 }

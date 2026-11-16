@@ -22,6 +22,7 @@ export default function GroupFeed() {
   const containerRef = useRef<HTMLDivElement>(null);
   const {
     groups,
+    isGroupsLoading,
     courseFilter,
     setCourseFilter,
     openCreateGroupModal,
@@ -83,7 +84,11 @@ export default function GroupFeed() {
               aria-hidden="true"
               className="w-2.5 h-2.5 rounded-full border-2 border-nb-ink bg-nb-brand flex-shrink-0"
             />
-            <span>{groups.length} open groups</span>
+            <span>
+              {isGroupsLoading
+                ? "Loading groups..."
+                : `${groups.length} ${groups.length === 1 ? "group" : "groups"} open`}
+            </span>
           </p>
           <h2 className="m-0 text-[clamp(28px,4vw,38px)] font-bold tracking-[-0.025em] leading-[1.05] text-nb-ink">
             Study groups by course
@@ -130,16 +135,33 @@ export default function GroupFeed() {
         })}
       </div>
 
-      {/* Empty State */}
-      {filteredGroups.length === 0 ? (
+      {/* Feed Content */}
+      {isGroupsLoading ? (
+        <div className="grid gap-5.5 grid-cols-1 md:grid-cols-2 py-4" aria-busy="true">
+          {[1, 2].map((i) => (
+            <div
+              key={i}
+              className="h-44 bg-nb-white/60 border-nb border-nb-ink/30 rounded-nb animate-pulse"
+            />
+          ))}
+        </div>
+      ) : filteredGroups.length === 0 ? (
         <EmptyState
-          title={`No ${courseFilter} groups yet`}
-          description="Be the first. Classmates in that course will see it right away."
+          title={
+            courseFilter === "All"
+              ? "No study groups yet"
+              : `No ${courseFilter} groups yet`
+          }
+          description={
+            courseFilter === "All"
+              ? "Be the first student to start a study group. Classmates in your courses will see it right away."
+              : `Be the first to start a group for ${courseFilter}. Classmates in that course will see it right away.`
+          }
           action={
             <button
               type="button"
               onClick={openCreateGroupModal}
-              className="btn min-h-[46px] px-4.5 rounded-nb border-nb border-nb-ink bg-nb-ink text-nb-white font-bold text-[15px] shadow-nb transition-all duration-120 hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
+              className="btn min-h-[46px] px-5 rounded-nb border-nb border-nb-ink bg-nb-ink text-nb-white font-bold text-[15px] shadow-nb transition-all duration-120 hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5"
             >
               Start a group
             </button>

@@ -42,7 +42,6 @@ import {
   INITIAL_MESSAGES,
   INITIAL_PEOPLE,
   INITIAL_REQUESTS,
-  INITIAL_STUDY_GROUPS,
   INITIAL_UNREAD_COUNTS,
   SAMPLE_REPLIES,
 } from "./placeholder-data";
@@ -82,6 +81,7 @@ type ActivityCenterContextValue = {
 
   // Study Groups
   groups: StudyGroup[];
+  isGroupsLoading: boolean;
   joinedGroupIds: Record<string, boolean>;
   courseFilter: string;
   setCourseFilter: (filter: string) => void;
@@ -202,11 +202,49 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Study Groups state
-  const [groups, setGroups] = useState<StudyGroup[]>(INITIAL_STUDY_GROUPS);
-  const [joinedGroupIds, setJoinedGroupIds] = useState<Record<string, boolean>>({ g3: true });
+  // Study Groups state (real Firestore data, zero mock data)
+  const [groups, setGroups] = useState<StudyGroup[]>([]);
+  const [isGroupsLoading, setIsGroupsLoading] = useState(true);
+  const [joinedGroupIds, setJoinedGroupIds] = useState<Record<string, boolean>>({});
   const [courseFilter, setCourseFilter] = useState<string>("All");
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
+
+  // Sync real-time study groups from Firestore
+  useEffect(() => {
+    try {
+      const q = collection(db, "studyGroups");
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          const firestoreGroups: StudyGroup[] = [];
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            firestoreGroups.push({
+              id: docSnap.id,
+              course: data.course || "",
+              topic: data.topic || "",
+              description: data.description || "",
+              members: Array.isArray(data.members) ? data.members : [],
+              meetingPreference: data.meetingPreference || "both",
+              coordinationMethod: data.coordinationMethod || "",
+              creatorUid: data.creatorUid,
+              createdAt: data.createdAt,
+            });
+          });
+          setGroups(firestoreGroups);
+          setIsGroupsLoading(false);
+        },
+        (err) => {
+          console.warn("Firestore studyGroups onSnapshot listener:", err);
+          setIsGroupsLoading(false);
+        }
+      );
+      return () => unsubscribe();
+    } catch (err) {
+      console.warn("Could not attach studyGroups listener:", err);
+      setIsGroupsLoading(false);
+    }
+  }, []);
 
   // Connections state
   const [requests, setRequests] = useState<ConnectionRequest[]>(INITIAL_REQUESTS);
@@ -374,9 +412,13 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const createGroup = useCallback(
-    (input: CreateGroupInput) => {
-      // TODO(firestore): addDoc to /studyGroups
-      const newGroupId = `new${Date.now()}`;
+    async (input: CreateGroupInput) => {
+      const groupsCol = collection(db, "studyGroups");
+      const groupDocRef = doc(groupsCol);
+      const newGroupId = groupDocRef.id;
+      const currentUser = auth.currentUser;
+      const creatorUid = currentUser?.uid || "student";
+
       const newGroupRecord: StudyGroup = {
         id: newGroupId,
         course: input.course,
@@ -384,12 +426,23 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
         description:
           input.description.trim() ||
           "New group. Say hi and share what you're working on.",
-        members: [],
+        members: currentUser?.uid ? [currentUser.uid] : [],
         meetingPreference: input.meetingPreference,
         coordinationMethod:
           input.coordinationMethod.trim() ||
           "Coordination details coming soon",
+        creatorUid,
+        createdAt: new Date().toISOString(),
       };
+
+      try {
+        await setDoc(groupDocRef, {
+          ...newGroupRecord,
+          createdAt: serverTimestamp(),
+        });
+      } catch (err) {
+        console.warn("Could not save study group to Firestore:", err);
+      }
 
       setGroups((prev) => [newGroupRecord, ...prev]);
       setJoinedGroupIds((prev) => ({ ...prev, [newGroupId]: true }));
@@ -522,6 +575,7 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
     postEvent,
 
     groups,
+    isGroupsLoading,
     joinedGroupIds,
     courseFilter,
     setCourseFilter,
