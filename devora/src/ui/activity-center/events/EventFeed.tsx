@@ -17,12 +17,13 @@ import { CALENDAR_WEEKS } from "../placeholder-data";
 import EmptyState from "../shared/EmptyState";
 import EventFilter from "./EventFilter";
 import EventTicket from "./EventTicket";
+import PostEventModal from "./PostEventModal";
 
 // ===== MAIN COMPONENT =====
 
 export default function EventFeed() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { events, eventFilter } = useActivityCenter();
+  const { events, eventFilter, openPostEventModal } = useActivityCenter();
 
   // Filter events based on active category chip
   const filteredEvents = events.filter(
@@ -83,9 +84,28 @@ export default function EventFeed() {
           </p>
         </div>
 
-        <span className="font-nb-mono text-[10px] font-bold tracking-[0.12em] uppercase px-2.5 py-1 rounded-full border-2 border-dashed border-nb-ink text-nb-ink">
-          Sample data
-        </span>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={openPostEventModal}
+            className="btn primary inline-flex items-center gap-2 min-h-[44px] px-5 rounded-nb border-nb border-nb-ink bg-nb-brand text-nb-ink font-bold text-sm tracking-normal shadow-nb transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
+          >
+            <svg
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            <span>Post an Event</span>
+          </button>
+        </div>
       </div>
 
       {/* Filter Chips */}
@@ -101,9 +121,13 @@ export default function EventFeed() {
         /* Weeks groups */
         <div className="flex flex-col gap-7.5">
           {CALENDAR_WEEKS.map((week, weekIndex) => {
-            const eventsInWeek = filteredEvents.filter(
-              (e) => e.week === weekIndex
-            );
+            const eventsInWeek = filteredEvents.filter((e) => {
+              const w = typeof e.week === "number" ? e.week : 0;
+              if (weekIndex === CALENDAR_WEEKS.length - 1) {
+                return w >= weekIndex;
+              }
+              return w === weekIndex;
+            });
             if (eventsInWeek.length === 0) return null;
 
             return (
@@ -138,6 +162,9 @@ export default function EventFeed() {
           })}
         </div>
       )}
+
+      {/* Post Event Modal dialog */}
+      <PostEventModal />
     </div>
   );
 }

@@ -10,15 +10,25 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
   type ReactNode,
 } from "react";
 import { useRouter } from "next/navigation";
+import {
+  collection,
+  doc,
+  onSnapshot,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
 
+import { auth, db, getUserProfile } from "@/backend/firebase";
 import type {
   ActivityEvent,
+  ActivityEventTag,
   ChatMessage,
   ConnectionRequest,
   MeetingPreference,
@@ -40,6 +50,16 @@ import {
 
 // ===== TYPES =====
 
+export type PostEventInput = {
+  title: string;
+  description: string;
+  date: string;
+  time?: string;
+  location: string;
+  tags: ActivityEventTag[];
+  link?: string;
+};
+
 export type CreateGroupInput = {
   course: string;
   topic: string;
@@ -55,6 +75,10 @@ type ActivityCenterContextValue = {
   eventFilter: string;
   setEventFilter: (filter: string) => void;
   toggleSaveEvent: (eventId: string) => void;
+  isPostEventModalOpen: boolean;
+  openPostEventModal: () => void;
+  closePostEventModal: () => void;
+  postEvent: (input: PostEventInput) => Promise<void>;
 
   // Study Groups
   groups: StudyGroup[];
@@ -117,9 +141,69 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
   // Events state
-  const [events] = useState<ActivityEvent[]>(INITIAL_EVENTS);
+  const [events, setEvents] = useState<ActivityEvent[]>(INITIAL_EVENTS);
   const [savedEventIds, setSavedEventIds] = useState<Record<string, boolean>>({});
   const [eventFilter, setEventFilter] = useState<string>("all");
+  const [isPostEventModalOpen, setIsPostEventModalOpen] = useState(false);
+
+  const openPostEventModal = useCallback(() => {
+    setIsPostEventModalOpen(true);
+  }, []);
+
+  const closePostEventModal = useCallback(() => {
+    setIsPostEventModalOpen(false);
+  }, []);
+
+  // Sync real-time events from Firestore
+  useEffect(() => {
+    try {
+      const q = collection(db, "events");
+      const unsubscribe = onSnapshot(
+        q,
+        (snapshot) => {
+          if (!snapshot.empty) {
+            const firestoreEvents: ActivityEvent[] = [];
+            snapshot.forEach((docSnap) => {
+              const data = docSnap.data();
+              firestoreEvents.push({
+                id: docSnap.id,
+                title: data.title || "",
+                description: data.description || "",
+                date: data.date || "",
+                mon: data.mon || "NOV",
+                day: String(data.day || "20"),
+                dow: data.dow || "FRI",
+                week: typeof data.week === "number" ? data.week : 0,
+                time: data.time || "TBA",
+                location: data.location || "CECS Campus",
+                organizer: data.organizer || "Student",
+                tags:
+                  Array.isArray(data.tags) && data.tags.length > 0
+                    ? data.tags
+                    : ["social"],
+                link: data.link || undefined,
+                createdBy: data.createdBy,
+                createdAt: data.createdAt,
+              });
+            });
+
+            setEvents(() => {
+              const map = new Map<string, ActivityEvent>();
+              INITIAL_EVENTS.forEach((e) => map.set(e.id, e));
+              firestoreEvents.forEach((e) => map.set(e.id, e));
+              return Array.from(map.values());
+            });
+          }
+        },
+        (err) => {
+          console.warn("Firestore events onSnapshot listener:", err);
+        }
+      );
+      return () => unsubscribe();
+    } catch (err) {
+      console.warn("Could not attach events listener:", err);
+    }
+  }, []);
 
   // Study Groups state
   const [groups, setGroups] = useState<StudyGroup[]>(INITIAL_STUDY_GROUPS);
@@ -171,6 +255,97 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
       });
     },
     [events, showToast]
+  );
+
+  const postEvent = useCallback(
+    async (input: PostEventInput) => {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        throw new Error("You must be signed in to post an event.");
+      }
+
+      // Load student display name from profile
+      let displayName = currentUser.displayName || "Student";
+      try {
+        const profile = await getUserProfile(currentUser.uid);
+        if (profile) {
+          displayName =
+            profile.displayName ||
+            [profile.firstName, profile.lastName].filter(Boolean).join(" ") ||
+            displayName;
+        }
+      } catch (profileErr) {
+        console.warn("Could not load user profile displayName:", profileErr);
+      }
+
+      // Parse date for mon, day, dow, week
+      const dateParts = input.date.split("-").map(Number);
+      const parsedDate = new Date(
+        dateParts[0],
+        (dateParts[1] || 1) - 1,
+        dateParts[2] || 1,
+        12,
+        0,
+        0
+      );
+
+      const mon = parsedDate
+        .toLocaleDateString("en-US", { month: "short" })
+        .toUpperCase();
+      const day = String(parsedDate.getDate());
+      const dow = parsedDate
+        .toLocaleDateString("en-US", { weekday: "short" })
+        .toUpperCase();
+
+      // Calendar week grouping (0: This week, 1: Next week, 2: Finals push)
+      const nov23 = new Date("2026-11-23T00:00:00").getTime();
+      const nov30 = new Date("2026-11-30T00:00:00").getTime();
+      const eventTime = parsedDate.getTime();
+      let weekIndex = 0;
+      if (eventTime >= nov30) {
+        weekIndex = 2;
+      } else if (eventTime >= nov23) {
+        weekIndex = 1;
+      }
+
+      const eventsCol = collection(db, "events");
+      const eventDocRef = doc(eventsCol);
+      const eventId = eventDocRef.id;
+
+      const eventPayload = {
+        id: eventId,
+        title: input.title,
+        description: input.description,
+        date: input.date,
+        mon,
+        day,
+        dow,
+        week: weekIndex,
+        time: input.time || "TBA",
+        location: input.location,
+        organizer: displayName,
+        tags: input.tags,
+        link: input.link || null,
+        createdBy: currentUser.uid,
+        createdAt: serverTimestamp(),
+      };
+
+      // Write directly to /events/{eventId} in Firestore
+      await setDoc(eventDocRef, eventPayload);
+
+      // Optimistic state update
+      const optimisticEvent: ActivityEvent = {
+        ...eventPayload,
+        link: input.link || undefined,
+      };
+      setEvents((prev) => [
+        optimisticEvent,
+        ...prev.filter((e) => e.id !== eventId),
+      ]);
+
+      showToast(`Posted event: "${input.title}"`);
+    },
+    [showToast]
   );
 
   // Study Groups actions
@@ -343,6 +518,10 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
     eventFilter,
     setEventFilter,
     toggleSaveEvent,
+    isPostEventModalOpen,
+    openPostEventModal,
+    closePostEventModal,
+    postEvent,
 
     groups,
     joinedGroupIds,

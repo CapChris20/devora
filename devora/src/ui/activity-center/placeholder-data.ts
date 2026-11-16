@@ -143,6 +143,7 @@ export const TAG_TONE: Record<ActivityEventTag, "bg-nb-brand" | "bg-nb-orchid" |
   social: "bg-nb-blush",
   workshop: "bg-nb-orchid",
   club: "bg-nb-brand",
+  hangout: "bg-nb-brand",
 };
 
 // ===== SECTION: STUDY GROUPS =====

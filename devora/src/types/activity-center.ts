@@ -6,13 +6,18 @@
 
 // Tags categorize events into distinct student interest buckets
 // vocab: ActivityEventTag = string union for supported event categories
-export type ActivityEventTag = "academic" | "social" | "workshop" | "club";
+export type ActivityEventTag =
+  | "academic"
+  | "social"
+  | "workshop"
+  | "club"
+  | "hangout";
 
 // One campus or student organization event
 // TODO(firestore): stored at /events/{eventId}
 export type ActivityEvent = {
   id: string;
-  week: number;
+  week?: number;
   mon: string;
   day: string;
   dow: string;
@@ -24,6 +29,8 @@ export type ActivityEvent = {
   organizer: string;
   tags: ActivityEventTag[];
   link?: string;
+  createdBy?: string;
+  createdAt?: unknown;
 };
 
 // ===== SECTION: STUDY GROUPS =====

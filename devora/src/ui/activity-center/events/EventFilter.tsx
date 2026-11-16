@@ -15,6 +15,7 @@ const FILTERS = [
   { id: "social", label: "Social" },
   { id: "workshop", label: "Workshop" },
   { id: "club", label: "Club" },
+  { id: "hangout", label: "Hangout" },
 ];
 
 // ===== MAIN COMPONENT =====
