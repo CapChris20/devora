@@ -26,17 +26,9 @@ export default function SettingsPage() {
         {/* ── Page Header with solid overlay card ── */}
         <section className="settings-header-band">
           <div className="settings-header-inner">
-            <div
-              style={{
-                background: "#0d0a11",
-                border: "2px solid rgba(255, 92, 168, 0.35)",
-                borderRadius: 24,
-                padding: "clamp(28px, 4vw, 40px)",
-                boxShadow: "0 16px 36px -10px rgba(0, 0, 0, 0.75), 0 0 24px -8px rgba(255, 92, 168, 0.2)",
-              }}
-            >
-              <h1 className="t-band text-white" style={{ margin: 0, textShadow: "0 2px 14px rgba(0,0,0,0.7)" }}>Settings</h1>
-              <p className="lead mt-3 mb-0" style={{ color: "rgba(255, 255, 255, 0.92)", fontSize: "clamp(16px, 1.4vw, 19px)" }}>
+            <div className="settings-hero-card">
+              <h1 className="t-band settings-hero-title">Settings</h1>
+              <p className="lead settings-hero-lead">
                 Control how you show up on Devora, what you get notified about, and how the app looks.
               </p>
             </div>
@@ -52,6 +44,42 @@ export default function SettingsPage() {
       </div>
 
       <style jsx>{`
+        .settings-hero-card {
+          background: #0d0a11;
+          border: 2px solid rgba(255, 92, 168, 0.35);
+          border-radius: 24px;
+          padding: clamp(28px, 4vw, 40px);
+          box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.75), 0 0 24px -8px rgba(255, 92, 168, 0.2);
+        }
+
+        :global(html[data-theme="light"]) .settings-hero-card {
+          background: #ffffff;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px #0a0a0a;
+        }
+
+        .settings-hero-title {
+          margin: 0;
+          color: #ffffff;
+          text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+        }
+
+        :global(html[data-theme="light"]) .settings-hero-title {
+          color: #0a0a0a;
+          text-shadow: none;
+        }
+
+        .settings-hero-lead {
+          color: rgba(255, 255, 255, 0.92);
+          font-size: clamp(16px, 1.4vw, 19px);
+          margin-top: 12px;
+          margin-bottom: 0;
+        }
+
+        :global(html[data-theme="light"]) .settings-hero-lead {
+          color: #4b5563;
+        }
+
         .settings-header-band {
           padding-top: clamp(100px, 11vw, 136px);
           padding-bottom: 28px;

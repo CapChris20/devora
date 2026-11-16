@@ -387,12 +387,6 @@ export default function AccountProfileEditor({
       >
         <form
           className="account-profile-editor"
-          style={{
-            background: "#0e0918",
-            border: "2.5px solid #ff5ca8",
-            boxShadow: "8px 8px 0px 0px #000000, 9px 9px 0px 0px #ff5ca8",
-            borderRadius: 6,
-          }}
           onSubmit={submitProfileEdits}
           // vocab: stopPropagation = a click on the form must not count as a backdrop click
           onClick={(event) => event.stopPropagation()}

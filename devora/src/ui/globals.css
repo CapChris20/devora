@@ -6793,6 +6793,10 @@ html[data-theme="light"] .account-private-list dt {
   gap: 0;
   padding: 0;
   overflow: hidden;
+  background: #0e0918;
+  border: 2.5px solid #ff5ca8;
+  border-radius: 6px;
+  box-shadow: 8px 8px 0px 0px #000000, 9px 9px 0px 0px #ff5ca8;
 }
 
 .account-profile-editor.glass-card:hover,
@@ -6944,25 +6948,94 @@ html[data-theme="light"] .account-private-list dt {
 }
 
 html[data-theme="light"] .account-editor-backdrop {
-  background: rgba(26, 10, 46, 0.28);
+  background: rgba(10, 10, 10, 0.45);
 }
 
-html[data-theme="light"] .account-editor-actions {
-  background: rgba(255, 255, 255, 0.55);
+html[data-theme="light"] .account-profile-editor {
+  background: #ffffff;
+  border: 2.5px solid #0a0a0a;
+  border-radius: 6px;
+  box-shadow: 8px 8px 0px 0px #0a0a0a;
+  color: #0a0a0a;
+}
+
+html[data-theme="light"] .account-profile-editor .account-hero-name {
+  color: #0a0a0a;
+}
+
+html[data-theme="light"] .account-profile-editor .account-section-eyebrow {
+  color: #0a0a0a;
+  font-weight: 700;
+}
+
+html[data-theme="light"] .account-profile-editor .account-editor-label {
+  color: #0a0a0a;
+  font-weight: 700;
+}
+
+html[data-theme="light"] .account-profile-editor .account-editor-section-summary {
+  color: #4b5563;
+}
+
+html[data-theme="light"] .account-profile-editor .account-editor-section {
+  border-bottom: 1.5px solid #0a0a0a;
+}
+
+html[data-theme="light"] .account-profile-editor .account-editor-header {
+  border-bottom: 2px solid #0a0a0a;
+}
+
+html[data-theme="light"] .account-profile-editor .account-editor-actions {
+  border-top: 2px solid #0a0a0a;
+  background: #fafaf9;
+}
+
+html[data-theme="light"] .account-profile-editor .account-chevron {
+  color: #0a0a0a;
+}
+
+html[data-theme="light"] .account-profile-editor .sign-in-input {
+  background: #ffffff;
+  border: 2px solid #0a0a0a;
+  color: #0a0a0a;
+  box-shadow: 2px 2px 0px #0a0a0a;
+}
+
+html[data-theme="light"] .account-profile-editor .sign-in-input:focus {
+  border-color: #0a0a0a;
+  box-shadow: 3px 3px 0px #0a0a0a;
+}
+
+html[data-theme="light"] .account-profile-editor .sign-in-file-picker {
+  background: #ffffff;
+  border: 2px solid #0a0a0a;
+  color: #0a0a0a;
+  box-shadow: 2px 2px 0px #0a0a0a;
+}
+
+html[data-theme="light"] .account-profile-editor .sign-in-file-btn {
+  background: #0a0a0a;
+  color: #ffffff;
+}
+
+html[data-theme="light"] .account-profile-editor .onboarding-pill {
+  background: #f4f4f2;
+  border: 2px solid #0a0a0a;
+  color: #0a0a0a;
+  font-weight: 600;
+}
+
+html[data-theme="light"] .account-profile-editor .onboarding-pill-active {
+  background: linear-gradient(135deg, #FF6B9D, #FB923C);
+  border: 2px solid #0a0a0a;
+  color: #0a0a0a;
+  font-weight: 800;
+  box-shadow: 2px 2px 0px #0a0a0a;
 }
 
 html[data-theme="light"] .account-editor-section-toggle:hover,
 html[data-theme="light"] .account-editor-section-toggle[aria-expanded="true"] {
-  background: rgba(255, 92, 168, 0.04);
-}
-
-html[data-theme="light"] .account-profile-editor .onboarding-pill-active {
-  background: linear-gradient(
-    135deg,
-    rgba(255, 154, 61, 0.16) 0%,
-    rgba(255, 92, 168, 0.14) 55%,
-    rgba(182, 36, 255, 0.12) 100%
-  );
+  background: rgba(0, 0, 0, 0.04);
 }
 
 html[data-theme="light"] .app-secondary-btn {
@@ -9158,6 +9231,7 @@ html[data-theme="light"] .discovery-peek-backdrop {
    DISCOVERY GRID REDESIGN SPEC (DISCOVERY_GRID.md)
    ========================================================================== */
 
+html[data-theme="light"],
 :root[data-theme="light"] {
   --nb-ink: #0A0A0A;
   --nb-paper: #F2F2F0;
@@ -9171,23 +9245,26 @@ html[data-theme="light"] .discovery-peek-backdrop {
   color-scheme: light;
   --night: #faf6f8;
   --surface: #ffffff;
-  --surface-2: #f3eaee;
-  --edge: #d9c8d0;
-  --paper: #f1e7ec;
-  --paper-2: #e6d8df;
-  --text: #0d0b0e;
-  --text-body: rgb(13 11 14 / .84);
-  --text-muted: rgb(13 11 14 / .68);
-  --fg-rgb: 13 11 14;
+  --surface-2: #f4f4f2;
+  --edge: #0a0a0a;
+  --paper: #ffffff;
+  --paper-2: #f4f4f2;
+  --text: #0a0a0a;
+  --text-body: #1f2937;
+  --text-muted: #575757;
+  --ink: #0a0a0a;
+  --ink-body: #1f2937;
+  --ink-muted: #575757;
+  --fg-rgb: 10 10 10;
   --bg-rgb: 250 246 248;
   --pink-ink: #c2185b;
-  --pop: #0d0b0e;
+  --pop: #0a0a0a;
   --glass: rgb(255 255 255 / .74);
   --cube-top: #f3eaee;
   --cube-left: #e8dce2;
   --cube-right: #dccdd4;
   --danger: #b4233c;
-  --danger-edge: #e9a3b1;
+  --danger-edge: #0a0a0a;
 }
 
 /* Gradient hard shadow with pseudo-elements */

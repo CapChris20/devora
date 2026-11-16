@@ -139,6 +139,31 @@ export default function DiscoveryFilterSidebar({
           box-shadow: 0 3px 12px rgb(255 92 168 / 0.38);
           transform: translateY(-1px);
         }
+
+        :global(html[data-theme="light"]) .filter-legend {
+          color: #0a0a0a;
+          font-weight: 800;
+        }
+
+        :global(html[data-theme="light"]) .filter-pill {
+          background: #f4f4f2;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          font-weight: 700;
+        }
+
+        :global(html[data-theme="light"]) .filter-pill:hover {
+          background: #fee2e2;
+          border-color: #0a0a0a;
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .filter-pill.is-active {
+          background: linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%) !important;
+          border: 2px solid #0a0a0a !important;
+          color: #0a0a0a !important;
+          box-shadow: 3px 3px 0px #0a0a0a;
+        }
       `}</style>
     </div>
   );

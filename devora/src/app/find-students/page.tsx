@@ -38,41 +38,11 @@ export default function DiscoveryGridPage() {
               paddingInline: "clamp(20px, 4.5vw, 64px)",
             }}
           >
-            <div
-              style={{
-                background: "#0d0a11",
-                border: "2px solid rgba(255, 92, 168, 0.35)",
-                borderRadius: 24,
-                padding: "clamp(28px, 4vw, 42px)",
-                boxShadow: "0 16px 36px -10px rgba(0, 0, 0, 0.75), 0 0 24px -8px rgba(255, 92, 168, 0.2)",
-              }}
-            >
-              <h1
-                style={{
-                  fontFamily: "var(--font-display), 'Arial Black', sans-serif",
-                  fontWeight: 800,
-                  fontSize: "clamp(36px, 6.5vw, 84px)",
-                  lineHeight: 0.95,
-                  letterSpacing: "-0.035em",
-                  textTransform: "uppercase",
-                  color: "#ffffff",
-                  margin: 0,
-                  textShadow: "0 2px 14px rgba(0,0,0,0.7)",
-                }}
-              >
+            <div className="discovery-hero-card">
+              <h1 className="discovery-hero-title">
                 Discovery Grid
               </h1>
-              <p
-                style={{
-                  fontFamily: "var(--font-mono), monospace",
-                  fontSize: "clamp(16px, 1.4vw, 19px)",
-                  lineHeight: 1.55,
-                  maxWidth: "46em",
-                  marginTop: 16,
-                  marginBottom: 0,
-                  color: "rgba(255, 255, 255, 0.92)",
-                }}
-              >
+              <p className="discovery-hero-lead">
                 Find friends, colleagues and people in your career niche across CECS.
               </p>
             </div>
@@ -94,6 +64,53 @@ export default function DiscoveryGridPage() {
 
         <Footer />
       </div>
+
+      <style jsx>{`
+        .discovery-hero-card {
+          background: #0d0a11;
+          border: 2px solid rgba(255, 92, 168, 0.35);
+          border-radius: 24px;
+          padding: clamp(28px, 4vw, 42px);
+          box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.75), 0 0 24px -8px rgba(255, 92, 168, 0.2);
+        }
+
+        :global(html[data-theme="light"]) .discovery-hero-card {
+          background: #ffffff;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px #0a0a0a;
+        }
+
+        .discovery-hero-title {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 800;
+          font-size: clamp(36px, 6.5vw, 84px);
+          line-height: 0.95;
+          letter-spacing: -0.035em;
+          text-transform: uppercase;
+          color: #ffffff;
+          margin: 0;
+          text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+        }
+
+        :global(html[data-theme="light"]) .discovery-hero-title {
+          color: #0a0a0a;
+          text-shadow: none;
+        }
+
+        .discovery-hero-lead {
+          font-family: var(--font-mono), monospace;
+          font-size: clamp(16px, 1.4vw, 19px);
+          line-height: 1.55;
+          max-width: 46em;
+          margin-top: 16px;
+          margin-bottom: 0;
+          color: rgba(255, 255, 255, 0.92);
+        }
+
+        :global(html[data-theme="light"]) .discovery-hero-lead {
+          color: #4b5563;
+        }
+      `}</style>
     </div>
   );
 }

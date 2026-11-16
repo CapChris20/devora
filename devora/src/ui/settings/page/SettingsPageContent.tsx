@@ -118,51 +118,12 @@ function SettingsCard({ title, children }: SettingsCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-      style={{
-        background: "#0e0918",
-        border: "2.5px solid #ff5ca8",
-        borderRadius: 6,
-        padding: "clamp(20px, 3vw, 28px)",
-        display: "flex",
-        flexDirection: "column",
-        gap: 20,
-        boxShadow: "6px 6px 0px 0px #000000, 7px 7px 0px 0px #ff5ca8",
-      }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 16,
-          paddingBottom: 12,
-          borderBottom: "1px solid rgba(255, 255, 255, 0.1)",
-        }}
-      >
-        <h2
-          style={{
-            fontFamily: "var(--font-display), 'Arial Black', sans-serif",
-            fontWeight: 700,
-            fontSize: 18,
-            textTransform: "uppercase",
-            letterSpacing: "-0.01em",
-            color: "#ffffff",
-            margin: 0,
-            whiteSpace: "nowrap",
-            textShadow: "0 1px 6px rgba(0,0,0,0.6)",
-          }}
-        >
-          {title}
-        </h2>
-        <span
-          style={{
-            flex: 1,
-            height: 1,
-            background: "linear-gradient(90deg, rgba(255, 92, 168, 0.4), transparent 75%)",
-          }}
-          aria-hidden="true"
-        />
+      <div className="settings-panel-head">
+        <h2 className="settings-panel-title">{title}</h2>
+        <span className="settings-panel-line" aria-hidden="true" />
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 18 }}>{children}</div>
+      <div className="settings-panel-body">{children}</div>
     </motion.section>
   );
 }
@@ -175,41 +136,11 @@ function SettingsRow({
   disabled = false,
 }: SettingsRowProps) {
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 16,
-        padding: "12px 16px",
-        borderRadius: 14,
-        background: "#15101a",
-        border: "1.5px solid rgba(255, 255, 255, 0.08)",
-        transition: "background 0.18s ease, border-color 0.18s ease",
-      }}
-    >
-      <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-        <span
-          style={{
-            fontSize: 16,
-            fontWeight: 700,
-            color: "#ffffff",
-            letterSpacing: "-0.01em",
-          }}
-        >
-          {label}
-        </span>
+    <div className="settings-row-item">
+      <div className="settings-row-text">
+        <span className="settings-row-label">{label}</span>
         {description && (
-          <p
-            style={{
-              fontSize: 14,
-              color: "#d8cdd5",
-              margin: 0,
-              lineHeight: 1.45,
-            }}
-          >
-            {description}
-          </p>
+          <p className="settings-row-desc">{description}</p>
         )}
       </div>
 
@@ -383,11 +314,11 @@ function SettingsAppearanceCard() {
 
   return (
     <SettingsCard title="Appearance">
-      <p style={{ fontSize: 14, color: "#d8cdd5", margin: "-4px 0 0" }}>
+      <p className="settings-desc-note">
         Pick how Devora looks on this device.
       </p>
 
-      <div style={{ display: "flex", gap: 12, marginTop: 4, flexWrap: "wrap" }}>
+      <div className="settings-theme-group">
         {THEME_MODES.map((mode) => {
           const isModeActive = theme === mode;
           const modeLabel = mode === DARK_THEME_MODE ? DARK_MODE_LABEL : LIGHT_MODE_LABEL;
@@ -397,22 +328,7 @@ function SettingsAppearanceCard() {
               type="button"
               onClick={() => setTheme(mode)}
               aria-pressed={isModeActive}
-              style={{
-                height: 44,
-                paddingInline: 22,
-                borderRadius: 9999,
-                border: isModeActive ? "2px solid #000000" : "2px solid #382d40",
-                background: isModeActive
-                  ? "linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%)"
-                  : "#15101a",
-                color: isModeActive ? "#0d0b0e" : "#ffffff",
-                boxShadow: isModeActive ? "3px 3px 0 0 #0d0b0e" : "0 4px 12px rgba(0,0,0,0.5)",
-                fontFamily: "var(--font-mono), monospace",
-                fontSize: 14,
-                fontWeight: 700,
-                cursor: "pointer",
-                transition: "all 0.2s ease",
-              }}
+              className={`settings-theme-btn ${isModeActive ? "is-active" : ""}`}
             >
               <span>{modeLabel}</span>
             </button>
@@ -451,52 +367,24 @@ function SettingsDangerZone({
 
   return (
     <motion.div
+      className="settings-danger-panel"
       initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-30px" }}
       transition={{ duration: 0.35, ease: [0.23, 1, 0.32, 1] }}
-      style={{
-        background: "#160a10",
-        border: "2.5px solid #ef4444",
-        borderRadius: 6,
-        padding: "clamp(20px, 3vw, 28px)",
-        display: "flex",
-        flexDirection: "column",
-        gap: 18,
-        boxShadow: "6px 6px 0px 0px #000000, 7px 7px 0px 0px #ef4444",
-      }}
     >
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 10,
-          paddingBottom: 12,
-          borderBottom: "1px solid #4a151d",
-        }}
-      >
-        <AlertTriangle size={22} color="#ff8fa0" />
-        <h2
-          style={{
-            fontFamily: "var(--font-display), 'Arial Black', sans-serif",
-            fontWeight: 700,
-            fontSize: 18,
-            textTransform: "uppercase",
-            color: "#ff8fa0",
-            margin: 0,
-          }}
-        >
-          Danger zone
-        </h2>
+      <div className="settings-danger-head">
+        <AlertTriangle size={22} className="danger-head-icon" />
+        <h2 className="settings-danger-title">Danger zone</h2>
       </div>
 
-      <p style={{ fontSize: 14.5, color: "#e2d5dc", lineHeight: 1.5, margin: 0 }}>
+      <p className="settings-danger-desc">
         {isDeactivated
           ? "Your account is deactivated. Classmates can't find you on Discovery. Reactivate anytime, or delete everything permanently."
           : "Deactivate hides you from Discovery but keeps your data. Delete removes your profile, photo, and login — that can't be undone."}
       </p>
 
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 14 }}>
+      <div className="settings-danger-actions">
         {isDeactivated ? (
           <button
             type="button"
@@ -509,22 +397,12 @@ function SettingsDangerZone({
         ) : (
           <button
             type="button"
+            className="btn-danger-outline"
             onClick={() => {
               setDangerConfirm(DEACTIVATE_CONFIRM_MODE);
               setErrorMessage(EMPTY_STATUS_MESSAGE);
             }}
             disabled={isSaving}
-            style={{
-              height: 44,
-              paddingInline: 22,
-              borderRadius: 9999,
-              background: "#2a1016",
-              border: "2px solid #852230",
-              color: "#ff8fa0",
-              fontWeight: 700,
-              fontSize: 14,
-              cursor: "pointer",
-            }}
           >
             <span>Deactivate account</span>
           </button>
@@ -532,75 +410,37 @@ function SettingsDangerZone({
 
         <button
           type="button"
+          className="btn-danger-outline"
           onClick={() => {
             setDangerConfirm(DELETE_CONFIRM_MODE);
             setDeletePhrase(EMPTY_STATUS_MESSAGE);
             setErrorMessage(EMPTY_STATUS_MESSAGE);
           }}
           disabled={isSaving}
-          style={{
-            height: 44,
-            paddingInline: 22,
-            borderRadius: 9999,
-            background: "#2a1016",
-            border: "2px solid #852230",
-            color: "#ff8fa0",
-            fontWeight: 700,
-            fontSize: 14,
-            cursor: "pointer",
-          }}
         >
           <span>Delete account</span>
         </button>
       </div>
 
       {isDeactivateConfirmOpen && (
-        <div
-          style={{
-            background: "#241018",
-            border: "1.5px solid #852230",
-            borderRadius: 14,
-            padding: 18,
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-            marginTop: 6,
-          }}
-        >
-          <p style={{ fontSize: 14, color: "#ffffff", margin: 0, fontWeight: 600 }}>
+        <div className="danger-confirm-box">
+          <p className="danger-confirm-title">
             Hide your profile from Discovery? You can sign back in later and reactivate.
           </p>
           <div style={{ display: "flex", gap: 12 }}>
             <button
               type="button"
+              className="danger-cancel-btn"
               onClick={() => setDangerConfirm(null)}
               disabled={isSaving}
-              style={{
-                height: 40,
-                paddingInline: 18,
-                borderRadius: 999,
-                background: "#160a0f",
-                border: "1.5px solid #4a151d",
-                color: "#e2d5dc",
-                cursor: "pointer",
-              }}
             >
               Cancel
             </button>
             <button
               type="button"
+              className="danger-action-btn"
               onClick={onDeactivate}
               disabled={isSaving}
-              style={{
-                height: 40,
-                paddingInline: 18,
-                borderRadius: 999,
-                background: "#ff5ca8",
-                border: "none",
-                color: "#0d0b0e",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
             >
               {isSaving ? DEACTIVATING_LABEL : DEACTIVATE_CONFIRM_LABEL}
             </button>
@@ -609,32 +449,12 @@ function SettingsDangerZone({
       )}
 
       {isDeleteConfirmOpen && (
-        <div
-          style={{
-            background: "#241018",
-            border: "1.5px solid #ff8fa0",
-            borderRadius: 14,
-            padding: 18,
-            display: "flex",
-            flexDirection: "column",
-            gap: 14,
-            marginTop: 6,
-          }}
-        >
-          <p style={{ fontSize: 14, color: "#ff8fa0", margin: 0, fontWeight: 600 }}>
+        <div className="danger-confirm-box">
+          <p className="danger-confirm-title">
             This permanently deletes your profile, photo, and Google login on Devora. Type DELETE to confirm.
           </p>
           <input
-            style={{
-              height: 48,
-              padding: "0 16px",
-              borderRadius: 10,
-              background: "#160a0f",
-              border: "2px solid #ff8fa0",
-              color: "#ffffff",
-              fontSize: 15,
-              outline: "none",
-            }}
+            className="danger-confirm-input"
             value={deletePhrase}
             onChange={(event) => setDeletePhrase(event.target.value)}
             placeholder="Type DELETE"
@@ -644,37 +464,20 @@ function SettingsDangerZone({
           <div style={{ display: "flex", gap: 12 }}>
             <button
               type="button"
+              className="danger-cancel-btn"
               onClick={() => {
                 setDangerConfirm(null);
                 setDeletePhrase(EMPTY_STATUS_MESSAGE);
               }}
               disabled={isSaving}
-              style={{
-                height: 40,
-                paddingInline: 18,
-                borderRadius: 999,
-                background: "#160a0f",
-                border: "1.5px solid #4a151d",
-                color: "#e2d5dc",
-                cursor: "pointer",
-              }}
             >
               Cancel
             </button>
             <button
               type="button"
+              className="danger-delete-btn"
               onClick={onDelete}
               disabled={isSaving}
-              style={{
-                height: 40,
-                paddingInline: 18,
-                borderRadius: 999,
-                background: "#ef4444",
-                border: "none",
-                color: "#ffffff",
-                fontWeight: 700,
-                cursor: "pointer",
-              }}
             >
               {isSaving ? DELETING_LABEL : DELETE_CONFIRM_LABEL}
             </button>
@@ -899,41 +702,18 @@ export default function SettingsPageContent() {
             disabled={isSaving}
           />
 
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 12,
-              padding: "12px 16px",
-              borderRadius: 14,
-              background: "#15101a",
-              border: "1.5px solid rgba(255, 255, 255, 0.08)",
-            }}
-          >
+          <div className="settings-select-card">
             <div>
-              <span style={{ fontSize: 16, fontWeight: 700, color: "#ffffff" }}>
+              <span className="settings-select-title">
                 Allow messages from
               </span>
-              <p style={{ fontSize: 14, color: "#d8cdd5", margin: "4px 0 0" }}>
+              <p className="settings-select-desc">
                 Who can start a conversation with you.
               </p>
             </div>
 
             <select
-              style={{
-                height: 44,
-                padding: "0 16px",
-                borderRadius: 12,
-                background: "#0e0b12",
-                border: "2px solid #2f2536",
-                color: "#ffffff",
-                fontFamily: "var(--font-mono), monospace",
-                fontSize: 14,
-                fontWeight: 600,
-                outline: "none",
-                cursor: "pointer",
-                maxWidth: 320,
-              }}
+              className="settings-select-dropdown"
               value={preferences.allowMessagesFrom}
               onChange={(event) =>
                 updatePreference(ALLOW_MESSAGES_FROM_KEY, event.target.value as MessagePolicy)
@@ -968,19 +748,9 @@ export default function SettingsPageContent() {
 
         {/* Account Info & Actions */}
         <SettingsCard title="Account">
-          <div
-            style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: 4,
-              padding: "12px 16px",
-              borderRadius: 14,
-              background: "#15101a",
-              border: "1.5px solid rgba(255, 255, 255, 0.08)",
-            }}
-          >
-            <span style={{ fontFamily: "var(--font-mono), monospace", fontSize: 12, color: "#d8cdd5", textTransform: "uppercase" }}>Signed in as</span>
-            <span style={{ fontSize: 16, fontWeight: 700, color: "#ffffff" }}>{profile.email}</span>
+          <div className="settings-account-box">
+            <span className="settings-account-label">Signed in as</span>
+            <span className="settings-account-email">{profile.email}</span>
           </div>
 
           <div style={{ display: "flex", flexWrap: "wrap", gap: 12, paddingTop: 4 }}>
@@ -994,21 +764,7 @@ export default function SettingsPageContent() {
               onClick={() => {
                 void signOutAndReturnToLogin(router);
               }}
-              style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: 8,
-                height: 44,
-                paddingInline: 22,
-                borderRadius: 9999,
-                background: "#15101a",
-                border: "2px solid rgba(255, 255, 255, 0.3)",
-                color: "#ffffff",
-                fontFamily: "var(--font-mono), monospace",
-                fontWeight: 700,
-                fontSize: 14,
-                cursor: "pointer",
-              }}
+              className="settings-signout-btn"
             >
               <LogOut size={16} />
               <span>Sign out</span>
@@ -1043,101 +799,451 @@ export default function SettingsPageContent() {
       </div>
 
       <style jsx>{`
-        .settings-page-content-wrapper {
+        .settings-panel {
+          background: #0e0918;
+          border: 2.5px solid #ff5ca8;
+          border-radius: 6px;
+          padding: clamp(24px, 3.5vw, 32px);
           display: flex;
           flex-direction: column;
-          gap: 24px;
+          gap: 20px;
+          box-shadow: 6px 6px 0px 0px #000000, 7px 7px 0px 0px #ff5ca8;
         }
 
-        .settings-alert-banner {
+        :global(html[data-theme="light"]) .settings-panel {
+          background: #ffffff;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px 0px #0a0a0a;
+          color: #0a0a0a;
+        }
+
+        .settings-panel-head {
           display: flex;
           align-items: center;
-          gap: 12px;
-          padding: 14px 20px;
+          gap: 16px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        :global(html[data-theme="light"]) .settings-panel-head {
+          border-bottom: 2px solid #0a0a0a;
+        }
+
+        .settings-panel-title {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 700;
+          font-size: 18px;
+          text-transform: uppercase;
+          letter-spacing: -0.01em;
+          color: #ffffff;
+          margin: 0;
+          white-space: nowrap;
+          text-shadow: 0 1px 6px rgba(0, 0, 0, 0.6);
+        }
+
+        :global(html[data-theme="light"]) .settings-panel-title {
+          color: #0a0a0a;
+          text-shadow: none;
+        }
+
+        .settings-panel-line {
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, rgba(255, 92, 168, 0.4), transparent 75%);
+        }
+
+        :global(html[data-theme="light"]) .settings-panel-line {
+          background: linear-gradient(90deg, #0a0a0a, transparent 75%);
+        }
+
+        .settings-panel-body {
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+
+        .settings-row-item {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 14px 18px;
           border-radius: 14px;
-          font-family: var(--f-mono);
+          background: #15101a;
+          border: 1.5px solid rgba(255, 255, 255, 0.08);
+          transition: background 0.18s ease, border-color 0.18s ease;
+        }
+
+        :global(html[data-theme="light"]) .settings-row-item {
+          background: #fafaf9;
+          border: 2px solid #0a0a0a;
+          box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        .settings-row-text {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+
+        .settings-row-label {
+          font-size: 16px;
+          font-weight: 700;
+          color: #ffffff;
+          letter-spacing: -0.01em;
+        }
+
+        :global(html[data-theme="light"]) .settings-row-label {
+          color: #0a0a0a;
+        }
+
+        .settings-row-desc {
+          font-size: 14px;
+          color: #d8cdd5;
+          margin: 0;
+          line-height: 1.45;
+        }
+
+        :global(html[data-theme="light"]) .settings-row-desc {
+          color: #4b5563;
+        }
+
+        .settings-desc-note {
+          font-size: 14px;
+          color: #d8cdd5;
+          margin: -4px 0 0;
+        }
+
+        :global(html[data-theme="light"]) .settings-desc-note {
+          color: #4b5563;
+        }
+
+        .settings-theme-group {
+          display: flex;
+          gap: 12px;
+          margin-top: 4px;
+          flex-wrap: wrap;
+        }
+
+        .settings-theme-btn {
+          height: 44px;
+          padding-inline: 22px;
+          border-radius: 9999px;
+          border: 2px solid #382d40;
+          background: #15101a;
+          color: #ffffff;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+          font-family: var(--font-mono), monospace;
           font-size: 14px;
           font-weight: 700;
+          cursor: pointer;
+          transition: all 0.2s ease;
         }
 
-        .success-banner {
-          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
+        :global(html[data-theme="light"]) .settings-theme-btn {
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 3px 3px 0 0 #0a0a0a;
+        }
+
+        .settings-theme-btn.is-active {
+          border: 2px solid #000000;
+          background: linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%);
           color: #0d0b0e;
+          box-shadow: 3px 3px 0 0 #0d0b0e;
         }
 
-        .error-banner {
-          background: rgb(255 143 160 / 0.15);
-          border: 2px solid var(--danger-edge, #7a2a3a);
-          color: var(--danger, #ff8fa0);
-        }
-
-        .saving-indicator {
-          font-family: var(--f-mono);
-          font-size: 13px;
-          color: var(--text-muted);
-          text-align: right;
-        }
-
-        .settings-grid-stack {
+        .settings-select-card {
           display: flex;
           flex-direction: column;
-          gap: 28px;
+          gap: 12px;
+          padding: 14px 18px;
+          border-radius: 14px;
+          background: #15101a;
+          border: 1.5px solid rgba(255, 255, 255, 0.08);
         }
 
-        .policy-select-row {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          padding-top: 8px;
-          border-top: 1px solid rgb(255 255 255 / 0.08);
+        :global(html[data-theme="light"]) .settings-select-card {
+          background: #fafaf9;
+          border: 2px solid #0a0a0a;
+          box-shadow: 2px 2px 0px #0a0a0a;
         }
 
-        @media (min-width: 640px) {
-          .policy-select-row {
-            flex-direction: row;
-            align-items: center;
-            justify-content: space-between;
-          }
+        .settings-select-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #ffffff;
         }
 
-        .policy-select {
+        :global(html[data-theme="light"]) .settings-select-title {
+          color: #0a0a0a;
+        }
+
+        .settings-select-desc {
+          font-size: 14px;
+          color: #d8cdd5;
+          margin: 4px 0 0;
+        }
+
+        :global(html[data-theme="light"]) .settings-select-desc {
+          color: #4b5563;
+        }
+
+        .settings-select-dropdown {
           height: 44px;
           padding: 0 16px;
           border-radius: 12px;
-          background: var(--surface-2, #29232a);
-          border: 2px solid var(--edge, #3d3439);
-          color: white;
-          font-family: var(--f-mono);
-          font-size: 13.5px;
+          background: #0e0b12;
+          border: 2px solid #2f2536;
+          color: #ffffff;
+          font-family: var(--font-mono), monospace;
+          font-size: 14px;
+          font-weight: 600;
           outline: none;
           cursor: pointer;
+          max-width: 320px;
         }
 
-        .policy-select:focus {
-          border-color: #ff5ca8;
-          box-shadow: 0 0 0 3px rgb(255 92 168 / 0.2);
+        :global(html[data-theme="light"]) .settings-select-dropdown {
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 2px 2px 0px #0a0a0a;
         }
 
-        .account-signout-btn {
+        .settings-account-box {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 14px 18px;
+          border-radius: 14px;
+          background: #15101a;
+          border: 1.5px solid rgba(255, 255, 255, 0.08);
+        }
+
+        :global(html[data-theme="light"]) .settings-account-box {
+          background: #fafaf9;
+          border: 2px solid #0a0a0a;
+          box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        .settings-account-label {
+          font-family: var(--font-mono), monospace;
+          font-size: 12px;
+          color: #d8cdd5;
+          text-transform: uppercase;
+          font-weight: 700;
+        }
+
+        :global(html[data-theme="light"]) .settings-account-label {
+          color: #575757;
+        }
+
+        .settings-account-email {
+          font-size: 16px;
+          font-weight: 700;
+          color: #ffffff;
+        }
+
+        :global(html[data-theme="light"]) .settings-account-email {
+          color: #0a0a0a;
+        }
+
+        .settings-signout-btn {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          height: 52px;
-          padding-inline: 26px;
+          height: 44px;
+          padding-inline: 22px;
           border-radius: 9999px;
-          background: transparent;
-          border: 2px solid rgb(255 255 255 / 0.4);
-          color: white;
-          font-family: var(--f-body);
+          background: #15101a;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          color: #ffffff;
+          font-family: var(--font-mono), monospace;
           font-weight: 700;
-          font-size: 16px;
+          font-size: 14px;
           cursor: pointer;
-          transition: border-color 0.2s ease, translate 0.2s var(--spring);
+          transition: all 0.2s ease;
         }
 
-        .account-signout-btn:hover {
-          border-color: white;
-          translate: 0 -2px;
+        :global(html[data-theme="light"]) .settings-signout-btn {
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 3px 3px 0 0 #0a0a0a;
+        }
+
+        .settings-danger-panel {
+          background: #160a10;
+          border: 2.5px solid #ef4444;
+          border-radius: 6px;
+          padding: clamp(24px, 3.5vw, 32px);
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+          box-shadow: 6px 6px 0px 0px #000000, 7px 7px 0px 0px #ef4444;
+        }
+
+        :global(html[data-theme="light"]) .settings-danger-panel {
+          background: #fef2f2;
+          border: 2.5px solid #dc2626;
+          box-shadow: 6px 6px 0px 0px #0a0a0a;
+        }
+
+        .settings-danger-head {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid #4a151d;
+        }
+
+        :global(html[data-theme="light"]) .settings-danger-head {
+          border-bottom: 2px solid #dc2626;
+        }
+
+        :global(.danger-head-icon) {
+          color: #ff8fa0;
+        }
+
+        :global(html[data-theme="light"]) :global(.danger-head-icon) {
+          color: #dc2626;
+        }
+
+        .settings-danger-title {
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 700;
+          font-size: 18px;
+          text-transform: uppercase;
+          color: #ff8fa0;
+          margin: 0;
+        }
+
+        :global(html[data-theme="light"]) .settings-danger-title {
+          color: #dc2626;
+        }
+
+        .settings-danger-desc {
+          font-size: 14.5px;
+          color: #e2d5dc;
+          line-height: 1.5;
+          margin: 0;
+        }
+
+        :global(html[data-theme="light"]) .settings-danger-desc {
+          color: #7f1d1d;
+        }
+
+        .settings-danger-actions {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 14px;
+        }
+
+        .btn-danger-outline {
+          height: 44px;
+          padding-inline: 22px;
+          border-radius: 9999px;
+          background: #2a1016;
+          border: 2px solid #852230;
+          color: #ff8fa0;
+          font-weight: 700;
+          font-size: 14px;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+
+        :global(html[data-theme="light"]) .btn-danger-outline {
+          background: #fee2e2;
+          border: 2px solid #dc2626;
+          color: #991b1b;
+          box-shadow: 3px 3px 0 0 #dc2626;
+        }
+
+        .danger-confirm-box {
+          background: #241018;
+          border: 1.5px solid #852230;
+          border-radius: 14px;
+          padding: 18px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+          margin-top: 6px;
+        }
+
+        :global(html[data-theme="light"]) .danger-confirm-box {
+          background: #ffffff;
+          border: 2px solid #dc2626;
+          box-shadow: 4px 4px 0 0 #dc2626;
+        }
+
+        .danger-confirm-title {
+          font-size: 14px;
+          color: #ffffff;
+          margin: 0;
+          font-weight: 600;
+        }
+
+        :global(html[data-theme="light"]) .danger-confirm-title {
+          color: #991b1b;
+        }
+
+        .danger-cancel-btn {
+          height: 40px;
+          padding-inline: 18px;
+          border-radius: 999px;
+          background: #160a0f;
+          border: 1.5px solid #4a151d;
+          color: #e2d5dc;
+          cursor: pointer;
+        }
+
+        :global(html[data-theme="light"]) .danger-cancel-btn {
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          font-weight: 600;
+        }
+
+        .danger-action-btn {
+          height: 40px;
+          padding-inline: 18px;
+          border-radius: 999px;
+          background: #ff5ca8;
+          border: 2px solid #0a0a0a;
+          color: #0d0b0e;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .danger-delete-btn {
+          height: 40px;
+          padding-inline: 18px;
+          border-radius: 999px;
+          background: #ef4444;
+          border: 2px solid #0a0a0a;
+          color: #ffffff;
+          font-weight: 700;
+          cursor: pointer;
+        }
+
+        .danger-confirm-input {
+          height: 48px;
+          padding: 0 16px;
+          border-radius: 10px;
+          background: #160a0f;
+          border: 2px solid #ff8fa0;
+          color: #ffffff;
+          font-size: 15px;
+          outline: none;
+        }
+
+        :global(html[data-theme="light"]) .danger-confirm-input {
+          background: #ffffff;
+          border: 2px solid #dc2626;
+          color: #0a0a0a;
+          box-shadow: 2px 2px 0 0 #dc2626;
         }
       `}</style>
     </div>

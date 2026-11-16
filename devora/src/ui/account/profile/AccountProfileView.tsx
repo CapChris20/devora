@@ -84,8 +84,8 @@ export default function AccountProfileView({
       {/* ── Page Head ── */}
       <div className="account-page-head">
         <div>
-          <h1 className="t-band text-white">My profile</h1>
-          <p className="lead text-[var(--text-body)] mt-1.5">
+          <h1 className="t-band account-head-title">My profile</h1>
+          <p className="lead account-head-lead mt-1.5">
             This is how classmates see you on the Discovery Grid.
           </p>
         </div>
@@ -413,6 +413,23 @@ export default function AccountProfileView({
           width: 100%;
         }
 
+        .account-head-title {
+          color: #ffffff;
+          margin: 0;
+        }
+
+        :global(html[data-theme="light"]) .account-head-title {
+          color: #0a0a0a;
+        }
+
+        .account-head-lead {
+          color: var(--text-body);
+        }
+
+        :global(html[data-theme="light"]) .account-head-lead {
+          color: #4b5563;
+        }
+
         .account-page-head {
           display: flex;
           flex-wrap: wrap;
@@ -425,6 +442,12 @@ export default function AccountProfileView({
           border-radius: 20px;
           padding: 24px 28px;
           box-shadow: 0 14px 36px -10px rgba(0, 0, 0, 0.75), 0 0 20px -8px rgba(255, 92, 168, 0.2);
+        }
+
+        :global(html[data-theme="light"]) .account-page-head {
+          background: #ffffff;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px #0a0a0a;
         }
 
         .account-split-grid {
@@ -873,6 +896,131 @@ export default function AccountProfileView({
           font-weight: 600;
           color: white;
           margin: 2px 0 0;
+        }
+
+        :global(html[data-theme="light"]) .glass-panel {
+          background: #ffffff;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px #0a0a0a;
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .identity-name {
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .identity-major {
+          color: #2a2226;
+          font-weight: 600;
+        }
+
+        :global(html[data-theme="light"]) .identity-school {
+          color: #574a50;
+        }
+
+        :global(html[data-theme="light"]) .chip-badge {
+          background: #f4f4f2;
+          border: 1.5px solid #0a0a0a;
+          color: #0a0a0a;
+          font-weight: 700;
+        }
+
+        :global(html[data-theme="light"]) .profile-strength-box {
+          background: #faf8fc;
+          border: 2px solid #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .strength-pct {
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .strength-hint {
+          color: #4b5563;
+        }
+
+        :global(html[data-theme="light"]) .strength-bar-track {
+          background: #e5e7eb;
+          border: 1px solid #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .facts-grid {
+          border-top: 2px solid #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .fact-val {
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .btn-danger {
+          background: #fee2e2;
+          border: 2px solid #dc2626;
+          color: #991b1b;
+        }
+
+        :global(html[data-theme="light"]) .btn-danger:hover {
+          background: #fca5a5;
+          border-color: #991b1b;
+        }
+
+        :global(html[data-theme="light"]) .public-legend-line {
+          color: #4b5563;
+          border-bottom: 2px solid #e5e7eb;
+        }
+
+        :global(html[data-theme="light"]) .section-title {
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .section-body {
+          color: #1f2937;
+        }
+
+        :global(html[data-theme="light"]) .profile-tag {
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 2px 2px 0px #0a0a0a;
+          font-weight: 700;
+        }
+
+        :global(html[data-theme="light"]) .social-link-row {
+          background: #f9f9f7;
+          border: 2px solid #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .social-link-left {
+          color: #0a0a0a;
+          font-weight: 700;
+        }
+
+        :global(html[data-theme="light"]) .social-val {
+          color: #4b5563;
+        }
+
+        :global(html[data-theme="light"]) .social-add-link {
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .disclosure-label {
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) :global(.disclosure-chevron) {
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .only-you-chip {
+          border: 1.5px solid #0a0a0a;
+          color: #0a0a0a;
+          background: #f4f4f2;
+          font-weight: 700;
+        }
+
+        :global(html[data-theme="light"]) .private-val {
+          color: #0a0a0a;
         }
       `}</style>
     </div>

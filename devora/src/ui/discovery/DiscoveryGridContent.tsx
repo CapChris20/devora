@@ -737,6 +737,97 @@ export default function DiscoveryGridContent() {
         .clear-all-btn:hover {
           color: #ff5ca8;
         }
+
+        :global(html[data-theme="light"]) .dtools-dock {
+          background: #ffffff;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .dtools-filter-btn {
+          background: #f4f4f2;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .dtools-filter-btn:hover {
+          background: #fee2e2;
+          border-color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .dtools-filter-btn.has-active {
+          background: #fee2e2;
+          border-color: #0a0a0a;
+          box-shadow: 3px 3px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) :global(.dtools-icon) {
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .dtools-search-pill {
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .dtools-search-pill:focus-within {
+          border-color: #0a0a0a;
+          box-shadow: 3px 3px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .dtools-search-icon {
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .dtools-search-pill input {
+          color: #0a0a0a;
+          font-weight: 600;
+        }
+
+        :global(html[data-theme="light"]) .dtools-search-pill input::placeholder {
+          color: #6b7280;
+        }
+
+        :global(html[data-theme="light"]) .dtools-clear-query {
+          background: #f4f4f2;
+          border: 1.5px solid #0a0a0a;
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .dtools-count-chip {
+          background: #f4f4f2;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .fchip-elevated {
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 3px 3px 0px #0a0a0a;
+          font-weight: 700;
+        }
+
+        :global(html[data-theme="light"]) .fchip-elevated:hover {
+          background: #fee2e2;
+          border-color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) :global(.fchip-x) {
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .clear-all-btn {
+          color: #0a0a0a;
+          font-weight: 800;
+        }
+
+        :global(html[data-theme="light"]) .clear-all-btn:hover {
+          color: #c2185b;
+        }
       `}</style>
     </div>
   );
