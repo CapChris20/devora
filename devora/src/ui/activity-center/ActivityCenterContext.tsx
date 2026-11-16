@@ -39,7 +39,6 @@ import type {
 import {
   INITIAL_CONNECTIONS,
   INITIAL_CONVERSATION_ORDER,
-  INITIAL_EVENTS,
   INITIAL_MESSAGES,
   INITIAL_PEOPLE,
   INITIAL_REQUESTS,
@@ -71,6 +70,7 @@ export type CreateGroupInput = {
 type ActivityCenterContextValue = {
   // Events
   events: ActivityEvent[];
+  isEventsLoading: boolean;
   savedEventIds: Record<string, boolean>;
   eventFilter: string;
   setEventFilter: (filter: string) => void;
@@ -140,8 +140,9 @@ function formatTimestamp(): string {
 export function ActivityCenterProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
-  // Events state
-  const [events, setEvents] = useState<ActivityEvent[]>(INITIAL_EVENTS);
+  // Events state (pure real data from Firestore, no fake mock items)
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
+  const [isEventsLoading, setIsEventsLoading] = useState(true);
   const [savedEventIds, setSavedEventIds] = useState<Record<string, boolean>>({});
   const [eventFilter, setEventFilter] = useState<string>("all");
   const [isPostEventModalOpen, setIsPostEventModalOpen] = useState(false);
@@ -161,47 +162,43 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
       const unsubscribe = onSnapshot(
         q,
         (snapshot) => {
-          if (!snapshot.empty) {
-            const firestoreEvents: ActivityEvent[] = [];
-            snapshot.forEach((docSnap) => {
-              const data = docSnap.data();
-              firestoreEvents.push({
-                id: docSnap.id,
-                title: data.title || "",
-                description: data.description || "",
-                date: data.date || "",
-                mon: data.mon || "NOV",
-                day: String(data.day || "20"),
-                dow: data.dow || "FRI",
-                week: typeof data.week === "number" ? data.week : 0,
-                time: data.time || "TBA",
-                location: data.location || "CECS Campus",
-                organizer: data.organizer || "Student",
-                tags:
-                  Array.isArray(data.tags) && data.tags.length > 0
-                    ? data.tags
-                    : ["social"],
-                link: data.link || undefined,
-                createdBy: data.createdBy,
-                createdAt: data.createdAt,
-              });
+          const firestoreEvents: ActivityEvent[] = [];
+          snapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            firestoreEvents.push({
+              id: docSnap.id,
+              title: data.title || "",
+              description: data.description || "",
+              date: data.date || "",
+              mon: data.mon || "NOV",
+              day: String(data.day || "20"),
+              dow: data.dow || "FRI",
+              week: typeof data.week === "number" ? data.week : 0,
+              time: data.time || "TBA",
+              location: data.location || "CECS Campus",
+              organizer: data.organizer || "Student",
+              tags:
+                Array.isArray(data.tags) && data.tags.length > 0
+                  ? data.tags
+                  : ["social"],
+              link: data.link || undefined,
+              createdBy: data.createdBy,
+              createdAt: data.createdAt,
             });
+          });
 
-            setEvents(() => {
-              const map = new Map<string, ActivityEvent>();
-              INITIAL_EVENTS.forEach((e) => map.set(e.id, e));
-              firestoreEvents.forEach((e) => map.set(e.id, e));
-              return Array.from(map.values());
-            });
-          }
+          setEvents(firestoreEvents);
+          setIsEventsLoading(false);
         },
         (err) => {
           console.warn("Firestore events onSnapshot listener:", err);
+          setIsEventsLoading(false);
         }
       );
       return () => unsubscribe();
     } catch (err) {
       console.warn("Could not attach events listener:", err);
+      setIsEventsLoading(false);
     }
   }, []);
 
@@ -514,6 +511,7 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
 
   const contextValue: ActivityCenterContextValue = {
     events,
+    isEventsLoading,
     savedEventIds,
     eventFilter,
     setEventFilter,

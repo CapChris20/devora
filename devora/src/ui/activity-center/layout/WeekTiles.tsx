@@ -20,9 +20,12 @@ export default function WeekTiles() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const {
+    events,
     joinedGroupsCount,
     savedEventsCount,
   } = useActivityCenter();
+
+  const nextEvent = events.length > 0 ? events[0] : null;
 
   // References to count text elements for GSAP count-up tweens
   const groupsElRef = useRef<HTMLSpanElement>(null);
@@ -154,12 +157,26 @@ export default function WeekTiles() {
         <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] uppercase text-nb-ink">
           Next up
         </span>
-        <span className="text-[22px] font-bold leading-tight text-nb-ink">
-          CIS 310 Exam 2 Review Session
-        </span>
-        <span className="text-[13px] font-semibold text-nb-ink">
-          Wed, Nov 18 · 4:00 PM · Engineering Lab Building
-        </span>
+        {nextEvent ? (
+          <>
+            <span className="text-[20px] sm:text-[22px] font-bold leading-tight text-nb-ink line-clamp-1">
+              {nextEvent.title}
+            </span>
+            <span className="text-[13px] font-semibold text-nb-ink line-clamp-1">
+              {nextEvent.dow ? `${nextEvent.dow}, ` : ""}
+              {nextEvent.mon} {nextEvent.day} · {nextEvent.time} · {nextEvent.location}
+            </span>
+          </>
+        ) : (
+          <>
+            <span className="text-[18px] sm:text-[20px] font-bold leading-tight text-nb-ink">
+              No events scheduled yet
+            </span>
+            <span className="text-[13px] font-semibold text-nb-ink/80">
+              Post an event to see it here on your week
+            </span>
+          </>
+        )}
         <span
           aria-hidden="true"
           className="absolute top-3.5 right-3.5 w-[30px] h-[30px] grid place-items-center rounded-full border-2 border-nb-ink bg-nb-white"

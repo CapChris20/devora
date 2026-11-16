@@ -25,6 +25,12 @@ export default function Hero() {
   const eyebrowRef = useRef<HTMLParagraphElement>(null);
   const ledeRef = useRef<HTMLParagraphElement>(null);
 
+  const todayStr = new Date().toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+
   useGSAP(
     () => {
       const mm = gsap.matchMedia();
@@ -78,7 +84,7 @@ export default function Hero() {
               aria-hidden="true"
               className="w-2.5 h-2.5 rounded-full border-2 border-nb-ink bg-nb-brand flex-shrink-0"
             />
-            <span>Mon, Nov 16 · Week 12 of fall</span>
+            <span>{todayStr} · Campus Activity</span>
           </p>
 
           <h1

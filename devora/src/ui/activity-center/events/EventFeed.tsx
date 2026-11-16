@@ -23,7 +23,8 @@ import PostEventModal from "./PostEventModal";
 
 export default function EventFeed() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { events, eventFilter, openPostEventModal } = useActivityCenter();
+  const { events, eventFilter, openPostEventModal, isEventsLoading } =
+    useActivityCenter();
 
   // Filter events based on active category chip
   const filteredEvents = events.filter(
@@ -73,7 +74,11 @@ export default function EventFeed() {
               aria-hidden="true"
               className="w-2.5 h-2.5 rounded-full border-2 border-nb-ink bg-nb-brand flex-shrink-0"
             />
-            <span>{events.length} events through finals</span>
+            <span>
+              {isEventsLoading
+                ? "Loading events..."
+                : `${events.length} ${events.length === 1 ? "event" : "events"} scheduled`}
+            </span>
           </p>
           <h2 className="m-0 text-[clamp(28px,4vw,38px)] font-bold tracking-[-0.025em] leading-[1.05] text-nb-ink">
             Upcoming CECS events
@@ -111,12 +116,51 @@ export default function EventFeed() {
       {/* Filter Chips */}
       <EventFilter />
 
-      {/* Empty State */}
-      {filteredEvents.length === 0 ? (
-        <EmptyState
-          title={`No ${eventFilter} events yet`}
-          description="New events show up here as soon as they are posted. Check back this week."
-        />
+      {/* Feed Content */}
+      {isEventsLoading ? (
+        <div className="flex flex-col gap-4 py-6" aria-busy="true">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="h-28 bg-nb-white/60 border-nb border-nb-ink/30 rounded-nb animate-pulse"
+            />
+          ))}
+        </div>
+      ) : filteredEvents.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-12 px-6 bg-nb-white border-nb border-nb-ink rounded-nb shadow-nb-card text-center">
+          <EmptyState
+            title={
+              eventFilter === "all"
+                ? "No events posted yet"
+                : `No ${eventFilter} events found`
+            }
+            description={
+              eventFilter === "all"
+                ? "Be the first student to post an event, review session, or meetup!"
+                : `No events tagged with "${eventFilter}" yet. Switch filters or post one now.`
+            }
+          />
+          <button
+            type="button"
+            onClick={openPostEventModal}
+            className="mt-4 btn primary inline-flex items-center gap-2 min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-nb-ink font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5"
+          >
+            <svg
+              aria-hidden="true"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            <span>Post the first event</span>
+          </button>
+        </div>
       ) : (
         /* Weeks groups */
         <div className="flex flex-col gap-7.5">

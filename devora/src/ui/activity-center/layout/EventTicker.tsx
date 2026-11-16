@@ -9,13 +9,14 @@ import { useRef } from "react";
 import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
-import { INITIAL_EVENTS } from "../placeholder-data";
+import { useActivityCenter } from "../ActivityCenterContext";
 
 // ===== MAIN COMPONENT =====
 
 export default function EventTicker() {
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+  const { events } = useActivityCenter();
 
   useGSAP(
     () => {
@@ -31,7 +32,7 @@ export default function EventTicker() {
         });
       });
     },
-    { scope: containerRef }
+    { dependencies: [events.length], scope: containerRef }
   );
 
   return (
@@ -47,17 +48,28 @@ export default function EventTicker() {
         {/* Render twice for continuous loop */}
         {[0, 1].map((copyIndex) => (
           <div key={copyIndex} className="inline-flex gap-0">
-            {INITIAL_EVENTS.map((event) => (
-              <span
-                key={`${copyIndex}-${event.id}`}
-                className="inline-flex items-center gap-3.5 pr-7 font-nb-mono text-[13px] font-bold tracking-[0.12em] uppercase"
-              >
-                <b className="px-2 py-0.5 rounded-full bg-nb-brand text-nb-ink font-bold">
-                  {event.mon} {event.day}
-                </b>
-                <span>{event.title}</span>
+            {events.length > 0 ? (
+              events.map((event) => (
+                <span
+                  key={`${copyIndex}-${event.id}`}
+                  className="inline-flex items-center gap-3.5 pr-7 font-nb-mono text-[13px] font-bold tracking-[0.12em] uppercase"
+                >
+                  <b className="px-2 py-0.5 rounded-full bg-nb-brand text-nb-ink font-bold">
+                    {event.mon} {event.day}
+                  </b>
+                  <span>{event.title}</span>
+                </span>
+              ))
+            ) : (
+              <span className="inline-flex items-center gap-6 pr-8 font-nb-mono text-[13px] font-bold tracking-[0.14em] uppercase text-nb-white">
+                <span className="text-nb-brand">★</span>
+                <span>Welcome to Devora Activity Center</span>
+                <span className="text-nb-brand">★</span>
+                <span>Post an event to see it live across campus</span>
+                <span className="text-nb-brand">★</span>
+                <span>Form study groups with CECS classmates</span>
               </span>
-            ))}
+            )}
           </div>
         ))}
       </div>
