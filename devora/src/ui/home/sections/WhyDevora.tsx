@@ -402,7 +402,9 @@ export default function WhyDevora() {
           border: 2.5px solid rgba(255, 255, 255, 0.8) !important;
           border-radius: 16px;
           box-shadow: 8px 8px 0px 0px #000000 !important;
-          padding: clamp(24px, 3vw, 36px);
+          padding: clamp(28px, 3.5vw, 44px);
+          display: flex;
+          flex-direction: column;
         }
 
         :global(html[data-theme="light"]) .poster-devora {
@@ -416,8 +418,8 @@ export default function WhyDevora() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 22px;
-          padding-bottom: 14px;
+          margin-bottom: 24px;
+          padding-bottom: 16px;
           border-bottom: 2px solid rgba(255, 255, 255, 0.15);
         }
 
@@ -428,83 +430,65 @@ export default function WhyDevora() {
         .devora-wins-stamp {
           display: inline-flex;
           align-items: center;
-          padding: 4px 12px;
+          padding: 4px 14px;
           border-radius: 999px;
-          border: 1.5px solid #fb923c;
-          background: rgba(251, 146, 60, 0.12);
-          color: #fb923c;
+          border: 2px solid #0a0a0a;
+          background: #fb923c;
+          color: #0a0a0a;
           font-family: var(--f-mono);
-          font-size: 11.5px;
+          font-size: 12px;
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.08em;
-        }
-
-        :global(html[data-theme="light"]) .devora-wins-stamp {
-          background: #fff7ed;
-          border: 2px solid #0a0a0a;
-          color: #c2410c;
           box-shadow: 2px 2px 0px #0a0a0a;
         }
 
         .devora-wins-list {
           display: flex;
           flex-direction: column;
-          gap: 12px;
+          gap: 16px;
         }
 
         .devora-win-row {
           display: flex;
           align-items: flex-start;
           gap: 14px;
-          background: #171120 !important;
-          border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
-          border-radius: 12px;
-          padding: 14px 18px;
-          box-shadow: 2px 2px 0px #000000;
-          transition: all 0.18s ease;
-        }
-
-        .devora-win-row:hover {
-          transform: translateY(-2px);
-          border-color: rgba(255, 255, 255, 0.45) !important;
-          box-shadow: 4px 4px 0px #000000;
-        }
-
-        :global(html[data-theme="light"]) .devora-win-row {
-          background: #fafaf9 !important;
-          border: 2px solid #0a0a0a !important;
-          box-shadow: 2px 2px 0px #0a0a0a;
-        }
-
-        :global(html[data-theme="light"]) .devora-win-row:hover {
-          background: #ffffff !important;
-          box-shadow: 4px 4px 0px #0a0a0a;
+          background: transparent !important;
+          border: none !important;
+          border-radius: 0;
+          padding: 0;
+          box-shadow: none !important;
         }
 
         .devora-win-row span {
           color: #ffffff !important;
-          font-family: var(--f-mono, monospace);
-          font-size: 14px;
-          font-weight: 600;
-          line-height: 1.45;
+          font-family: var(--f-body, system-ui, sans-serif);
+          font-size: 15.5px;
+          font-weight: 500;
+          line-height: 1.5;
         }
 
         :global(html[data-theme="light"]) .devora-win-row span {
           color: #0a0a0a !important;
+          font-weight: 600;
         }
 
         .win-check {
           flex-shrink: 0;
-          margin-top: 1px;
+          margin-top: 2px;
           width: 24px;
           height: 24px;
           border-radius: 999px;
-          background: rgba(251, 146, 60, 0.15);
-          border: 1px solid rgba(251, 146, 60, 0.4);
+          background: rgba(251, 146, 60, 0.18);
+          border: 1.5px solid #fb923c;
           display: flex;
           align-items: center;
           justify-content: center;
+        }
+
+        :global(html[data-theme="light"]) .win-check {
+          background: #ffedd5;
+          border: 1.5px solid #c2410c;
         }
       `}</style>
     </section>

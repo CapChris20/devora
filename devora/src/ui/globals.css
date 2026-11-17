@@ -412,11 +412,9 @@ html[data-theme="light"] {
 
   .navbar-shell-scrolled {
     background: #0b0614 !important;
-    border-color: #ff5ca8 !important;
+    border-color: rgba(255, 255, 255, 0.45) !important;
     border-radius: 8px !important;
-    box-shadow:
-      5px 5px 0px rgba(0, 0, 0, 0.95),
-      6px 6px 0px #ff5ca8 !important;
+    box-shadow: 5px 5px 0px #000000 !important;
   }
 
   .site-footer-bar {

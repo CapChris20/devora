@@ -1,6 +1,6 @@
-// Redesigned FAQ Module — Modern Neo-Brutalist 2-Column Deck.
-// Spacious, un-compacted layout with wide search bar, clear category filters,
-// and high-contrast cards that breathe in both light and dark mode.
+// Redesigned FAQ Module per DESIGN_SCOPE.md and DESIGN.md.
+// Clean neo-brutalist 2-column deck with neutral borders, spacious layout,
+// headline-grad on open questions, and zero colored accent rails.
 // Strictly ZERO emojis.
 
 "use client";
@@ -28,27 +28,6 @@ type FaqItem = {
   question: string;
   answer: string;
 };
-
-function getFaqBadgeClass(category: FaqCategory, isLight: boolean): string {
-  switch (category) {
-    case "about":
-      return isLight
-        ? "bg-amber-100 border-amber-500/60 text-amber-950 font-bold"
-        : "bg-amber-500/15 border-amber-400/40 text-amber-300 font-bold";
-    case "networking":
-      return isLight
-        ? "bg-sky-100 border-sky-500/60 text-sky-950 font-bold"
-        : "bg-sky-500/15 border-sky-400/40 text-sky-300 font-bold";
-    case "features":
-      return isLight
-        ? "bg-purple-100 border-purple-500/60 text-purple-950 font-bold"
-        : "bg-purple-500/15 border-purple-400/40 text-purple-300 font-bold";
-    default:
-      return isLight
-        ? "bg-neutral-100 border-neutral-300 text-neutral-800 font-bold"
-        : "bg-neutral-800 border-white/20 text-neutral-300 font-bold";
-  }
-}
 
 const CATEGORIES: { id: FaqCategory; label: string }[] = [
   { id: "all", label: "All Questions" },
@@ -181,7 +160,7 @@ export default function FAQAccordion() {
         className={`relative flex items-center w-full rounded-2xl border-2 transition-all duration-200 ${
           isLight
             ? "bg-white border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a]"
-            : "bg-[#120c1e] border-white/25 shadow-[5px_5px_0px_#000000]"
+            : "bg-[#0f0918] border-white/20 shadow-[5px_5px_0px_#000000]"
         }`}
       >
         <Search
@@ -238,15 +217,15 @@ export default function FAQAccordion() {
                 onClick={() => setActiveCategory(cat.id)}
                 className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-lg font-mono text-xs font-bold uppercase tracking-wider transition-all duration-150 active:translate-x-px active:translate-y-px cursor-pointer select-none ${
                   isSelected
-                    ? "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a] font-extrabold"
+                    ? "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a]"
                     : isLight
-                    ? "bg-white text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#0a0a0a]"
-                    : "bg-[#160f22] text-neutral-200 border-2 border-white/20 shadow-[2px_2px_0px_#000000] hover:-translate-y-0.5 hover:border-white/40"
+                    ? "bg-white text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:bg-neutral-50"
+                    : "bg-[#140e20] text-neutral-200 border-2 border-white/20 shadow-[2px_2px_0px_#000000] hover:border-white/40"
                 }`}
               >
                 <span>{cat.label}</span>
                 <span
-                  className={`text-[10px] px-2 py-0.5 rounded font-black ${
+                  className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
                     isSelected
                       ? "bg-[#0a0a0a] text-white"
                       : isLight
@@ -265,10 +244,10 @@ export default function FAQAccordion() {
         <button
           type="button"
           onClick={toggleAll}
-          className={`inline-flex items-center gap-1.5 self-start sm:self-auto px-3.5 py-2 rounded-lg font-mono text-xs font-bold uppercase tracking-wider border transition-all ${
+          className={`inline-flex items-center gap-1.5 self-start sm:self-auto px-4 py-2.5 rounded-lg font-mono text-xs font-bold uppercase tracking-wider border-2 transition-all cursor-pointer ${
             isLight
-              ? "bg-white border-[#0a0a0a] text-[#0a0a0a] shadow-sm hover:bg-neutral-50"
-              : "bg-[#140e20] border-white/20 text-neutral-300 hover:text-white shadow-sm"
+              ? "bg-white border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:bg-neutral-50"
+              : "bg-[#140e20] border-white/20 text-neutral-300 hover:text-white shadow-[2px_2px_0px_#000000]"
           }`}
         >
           <ChevronsUpDown size={14} />
@@ -276,7 +255,7 @@ export default function FAQAccordion() {
         </button>
       </div>
 
-      {/* ── FAQ Cards Grid: 2-Column Responsive Layout ── */}
+      {/* ── FAQ Cards Grid: 2-Column Responsive Deck ── */}
       {filteredFaqs.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
           {filteredFaqs.map((faq) => {
@@ -287,12 +266,8 @@ export default function FAQAccordion() {
                 key={faq.id}
                 className={`flex flex-col justify-between rounded-xl border-2 transition-all duration-200 ${
                   isLight
-                    ? `bg-white border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a] ${
-                        isExpanded ? "border-l-4 border-l-[#f97316]" : ""
-                      }`
-                    : `bg-[#130b1c] border-white/25 shadow-[5px_5px_0px_#000000] hover:border-white/45 ${
-                        isExpanded ? "border-l-4 border-l-[#fb923c] border-white/40 shadow-[7px_7px_0px_#000000]" : ""
-                      }`
+                    ? "bg-white border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a]"
+                    : "bg-[#0f0918] border-white/20 shadow-[5px_5px_0px_#000000] hover:border-white/35"
                 }`}
               >
                 {/* Header clickable question area */}
@@ -300,34 +275,39 @@ export default function FAQAccordion() {
                   type="button"
                   onClick={() => toggleItem(faq.id)}
                   aria-expanded={isExpanded}
-                  className="w-full text-left p-6 sm:p-7 flex flex-col gap-3 cursor-pointer group select-none"
+                  className="w-full text-left p-6 sm:p-7 flex flex-col gap-3.5 cursor-pointer group select-none"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span
-                      className={`inline-block px-3 py-1 rounded text-xs font-mono uppercase tracking-wider border ${getFaqBadgeClass(
-                        faq.category,
+                      className={`inline-block px-2.5 py-1 rounded font-mono text-[11px] font-bold uppercase tracking-wider ${
                         isLight
-                      )}`}
+                          ? "bg-neutral-100 text-neutral-700 border border-neutral-300"
+                          : "bg-white/5 text-neutral-300 border border-white/10"
+                      }`}
                     >
                       {faq.categoryLabel}
                     </span>
 
                     <div
                       className={`p-1.5 rounded-lg border transition-all duration-200 ${
-                        isExpanded
-                          ? "rotate-180 bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a]"
-                          : isLight
+                        isExpanded ? "rotate-180" : ""
+                      } ${
+                        isLight
                           ? "bg-neutral-100 border-[#0a0a0a] text-[#0a0a0a]"
-                          : "bg-[#1f152d] border-white/20 text-white"
+                          : "bg-white/5 border-white/20 text-white"
                       }`}
                     >
-                      <ChevronDown size={16} />
+                      <ChevronDown size={15} />
                     </div>
                   </div>
 
                   <h3
-                    className={`font-display text-lg sm:text-xl font-bold leading-snug tracking-tight transition-colors ${
-                      isLight
+                    className={`font-display text-lg sm:text-xl font-bold leading-snug tracking-tight transition-all ${
+                      isExpanded
+                        ? isLight
+                          ? "text-[#0a0a0a] font-extrabold"
+                          : "headline-grad font-extrabold"
+                        : isLight
                         ? "text-[#0a0a0a] group-hover:text-neutral-700"
                         : "text-white group-hover:text-amber-200"
                     }`}
@@ -343,14 +323,14 @@ export default function FAQAccordion() {
                       initial={{ height: 0, opacity: 0 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.22, ease: "easeOut" }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
                       className="overflow-hidden"
                     >
                       <div
-                        className={`px-6 sm:px-7 pb-6 sm:pb-7 pt-2 border-t text-sm sm:text-base leading-relaxed ${
+                        className={`px-6 sm:px-7 pb-6 sm:pb-7 pt-3.5 border-t text-sm sm:text-base leading-relaxed ${
                           isLight
                             ? "border-neutral-200 text-neutral-700 bg-neutral-50/50"
-                            : "border-white/10 text-neutral-300 bg-black/20"
+                            : "border-white/10 text-neutral-200 bg-black/20"
                         }`}
                       >
                         <p className="font-sans leading-relaxed">{faq.answer}</p>
@@ -382,48 +362,46 @@ export default function FAQAccordion() {
               setSearchQuery("");
               setActiveCategory("all");
             }}
-            className="mt-4 px-4 py-2 rounded-lg font-mono text-xs font-bold uppercase border-2 border-current hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+            className="mt-4 px-4 py-2 rounded-lg font-mono text-xs font-bold uppercase bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a]"
           >
-            Clear Search
+            Reset Filters
           </button>
         </div>
       )}
 
-      {/* ── Still Have Questions Help Card ── */}
+      {/* ── Footer CTA Banner ── */}
       <div
-        className={`mt-12 rounded-xl border-2 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 ${
+        className={`p-6 sm:p-8 rounded-2xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-5 ${
           isLight
-            ? "bg-white border-[#0a0a0a] shadow-[6px_6px_0px_#0a0a0a]"
-            : "bg-[#120c1e] border-white/25 shadow-[6px_6px_0px_#000000]"
+            ? "bg-white border-[#0a0a0a] shadow-[6px_6px_0px_#0a0a0a] text-[#0a0a0a]"
+            : "bg-[#0e0918] border-2 border-white/20 shadow-[6px_6px_0px_#000000] text-white"
         }`}
       >
-        <div className="space-y-1.5">
-          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-neutral-500">
-            <Sparkles size={14} className="text-orange-500" />
-            <span>Need More Help?</span>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Sparkles size={14} className="text-[#fb923c]" />
+            <span className="font-mono text-xs font-bold uppercase tracking-wider opacity-80">
+              Need More Help?
+            </span>
           </div>
-          <h4
-            className={`font-display text-lg sm:text-xl font-bold ${
-              isLight ? "text-[#0a0a0a]" : "text-white"
-            }`}
-          >
+          <h4 className="font-display text-xl sm:text-2xl font-extrabold uppercase tracking-tight">
             Have a question not answered here?
           </h4>
           <p
-            className={`text-sm leading-relaxed max-w-xl ${
-              isLight ? "text-neutral-600" : "text-neutral-400"
+            className={`font-sans text-sm ${
+              isLight ? "text-neutral-600" : "text-neutral-300"
             }`}
           >
-            Reach out directly or explore the Activity Center to connect with CECS club leaders and classmates.
+            Reach out directly to CECS leadership or connect with club leaders in the Activity Center.
           </p>
         </div>
 
         <Link
           href="/activity-center"
-          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border-2 border-[#0a0a0a] bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] font-mono text-xs font-extrabold uppercase tracking-wider shadow-[3px_3px_0px_#0a0a0a] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#0a0a0a] active:translate-y-px transition-all shrink-0"
+          className="inline-flex items-center justify-center gap-2 shrink-0 h-12 px-6 rounded-xl font-mono text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_#0a0a0a] active:translate-x-0.5 active:translate-y-0.5 transition-all"
         >
           <span>Explore Activity Center</span>
-          <ArrowRight size={14} />
+          <ArrowRight size={15} />
         </Link>
       </div>
     </div>

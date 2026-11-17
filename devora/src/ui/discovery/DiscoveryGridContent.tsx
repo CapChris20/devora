@@ -561,18 +561,18 @@ export default function DiscoveryGridContent() {
 
         .dtools-filter-btn:hover {
           background: #251b2f;
-          border-color: #ff5ca8;
+          border-color: rgba(255, 255, 255, 0.4);
           transform: translateY(-1px);
         }
 
         .dtools-filter-btn.has-active {
-          background: #28142b;
-          border-color: #ff5ca8;
-          box-shadow: 0 0 16px rgba(255, 92, 168, 0.35);
+          background: #1f1826;
+          border-color: #fb923c;
+          box-shadow: 0 0 12px rgba(251, 146, 60, 0.25);
         }
 
         :global(.dtools-icon) {
-          color: #ff5ca8;
+          color: #fb923c;
         }
 
         .dtools-badge {
@@ -602,14 +602,14 @@ export default function DiscoveryGridContent() {
         }
 
         .dtools-search-pill:focus-within {
-          border-color: #ff5ca8;
-          box-shadow: 0 0 0 3px rgba(255, 92, 168, 0.25);
+          border-color: rgba(255, 255, 255, 0.5);
+          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
         }
 
         .dtools-search-icon {
           position: absolute;
           left: 16px;
-          color: #ff5ca8;
+          color: #fb923c;
           display: flex;
           align-items: center;
           pointer-events: none;
@@ -700,24 +700,24 @@ export default function DiscoveryGridContent() {
           min-height: 36px;
           padding: 0 10px 0 14px;
           border-radius: 999px;
-          background: #241228;
-          border: 1.5px solid #ff5ca8;
+          background: #18121f;
+          border: 1.5px solid rgba(255, 255, 255, 0.25);
           color: white;
           font-weight: 600;
           font-size: 13.5px;
           cursor: pointer;
           transition: all 0.18s ease;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+          box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
 
         .fchip-elevated:hover {
-          background: rgb(255 92 168 / 0.2);
-          border-color: #ff5ca8;
+          background: #231b2e;
+          border-color: rgba(255, 255, 255, 0.45);
           transform: translateY(-1px);
         }
 
         :global(.fchip-x) {
-          color: #ff5ca8;
+          color: #fb923c;
         }
 
         .clear-all-btn {

@@ -465,10 +465,10 @@ export default function AccountProfileView({
 
         .glass-panel {
           background: #0f0b13;
-          border: 2.5px solid #ff5ca8;
-          border-radius: 6px;
+          border: 2.5px solid rgba(255, 255, 255, 0.25);
+          border-radius: 12px;
           padding: 24px;
-          box-shadow: 6px 6px 0px #000000, 7px 7px 0px #ff5ca8;
+          box-shadow: 6px 6px 0px #000000;
         }
 
         .identity-row {

@@ -32,13 +32,13 @@ export default function GradientToggle({
         background: checked
           ? "linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%)"
           : "#261d2b",
-        border: checked ? "2px solid #ff5ca8" : "2px solid #4a3b54",
+        border: checked ? "2px solid #ffffff" : "2px solid rgba(255, 255, 255, 0.25)",
         position: "relative",
         display: "flex",
         alignItems: "center",
         padding: "2px 4px",
         boxShadow: checked
-          ? "0 0 16px rgba(255, 92, 168, 0.45)"
+          ? "0 2px 8px rgba(0, 0, 0, 0.5)"
           : "inset 0 2px 4px rgba(0, 0, 0, 0.4)",
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.5 : 1,
