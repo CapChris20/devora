@@ -173,7 +173,7 @@ export default function NavBar({ activeItem }: NavBarProps) {
       {/* Fixed top bar */}
       <header className="pointer-events-none fixed inset-x-0 top-0 z-[200] flex justify-end px-3 pt-2 sm:px-4 md:px-8 md:pt-2">
         <div
-          className={`navbar-shell pointer-events-auto flex w-auto max-w-[calc(100vw-1.5rem)] touch-manipulation items-center gap-1.5 rounded-full px-2 py-2 sm:max-w-[calc(100vw-2rem)] md:gap-2 md:px-3 md:py-2.5 lg:px-4 ${
+          className={`navbar-shell pointer-events-auto flex w-auto max-w-[calc(100vw-1.5rem)] touch-manipulation items-center gap-1.5 rounded-[8px] px-2 py-2 sm:max-w-[calc(100vw-2rem)] md:gap-2 md:px-3 md:py-2.5 lg:px-4 ${
             hasScrolled ? "navbar-shell-scrolled" : ""
           }`}
         >
