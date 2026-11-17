@@ -174,27 +174,27 @@ export default function ClubsFeed() {
         <div className="relative mb-6 lg:mb-0 min-w-[280px]">
           <Search
             size={16}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-nb-muted pointer-events-none"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
           />
           <input
             type="text"
             placeholder="Search clubs by name or skill..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-full border-2 border-nb-ink bg-nb-white pl-10 pr-4 py-2 text-xs font-nb-mono text-nb-ink placeholder:text-nb-muted focus:border-nb-pink focus:outline-none shadow-nb-sm"
+            className="w-full rounded-full border-2 border-[#0a0a0a] dark:border-white/25 bg-white dark:bg-[#161022] pl-10 pr-4 py-2.5 text-xs font-mono text-[#0a0a0a] dark:text-white placeholder:text-neutral-400 focus:border-[#fb923c] dark:focus:border-[#fb923c] focus:outline-none shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
           />
         </div>
       </div>
 
       {/* Header Info count */}
-      <div className="flex items-center justify-between mb-6 border-b-2 border-nb-ink pb-3">
-        <div className="flex items-center gap-2">
-          <Compass size={18} className="text-nb-pink" />
-          <h2 className="font-nb-display text-lg font-bold uppercase tracking-wider text-nb-ink">
+      <div className="flex items-center justify-between mb-8 border-b-2 border-neutral-300 dark:border-white/20 pb-4">
+        <div className="flex items-center gap-2.5">
+          <Compass size={20} className="text-[#fb923c]" />
+          <h2 className="font-display text-lg font-bold uppercase tracking-wider text-[#0a0a0a] dark:text-white">
             CECS Student Organizations
           </h2>
         </div>
-        <span className="font-nb-mono text-xs font-bold text-nb-muted">
+        <span className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-400">
           Showing {filteredClubs.length} of {clubs.length} clubs
         </span>
       </div>

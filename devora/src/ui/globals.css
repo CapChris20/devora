@@ -10474,22 +10474,39 @@ html[data-theme="light"] .claim-text {
 }
 
 .poster-devora {
-  background: #0a0a0a !important;
+  background: #0d0914 !important;
   color: #ffffff !important;
-  border: 2.5px solid #0a0a0a !important;
+  border: 2.5px solid rgba(255, 255, 255, 0.8) !important;
   border-radius: 14px !important;
-  box-shadow: 6px 6px 0px 0px #ff5ca8 !important;
+  box-shadow: 8px 8px 0px 0px #000000 !important;
+}
+
+html[data-theme="light"] .poster-devora {
+  background: #ffffff !important;
+  color: #0a0a0a !important;
+  border: 2.5px solid #0a0a0a !important;
+  box-shadow: 8px 8px 0px 0px #0a0a0a !important;
 }
 
 .devora-win-row {
-  background: #18121d !important;
-  border: 1.5px solid rgba(255, 92, 168, 0.35) !important;
+  background: #171120 !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
   border-radius: 10px !important;
+}
+
+html[data-theme="light"] .devora-win-row {
+  background: #fafaf9 !important;
+  border: 2px solid #0a0a0a !important;
 }
 
 .devora-win-row span {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
+}
+
+html[data-theme="light"] .devora-win-row span {
+  color: #0a0a0a !important;
+  -webkit-text-fill-color: #0a0a0a !important;
 }
 
 .settings-panel-head {

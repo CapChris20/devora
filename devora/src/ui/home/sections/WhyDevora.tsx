@@ -135,14 +135,14 @@ export default function WhyDevora() {
   return (
     <section
       id="why-devora"
-      className="scene scene-pink"
+      className="scene scene-why-devora"
       style={{
-        background: "var(--grad)",
-        color: "var(--ink)",
+        background: "linear-gradient(180deg, #0e0817 0%, #170d24 50%, #0e0817 100%)",
+        color: "#ffffff",
         position: "relative",
       }}
     >
-      <TornEdge color="var(--grad)" />
+      <TornEdge color="#0e0817" />
 
       <div
         ref={containerRef}
@@ -153,13 +153,13 @@ export default function WhyDevora() {
         onBlur={() => setIsPaused(false)}
       >
         <div className="chapter-grid">
-          <ChapterRail label="Why Devora" field="pink" />
+          <ChapterRail label="Why Devora" field="orange" />
 
           <div>
-            <h2 className="t-title text-[var(--ink)]">
+            <h2 className="t-title text-white">
               Not another platform. The platform.
             </h2>
-            <p className="lead text-[var(--ink)] mt-4">
+            <p className="lead text-[#d1c7d8] mt-4">
               GitHub hosts code. LinkedIn hosts r&eacute;sum&eacute;s. Discord
               hosts chaos. Devora hosts the CECS people you actually want to
               know.
@@ -397,30 +397,54 @@ export default function WhyDevora() {
         }
 
         .poster-devora {
-          background: #0a0a0a !important;
+          background: #0d0914 !important;
           color: #ffffff !important;
+          border: 2.5px solid rgba(255, 255, 255, 0.8) !important;
+          border-radius: 16px;
+          box-shadow: 8px 8px 0px 0px #000000 !important;
+          padding: clamp(24px, 3vw, 36px);
+        }
+
+        :global(html[data-theme="light"]) .poster-devora {
+          background: #ffffff !important;
+          color: #0a0a0a !important;
           border: 2.5px solid #0a0a0a !important;
-          border-radius: 14px;
-          box-shadow: 6px 6px 0px 0px #ff5ca8 !important;
+          box-shadow: 8px 8px 0px 0px #0a0a0a !important;
         }
 
         .devora-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 20px;
+          margin-bottom: 22px;
+          padding-bottom: 14px;
+          border-bottom: 2px solid rgba(255, 255, 255, 0.15);
+        }
+
+        :global(html[data-theme="light"]) .devora-header {
+          border-bottom: 2px solid #0a0a0a;
         }
 
         .devora-wins-stamp {
-          display: inline-block;
-          padding: 4px 10px;
-          border-radius: 4px;
-          border: 2px dashed #ff5ca8;
-          color: #ff5ca8;
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 12px;
+          border-radius: 999px;
+          border: 1.5px solid #fb923c;
+          background: rgba(251, 146, 60, 0.12);
+          color: #fb923c;
           font-family: var(--f-mono);
-          font-size: 12px;
+          font-size: 11.5px;
           font-weight: 800;
           text-transform: uppercase;
+          letter-spacing: 0.08em;
+        }
+
+        :global(html[data-theme="light"]) .devora-wins-stamp {
+          background: #fff7ed;
+          border: 2px solid #0a0a0a;
+          color: #c2410c;
+          box-shadow: 2px 2px 0px #0a0a0a;
         }
 
         .devora-wins-list {
@@ -433,23 +457,54 @@ export default function WhyDevora() {
           display: flex;
           align-items: flex-start;
           gap: 14px;
-          background: #18121d !important;
-          border: 1.5px solid rgba(255, 92, 168, 0.35) !important;
-          border-radius: 10px;
-          padding: 14px 16px;
+          background: #171120 !important;
+          border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+          border-radius: 12px;
+          padding: 14px 18px;
+          box-shadow: 2px 2px 0px #000000;
+          transition: all 0.18s ease;
+        }
+
+        .devora-win-row:hover {
+          transform: translateY(-2px);
+          border-color: rgba(255, 255, 255, 0.45) !important;
+          box-shadow: 4px 4px 0px #000000;
+        }
+
+        :global(html[data-theme="light"]) .devora-win-row {
+          background: #fafaf9 !important;
+          border: 2px solid #0a0a0a !important;
+          box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .devora-win-row:hover {
+          background: #ffffff !important;
+          box-shadow: 4px 4px 0px #0a0a0a;
         }
 
         .devora-win-row span {
           color: #ffffff !important;
           font-family: var(--f-mono, monospace);
           font-size: 14px;
-          font-weight: 500;
+          font-weight: 600;
           line-height: 1.45;
+        }
+
+        :global(html[data-theme="light"]) .devora-win-row span {
+          color: #0a0a0a !important;
         }
 
         .win-check {
           flex-shrink: 0;
-          margin-top: 2px;
+          margin-top: 1px;
+          width: 24px;
+          height: 24px;
+          border-radius: 999px;
+          background: rgba(251, 146, 60, 0.15);
+          border: 1px solid rgba(251, 146, 60, 0.4);
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
       `}</style>
     </section>

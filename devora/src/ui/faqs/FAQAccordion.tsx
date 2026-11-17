@@ -29,6 +29,27 @@ type FaqItem = {
   answer: string;
 };
 
+function getFaqBadgeClass(category: FaqCategory, isLight: boolean): string {
+  switch (category) {
+    case "about":
+      return isLight
+        ? "bg-amber-100 border-amber-500/60 text-amber-950 font-bold"
+        : "bg-amber-500/15 border-amber-400/40 text-amber-300 font-bold";
+    case "networking":
+      return isLight
+        ? "bg-sky-100 border-sky-500/60 text-sky-950 font-bold"
+        : "bg-sky-500/15 border-sky-400/40 text-sky-300 font-bold";
+    case "features":
+      return isLight
+        ? "bg-purple-100 border-purple-500/60 text-purple-950 font-bold"
+        : "bg-purple-500/15 border-purple-400/40 text-purple-300 font-bold";
+    default:
+      return isLight
+        ? "bg-neutral-100 border-neutral-300 text-neutral-800 font-bold"
+        : "bg-neutral-800 border-white/20 text-neutral-300 font-bold";
+  }
+}
+
 const CATEGORIES: { id: FaqCategory; label: string }[] = [
   { id: "all", label: "All Questions" },
   { id: "about", label: "About Devora" },
@@ -215,26 +236,22 @@ export default function FAQAccordion() {
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-lg font-mono text-xs font-bold uppercase tracking-wider transition-all duration-150 active:translate-x-px active:translate-y-px ${
+                className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2.5 rounded-lg font-mono text-xs font-bold uppercase tracking-wider transition-all duration-150 active:translate-x-px active:translate-y-px cursor-pointer select-none ${
                   isSelected
-                    ? isLight
-                      ? "bg-[#0a0a0a] text-white border-2 border-[#0a0a0a] shadow-[3px_3px_0px_rgba(0,0,0,0.25)]"
-                      : "bg-white text-[#0a0a0a] border-2 border-white shadow-[3px_3px_0px_#000000]"
+                    ? "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a] font-extrabold"
                     : isLight
-                    ? "bg-white text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:-translate-y-0.5"
-                    : "bg-[#140e20] text-neutral-300 border-2 border-white/20 shadow-[2px_2px_0px_#000000] hover:-translate-y-0.5"
+                    ? "bg-white text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:-translate-y-0.5 hover:shadow-[3px_3px_0px_#0a0a0a]"
+                    : "bg-[#160f22] text-neutral-200 border-2 border-white/20 shadow-[2px_2px_0px_#000000] hover:-translate-y-0.5 hover:border-white/40"
                 }`}
               >
                 <span>{cat.label}</span>
                 <span
-                  className={`text-[10px] px-1.5 py-0.5 rounded font-black ${
+                  className={`text-[10px] px-2 py-0.5 rounded font-black ${
                     isSelected
-                      ? isLight
-                        ? "bg-white/20 text-white"
-                        : "bg-black/15 text-black"
+                      ? "bg-[#0a0a0a] text-white"
                       : isLight
-                      ? "bg-neutral-100 text-neutral-700"
-                      : "bg-neutral-800 text-neutral-400"
+                      ? "bg-neutral-100 text-neutral-800"
+                      : "bg-[#251a34] text-neutral-300"
                   }`}
                 >
                   {categoryCount}
@@ -270,8 +287,12 @@ export default function FAQAccordion() {
                 key={faq.id}
                 className={`flex flex-col justify-between rounded-xl border-2 transition-all duration-200 ${
                   isLight
-                    ? "bg-white border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a]"
-                    : "bg-[#140e20] border-white/25 shadow-[5px_5px_0px_#000000]"
+                    ? `bg-white border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a] ${
+                        isExpanded ? "border-l-4 border-l-[#f97316]" : ""
+                      }`
+                    : `bg-[#130b1c] border-white/25 shadow-[5px_5px_0px_#000000] hover:border-white/45 ${
+                        isExpanded ? "border-l-4 border-l-[#fb923c] border-white/40 shadow-[7px_7px_0px_#000000]" : ""
+                      }`
                 }`}
               >
                 {/* Header clickable question area */}
@@ -279,26 +300,25 @@ export default function FAQAccordion() {
                   type="button"
                   onClick={() => toggleItem(faq.id)}
                   aria-expanded={isExpanded}
-                  className="w-full text-left p-6 sm:p-7 flex flex-col gap-3 cursor-pointer group"
+                  className="w-full text-left p-6 sm:p-7 flex flex-col gap-3 cursor-pointer group select-none"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <span
-                      className={`inline-block px-2.5 py-1 rounded text-[11px] font-mono font-bold uppercase tracking-wider border ${
+                      className={`inline-block px-3 py-1 rounded text-xs font-mono uppercase tracking-wider border ${getFaqBadgeClass(
+                        faq.category,
                         isLight
-                          ? "bg-neutral-100 border-neutral-300 text-neutral-700"
-                          : "bg-neutral-800/80 border-white/15 text-neutral-300"
-                      }`}
+                      )}`}
                     >
                       {faq.categoryLabel}
                     </span>
 
                     <div
-                      className={`p-1.5 rounded-lg border transition-transform duration-200 ${
-                        isExpanded ? "rotate-180" : ""
-                      } ${
-                        isLight
+                      className={`p-1.5 rounded-lg border transition-all duration-200 ${
+                        isExpanded
+                          ? "rotate-180 bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a]"
+                          : isLight
                           ? "bg-neutral-100 border-[#0a0a0a] text-[#0a0a0a]"
-                          : "bg-neutral-800 border-white/20 text-white"
+                          : "bg-[#1f152d] border-white/20 text-white"
                       }`}
                     >
                       <ChevronDown size={16} />
@@ -309,7 +329,7 @@ export default function FAQAccordion() {
                     className={`font-display text-lg sm:text-xl font-bold leading-snug tracking-tight transition-colors ${
                       isLight
                         ? "text-[#0a0a0a] group-hover:text-neutral-700"
-                        : "text-white group-hover:text-neutral-200"
+                        : "text-white group-hover:text-amber-200"
                     }`}
                   >
                     {faq.question}

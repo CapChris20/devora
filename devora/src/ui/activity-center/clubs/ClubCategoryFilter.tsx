@@ -28,7 +28,7 @@ export default function ClubCategoryFilter({
     <div
       role="group"
       aria-label="Filter clubs by category"
-      className="flex flex-wrap gap-2 mb-6"
+      className="flex flex-wrap gap-2.5 mb-8 sm:mb-10"
     >
       {FILTERS.map((item) => {
         const isSelected = activeCategory === item.id;
@@ -38,10 +38,10 @@ export default function ClubCategoryFilter({
             type="button"
             aria-pressed={isSelected}
             onClick={() => onSelectCategory(item.id)}
-            className={`min-h-[38px] px-4 rounded-full border-2 border-nb-ink font-nb-mono text-xs font-bold tracking-[0.08em] uppercase transition-all duration-120 hover:-translate-x-px hover:-translate-y-px hover:shadow-nb-sm active:translate-x-px active:translate-y-px ${
+            className={`min-h-[38px] px-4.5 rounded-full border-2 font-mono text-xs font-bold tracking-[0.08em] uppercase transition-all duration-120 cursor-pointer select-none active:translate-x-px active:translate-y-px ${
               isSelected
-                ? "bg-nb-ink text-nb-white"
-                : "bg-nb-white text-nb-ink"
+                ? "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] font-extrabold"
+                : "bg-white dark:bg-[#161022] text-[#0a0a0a] dark:text-neutral-300 border-[#0a0a0a] dark:border-white/20 shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] hover:-translate-y-0.5"
             }`}
           >
             {item.label}

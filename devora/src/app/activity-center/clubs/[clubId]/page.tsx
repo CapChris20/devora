@@ -172,7 +172,7 @@ export default function ClubDetailPage({ params }: ClubDetailPageProps) {
         </p>
         <Link
           href="/activity-center/clubs"
-          className="mt-6 inline-flex items-center gap-2 rounded-lg border-2 border-nb-ink bg-nb-pink px-4 py-2 font-nb-mono text-xs font-bold uppercase text-nb-ink shadow-nb-sm"
+          className="mt-6 inline-flex items-center gap-2 rounded-lg border-2 border-nb-ink bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] px-4 py-2 font-nb-mono text-xs font-bold uppercase text-nb-ink shadow-nb-sm"
         >
           <ArrowLeft size={14} />
           <span>Back to Clubs</span>
@@ -198,14 +198,14 @@ export default function ClubDetailPage({ params }: ClubDetailPageProps) {
       <div className="rounded-xl border-2 border-nb-ink bg-nb-white p-6 sm:p-8 shadow-nb">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 border-b-2 border-nb-ink pb-6">
           <div>
-            <span className="inline-block rounded-md border-2 border-nb-ink bg-nb-pink/15 px-3 py-0.5 font-nb-mono text-xs font-bold uppercase tracking-wider text-nb-ink mb-2">
+            <span className="inline-block rounded-md border-2 border-amber-500/60 bg-amber-100 px-3 py-0.5 font-nb-mono text-xs font-bold uppercase tracking-wider text-amber-950 mb-2">
               {club.category}
             </span>
             <h1 className="font-nb-display text-2xl sm:text-3xl font-extrabold text-nb-ink">
               {club.name}
             </h1>
             {club.shortName !== club.name && (
-              <p className="font-nb-mono text-sm font-bold text-nb-pink mt-1">
+              <p className="font-nb-mono text-sm font-bold text-[#fb923c] mt-1">
                 ({club.shortName})
               </p>
             )}
@@ -218,7 +218,7 @@ export default function ClubDetailPage({ params }: ClubDetailPageProps) {
             className={`inline-flex items-center justify-center gap-2 rounded-lg border-2 border-nb-ink px-5 py-2.5 font-nb-mono text-xs font-bold uppercase tracking-wider transition-all self-start ${
               isFollowed
                 ? "bg-nb-ink text-nb-white hover:bg-neutral-800"
-                : "bg-nb-pink text-nb-ink hover:bg-pink-300 shadow-nb-sm"
+                : "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-nb-ink shadow-nb-sm"
             } ${isTogglingFollow ? "opacity-60 cursor-not-allowed" : "cursor-pointer"}`}
           >
             <Bookmark size={15} className={isFollowed ? "fill-current" : ""} />
@@ -234,7 +234,7 @@ export default function ClubDetailPage({ params }: ClubDetailPageProps) {
 
           <div className="flex flex-wrap gap-4 pt-2">
             <div className="flex items-center gap-2 rounded-lg border border-nb-ink/30 bg-neutral-50 px-3.5 py-2 text-xs font-nb-mono text-neutral-800">
-              <Calendar size={14} className="text-nb-pink" />
+              <Calendar size={14} className="text-[#fb923c]" />
               <span>
                 <strong>Meetings:</strong> {club.meetingFrequency}
               </span>
@@ -246,7 +246,7 @@ export default function ClubDetailPage({ params }: ClubDetailPageProps) {
                 <strong>{club.memberCount}</strong> Devora members
               </span>
               <span className="flex items-center gap-1.5">
-                <Bookmark size={14} className="text-nb-pink" />
+                <Bookmark size={14} className="text-neutral-500" />
                 <strong>{club.followerCount}</strong> followers
               </span>
             </div>
@@ -269,7 +269,7 @@ export default function ClubDetailPage({ params }: ClubDetailPageProps) {
       {/* Post Update Form Card */}
       <div className="rounded-xl border-2 border-nb-ink bg-nb-white p-6 shadow-nb">
         <div className="flex items-center gap-2 mb-3">
-          <MessageSquare size={16} className="text-nb-pink" />
+          <MessageSquare size={16} className="text-[#fb923c]" />
           <h2 className="font-nb-display text-base font-bold uppercase tracking-wide text-nb-ink">
             Post an Update
           </h2>
@@ -284,7 +284,7 @@ export default function ClubDetailPage({ params }: ClubDetailPageProps) {
             value={newPostText}
             onChange={(e) => setNewPostText(e.target.value)}
             placeholder="What's happening in this club? Post a meeting time, announcement, or call for members..."
-            className="w-full rounded-lg border-2 border-nb-ink bg-neutral-50 p-3 text-sm font-nb-body text-nb-ink placeholder:text-neutral-400 focus:bg-white focus:border-nb-pink focus:outline-none"
+            className="w-full rounded-lg border-2 border-nb-ink bg-neutral-50 p-3 text-sm font-nb-body text-nb-ink placeholder:text-neutral-400 focus:bg-white focus:border-[#0a0a0a] focus:outline-none"
             maxLength={1000}
             disabled={isSubmitting}
           />
@@ -326,7 +326,7 @@ export default function ClubDetailPage({ params }: ClubDetailPageProps) {
               >
                 <div className="flex items-center justify-between gap-2 border-b border-neutral-100 pb-2 mb-3">
                   <div className="flex items-center gap-2">
-                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-nb-ink bg-gradient-to-br from-nb-pink to-nb-orange font-nb-mono text-xs font-bold text-nb-ink">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full border border-nb-ink bg-gradient-to-br from-[#FF6B9D] to-[#FB923C] font-nb-mono text-xs font-bold text-nb-ink">
                       {post.authorName.charAt(0).toUpperCase()}
                     </div>
                     <span className="font-nb-mono text-xs font-bold text-nb-ink">
