@@ -10197,14 +10197,14 @@ html[data-theme="light"] .drawer-foot {
    ========================================================================== */
 
 .settings-panel {
-  background: #0e0918;
-  border: 2.5px solid #ff5ca8;
-  border-radius: 6px;
+  background: #0e0918 !important;
+  border: 2.5px solid #ff5ca8 !important;
+  border-radius: 6px !important;
   padding: clamp(20px, 3vw, 30px);
   display: flex;
   flex-direction: column;
   gap: 20px;
-  box-shadow: 6px 6px 0px 0px #000000, 7px 7px 0px 0px #ff5ca8;
+  box-shadow: 6px 6px 0px 0px #000000, 7px 7px 0px 0px #ff5ca8 !important;
 }
 
 html[data-theme="light"] .settings-panel {
@@ -10212,6 +10212,101 @@ html[data-theme="light"] .settings-panel {
   border: 2.5px solid #0a0a0a !important;
   box-shadow: 6px 6px 0px 0px #0a0a0a !important;
   color: #0a0a0a !important;
+}
+
+/* What is Devora & Why Devora rock-solid high-contrast styling */
+.what-is-poster-panel {
+  position: relative;
+  padding: clamp(18px, 2.2vw, 32px);
+  border-radius: 24px;
+  background: #0e0918 !important;
+  border: 2.5px solid #ff5ca8 !important;
+  box-shadow: 6px 6px 0px 0px #ff5ca8 !important;
+}
+
+html[data-theme="light"] .what-is-poster-panel {
+  background: #ffffff !important;
+  border: 3px solid #0a0a0a !important;
+  box-shadow: 6px 6px 0px 0px #0a0a0a !important;
+}
+
+.what-is-headline {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .what-is-headline {
+  color: #0a0a0a !important;
+}
+
+.what-is-lead {
+  color: rgba(255, 255, 255, 0.9) !important;
+}
+
+html[data-theme="light"] .what-is-lead {
+  color: #1f2937 !important;
+}
+
+.what-is-lead strong {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .what-is-lead strong {
+  color: #0a0a0a !important;
+}
+
+.claim-row {
+  background: #18121d !important;
+  border: 1.5px solid rgba(255, 92, 168, 0.4) !important;
+  box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.8) !important;
+}
+
+html[data-theme="light"] .claim-row {
+  background: #f7f2f5 !important;
+  border: 2px solid #0a0a0a !important;
+  box-shadow: 3px 3px 0 0 #0a0a0a !important;
+}
+
+.claim-title {
+  color: #ffffff !important;
+}
+
+html[data-theme="light"] .claim-title {
+  color: #0a0a0a !important;
+}
+
+.claim-text {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+html[data-theme="light"] .claim-text {
+  color: #4a3e45 !important;
+}
+
+.poster-them {
+  background: #ffffff !important;
+  color: #0a0a0a !important;
+  border: 2.5px solid #0a0a0a !important;
+  border-radius: 14px !important;
+  box-shadow: 6px 6px 0px 0px #0a0a0a !important;
+}
+
+.poster-devora {
+  background: #0a0a0a !important;
+  color: #ffffff !important;
+  border: 2.5px solid #0a0a0a !important;
+  border-radius: 14px !important;
+  box-shadow: 6px 6px 0px 0px #ff5ca8 !important;
+}
+
+.devora-win-row {
+  background: #18121d !important;
+  border: 1.5px solid rgba(255, 92, 168, 0.35) !important;
+  border-radius: 10px !important;
+}
+
+.devora-win-row span {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
 }
 
 .settings-panel-head {

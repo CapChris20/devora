@@ -28,6 +28,9 @@ const TABS: TabDefinition[] = [
     label: "Study Groups",
     href: "/activity-center/study-groups",
   },
+  { key: "messaging", label: "Messages", href: "/messages" },
+  { key: "connections", label: "Connections", href: "/connections" },
+  { key: "clubs", label: "Clubs", href: "/activity-center/clubs" },
 ];
 
 // ===== MAIN COMPONENT =====

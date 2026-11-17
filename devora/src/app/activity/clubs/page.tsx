@@ -1,7 +1,7 @@
-// /activity/clubs — thin route file; the tab UI lives in src/ui/activity-tabs/clubs/ClubsTab.tsx.
+// /activity/clubs redirects to /activity-center/clubs.
 
-import ClubsTab from "@/ui/activity-tabs/clubs/ClubsTab";
+import { redirect } from "next/navigation";
 
 export default function ClubsPage() {
-  return <ClubsTab />;
+  redirect("/activity-center/clubs");
 }
