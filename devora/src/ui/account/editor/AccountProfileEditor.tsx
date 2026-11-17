@@ -627,7 +627,7 @@ export default function AccountProfileEditor({
           <div className="account-editor-actions">
             <button
               type="button"
-              className="sign-in-google-btn flex-1"
+              className="account-editor-cancel-btn flex-1"
               onClick={onCancel}
               disabled={isSaving}
             >
@@ -635,7 +635,7 @@ export default function AccountProfileEditor({
             </button>
             <button
               type="submit"
-              className="btn-neon font-display flex-1 rounded-full px-4 py-3 text-sm font-semibold uppercase tracking-[0.12em]"
+              className="account-editor-save-btn flex-1"
               disabled={isSaving || !canSave}
             >
               {isSaving ? SAVING_BUTTON_LABEL : SAVE_BUTTON_LABEL}

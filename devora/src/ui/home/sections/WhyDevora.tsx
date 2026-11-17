@@ -309,9 +309,11 @@ export default function WhyDevora() {
         }
 
         .poster-them {
-          background: var(--paper);
-          color: var(--ink);
-          box-shadow: var(--shadow);
+          background: #ffffff !important;
+          color: #0a0a0a !important;
+          border: 2.5px solid #0a0a0a !important;
+          border-radius: 14px;
+          box-shadow: 6px 6px 0px 0px #0a0a0a !important;
         }
 
         .them-header {
@@ -395,9 +397,11 @@ export default function WhyDevora() {
         }
 
         .poster-devora {
-          background: var(--ink);
-          color: white;
-          box-shadow: 7px 7px 0 0 var(--ink);
+          background: #0a0a0a !important;
+          color: #ffffff !important;
+          border: 2.5px solid #0a0a0a !important;
+          border-radius: 14px;
+          box-shadow: 6px 6px 0px 0px #ff5ca8 !important;
         }
 
         .devora-header {
@@ -409,15 +413,13 @@ export default function WhyDevora() {
 
         .devora-wins-stamp {
           display: inline-block;
-          padding: 3px 10px;
+          padding: 4px 10px;
           border-radius: 4px;
-          border: 2px dashed #ff9a3d;
-          background: var(--grad);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          border: 2px dashed #ff5ca8;
+          color: #ff5ca8;
           font-family: var(--f-mono);
           font-size: 12px;
-          font-weight: 700;
+          font-weight: 800;
           text-transform: uppercase;
         }
 
@@ -431,15 +433,23 @@ export default function WhyDevora() {
           display: flex;
           align-items: flex-start;
           gap: 14px;
-          background: #19141d;
-          border: 1.5px solid rgba(255, 255, 255, 0.14);
+          background: #18121d !important;
+          border: 1.5px solid rgba(255, 92, 168, 0.35) !important;
           border-radius: 10px;
           padding: 14px 16px;
         }
 
+        .devora-win-row span {
+          color: #ffffff !important;
+          font-family: var(--f-mono, monospace);
+          font-size: 14px;
+          font-weight: 500;
+          line-height: 1.45;
+        }
+
         .win-check {
           flex-shrink: 0;
-          margin-top: 1px;
+          margin-top: 2px;
         }
       `}</style>
     </section>

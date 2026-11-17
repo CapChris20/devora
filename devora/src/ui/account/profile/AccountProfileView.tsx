@@ -217,7 +217,7 @@ export default function AccountProfileView({
                   <div className="empty-section-hint">
                     <span>No bio yet.</span>
                     <button type="button" onClick={onEdit} className="add-link">
-                      <Plus size={13} color="#ff5ca8" />
+                      <Plus size={12} color="currentColor" />
                       <span className="add-link-text">Add bio</span>
                     </button>
                   </div>
@@ -245,7 +245,7 @@ export default function AccountProfileView({
                   <div className="empty-section-hint">
                     <span>No items.</span>
                     <button type="button" onClick={onEdit} className="add-link">
-                      <Plus size={13} color="#ff5ca8" />
+                      <Plus size={12} color="currentColor" />
                       <span className="add-link-text">Add looking for</span>
                     </button>
                   </div>
@@ -267,7 +267,7 @@ export default function AccountProfileView({
                   <div className="empty-section-hint">
                     <span>No experience listed.</span>
                     <button type="button" onClick={onEdit} className="add-link">
-                      <Plus size={13} color="#ff5ca8" />
+                      <Plus size={12} color="currentColor" />
                       <span className="add-link-text">Add experience</span>
                     </button>
                   </div>
@@ -295,7 +295,7 @@ export default function AccountProfileView({
                   <div className="empty-section-hint">
                     <span>No focus tags.</span>
                     <button type="button" onClick={onEdit} className="add-link">
-                      <Plus size={13} color="#ff5ca8" />
+                      <Plus size={12} color="currentColor" />
                       <span className="add-link-text">Add focus</span>
                     </button>
                   </div>
@@ -323,7 +323,7 @@ export default function AccountProfileView({
                   <div className="empty-section-hint">
                     <span>No interests.</span>
                     <button type="button" onClick={onEdit} className="add-link">
-                      <Plus size={13} color="#ff5ca8" />
+                      <Plus size={12} color="currentColor" />
                       <span className="add-link-text">Add interests</span>
                     </button>
                   </div>
@@ -356,7 +356,7 @@ export default function AccountProfileView({
                             onClick={onEdit}
                             className="social-add-link"
                           >
-                            <Plus size={12} color="#ff5ca8" />
+                            <Plus size={12} color="currentColor" />
                             <span className="add-link-text">Add link</span>
                           </button>
                         )}
@@ -723,31 +723,36 @@ export default function AccountProfileView({
           color: var(--text-muted);
         }
 
-        .add-link {
+        .add-link,
+        .social-add-link {
           display: inline-flex;
           align-items: center;
-          gap: 4px;
-          background: rgb(255 92 168 / 0.1);
-          border: 1px solid rgb(255 92 168 / 0.45);
-          border-radius: 999px;
-          padding: 3px 10px;
+          gap: 6px;
+          background: #18121d;
+          border: 1.5px solid #ff5ca8;
+          border-radius: 9999px;
+          padding: 4px 14px;
           cursor: pointer;
-          transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s var(--spring);
+          color: #ff5ca8;
+          box-shadow: 2px 2px 0px #000000;
+          transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s var(--spring), box-shadow 0.18s ease;
         }
 
-        .add-link:hover {
-          background: rgb(255 92 168 / 0.22);
+        .add-link:hover,
+        .social-add-link:hover {
+          background: #ff5ca8;
           border-color: #ff5ca8;
+          color: #0d0b0e;
           transform: translateY(-1px);
+          box-shadow: 3px 3px 0px #000000;
         }
 
         .add-link-text {
-          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
+          font-family: var(--f-mono, monospace);
           font-size: 11.5px;
           font-weight: 700;
           letter-spacing: 0.02em;
+          color: inherit;
         }
 
         .tags-flex {
@@ -808,23 +813,6 @@ export default function AccountProfileView({
           white-space: nowrap;
         }
 
-        .social-add-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          background: #281228;
-          border: 1.5px solid #ff5ca8;
-          padding: 4px 12px;
-          border-radius: 999px;
-          cursor: pointer;
-          transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s var(--spring);
-        }
-
-        .social-add-link:hover {
-          background: #ff5ca8;
-          color: #0d0b0e;
-          transform: translateY(-1px);
-        }
 
         .private-disclosure-btn {
           width: 100%;
@@ -997,11 +985,25 @@ export default function AccountProfileView({
           color: #4b5563;
         }
 
+        :global(html[data-theme="light"]) .add-link,
         :global(html[data-theme="light"]) .social-add-link {
           background: #ffffff;
           border: 2px solid #0a0a0a;
           color: #0a0a0a;
           box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .add-link:hover,
+        :global(html[data-theme="light"]) .social-add-link:hover {
+          background: #ff6b9d;
+          border-color: #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 3px 3px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .add-link-text {
+          color: #0a0a0a;
+          font-weight: 800;
         }
 
         :global(html[data-theme="light"]) .disclosure-label {

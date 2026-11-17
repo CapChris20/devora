@@ -132,11 +132,11 @@ export default function DiscoveryFilterSidebar({
         }
 
         .filter-pill.is-active {
-          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%)) !important;
-          border-color: #ff2bd6 !important;
-          color: #0d0b0e !important;
+          background: linear-gradient(135deg, #FF6B9D, #FB923C) !important;
+          border-color: #0a0a0a !important;
+          color: #0a0a0a !important;
           font-weight: 800;
-          box-shadow: 0 3px 12px rgb(255 92 168 / 0.38);
+          box-shadow: 2px 2px 0px #000000;
           transform: translateY(-1px);
         }
 

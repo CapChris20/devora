@@ -25,8 +25,6 @@ type FaqCategory = "all" | "about" | "networking" | "features";
 type FaqItem = {
   id: string;
   category: FaqCategory;
-  /** Short badge label shown beside each question. */
-  stamp: string;
   question: string;
   getAnswer: (isLight: boolean) => ReactNode;
 };
@@ -46,7 +44,6 @@ const FAQS: FaqItem[] = [
   {
     id: "origin",
     category: "about",
-    stamp: "About",
     question: "How did the idea for Devora come about?",
     getAnswer: (isLight: boolean) => (
       <>
@@ -75,7 +72,6 @@ const FAQS: FaqItem[] = [
   {
     id: "nothing-comes",
     category: "about",
-    stamp: "About",
     question: "What if I use Devora and nothing comes of it? What's the point?",
     getAnswer: (isLight: boolean) => (
       <>
@@ -102,7 +98,6 @@ const FAQS: FaqItem[] = [
   {
     id: "not-tinder",
     category: "networking",
-    stamp: "Career",
     question: 'Is Devora more than just a "University Tinder" for meeting people?',
     getAnswer: (isLight: boolean) => (
       <>
@@ -127,7 +122,6 @@ const FAQS: FaqItem[] = [
   {
     id: "other-schools",
     category: "networking",
-    stamp: "Career",
     question:
       "How do I know this will be helpful? Have other schools done something similar?",
     getAnswer: (isLight: boolean) => (
@@ -155,7 +149,6 @@ const FAQS: FaqItem[] = [
   {
     id: "landing-role",
     category: "networking",
-    stamp: "Career",
     question:
       "How can this help me with networking and landing a role I want or need?",
     getAnswer: (isLight: boolean) => (
@@ -182,7 +175,6 @@ const FAQS: FaqItem[] = [
   {
     id: "no-swipe",
     category: "features",
-    stamp: "Privacy",
     question: "Why isn't there a swipe/match system?",
     getAnswer: (isLight: boolean) => (
       <>
@@ -207,7 +199,6 @@ const FAQS: FaqItem[] = [
   {
     id: "deactivate",
     category: "features",
-    stamp: "Privacy",
     question:
       "Do I have to use Devora constantly? Can I deactivate my profile anytime?",
     getAnswer: (isLight: boolean) => (
@@ -233,7 +224,6 @@ const FAQS: FaqItem[] = [
   {
     id: "messaging",
     category: "features",
-    stamp: "Privacy",
     question: "Can I message anyone or only people I've connected with?",
     getAnswer: (isLight: boolean) => (
       <>
@@ -258,28 +248,7 @@ const FAQS: FaqItem[] = [
 
 // ===== SUB-COMPONENTS =====
 
-/** Category badge shown beside question. */
-function Stamp({
-  children,
-  isLight,
-}: {
-  children: ReactNode;
-  isLight: boolean;
-}) {
-  return (
-    <span
-      className={`inline-flex items-center justify-center h-7 px-3 rounded font-mono text-xs font-bold uppercase tracking-[0.08em] shrink-0 select-none transition-colors duration-200 ${
-        isLight
-          ? "border-2 border-[#0a0a0a] bg-[#ffeb99] text-[#0a0a0a] shadow-[1.5px_1.5px_0px_#0a0a0a]"
-          : "border-[1.5px] border-[#ff9a3d] bg-[#1e1028] text-[#ffeb99]"
-      }`}
-    >
-      {children}
-    </span>
-  );
-}
-
-/** Single accordion row — Neo-Brutalist card. */
+/** Single accordion row — Clean Neo-Brutalist card with no awkward yellow chips. */
 function AccordionRow({
   faq,
   isOpen,
@@ -298,10 +267,10 @@ function AccordionRow({
       className={`relative overflow-hidden rounded-xl transition-all duration-200 ${
         isLight
           ? isOpen
-            ? "bg-[#fff7fa] border-[3px] border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a]"
-            : "bg-white border-[3px] border-[#0a0a0a] shadow-[4px_4px_0px_#0a0a0a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#0a0a0a]"
+            ? "bg-[#fff7fa] border-[2.5px] border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a]"
+            : "bg-white border-[2.5px] border-[#0a0a0a] shadow-[4px_4px_0px_#0a0a0a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#0a0a0a]"
           : isOpen
-          ? "bg-[#160c22] border-[2.5px] border-[#ff5ca8] shadow-[5px_5px_0px_#000000,6px_6px_0px_#ff5ca8]"
+          ? "bg-[#160c22] border-[2px] border-[#ff5ca8] shadow-[5px_5px_0px_#000000,6px_6px_0px_#ff5ca8]"
           : "bg-[#0e0817] border-2 border-[#2a183d] shadow-[4px_4px_0px_#000000] hover:border-[#ff5ca8]/60"
       }`}
     >
@@ -312,25 +281,20 @@ function AccordionRow({
           aria-expanded={isOpen}
           aria-controls={panelId}
           onClick={onToggle}
-          className="w-full grid grid-cols-[1fr_auto_44px] items-center gap-4 min-h-[76px] px-5 sm:px-7 py-4.5 bg-transparent border-none cursor-pointer text-left outline-none"
+          className="w-full flex items-center justify-between gap-4 min-h-[72px] px-6 sm:px-8 py-4.5 bg-transparent border-none cursor-pointer text-left outline-none"
         >
           {/* Question text */}
           <span
-            className={`font-mono text-base sm:text-lg font-bold leading-snug tracking-tight max-w-[58ch] ${
+            className={`font-mono text-base sm:text-[17px] font-bold leading-snug tracking-tight max-w-[62ch] ${
               isLight ? "text-[#0a0a0a]" : "text-white"
             }`}
           >
             {faq.question}
           </span>
 
-          {/* Category Stamp (hidden on very small mobile) */}
-          <span className="hidden sm:flex items-center justify-center">
-            <Stamp isLight={isLight}>{faq.stamp}</Stamp>
-          </span>
-
           {/* Chevron circle */}
           <span
-            className={`w-11 h-11 rounded-full flex items-center justify-center shrink-0 transition-transform duration-260 ease-[cubic-bezier(.23,1,.32,1)] ${
+            className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-transform duration-260 ease-[cubic-bezier(.23,1,.32,1)] ${
               isLight
                 ? isOpen
                   ? "bg-[#ff6b9d] border-2 border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] rotate-180"
@@ -359,7 +323,7 @@ function AccordionRow({
             className="overflow-hidden"
           >
             <div
-              className={`border-t px-5 sm:px-7 pt-4 pb-6 ${
+              className={`border-t px-6 sm:px-8 pt-4 pb-6 ${
                 isLight ? "border-[#0a0a0a]/15" : "border-[#2a183d]"
               }`}
             >
@@ -382,7 +346,7 @@ function AccordionRow({
 
 /**
  * Redesigned FAQ accordion.
- * High contrast, visible text in light and dark mode, zero emojis.
+ * High contrast, spacious category tabs, visible text in light and dark mode, zero emojis.
  */
 export default function FAQAccordion() {
   const uid = useId();
@@ -403,8 +367,7 @@ export default function FAQAccordion() {
         selectedCategory === "all" || faq.category === selectedCategory;
       const textMatch =
         !q ||
-        faq.question.toLowerCase().includes(q) ||
-        faq.stamp.toLowerCase().includes(q);
+        faq.question.toLowerCase().includes(q);
       return catMatch && textMatch;
     });
   }, [selectedCategory, searchQuery]);
@@ -456,7 +419,7 @@ export default function FAQAccordion() {
           aria-label="Search FAQ questions"
           className={`w-full h-15 pl-14 pr-12 rounded-xl font-mono text-base font-bold outline-none transition-all duration-200 ${
             isLight
-              ? "bg-white border-[3px] border-[#0a0a0a] text-[#0a0a0a] placeholder:text-[#666666] shadow-[4px_4px_0px_#0a0a0a] focus:shadow-[6px_6px_0px_#0a0a0a] focus:translate-x-[-1px] focus:translate-y-[-1px]"
+              ? "bg-white border-[2.5px] border-[#0a0a0a] text-[#0a0a0a] placeholder:text-[#666666] shadow-[4px_4px_0px_#0a0a0a] focus:shadow-[6px_6px_0px_#0a0a0a] focus:translate-x-[-1px] focus:translate-y-[-1px]"
               : "bg-[#0e0817] border-[2.5px] border-[#ff5ca8] text-white placeholder:text-white/45 shadow-[4px_4px_0px_#000000] focus:border-[#ff2bd6] focus:shadow-[5px_5px_0px_#000000,6px_6px_0px_#ff2bd6]"
           }`}
         />
@@ -477,8 +440,8 @@ export default function FAQAccordion() {
         )}
       </div>
 
-      {/* ── Category pills ── */}
-      <div className="flex flex-wrap gap-2.5 items-center">
+      {/* ── Category pills with spacious breathing room ── */}
+      <div className="flex flex-wrap gap-3 sm:gap-3.5 items-center my-1">
         {CATEGORIES.map((cat) => {
           const isSelected = selectedCategory === cat.id;
           return (
@@ -487,9 +450,9 @@ export default function FAQAccordion() {
               type="button"
               onClick={() => setSelectedCategory(cat.id)}
               aria-pressed={isSelected}
-              className={`h-11 px-4.5 rounded-lg font-mono text-[14.5px] font-bold cursor-pointer inline-flex items-center gap-2 transition-all duration-200 select-none ${
+              className={`h-11 sm:h-12 px-5 sm:px-6 rounded-xl font-mono text-sm sm:text-[14.5px] font-bold cursor-pointer inline-flex items-center gap-2.5 transition-all duration-200 select-none ${
                 isSelected
-                  ? "bg-gradient-to-r from-[#ff9a3d] to-[#ff5ca8] text-[#0a0a0a] border-[3px] border-[#0a0a0a] shadow-[4px_4px_0px_#0a0a0a] translate-x-[-1px] translate-y-[-1px]"
+                  ? "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a] translate-x-[-1px] translate-y-[-1px]"
                   : isLight
                   ? "bg-white text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:bg-[#f4eef0] hover:translate-y-[-1px]"
                   : "bg-[#0e0817] text-white border-2 border-[#2a183d] shadow-[3px_3px_0px_#000000] hover:border-[#ff5ca8] hover:translate-y-[-1px]"
@@ -513,7 +476,7 @@ export default function FAQAccordion() {
       </div>
 
       {/* ── Meta row: count + expand/collapse all ── */}
-      <div className="flex items-center justify-between flex-wrap gap-3">
+      <div className="flex items-center justify-between flex-wrap gap-3 pt-1">
         <span
           aria-live="polite"
           className={`font-mono text-xs font-bold tracking-[0.08em] uppercase px-4 py-2 rounded-lg ${
@@ -531,7 +494,7 @@ export default function FAQAccordion() {
             onClick={handleExpandCollapse}
             className={`font-mono text-xs font-bold tracking-[0.08em] uppercase px-4 py-2 rounded-lg cursor-pointer inline-flex items-center gap-2 transition-all duration-200 select-none ${
               isLight
-                ? "bg-white border-2 border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:bg-[#ff5ca8] active:translate-x-0.5 active:translate-y-0.5"
+                ? "bg-white border-2 border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:bg-[#ff6b9d] active:translate-x-0.5 active:translate-y-0.5"
                 : "bg-[#0e0817] border-[1.5px] border-[#ff5ca8] text-[#ff5ca8] shadow-[2px_2px_0px_#000000] hover:bg-[#ff5ca8] hover:text-[#08040f] active:translate-x-0.5 active:translate-y-0.5"
             }`}
           >
@@ -543,7 +506,7 @@ export default function FAQAccordion() {
 
       {/* ── Accordion rows ── */}
       {filteredFaqs.length > 0 ? (
-        <div className="flex flex-col gap-3.5">
+        <div className="flex flex-col gap-4">
           {filteredFaqs.map((faq) => (
             <AccordionRow
               key={faq.id}
@@ -558,64 +521,22 @@ export default function FAQAccordion() {
       ) : (
         /* Empty search state — Neo-Brutalist, strictly no emojis */
         <div
-          className={`relative overflow-hidden text-center py-12 px-6 rounded-2xl ${
+          className={`p-10 rounded-xl text-center border-2 ${
             isLight
-              ? "bg-white border-[3px] border-[#0a0a0a] shadow-[6px_6px_0px_#0a0a0a]"
-              : "bg-[#0e0817] border-[2.5px] border-[#ff5ca8] shadow-[5px_5px_0px_#000000,6px_6px_0px_#ff5ca8]"
+              ? "bg-white border-[#0a0a0a] shadow-[4px_4px_0px_#0a0a0a] text-[#0a0a0a]"
+              : "bg-[#0e0817] border-[#ff5ca8]/60 shadow-[4px_4px_0px_#000000] text-white"
           }`}
         >
-          <span
-            aria-hidden="true"
-            className={`pointer-events-none select-none absolute top-3 right-4 font-mono text-[10px] font-bold tracking-[0.2em] uppercase ${
-              isLight ? "text-[#0a0a0a]/30" : "text-[#ff5ca8]/40"
-            }`}
-          >
-            FAQS // 0_MATCHES
-          </span>
-
-          {/* Geometric glyph container */}
-          <div className="mx-auto mb-4 flex items-center justify-center w-16 h-16 rounded-xl border-[2.5px] border-[#0a0a0a] bg-gradient-to-r from-[#ff9a3d] to-[#ff5ca8] shadow-[4px_4px_0px_#000000] -rotate-2">
-            <svg
-              aria-hidden="true"
-              width="28"
-              height="28"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="#0a0a0a"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-              <line x1="8" y1="11" x2="14" y2="11" />
-            </svg>
-          </div>
-
-          <h3
-            className={`m-0 font-mono text-xl font-bold ${
-              isLight ? "text-[#0a0a0a]" : "text-white"
-            }`}
-          >
-            No matching questions found
-          </h3>
-
-          <p
-            className={`mt-2 mb-6 font-mono text-sm max-w-[42ch] mx-auto ${
-              isLight ? "text-[#555555]" : "text-white/60"
-            }`}
-          >
-            We couldn&apos;t find any answers matching &ldquo;{searchQuery}&rdquo;.
-            Try another keyword or reset the search filter.
+          <p className="font-mono text-base font-bold mb-2">No matching questions found</p>
+          <p className="font-mono text-sm opacity-75 mb-6">
+            Try adjusting your search terms or view all categories.
           </p>
-
           <button
             type="button"
             onClick={clearSearch}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg border-2 border-[#0a0a0a] bg-gradient-to-r from-[#ff9a3d] to-[#ff5ca8] text-[#0a0a0a] font-mono text-sm font-bold shadow-[3px_3px_0px_#000000] hover:translate-x-[-1px] hover:translate-y-[-1px] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
+            className="h-10 px-5 rounded-lg font-mono text-xs font-bold uppercase tracking-[0.08em] bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a]"
           >
-            <X size={16} strokeWidth={2.8} />
-            <span>Clear search filter</span>
+            View all questions
           </button>
         </div>
       )}

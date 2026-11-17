@@ -481,7 +481,7 @@ export default function DiscoveryGridContent() {
                 <div className="drawer-foot">
                   <button
                     type="button"
-                    className="link"
+                    className="font-mono text-xs font-bold underline underline-offset-4 cursor-pointer text-[#0a0a0a] dark:text-[#b3a7be] hover:text-[#ff5ca8] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
                     onClick={clearSearchAndFilters}
                     disabled={!hasActiveFilters}
                   >
@@ -489,7 +489,7 @@ export default function DiscoveryGridContent() {
                   </button>
                   <button
                     type="button"
-                    className="btn btn-primary"
+                    className="h-10 px-5 rounded-lg font-mono text-xs font-extrabold uppercase tracking-[0.08em] cursor-pointer bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[3px_3px_0px_#0a0a0a] active:translate-x-0.5 active:translate-y-0.5"
                     onClick={() => setAreFiltersOpen(false)}
                   >
                     Show {filteredProfiles.length} student{filteredProfiles.length === 1 ? "" : "s"}
