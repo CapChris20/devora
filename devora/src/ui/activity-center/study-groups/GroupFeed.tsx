@@ -11,7 +11,6 @@ import gsap from "gsap";
 import { useGSAP } from "@gsap/react";
 
 import { useActivityCenter } from "../ActivityCenterContext";
-import { AVAILABLE_COURSES } from "../placeholder-data";
 import EmptyState from "../shared/EmptyState";
 import CreateGroupModal from "./CreateGroupModal";
 import GroupCard from "./GroupCard";
@@ -71,12 +70,17 @@ export default function GroupFeed() {
     { dependencies: [courseFilter], scope: containerRef }
   );
 
+  // Dynamic courses from actual student groups (no hardcoded classes)
+  const dynamicCourses = Array.from(
+    new Set(groups.map((g) => g.course?.trim()).filter(Boolean))
+  );
+
   return (
     <div ref={containerRef} className="w-full">
       {/* Feed header */}
       <div
         data-in
-        className="flex flex-wrap items-end justify-between gap-3.5 mb-5.5"
+        className="flex flex-wrap items-end justify-between gap-3.5 mb-6 sm:mb-8"
       >
         <div className="min-w-0">
           <p className="flex items-center gap-2 mb-2 font-nb-mono text-[11px] font-bold tracking-[0.18em] uppercase text-nb-muted">
@@ -108,32 +112,34 @@ export default function GroupFeed() {
         </button>
       </div>
 
-      {/* Course Filter Chips */}
-      <div
-        data-in
-        role="group"
-        aria-label="Filter by course"
-        className="flex flex-wrap gap-2 mb-6.5"
-      >
-        {["All", ...AVAILABLE_COURSES].map((courseCode) => {
-          const isSelected = courseFilter === courseCode;
-          return (
-            <button
-              key={courseCode}
-              type="button"
-              aria-pressed={isSelected}
-              onClick={() => setCourseFilter(courseCode)}
-              className={`min-h-[38px] px-4 rounded-full border-2 border-nb-ink font-nb-mono text-xs font-bold tracking-[0.08em] uppercase transition-all duration-120 hover:-translate-x-px hover:-translate-y-px hover:shadow-nb-sm active:translate-x-px active:translate-y-px ${
-                isSelected
-                  ? "bg-nb-ink text-nb-white"
-                  : "bg-nb-white text-nb-ink"
-              }`}
-            >
-              {courseCode}
-            </button>
-          );
-        })}
-      </div>
+      {/* Course Filter Chips (shown only when groups exist with courses) */}
+      {dynamicCourses.length > 0 && (
+        <div
+          data-in
+          role="group"
+          aria-label="Filter by course"
+          className="flex flex-wrap gap-2 mb-8 sm:mb-10"
+        >
+          {["All", ...dynamicCourses].map((courseCode) => {
+            const isSelected = courseFilter === courseCode;
+            return (
+              <button
+                key={courseCode}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => setCourseFilter(courseCode)}
+                className={`min-h-[38px] px-4 rounded-full border-2 border-nb-ink font-nb-mono text-xs font-bold tracking-[0.08em] uppercase transition-all duration-120 hover:-translate-x-px hover:-translate-y-px hover:shadow-nb-sm active:translate-x-px active:translate-y-px ${
+                  isSelected
+                    ? "bg-nb-ink text-nb-white"
+                    : "bg-nb-white text-nb-ink"
+                }`}
+              >
+                {courseCode}
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* Feed Content */}
       {isGroupsLoading ? (

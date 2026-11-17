@@ -1,545 +1,411 @@
-// Redesigned FAQ accordion — Neo-Brutalist Synthwave theme law.
-// High contrast and complete visibility across both light and dark modes.
-// Search bar, category filter pills, count tracker, expand/collapse all,
-// and hard-shadow question cards with smooth Framer Motion disclosure.
-// Strictly zero emojis.
+// Redesigned FAQ Module — Modern Neo-Brutalist 2-Column Deck.
+// Spacious, un-compacted layout with wide search bar, clear category filters,
+// and high-contrast cards that breathe in both light and dark mode.
+// Strictly ZERO emojis.
 
 "use client";
 
-// ===== IMPORTS =====
-
-import { useState, useMemo, useId, type ReactNode } from "react";
+import { useState, useMemo } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Search,
   X,
   ChevronDown,
   ChevronsUpDown,
+  HelpCircle,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
+import Link from "next/link";
 import { useTheme } from "@/ui/shared/theme/DarkLightMode";
-
-// ===== TYPES =====
 
 type FaqCategory = "all" | "about" | "networking" | "features";
 
 type FaqItem = {
   id: string;
   category: FaqCategory;
+  categoryLabel: string;
   question: string;
-  getAnswer: (isLight: boolean) => ReactNode;
+  answer: string;
 };
 
-// ===== CATEGORY DATA =====
-
-const CATEGORIES: { id: FaqCategory; label: string; count: number }[] = [
-  { id: "all", label: "All questions", count: 8 },
-  { id: "about", label: "About Devora", count: 2 },
-  { id: "networking", label: "Networking & Career", count: 3 },
-  { id: "features", label: "Features & Privacy", count: 3 },
+const CATEGORIES: { id: FaqCategory; label: string }[] = [
+  { id: "all", label: "All Questions" },
+  { id: "about", label: "About Devora" },
+  { id: "networking", label: "Networking & Career" },
+  { id: "features", label: "Features & Privacy" },
 ];
-
-// ===== FAQ DATA =====
 
 const FAQS: FaqItem[] = [
   {
     id: "origin",
     category: "about",
+    categoryLabel: "About Devora",
     question: "How did the idea for Devora come about?",
-    getAnswer: (isLight: boolean) => (
-      <>
-        It came from my own transfer experience at{" "}
-        <strong
-          className={
-            isLight
-              ? "text-[#0a0a0a] font-black underline decoration-[#ff5ca8] underline-offset-2"
-              : "text-[#ffd76f] font-bold"
-          }
-        >
-          UM&#8209;Dearborn
-        </strong>
-        . When I first got here, I was not putting real effort into approaching people,
-        making friends, or networking, not because I wanted to stay alone, but
-        because I did not feel confident enough. I did not feel like I had the
-        capability to meet people at scale or build a network the hard way.
-        Living that for a while made something obvious: a lot of CECS students
-        here, including the version of me who just showed up, could use a better
-        on-ramp. Devora started from that personal gap: a place where showing
-        who you are and finding peers does not require forcing confidence you
-        have not built yet.
-      </>
-    ),
+    answer:
+      "It came from a real transfer experience at UM-Dearborn. When arriving as a transfer, reaching out to people, forming study groups, or networking can feel intimidating without an established network. Devora was built to eliminate that barrier: providing a direct, verified on-ramp where CECS students can showcase who they are, discover classmates in their exact courses, and connect with peers without having to force confidence they haven't built yet.",
   },
   {
     id: "nothing-comes",
     category: "about",
+    categoryLabel: "About Devora",
     question: "What if I use Devora and nothing comes of it? What's the point?",
-    getAnswer: (isLight: boolean) => (
-      <>
-        Your presence still matters. A profile shows{" "}
-        <strong
-          className={
-            isLight
-              ? "text-[#0a0a0a] font-black underline decoration-[#ff5ca8] underline-offset-2"
-              : "text-[#ffd76f] font-bold"
-          }
-        >
-          who you are as a student
-        </strong>
-        , interests, path, what you want next in your career, so the right people
-        can find you even on a quiet week. You do not have to be the one
-        initiating every time; peers can reach out on Devora or take the
-        conversation offline once there is a real reason. And the point is bigger
-        than &ldquo;meeting people&rdquo;: career fairs, job events, clubs, and
-        department opportunities live here too. Showing up puts you in that lane,
-        even if one week does not produce a new friend tomorrow.
-      </>
-    ),
+    answer:
+      "Your presence on Devora works for you passively. Your profile highlights your major, technical niche, courses, and what you're seeking (hackathon partners, project teammates, or study buddies). Classmates and club leaders browse the directory daily. Beyond direct messaging, Devora surfaces official CECS clubs, workshops, and department events all in one place.",
   },
   {
     id: "not-tinder",
     category: "networking",
-    question: 'Is Devora more than just a "University Tinder" for meeting people?',
-    getAnswer: (isLight: boolean) => (
-      <>
-        Yes. The whole point of Devora is to be the{" "}
-        <strong
-          className={
-            isLight
-              ? "text-[#0a0a0a] font-black underline decoration-[#ff5ca8] underline-offset-2"
-              : "text-[#ffd76f] font-bold"
-          }
-        >
-          official hub for the CECS department
-        </strong>
-        , not a swipe app with a campus skin. That means advertising clubs and
-        events, surfacing career and job opportunities, and giving you a real
-        directory for networking with verified peers. Meeting people is part of
-        it. Finding friends, showing up at CECS things, and meeting people in
-        your career niche is the product.
-      </>
-    ),
+    categoryLabel: "Networking & Career",
+    question: "Is Devora more than just a social matching tool for meeting people?",
+    answer:
+      "Yes, completely. Devora is the dedicated departmental ecosystem for UM-Dearborn CECS. It unites student organizations (ACM, GDSC, IEEE, Hack Dearborn), technical study groups, hackathon team formation, and direct peer networking. It replaces fragmented Discord servers and cold LinkedIn outreach with a school-verified directory built specifically for engineering and computing students.",
   },
   {
-    id: "other-schools",
+    id: "reach-out",
     category: "networking",
-    question:
-      "How do I know this will be helpful? Have other schools done something similar?",
-    getAnswer: (isLight: boolean) => (
-      <>
-        Campus peer directories are a familiar pattern. Other school-based apps
-        and class lists try to help students find people by major and intent.
-        Hiring often still moves through people you know: classmates, clubs, and
-        warm intros can matter as much as a cold application. Devora applies that
-        idea locally for{" "}
-        <strong
-          className={
-            isLight
-              ? "text-[#0a0a0a] font-black underline decoration-[#ff5ca8] underline-offset-2"
-              : "text-[#ffd76f] font-bold"
-          }
-        >
-          CECS @ UM&#8209;Dearborn
-        </strong>
-        , helpfulness looks like finding someone in your stack, your course, or
-        your next event with less friction than a giant public network. We do not
-        promise job offers or referral rates.
-      </>
-    ),
+    categoryLabel: "Networking & Career",
+    question: "How do I reach out to someone without feeling awkward?",
+    answer:
+      "Because everyone on Devora is a verified CECS student at UM-Dearborn, the context is already shared. Every profile displays current courses, technical interests, and what peers are looking for. Reaching out with a specific shared point ('Hey, noticed you're also taking CIS 350' or 'Saw you're into React and looking for a Hack Dearborn team') makes warm intros natural and zero-pressure.",
   },
   {
-    id: "landing-role",
+    id: "bad-social-skills",
     category: "networking",
-    question:
-      "How can this help me with networking and landing a role I want or need?",
-    getAnswer: (isLight: boolean) => (
-      <>
-        You can find people by{" "}
-        <strong
-          className={
-            isLight
-              ? "text-[#0a0a0a] font-black underline decoration-[#ff5ca8] underline-offset-2"
-              : "text-[#ffd76f] font-bold"
-          }
-        >
-          niche and direction
-        </strong>
-        , same interests, same path, same kind of work you want to do, and build a real
-        connection from there. When someone is already at a company you care
-        about, that relationship is how referrals, interview help, and honest
-        advice usually happen. Devora will not replace applying, but it makes it
-        easier to know people who can open doors, prep you, and vouch for you
-        because they actually know you, not because you cold-messaged a stranger.
-      </>
-    ),
+    categoryLabel: "Networking & Career",
+    question: "What if I'm introverted or don't have great networking skills?",
+    answer:
+      "Devora was purposefully built for you. You don't have to pitch yourself or send cold DMs if you don't want to. Setting up your profile allows classmates who need your exact skills or are in your classes to find you. You can browse clubs, view study groups, and connect at your own comfortable pace.",
   },
   {
-    id: "no-swipe",
+    id: "safety-privacy",
     category: "features",
-    question: "Why isn't there a swipe/match system?",
-    getAnswer: (isLight: boolean) => (
-      <>
-        On purpose. I do not want Devora to feel like a Tinder for students. The
-        model is closer to{" "}
-        <strong
-          className={
-            isLight
-              ? "text-[#0a0a0a] font-black underline decoration-[#ff5ca8] underline-offset-2"
-              : "text-[#ffd76f] font-bold"
-          }
-        >
-          mutual connection
-        </strong>
-        : you can connect with someone, they can connect back, and then you talk, or not,
-        if they are not interested. Swipe-and-match turns people into a game.
-        Devora is meant to be a connecting platform for friendship, events, and
-        career context, more than chats from a match queue.
-      </>
-    ),
+    categoryLabel: "Features & Privacy",
+    question: "How does Devora protect my safety and privacy?",
+    answer:
+      "Devora requires authenticated university credentials (@umich.edu or @umd.umich.edu). No outside recruiters, bots, or anonymous lurkers can access student profiles. In your Settings, you have total granular control over which sections appear publicly (skills, interests, class rank) and can deactivate or delete your account with one click anytime.",
   },
   {
-    id: "deactivate",
+    id: "unique-features",
     category: "features",
-    question:
-      "Do I have to use Devora constantly? Can I deactivate my profile anytime?",
-    getAnswer: (isLight: boolean) => (
-      <>
-        No, you do not have to use it constantly, and{" "}
-        <strong
-          className={
-            isLight
-              ? "text-[#0a0a0a] font-black underline decoration-[#ff5ca8] underline-offset-2"
-              : "text-[#ffd76f] font-bold"
-          }
-        >
-          yes, you can deactivate anytime
-        </strong>{" "}
-        in Settings. Nobody is forcing you on here. Using it is recommended
-        because it makes networking and CECS discovery easier, but if you want to
-        do your own thing offline, that is fine. The goal is to lower the
-        friction, not add another obligation. Come back when a class project,
-        hackathon, or job search makes the network useful again.
-      </>
-    ),
+    categoryLabel: "Features & Privacy",
+    question: "What features make Devora different from LinkedIn or Discord?",
+    answer:
+      "Unlike LinkedIn, there is zero recruiter spam, algorithmic feed noise, or corporate posturing. Unlike Discord, conversations and identities aren't buried inside 40 different disconnected servers. Devora provides a single searchable directory of verified students, an Activity Center with real campus clubs and study groups, and clear profiles that answer 'do we click?' before you message.",
   },
   {
-    id: "messaging",
+    id: "messaging-system",
     category: "features",
-    question: "Can I message anyone or only people I've connected with?",
-    getAnswer: (isLight: boolean) => (
-      <>
-        You message{" "}
-        <strong
-          className={
-            isLight
-              ? "text-[#0a0a0a] font-black underline decoration-[#ff5ca8] underline-offset-2"
-              : "text-[#ffd76f] font-bold"
-          }
-        >
-          people you have connected with
-        </strong>
-        . Find peers in Discovery, connect when there is a shared reason, then
-        continue the conversation from there. That keeps outreach intentional
-        instead of turning the whole college into a cold-DM list, and Settings
-        still let you tune who can reach you.
-      </>
-    ),
+    categoryLabel: "Features & Privacy",
+    question: "How does messaging and connecting with classmates work?",
+    answer:
+      "When you find a peer on the Discovery Grid or in a Club feed, you can view their full profile and send a connection request or direct message. All messaging takes place in high-contrast, real-time chat threads with read receipts and quick coordination replies for study sessions.",
   },
 ];
 
-// ===== SUB-COMPONENTS =====
-
-/** Single accordion row — Clean Neo-Brutalist card with no awkward yellow chips. */
-function AccordionRow({
-  faq,
-  isOpen,
-  onToggle,
-  panelId,
-  isLight,
-}: {
-  faq: FaqItem;
-  isOpen: boolean;
-  onToggle: () => void;
-  panelId: string;
-  isLight: boolean;
-}) {
-  return (
-    <div
-      className={`relative overflow-hidden rounded-xl transition-all duration-200 ${
-        isLight
-          ? isOpen
-            ? "bg-[#fff7fa] border-[2.5px] border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a]"
-            : "bg-white border-[2.5px] border-[#0a0a0a] shadow-[4px_4px_0px_#0a0a0a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[5px_5px_0px_#0a0a0a]"
-          : isOpen
-          ? "bg-[#160c22] border-[2px] border-[#ff5ca8] shadow-[5px_5px_0px_#000000,6px_6px_0px_#ff5ca8]"
-          : "bg-[#0e0817] border-2 border-[#2a183d] shadow-[4px_4px_0px_#000000] hover:border-[#ff5ca8]/60"
-      }`}
-    >
-      {/* Trigger */}
-      <h2 className="m-0">
-        <button
-          type="button"
-          aria-expanded={isOpen}
-          aria-controls={panelId}
-          onClick={onToggle}
-          className="w-full flex items-center justify-between gap-4 min-h-[72px] px-6 sm:px-8 py-4.5 bg-transparent border-none cursor-pointer text-left outline-none"
-        >
-          {/* Question text */}
-          <span
-            className={`font-mono text-base sm:text-[17px] font-bold leading-snug tracking-tight max-w-[62ch] ${
-              isLight ? "text-[#0a0a0a]" : "text-white"
-            }`}
-          >
-            {faq.question}
-          </span>
-
-          {/* Chevron circle */}
-          <span
-            className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 transition-transform duration-260 ease-[cubic-bezier(.23,1,.32,1)] ${
-              isLight
-                ? isOpen
-                  ? "bg-[#ff6b9d] border-2 border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] rotate-180"
-                  : "bg-white border-2 border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] rotate-0"
-                : isOpen
-                ? "bg-[#ff5ca8] border-2 border-white text-[#08040f] shadow-[2px_2px_0px_#000000] rotate-180"
-                : "bg-[#1a1028] border-2 border-[#2a183d] text-[#ff5ca8] shadow-[2px_2px_0px_#000000] rotate-0"
-            }`}
-          >
-            <ChevronDown size={20} strokeWidth={2.6} />
-          </span>
-        </button>
-      </h2>
-
-      {/* Answer panel */}
-      <AnimatePresence initial={false}>
-        {isOpen && (
-          <motion.div
-            key="answer"
-            id={panelId}
-            role="region"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-            className="overflow-hidden"
-          >
-            <div
-              className={`border-t px-6 sm:px-8 pt-4 pb-6 ${
-                isLight ? "border-[#0a0a0a]/15" : "border-[#2a183d]"
-              }`}
-            >
-              <p
-                className={`m-0 font-body text-[16px] sm:text-[17px] leading-relaxed max-w-[68ch] ${
-                  isLight ? "text-[#222222]" : "text-[#f4eefc]"
-                }`}
-              >
-                {faq.getAnswer(isLight)}
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  );
-}
-
-// ===== MAIN COMPONENT =====
-
-/**
- * Redesigned FAQ accordion.
- * High contrast, spacious category tabs, visible text in light and dark mode, zero emojis.
- */
 export default function FAQAccordion() {
-  const uid = useId();
   const { theme } = useTheme();
   const isLight = theme === "light";
 
-  const [selectedCategory, setSelectedCategory] = useState<FaqCategory>("all");
   const [searchQuery, setSearchQuery] = useState("");
-  // First question starts open
-  const [openIds, setOpenIds] = useState<Set<string>>(
-    new Set([FAQS[0].id])
+  const [activeCategory, setActiveCategory] = useState<FaqCategory>("all");
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(
+    new Set(["origin", "not-tinder"])
   );
 
-  const filteredFaqs = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    return FAQS.filter((faq) => {
-      const catMatch =
-        selectedCategory === "all" || faq.category === selectedCategory;
-      const textMatch =
-        !q ||
-        faq.question.toLowerCase().includes(q);
-      return catMatch && textMatch;
-    });
-  }, [selectedCategory, searchQuery]);
-
-  const allExpanded =
-    filteredFaqs.length > 0 &&
-    filteredFaqs.every((f) => openIds.has(f.id));
-
-  function toggleRow(id: string) {
-    setOpenIds((prev) => {
+  // Toggle single item
+  const toggleItem = (id: string) => {
+    setExpandedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
       return next;
     });
-  }
+  };
 
-  function handleExpandCollapse() {
-    if (allExpanded) {
-      setOpenIds(new Set());
+  // Expand / collapse all
+  const areAllExpanded = expandedIds.size === FAQS.length;
+  const toggleAll = () => {
+    if (areAllExpanded) {
+      setExpandedIds(new Set());
     } else {
-      setOpenIds(new Set(filteredFaqs.map((f) => f.id)));
+      setExpandedIds(new Set(FAQS.map((f) => f.id)));
     }
-  }
+  };
 
-  function clearSearch() {
-    setSearchQuery("");
-    setSelectedCategory("all");
-  }
+  // Filtered list
+  const filteredFaqs = useMemo(() => {
+    return FAQS.filter((faq) => {
+      if (activeCategory !== "all" && faq.category !== activeCategory) {
+        return false;
+      }
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        const matchQ = faq.question.toLowerCase().includes(q);
+        const matchA = faq.answer.toLowerCase().includes(q);
+        const matchCat = faq.categoryLabel.toLowerCase().includes(q);
+        return matchQ || matchA || matchCat;
+      }
+      return true;
+    });
+  }, [activeCategory, searchQuery]);
 
   return (
-    <div className="flex flex-col gap-6 sm:gap-8">
-      {/* ── Search bar ── */}
-      <div className="relative">
-        <span
-          aria-hidden="true"
-          className={`absolute left-5 top-1/2 -translate-y-1/2 flex items-center pointer-events-none ${
-            isLight ? "text-[#0a0a0a]" : "text-[#ff5ca8]"
-          }`}
-        >
-          <Search size={22} strokeWidth={2.6} />
-        </span>
-
-        <input
-          type="search"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by topic, question or keyword..."
-          aria-label="Search FAQ questions"
-          className={`w-full h-15 pl-14 pr-12 rounded-xl font-mono text-base font-bold outline-none transition-all duration-200 ${
-            isLight
-              ? "bg-white border-[2.5px] border-[#0a0a0a] text-[#0a0a0a] placeholder:text-[#666666] shadow-[4px_4px_0px_#0a0a0a] focus:shadow-[6px_6px_0px_#0a0a0a] focus:translate-x-[-1px] focus:translate-y-[-1px]"
-              : "bg-[#0e0817] border-[2.5px] border-[#ff5ca8] text-white placeholder:text-white/45 shadow-[4px_4px_0px_#000000] focus:border-[#ff2bd6] focus:shadow-[5px_5px_0px_#000000,6px_6px_0px_#ff2bd6]"
+    <div className="w-full space-y-8">
+      {/* ── Wide Spacious Search Bar ── */}
+      <div
+        className={`relative flex items-center w-full rounded-2xl border-2 transition-all duration-200 ${
+          isLight
+            ? "bg-white border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a]"
+            : "bg-[#120c1e] border-white/25 shadow-[5px_5px_0px_#000000]"
+        }`}
+      >
+        <Search
+          size={20}
+          className={`ml-5 mr-3 shrink-0 ${
+            isLight ? "text-neutral-500" : "text-neutral-400"
           }`}
         />
-
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search by topic, question, or keyword (e.g. clubs, transfer, privacy)…"
+          className={`w-full py-4 pr-12 text-sm sm:text-base font-mono bg-transparent outline-none ${
+            isLight
+              ? "text-[#0a0a0a] placeholder:text-neutral-400"
+              : "text-white placeholder:text-neutral-500"
+          }`}
+        />
         {searchQuery && (
           <button
             type="button"
-            aria-label="Clear search"
             onClick={() => setSearchQuery("")}
-            className={`absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center cursor-pointer transition-transform hover:scale-110 active:scale-95 ${
-              isLight
-                ? "bg-[#0a0a0a] text-white border-none"
-                : "bg-[#1e1028] border border-[#ff5ca8] text-[#ff5ca8]"
+            className={`absolute right-4 p-1.5 rounded-full hover:bg-black/10 transition-colors ${
+              isLight ? "text-neutral-700" : "text-neutral-300"
             }`}
+            aria-label="Clear search"
           >
-            <X size={16} strokeWidth={2.8} />
+            <X size={18} />
           </button>
         )}
       </div>
 
-      {/* ── Category pills with spacious breathing room ── */}
-      <div className="flex flex-wrap gap-3 sm:gap-3.5 items-center my-1">
-        {CATEGORIES.map((cat) => {
-          const isSelected = selectedCategory === cat.id;
-          return (
-            <button
-              key={cat.id}
-              type="button"
-              onClick={() => setSelectedCategory(cat.id)}
-              aria-pressed={isSelected}
-              className={`h-11 sm:h-12 px-5 sm:px-6 rounded-xl font-mono text-sm sm:text-[14.5px] font-bold cursor-pointer inline-flex items-center gap-2.5 transition-all duration-200 select-none ${
-                isSelected
-                  ? "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a] translate-x-[-1px] translate-y-[-1px]"
-                  : isLight
-                  ? "bg-white text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:bg-[#f4eef0] hover:translate-y-[-1px]"
-                  : "bg-[#0e0817] text-white border-2 border-[#2a183d] shadow-[3px_3px_0px_#000000] hover:border-[#ff5ca8] hover:translate-y-[-1px]"
-              }`}
-            >
-              <span>{cat.label}</span>
-              <span
-                className={`font-mono text-xs font-bold ${
+      {/* ── Category Filter Bar & Global Controls ── */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+        {/* Category Pills */}
+        <div
+          role="group"
+          aria-label="Filter FAQ categories"
+          className="flex flex-wrap gap-2.5"
+        >
+          {CATEGORIES.map((cat) => {
+            const isSelected = activeCategory === cat.id;
+            const categoryCount =
+              cat.id === "all"
+                ? FAQS.length
+                : FAQS.filter((f) => f.category === cat.id).length;
+
+            return (
+              <button
+                key={cat.id}
+                type="button"
+                aria-pressed={isSelected}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-lg font-mono text-xs font-bold uppercase tracking-wider transition-all duration-150 active:translate-x-px active:translate-y-px ${
                   isSelected
-                    ? "text-[#0a0a0a]/80"
+                    ? isLight
+                      ? "bg-[#0a0a0a] text-white border-2 border-[#0a0a0a] shadow-[3px_3px_0px_rgba(0,0,0,0.25)]"
+                      : "bg-white text-[#0a0a0a] border-2 border-white shadow-[3px_3px_0px_#000000]"
                     : isLight
-                    ? "text-[#555555]"
-                    : "text-white/60"
+                    ? "bg-white text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:-translate-y-0.5"
+                    : "bg-[#140e20] text-neutral-300 border-2 border-white/20 shadow-[2px_2px_0px_#000000] hover:-translate-y-0.5"
                 }`}
               >
-                ({cat.count})
-              </span>
-            </button>
-          );
-        })}
-      </div>
+                <span>{cat.label}</span>
+                <span
+                  className={`text-[10px] px-1.5 py-0.5 rounded font-black ${
+                    isSelected
+                      ? isLight
+                        ? "bg-white/20 text-white"
+                        : "bg-black/15 text-black"
+                      : isLight
+                      ? "bg-neutral-100 text-neutral-700"
+                      : "bg-neutral-800 text-neutral-400"
+                  }`}
+                >
+                  {categoryCount}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
-      {/* ── Meta row: count + expand/collapse all ── */}
-      <div className="flex items-center justify-between flex-wrap gap-3 pt-1">
-        <span
-          aria-live="polite"
-          className={`font-mono text-xs font-bold tracking-[0.08em] uppercase px-4 py-2 rounded-lg ${
+        {/* Expand / Collapse All Button */}
+        <button
+          type="button"
+          onClick={toggleAll}
+          className={`inline-flex items-center gap-1.5 self-start sm:self-auto px-3.5 py-2 rounded-lg font-mono text-xs font-bold uppercase tracking-wider border transition-all ${
             isLight
-              ? "bg-white border-2 border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a]"
-              : "bg-[#0e0817] border-[1.5px] border-[#2a183d] text-[#f4eefc] shadow-[2px_2px_0px_#000000]"
+              ? "bg-white border-[#0a0a0a] text-[#0a0a0a] shadow-sm hover:bg-neutral-50"
+              : "bg-[#140e20] border-white/20 text-neutral-300 hover:text-white shadow-sm"
           }`}
         >
-          Showing {filteredFaqs.length} of {FAQS.length} questions
-        </span>
-
-        {filteredFaqs.length > 0 && (
-          <button
-            type="button"
-            onClick={handleExpandCollapse}
-            className={`font-mono text-xs font-bold tracking-[0.08em] uppercase px-4 py-2 rounded-lg cursor-pointer inline-flex items-center gap-2 transition-all duration-200 select-none ${
-              isLight
-                ? "bg-white border-2 border-[#0a0a0a] text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:bg-[#ff6b9d] active:translate-x-0.5 active:translate-y-0.5"
-                : "bg-[#0e0817] border-[1.5px] border-[#ff5ca8] text-[#ff5ca8] shadow-[2px_2px_0px_#000000] hover:bg-[#ff5ca8] hover:text-[#08040f] active:translate-x-0.5 active:translate-y-0.5"
-            }`}
-          >
-            <ChevronsUpDown size={15} strokeWidth={2.6} />
-            <span>{allExpanded ? "Collapse all" : "Expand all"}</span>
-          </button>
-        )}
+          <ChevronsUpDown size={14} />
+          <span>{areAllExpanded ? "Collapse All" : "Expand All"}</span>
+        </button>
       </div>
 
-      {/* ── Accordion rows ── */}
+      {/* ── FAQ Cards Grid: 2-Column Responsive Layout ── */}
       {filteredFaqs.length > 0 ? (
-        <div className="flex flex-col gap-4">
-          {filteredFaqs.map((faq) => (
-            <AccordionRow
-              key={faq.id}
-              faq={faq}
-              isOpen={openIds.has(faq.id)}
-              onToggle={() => toggleRow(faq.id)}
-              panelId={`${uid}-panel-${faq.id}`}
-              isLight={isLight}
-            />
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+          {filteredFaqs.map((faq) => {
+            const isExpanded = expandedIds.has(faq.id);
+
+            return (
+              <div
+                key={faq.id}
+                className={`flex flex-col justify-between rounded-xl border-2 transition-all duration-200 ${
+                  isLight
+                    ? "bg-white border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a]"
+                    : "bg-[#140e20] border-white/25 shadow-[5px_5px_0px_#000000]"
+                }`}
+              >
+                {/* Header clickable question area */}
+                <button
+                  type="button"
+                  onClick={() => toggleItem(faq.id)}
+                  aria-expanded={isExpanded}
+                  className="w-full text-left p-6 sm:p-7 flex flex-col gap-3 cursor-pointer group"
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span
+                      className={`inline-block px-2.5 py-1 rounded text-[11px] font-mono font-bold uppercase tracking-wider border ${
+                        isLight
+                          ? "bg-neutral-100 border-neutral-300 text-neutral-700"
+                          : "bg-neutral-800/80 border-white/15 text-neutral-300"
+                      }`}
+                    >
+                      {faq.categoryLabel}
+                    </span>
+
+                    <div
+                      className={`p-1.5 rounded-lg border transition-transform duration-200 ${
+                        isExpanded ? "rotate-180" : ""
+                      } ${
+                        isLight
+                          ? "bg-neutral-100 border-[#0a0a0a] text-[#0a0a0a]"
+                          : "bg-neutral-800 border-white/20 text-white"
+                      }`}
+                    >
+                      <ChevronDown size={16} />
+                    </div>
+                  </div>
+
+                  <h3
+                    className={`font-display text-lg sm:text-xl font-bold leading-snug tracking-tight transition-colors ${
+                      isLight
+                        ? "text-[#0a0a0a] group-hover:text-neutral-700"
+                        : "text-white group-hover:text-neutral-200"
+                    }`}
+                  >
+                    {faq.question}
+                  </h3>
+                </button>
+
+                {/* Collapsible Answer Body */}
+                <AnimatePresence initial={false}>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.22, ease: "easeOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div
+                        className={`px-6 sm:px-7 pb-6 sm:pb-7 pt-2 border-t text-sm sm:text-base leading-relaxed ${
+                          isLight
+                            ? "border-neutral-200 text-neutral-700 bg-neutral-50/50"
+                            : "border-white/10 text-neutral-300 bg-black/20"
+                        }`}
+                      >
+                        <p className="font-sans leading-relaxed">{faq.answer}</p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
         </div>
       ) : (
-        /* Empty search state — Neo-Brutalist, strictly no emojis */
+        /* Empty search state */
         <div
-          className={`p-10 rounded-xl text-center border-2 ${
+          className={`rounded-xl border-2 border-dashed p-12 text-center ${
             isLight
-              ? "bg-white border-[#0a0a0a] shadow-[4px_4px_0px_#0a0a0a] text-[#0a0a0a]"
-              : "bg-[#0e0817] border-[#ff5ca8]/60 shadow-[4px_4px_0px_#000000] text-white"
+              ? "bg-white border-[#0a0a0a] text-[#0a0a0a]"
+              : "bg-[#140e20] border-white/20 text-white"
           }`}
         >
-          <p className="font-mono text-base font-bold mb-2">No matching questions found</p>
-          <p className="font-mono text-sm opacity-75 mb-6">
-            Try adjusting your search terms or view all categories.
+          <HelpCircle size={36} className="mx-auto mb-3 opacity-60" />
+          <h3 className="font-display text-lg font-bold">No questions matched</h3>
+          <p className="mt-1 font-mono text-xs opacity-75">
+            Try adjusting your search terms or picking another category.
           </p>
           <button
             type="button"
-            onClick={clearSearch}
-            className="h-10 px-5 rounded-lg font-mono text-xs font-bold uppercase tracking-[0.08em] bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a]"
+            onClick={() => {
+              setSearchQuery("");
+              setActiveCategory("all");
+            }}
+            className="mt-4 px-4 py-2 rounded-lg font-mono text-xs font-bold uppercase border-2 border-current hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
           >
-            View all questions
+            Clear Search
           </button>
         </div>
       )}
+
+      {/* ── Still Have Questions Help Card ── */}
+      <div
+        className={`mt-12 rounded-xl border-2 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 ${
+          isLight
+            ? "bg-white border-[#0a0a0a] shadow-[6px_6px_0px_#0a0a0a]"
+            : "bg-[#120c1e] border-white/25 shadow-[6px_6px_0px_#000000]"
+        }`}
+      >
+        <div className="space-y-1.5">
+          <div className="inline-flex items-center gap-2 text-xs font-mono font-bold uppercase tracking-wider text-neutral-500">
+            <Sparkles size={14} className="text-orange-500" />
+            <span>Need More Help?</span>
+          </div>
+          <h4
+            className={`font-display text-lg sm:text-xl font-bold ${
+              isLight ? "text-[#0a0a0a]" : "text-white"
+            }`}
+          >
+            Have a question not answered here?
+          </h4>
+          <p
+            className={`text-sm leading-relaxed max-w-xl ${
+              isLight ? "text-neutral-600" : "text-neutral-400"
+            }`}
+          >
+            Reach out directly or explore the Activity Center to connect with CECS club leaders and classmates.
+          </p>
+        </div>
+
+        <Link
+          href="/activity-center"
+          className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg border-2 border-[#0a0a0a] bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] font-mono text-xs font-extrabold uppercase tracking-wider shadow-[3px_3px_0px_#0a0a0a] hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#0a0a0a] active:translate-y-px transition-all shrink-0"
+        >
+          <span>Explore Activity Center</span>
+          <ArrowRight size={14} />
+        </Link>
+      </div>
     </div>
   );
 }

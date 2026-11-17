@@ -13,7 +13,6 @@ import type { StudyGroup } from "@/types/activity-center";
 
 import { useActivityCenter } from "../ActivityCenterContext";
 import {
-  AVAILABLE_COURSES,
   COURSE_TONES,
   MEETING_PREFERENCE_LABELS,
 } from "../placeholder-data";
@@ -39,8 +38,10 @@ export default function GroupCard({
   const { joinedGroupIds, toggleJoinGroup } = useActivityCenter();
   const isJoined = Boolean(joinedGroupIds[group.id]);
 
-  // Determine course tag accent tone
-  const courseIndex = Math.max(0, AVAILABLE_COURSES.indexOf(group.course)) % 4;
+  // Determine course tag accent tone deterministically from course code
+  const courseIndex = Math.abs(
+    group.course.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0)
+  ) % 4;
   const courseTone = COURSE_TONES[courseIndex];
 
   // Up to 4 member avatars

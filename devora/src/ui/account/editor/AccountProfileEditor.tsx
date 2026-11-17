@@ -395,7 +395,7 @@ export default function AccountProfileEditor({
           aria-labelledby="account-editor-title"
         >
           <div className="account-editor-header">
-            <h2 id="account-editor-title" className="account-hero-name text-xl">
+            <h2 id="account-editor-title" className="text-xl font-black font-display tracking-tight text-[#0a0a0a] dark:text-white">
               {EDITOR_TITLE}
             </h2>
             <p className="theme-muted mt-1 text-sm">{EDITOR_INTRO}</p>

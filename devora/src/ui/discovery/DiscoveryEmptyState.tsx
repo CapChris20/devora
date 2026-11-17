@@ -35,14 +35,14 @@ export default function DiscoveryEmptyState({
         className={`max-w-2xl mx-auto my-12 p-8 sm:p-12 rounded-xl text-center transition-all ${
           isLight
             ? "bg-white border-[2.5px] border-[#0a0a0a] shadow-[6px_6px_0px_#0a0a0a] text-[#0a0a0a]"
-            : "bg-[#0e0817] border-[2.5px] border-[#ff5ca8] shadow-[6px_6px_0px_#000000,7px_7px_0px_#ff5ca8] text-white"
+            : "bg-[#0e0817] border-[2px] border-white/20 shadow-[6px_6px_0px_#000000] text-white"
         }`}
       >
         <span
           className={`inline-block font-mono text-xs font-bold uppercase tracking-[0.16em] px-3.5 py-1.5 rounded-full mb-4 ${
             isLight
               ? "bg-[#f4f4f2] text-[#0a0a0a] border border-[#0a0a0a]"
-              : "bg-[#18121d] text-[#ff5ca8] border border-[#ff5ca8]/40"
+              : "bg-[#18121d] text-white border border-white/30"
           }`}
         >
           No Matches Found
@@ -74,7 +74,7 @@ export default function DiscoveryEmptyState({
       className={`max-w-3xl mx-auto my-8 sm:my-12 p-8 sm:p-12 rounded-xl transition-all ${
         isLight
           ? "bg-white border-[2.5px] border-[#0a0a0a] shadow-[6px_6px_0px_#0a0a0a] text-[#0a0a0a]"
-          : "bg-[#0e0817] border-[2.5px] border-[#ff5ca8] shadow-[6px_6px_0px_#000000,7px_7px_0px_#ff5ca8] text-white"
+          : "bg-[#0e0817] border-[2px] border-white/20 shadow-[6px_6px_0px_#000000] text-white"
       }`}
     >
       <div className="flex flex-col items-center text-center">
@@ -82,7 +82,7 @@ export default function DiscoveryEmptyState({
           className={`inline-flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-[0.16em] px-4 py-1.5 rounded-full mb-5 ${
             isLight
               ? "bg-[#f4f4f2] text-[#0a0a0a] border border-[#0a0a0a]"
-              : "bg-[#18121d] text-[#ffd76f] border border-[#ffd76f]/40"
+              : "bg-[#18121d] text-white border border-white/30"
           }`}
         >
           <UserCheck size={14} className="shrink-0" />

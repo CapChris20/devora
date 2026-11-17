@@ -801,13 +801,13 @@ export default function SettingsPageContent() {
       <style jsx>{`
         .settings-panel {
           background: #0e0918;
-          border: 2.5px solid #ff5ca8;
+          border: 2px solid rgba(255, 255, 255, 0.25);
           border-radius: 6px;
           padding: clamp(24px, 3.5vw, 32px);
           display: flex;
           flex-direction: column;
           gap: 20px;
-          box-shadow: 6px 6px 0px 0px #000000, 7px 7px 0px 0px #ff5ca8;
+          box-shadow: 6px 6px 0px 0px #000000;
         }
 
         :global(html[data-theme="light"]) .settings-panel {
@@ -1210,9 +1210,9 @@ export default function SettingsPageContent() {
           height: 40px;
           padding-inline: 18px;
           border-radius: 999px;
-          background: #ff5ca8;
+          background: #ef4444;
           border: 2px solid #0a0a0a;
-          color: #0d0b0e;
+          color: #ffffff;
           font-weight: 700;
           cursor: pointer;
         }

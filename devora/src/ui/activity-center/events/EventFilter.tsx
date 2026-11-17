@@ -28,7 +28,7 @@ export default function EventFilter() {
       role="group"
       aria-label="Filter events"
       data-in
-      className="flex flex-wrap gap-2 mb-6.5"
+      className="flex flex-wrap gap-2 mb-8 sm:mb-10"
     >
       {FILTERS.map((item) => {
         const isSelected = eventFilter === item.id;

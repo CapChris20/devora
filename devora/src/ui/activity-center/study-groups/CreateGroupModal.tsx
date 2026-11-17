@@ -13,7 +13,6 @@ import { useGSAP } from "@gsap/react";
 import type { MeetingPreference } from "@/types/activity-center";
 
 import { useActivityCenter } from "../ActivityCenterContext";
-import { AVAILABLE_COURSES } from "../placeholder-data";
 
 // ===== PREFERENCE SEGMENTS =====
 
@@ -39,7 +38,7 @@ export default function CreateGroupModal() {
 
   // Form inputs
   const [course, setCourse] = useState(
-    courseFilter !== "All" ? courseFilter : AVAILABLE_COURSES[0]
+    courseFilter !== "All" ? courseFilter : ""
   );
   const [topic, setTopic] = useState("");
   const [meetingPreference, setMeetingPreference] =
@@ -193,18 +192,15 @@ export default function CreateGroupModal() {
           <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] uppercase text-nb-muted">
             Course
           </span>
-          <select
+          <input
             id="f-course"
+            required
+            type="text"
+            placeholder="e.g. CIS 350, ECE 270, MATH 217, ENGR 100…"
             value={course}
-            onChange={(e) => setCourse(e.target.value)}
+            onChange={(e) => setCourse(e.target.value.toUpperCase())}
             className="min-h-[46px] px-3 py-2.5 rounded-nb border-nb border-nb-ink bg-nb-white text-[15px] outline-none focus:shadow-nb-sm"
-          >
-            {AVAILABLE_COURSES.map((c) => (
-              <option key={c} value={c}>
-                {c}
-              </option>
-            ))}
-          </select>
+          />
         </label>
 
         {/* Field: Topic */}

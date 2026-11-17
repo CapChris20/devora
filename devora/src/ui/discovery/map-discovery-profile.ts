@@ -47,6 +47,16 @@ function canClassmatesSeeThisProfile(record: PublicProfileRecord, viewerUserId: 
   if (record.profile.isDeactivated === true) {
     return false;
   }
+  // Filter out any mock/test accounts so empty state works authentically
+  const fullName = `${record.profile.displayName || ""} ${record.profile.firstName || ""} ${record.profile.lastName || ""}`.toLowerCase();
+  if (
+    fullName.includes("test student") ||
+    fullName.includes("mock student") ||
+    fullName.includes("test user") ||
+    record.userId.toLowerCase().includes("test")
+  ) {
+    return false;
+  }
   return true;
 }
 

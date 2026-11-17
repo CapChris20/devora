@@ -729,20 +729,20 @@ export default function AccountProfileView({
           align-items: center;
           gap: 6px;
           background: #18121d;
-          border: 1.5px solid #ff5ca8;
+          border: 1.5px solid rgba(255, 255, 255, 0.35);
           border-radius: 9999px;
-          padding: 4px 14px;
+          padding: 5px 14px;
           cursor: pointer;
-          color: #ff5ca8;
+          color: #ffffff;
           box-shadow: 2px 2px 0px #000000;
-          transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s var(--spring), box-shadow 0.18s ease;
+          transition: all 0.18s ease;
         }
 
         .add-link:hover,
         .social-add-link:hover {
-          background: #ff5ca8;
-          border-color: #ff5ca8;
-          color: #0d0b0e;
+          background: #251c2d;
+          border-color: rgba(255, 255, 255, 0.7);
+          color: #ffffff;
           transform: translateY(-1px);
           box-shadow: 3px 3px 0px #000000;
         }
@@ -995,7 +995,7 @@ export default function AccountProfileView({
 
         :global(html[data-theme="light"]) .add-link:hover,
         :global(html[data-theme="light"]) .social-add-link:hover {
-          background: #ff6b9d;
+          background: #f4f4f2;
           border-color: #0a0a0a;
           color: #0a0a0a;
           box-shadow: 3px 3px 0px #0a0a0a;

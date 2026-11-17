@@ -291,3 +291,4 @@ export const REAL_SEEDED_CLUBS: Club[] = [
     },
   },
 ];
+

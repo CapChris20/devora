@@ -214,7 +214,9 @@ export default function NavBar({ activeItem }: NavBarProps) {
                         className={`nav-link-text transition-colors duration-150 ${
                           active
                             ? "!text-[#0A0A0A] font-black drop-shadow-none"
-                            : "hover:text-[#FF6B9D]"
+                            : isLight
+                            ? "!text-[#0A0A0A] font-bold"
+                            : "!text-white font-bold hover:text-white"
                         }`}
                       >
                         {item.label}
