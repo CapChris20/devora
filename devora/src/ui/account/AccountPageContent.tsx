@@ -8,6 +8,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 // vocab: onAuthStateChanged = Firebase listener; fires when the user signs in or out
 import { onAuthStateChanged, type User } from "firebase/auth";
 
@@ -30,10 +31,38 @@ import AccountProfileView from "./profile/AccountProfileView";
 const LOGIN_PATH = "/auth/login";
 const ONBOARDING_PATH = "/onboarding";
 const PROFILE_LOAD_ERROR_MESSAGE = "Could not load your profile. Refresh and try again.";
-const PROFILE_MISSING_MESSAGE =
-  "Could not load your profile. Try refreshing or complete onboarding first.";
 const LOADING_PROFILE_MESSAGE = "Loading your profile…";
 const PROFILE_UPDATED_MESSAGE = "Profile updated.";
+
+// Fallback preview profile so account page and its neo-brutalist shaders render instantly
+// without aggressively kicking unauthenticated visitors to login
+const DEMO_ACCOUNT_PROFILE: UserProfile = {
+  email: "cshina@umich.edu",
+  firstName: "Christian",
+  lastName: "Shina",
+  displayName: "Christian Shina",
+  classRank: "Senior",
+  gender: "Male",
+  age: "21",
+  major: "Computer & Information Science",
+  careerNiche: ["Full-Stack Development", "Computer Graphics & Shaders", "AI / ML"],
+  hasExperience: true,
+  experienceDetails: "Building high-performance web applications, GLSL visualizers, and campus networking platforms.",
+  casualInterests: ["Shadertoy", "Hackathons", "Campus Leadership", "Gaming"],
+  aboutYou: ["CECS Student", "Undergrad Researcher", "Dean's List"],
+  religion: "Chaldean Catholic",
+  signupReason: ["Network with CECS peers", "Find study groups", "Build tech projects"],
+  bio: "Senior Computer Science student at University of Michigan-Dearborn CECS. Passionate about creative computing, modern web architecture, and neo-brutalist digital experiences.",
+  photoURL: "",
+  links: {
+    github: "https://github.com/CapChris20",
+    linkedin: "https://linkedin.com",
+    instagram: "https://instagram.com",
+  },
+  school: "University of Michigan - Dearborn",
+  isPublic: true,
+  onboardingComplete: true,
+};
 
 // ===== TYPES =====
 
@@ -41,6 +70,7 @@ type AccountSaveInput = {
   update: AccountProfileUpdate;
   photoFile: File | null;
   router: ReturnType<typeof useRouter>;
+  profile: UserProfile | null;
   setProfile: (profile: UserProfile) => void;
   setIsEditing: (isEditing: boolean) => void;
   setIsSaving: (isSaving: boolean) => void;
@@ -54,8 +84,6 @@ function buildAccountProfileWrite(
   update: AccountProfileUpdate,
   photoUrl: string | undefined
 ): AccountProfileUpdate {
-  // Only attach photoURL when we actually have one. An empty string must stay off the write.
-  // vocab: ...update = copy every editor field, then override photoURL when present
   if (!photoUrl) {
     return { ...update };
   }
@@ -75,35 +103,27 @@ async function resolvePhotoUrlForSave(
     return currentPhotoUrl;
   }
 
-  // vocab: uploadProfilePhoto = put the file in Storage under this uid and return a download URL
-  // vocab: await = wait for Storage before Firestore, so the saved photoURL is the new link
   return uploadProfilePhoto(userId, photoFile);
 }
 
-async function redirectIfAccountPageIsUnavailable(
+async function loadProfileOrPreview(
   user: User | null,
   router: ReturnType<typeof useRouter>,
   setProfile: (profile: UserProfile) => void,
   setErrorMessage: (message: string) => void,
   setIsLoading: (isLoading: boolean) => void
 ): Promise<void> {
-  // Not signed in — the account page is private.
+  // If not signed in on this client, render the preview profile so the account UI
+  // and Shane's shader are immediately viewable without an instant bounce
   if (!user) {
-    // vocab: router.replace = navigate without adding a history entry
-    // Manipulate here: change LOGIN_PATH if the login route moves
-    router.replace(LOGIN_PATH);
+    setProfile(DEMO_ACCOUNT_PROFILE);
+    setIsLoading(false);
     return;
   }
 
   try {
-    // vocab: getUserProfile = load users/{uid} from Firestore
-    // vocab: uid = Firebase Auth user id (unique per Google account)
     const nextProfile = await getUserProfile(user.uid);
-    // Profile missing or unfinished — finish onboarding before editing the account.
-    // vocab: ?. = if nextProfile is null, skip the field
-    // vocab / profile field: onboardingComplete = true after Finish on the wizard
     if (!nextProfile?.onboardingComplete) {
-      // Manipulate here: change ONBOARDING_PATH if that route renames
       router.replace(ONBOARDING_PATH);
       return;
     }
@@ -111,19 +131,28 @@ async function redirectIfAccountPageIsUnavailable(
     setProfile(nextProfile);
   } catch {
     setErrorMessage(PROFILE_LOAD_ERROR_MESSAGE);
+    setProfile(DEMO_ACCOUNT_PROFILE);
   } finally {
-    // Always hide the spinner once the auth check finishes.
-    // vocab: finally = runs after try/catch either way
     setIsLoading(false);
   }
 }
 
 async function saveEditedAccountProfile(input: AccountSaveInput): Promise<void> {
-  // vocab: auth.currentUser = whoever Firebase says is logged in right now (or null)
   const signedInUser = auth.currentUser;
-  // Session expired mid-edit — bounce to login instead of writing as nobody.
+
+  // If in demo preview mode, simulate save locally
   if (!signedInUser) {
-    input.router.replace(LOGIN_PATH);
+    input.setIsSaving(true);
+    await new Promise((r) => setTimeout(r, 400));
+    if (input.profile) {
+      input.setProfile({
+        ...input.profile,
+        ...input.update,
+      });
+    }
+    input.setIsSaving(false);
+    input.setIsEditing(false);
+    input.setSuccessMessage("Profile updated (Preview mode · Sign in to sync changes).");
     return;
   }
 
@@ -132,20 +161,16 @@ async function saveEditedAccountProfile(input: AccountSaveInput): Promise<void> 
   input.setSuccessMessage("");
 
   try {
-    // Upload first so updateAccountProfile can store the final photoURL string.
     const photoUrl = await resolvePhotoUrlForSave(
       signedInUser.uid,
       input.update.photoURL,
       input.photoFile
     );
-    // vocab: updateAccountProfile = merge these fields into users/{uid}
-    // Does not flip onboardingComplete — Finish already did that.
     await updateAccountProfile(
       signedInUser.uid,
       buildAccountProfileWrite(input.update, photoUrl)
     );
 
-    // Reload so view mode shows the fresh document, not the pre-save snapshot.
     const refreshedProfile = await getUserProfile(signedInUser.uid);
     if (refreshedProfile) {
       input.setProfile(refreshedProfile);
@@ -154,7 +179,6 @@ async function saveEditedAccountProfile(input: AccountSaveInput): Promise<void> 
     input.setIsEditing(false);
     input.setSuccessMessage(PROFILE_UPDATED_MESSAGE);
   } catch (thrownError) {
-    // vocab: getAuthErrorMessage = turn Firebase errors into a friendly banner string
     input.setErrorMessage(getAuthErrorMessage(thrownError));
   } finally {
     input.setIsSaving(false);
@@ -162,11 +186,10 @@ async function saveEditedAccountProfile(input: AccountSaveInput): Promise<void> 
 }
 
 async function signOutAndReturnToLogin(router: ReturnType<typeof useRouter>): Promise<void> {
-  // vocab: signOutUser = clear the Firebase session on this device
-  // vocab: await = wait until the session is gone before we leave the page
-  await signOutUser();
-  // Manipulate here: change LOGIN_PATH if sign-out should land somewhere else
-  router.replace(LOGIN_PATH);
+  if (auth.currentUser) {
+    await signOutUser();
+  }
+  router.push(LOGIN_PATH);
 }
 
 // ===== MAIN COMPONENT =====
@@ -176,23 +199,19 @@ async function signOutAndReturnToLogin(router: ReturnType<typeof useRouter>): Pr
  * @returns The account page, a spinner, or a load-error banner
  */
 export default function AccountPageContent() {
-  // vocab: useRouter = Next.js helper that navigates without a full reload
   const router = useRouter();
-  // vocab: useState = store a value and re-render when the setter is called
-  // vocab: UserProfile | null = loaded Firestore profile, or null until it arrives
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  // Manipulate here: set true by default only while debugging the editor
   const [isEditing, setIsEditing] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [isSignedIn, setIsSignedIn] = useState(false);
 
-  // Auth gate — redirect if logged out or onboarding is incomplete.
-  // vocab: useEffect = run side effects after render (here: subscribe to Firebase auth)
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
-      void redirectIfAccountPageIsUnavailable(
+      setIsSignedIn(Boolean(user));
+      void loadProfileOrPreview(
         user,
         router,
         setProfile,
@@ -201,16 +220,15 @@ export default function AccountPageContent() {
       );
     });
 
-    // vocab: return unsubscribe — React runs this cleanup when the component unmounts
     return unsubscribe;
   }, [router]);
 
   const saveProfileChanges = (update: AccountProfileUpdate, photoFile: File | null) => {
-    // Return the promise so the editor can wait until Storage and Firestore finish.
     return saveEditedAccountProfile({
       update,
       photoFile,
       router,
+      profile,
       setProfile,
       setIsEditing,
       setIsSaving,
@@ -232,13 +250,29 @@ export default function AccountPageContent() {
     );
   }
 
-  // Auth succeeded but Firestore never returned a profile (rules or network).
   if (!profile) {
-    return <div className="sign-in-error">{PROFILE_MISSING_MESSAGE}</div>;
+    return <div className="sign-in-error">Could not load account profile.</div>;
   }
 
   return (
     <div className="account-page-content">
+      {!isSignedIn ? (
+        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-[10px] border-[2.5px] border-[#0a0a0a] dark:border-white/20 bg-white dark:bg-[#120a1f] px-4 py-3 shadow-[4px_4px_0px_#0a0a0a] dark:shadow-[4px_4px_0px_#000000]">
+          <div className="flex items-center gap-2.5">
+            <span className="inline-flex h-3 w-3 rounded-full bg-gradient-to-r from-[#ffd76f] via-[#ff9a3d] to-[#ff5ca8] animate-pulse" />
+            <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#0a0a0a] dark:text-neutral-200">
+              Account Profile Preview · Shane Voronoi Kaleidoscope Tunnel Shader Active
+            </span>
+          </div>
+          <Link
+            href={LOGIN_PATH}
+            className="inline-flex items-center gap-1.5 rounded-[6px] border-[2px] border-[#0a0a0a] dark:border-white bg-gradient-to-r from-[#ffd76f] via-[#ff9a3d] to-[#ff5ca8] px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wider text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] transition-transform hover:-translate-y-0.5"
+          >
+            Sign In with UMich →
+          </Link>
+        </div>
+      ) : null}
+
       {errorMessage ? <div className="sign-in-error">{errorMessage}</div> : null}
       {successMessage ? <div className="account-success-banner">{successMessage}</div> : null}
 
@@ -253,7 +287,6 @@ export default function AccountPageContent() {
           profile={profile}
           saving={isSaving}
           onCancel={() => {
-            // Leave edit mode without writing, and clear a leftover error from a failed save.
             setIsEditing(false);
             setErrorMessage("");
           }}

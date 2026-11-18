@@ -395,10 +395,14 @@ export default function AccountProfileEditor({
           aria-labelledby="account-editor-title"
         >
           <div className="account-editor-header">
-            <h2 id="account-editor-title" className="text-xl font-black font-display tracking-tight text-[#0a0a0a] dark:text-white">
+            <div className="inline-flex items-center gap-2 mb-2 px-3 py-0.5 rounded-full border-2 border-[#0a0a0a] bg-gradient-to-r from-[#ffd76f] via-[#ff9a3d] to-[#ff5ca8] text-[#0a0a0a] font-mono text-[10.5px] font-black uppercase tracking-wider shadow-[2px_2px_0px_#000000]">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#0a0a0a]" />
+              Profile Details
+            </div>
+            <h2 id="account-editor-title" className="text-2xl font-black font-display uppercase tracking-tight text-[#0a0a0a] dark:text-white">
               {EDITOR_TITLE}
             </h2>
-            <p className="theme-muted mt-1 text-sm">{EDITOR_INTRO}</p>
+            <p className="theme-muted mt-1 text-sm font-body">{EDITOR_INTRO}</p>
             {errorMessage ? <div className="sign-in-error mt-4">{errorMessage}</div> : null}
           </div>
 

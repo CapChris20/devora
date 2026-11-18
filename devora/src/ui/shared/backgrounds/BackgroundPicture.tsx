@@ -2,7 +2,7 @@
 // Variants:
 //   - "pyramid": default Devora faceted pyramid scales
 //   - "voronoi": crystal-cell field
-//   - "voxel" / "account": Dom Mandy 2019 voxel morphing grid (Account Page)
+//   - "voxel" / "account" / "voro-tunnel": Shane hexagonal Voronoi tunnel in neo-brutalist secondary gradients (Account Page)
 //   - "entrance" / "faqs": bµg Entrance 3 architectural raymarcher (FAQs Page)
 //   - "hexblocks" / "discovery": Shane isometric hexagon blocks (Discovery Page)
 //   - "iso" / "settings": Cartesian-to-isometric animated grid (Settings Page)
@@ -33,8 +33,8 @@ const VoronoiShaderBackgroundClient = dynamic(
   () => import("./VoronoiShaderBackgroundClient"),
   { ssr: false }
 );
-const VoxelShaderBackgroundClient = dynamic(
-  () => import("./VoxelShaderBackgroundClient"),
+const VoronoiKaleidoscopeShaderBackgroundClient = dynamic(
+  () => import("./VoronoiKaleidoscopeShaderBackgroundClient"),
   { ssr: false }
 );
 
@@ -51,6 +51,7 @@ export type PageBackgroundVariant =
   | "voronoi"
   | "voxel"
   | "account"
+  | "voro-tunnel"
   | "entrance"
   | "faqs"
   | "hexblocks"
@@ -77,7 +78,8 @@ export default function BackgroundPicture({
     switch (variant) {
       case "voxel":
       case "account":
-        return <VoxelShaderBackgroundClient fixed className={SHADER_LAYER_CLASS} />;
+      case "voro-tunnel":
+        return <VoronoiKaleidoscopeShaderBackgroundClient fixed className={SHADER_LAYER_CLASS} />;
       case "entrance":
       case "faqs":
         return <EntranceShaderBackgroundClient fixed className={SHADER_LAYER_CLASS} />;

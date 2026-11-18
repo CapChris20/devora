@@ -1,5 +1,5 @@
 // Account page per DESIGN.md § 5.2.
-// Shaded with Flopine's torus + sphere SDF raymarching background taking over the whole page.
+// Shaded with Shane's hexagonal Voronoi kaleidoscope tunnel in neo-brutalist secondary gradients.
 // NavBar -> AccountPageContent -> Footer.
 
 "use client";
@@ -7,7 +7,7 @@
 import NavBar from "@/ui/shared/navbar/NavBar";
 import Footer from "@/ui/shared/footer/Footer";
 import AccountPageContent from "@/ui/account/AccountPageContent";
-import BackgroundPicture from "@/ui/shared/backgrounds/BackgroundPicture";
+import VoronoiKaleidoscopeShaderBackgroundClient from "@/ui/shared/backgrounds/VoronoiKaleidoscopeShaderBackgroundClient";
 
 export default function AccountPage() {
   return (
@@ -17,7 +17,9 @@ export default function AccountPage() {
         color: "var(--text, #fbf6f8)",
       }}
     >
-      <BackgroundPicture variant="account" />
+      <div className="pointer-events-none fixed inset-0 z-0 overflow-hidden" aria-hidden="true">
+        <VoronoiKaleidoscopeShaderBackgroundClient fixed className="z-0" />
+      </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
         <NavBar activeItem="Account" />

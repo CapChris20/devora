@@ -6305,13 +6305,16 @@ html[data-theme="light"] .account-page-content .glass-card {
 }
 
 .account-success-banner {
-  border-radius: 0.75rem;
-  border: 1px solid rgba(255, 154, 61, 0.35);
-  background: rgba(255, 215, 111, 0.1);
-  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  border: 2px solid #ff9a3d;
+  background: linear-gradient(120deg, rgba(255, 215, 111, 0.15) 0%, rgba(255, 154, 61, 0.15) 100%);
+  padding: 0.85rem 1.25rem;
+  font-family: var(--f-mono, monospace);
   font-size: 0.875rem;
+  font-weight: 700;
   color: #ffd76f;
-  box-shadow: var(--raised-3d-stack);
+  box-shadow: 4px 4px 0px #000000;
+  margin-bottom: 1.5rem;
 }
 
 .account-profile-view {
@@ -7014,10 +7017,10 @@ html[data-theme="light"] .account-private-list dt {
   gap: 0;
   padding: 0;
   overflow: hidden;
-  background: #0e0918;
-  border: 2.5px solid #ff5ca8;
-  border-radius: 6px;
-  box-shadow: 8px 8px 0px 0px #000000, 9px 9px 0px 0px #ff5ca8;
+  background: #0d0914;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
+  border-radius: 14px;
+  box-shadow: 8px 8px 0px 0px #000000;
 }
 
 .account-profile-editor.glass-card:hover,
@@ -7176,7 +7179,7 @@ html[data-theme="light"] .account-editor-backdrop {
 html[data-theme="light"] .account-profile-editor {
   background: #ffffff;
   border: 2.5px solid #0a0a0a;
-  border-radius: 6px;
+  border-radius: 14px;
   box-shadow: 8px 8px 0px 0px #0a0a0a;
   color: #0a0a0a;
 }
@@ -7198,52 +7201,52 @@ html[data-theme="light"] .account-profile-editor .account-hero-name {
 }
 
 .account-editor-cancel-btn {
-  height: 46px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-family: var(--font-display), sans-serif;
+  border-radius: 10px;
+  font-family: var(--font-display), "Arial Black", sans-serif;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   background: #ffffff;
   color: #0a0a0a;
-  border: 2px solid #0a0a0a;
-  box-shadow: 2px 2px 0px #0a0a0a;
+  border: 2.5px solid #0a0a0a;
+  box-shadow: 4px 4px 0px #0a0a0a;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .account-editor-cancel-btn:hover {
   background: #f4f4f2;
-  transform: translateY(-1px);
-  box-shadow: 3px 3px 0px #0a0a0a;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0px #0a0a0a;
 }
 
 .account-editor-save-btn {
-  height: 46px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
-  font-family: var(--font-display), sans-serif;
+  border-radius: 10px;
+  font-family: var(--font-display), "Arial Black", sans-serif;
   font-size: 13px;
-  font-weight: 800;
+  font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  background: linear-gradient(135deg, #FF6B9D, #FB923C);
+  background: linear-gradient(120deg, #ffd76f 0%, #ff9a3d 50%, #ff5ca8 100%);
   color: #0a0a0a;
-  border: 2px solid #0a0a0a;
-  box-shadow: 3px 3px 0px #0a0a0a;
+  border: 2.5px solid #0a0a0a;
+  box-shadow: 4px 4px 0px #000000;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .account-editor-save-btn:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 4px 4px 0px #0a0a0a;
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px #000000;
 }
 
 .account-editor-save-btn:disabled {
@@ -7253,15 +7256,21 @@ html[data-theme="light"] .account-profile-editor .account-hero-name {
 }
 
 html[data-theme="dark"] .account-editor-cancel-btn {
-  background: #18121d;
+  background: #1c1426;
   color: #ffffff;
-  border: 2px solid rgba(255, 255, 255, 0.25);
-  box-shadow: 2px 2px 0px #000000;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 4px 4px 0px #000000;
+}
+
+html[data-theme="dark"] .account-editor-cancel-btn:hover {
+  background: #281c38;
+  border-color: rgba(255, 255, 255, 0.6);
+  box-shadow: 6px 6px 0px #000000;
 }
 
 html[data-theme="dark"] .account-editor-save-btn {
-  border: 2px solid #ffffff;
-  box-shadow: 3px 3px 0px #000000;
+  border: 2.5px solid #0a0a0a;
+  box-shadow: 4px 4px 0px #000000;
 }
 
 html[data-theme="light"] .account-profile-editor .account-section-eyebrow {
@@ -7763,9 +7772,10 @@ html[data-theme="light"] .hero-tagline-connect {
 }
 
 html[data-theme="light"] .account-success-banner {
-  color: #9a3412;
-  background: rgba(255, 237, 213, 0.95);
-  border-color: rgba(194, 65, 12, 0.28);
+  color: #92400e;
+  background: #fef3c7;
+  border: 2px solid #0a0a0a;
+  box-shadow: 4px 4px 0px #0a0a0a;
 }
 
 html[data-theme="light"] .why-matchup-marker {

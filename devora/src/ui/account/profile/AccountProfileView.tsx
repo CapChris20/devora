@@ -416,6 +416,10 @@ export default function AccountProfileView({
         .account-head-title {
           color: #ffffff;
           margin: 0;
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: -0.02em;
         }
 
         :global(html[data-theme="light"]) .account-head-title {
@@ -423,11 +427,52 @@ export default function AccountProfileView({
         }
 
         .account-head-lead {
-          color: var(--text-body);
+          color: var(--text-body, #d8cdd5);
+          font-family: var(--font-body, system-ui, sans-serif);
         }
 
         :global(html[data-theme="light"]) .account-head-lead {
           color: #4b5563;
+        }
+
+        .btn-primary {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          height: 48px;
+          padding: 0 24px;
+          border-radius: 10px;
+          background: linear-gradient(120deg, #ffd76f 0%, #ff9a3d 50%, #ff5ca8 100%);
+          color: #0a0a0a;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 4px 4px 0px #000000;
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-size: 13px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          cursor: pointer;
+          transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .btn-primary:hover {
+          transform: translate(-2px, -2px);
+          box-shadow: 6px 6px 0px #000000;
+        }
+
+        .btn-primary:active {
+          transform: translate(2px, 2px);
+          box-shadow: 2px 2px 0px #000000;
+        }
+
+        :global(html[data-theme="light"]) .btn-primary {
+          border-color: #0a0a0a;
+          box-shadow: 4px 4px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .btn-primary:hover {
+          box-shadow: 6px 6px 0px #0a0a0a;
         }
 
         .account-page-head {
@@ -437,17 +482,27 @@ export default function AccountProfileView({
           justify-content: space-between;
           gap: 16px;
           margin-bottom: 24px;
-          background: #0d0a11;
-          border: 2px solid rgba(255, 255, 255, 0.25);
-          border-radius: 20px;
+          background: #0d0914;
+          border: 2.5px solid rgba(255, 255, 255, 0.4);
+          border-radius: 14px;
           padding: 24px 28px;
-          box-shadow: 6px 6px 0px #000000;
+          box-shadow: 8px 8px 0px #000000;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .account-page-head:hover {
+          border-color: rgba(255, 255, 255, 0.65);
+          box-shadow: 10px 10px 0px #000000;
         }
 
         :global(html[data-theme="light"]) .account-page-head {
           background: #ffffff;
           border: 2.5px solid #0a0a0a;
-          box-shadow: 6px 6px 0px #0a0a0a;
+          box-shadow: 8px 8px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .account-page-head:hover {
+          box-shadow: 10px 10px 0px #0a0a0a;
         }
 
         .account-split-grid {
@@ -464,11 +519,17 @@ export default function AccountProfileView({
         }
 
         .glass-panel {
-          background: #120c1c;
-          border: 2px solid rgba(255, 255, 255, 0.25);
-          border-radius: 12px;
-          padding: 24px;
-          box-shadow: 6px 6px 0px #000000;
+          background: #0d0914;
+          border: 2.5px solid rgba(255, 255, 255, 0.35);
+          border-radius: 14px;
+          padding: 26px;
+          box-shadow: 8px 8px 0px #000000;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .glass-panel:hover {
+          border-color: rgba(255, 255, 255, 0.6);
+          box-shadow: 10px 10px 0px #000000;
         }
 
         .identity-row {
@@ -478,10 +539,12 @@ export default function AccountProfileView({
         }
 
         .avatar-ring-wrapper {
-          width: 74px;
-          height: 74px;
-          border-radius: 50%;
-          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
+          width: 78px;
+          height: 78px;
+          border-radius: 16px;
+          background: linear-gradient(135deg, #ffd76f 0%, #ff9a3d 50%, #ff5ca8 100%);
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 4px 4px 0px #000000;
           padding: 3px;
           flex-shrink: 0;
           display: flex;
@@ -492,9 +555,9 @@ export default function AccountProfileView({
         .avatar-inner {
           width: 100%;
           height: 100%;
-          border-radius: 50%;
+          border-radius: 11px;
           overflow: hidden;
-          background: var(--surface, #1c181c);
+          background: #140d1e;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -508,8 +571,8 @@ export default function AccountProfileView({
 
         .avatar-initials {
           font-family: var(--font-display), "Arial Black", sans-serif;
-          font-weight: 800;
-          font-size: 20px;
+          font-weight: 900;
+          font-size: 22px;
           color: white;
         }
 
@@ -521,9 +584,9 @@ export default function AccountProfileView({
 
         .identity-name {
           font-family: var(--font-display), "Arial Black", sans-serif;
-          font-weight: 800;
+          font-weight: 900;
           text-transform: uppercase;
-          font-size: clamp(20px, 2vw, 26px);
+          font-size: clamp(22px, 2.2vw, 28px);
           line-height: 1.1;
           letter-spacing: -0.02em;
           color: white;
@@ -531,90 +594,100 @@ export default function AccountProfileView({
         }
 
         .identity-major {
-          font-size: 14px;
-          color: var(--text-body);
+          font-family: var(--font-body, system-ui, sans-serif);
+          font-size: 14.5px;
+          font-weight: 600;
+          color: var(--text-body, #d8cdd5);
           margin: 0;
         }
 
         .identity-school {
-          font-size: 12.5px;
-          color: var(--text-muted);
+          font-family: var(--f-mono, monospace);
+          font-size: 12px;
+          text-transform: uppercase;
+          letter-spacing: 0.08em;
+          color: var(--text-muted, #a597bd);
           margin: 0;
         }
 
         .chips-row {
           display: flex;
           flex-wrap: wrap;
-          gap: 6px;
-          margin-top: 14px;
+          gap: 8px;
+          margin-top: 16px;
         }
 
         .chip-badge {
           display: inline-flex;
           align-items: center;
-          gap: 5px;
-          height: 26px;
+          gap: 6px;
+          height: 28px;
           padding: 0 12px;
           border-radius: 999px;
-          background: #18121d;
-          border: 1.5px solid #3d2f47;
-          font-family: var(--f-mono);
+          background: linear-gradient(120deg, rgba(255, 215, 111, 0.12) 0%, rgba(255, 154, 61, 0.12) 50%, rgba(255, 92, 168, 0.12) 100%);
+          border: 2px solid rgba(255, 154, 61, 0.6);
+          font-family: var(--f-mono, monospace);
           font-size: 11px;
+          font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.04em;
-          color: #ffffff;
+          letter-spacing: 0.06em;
+          color: #ffd76f;
+          box-shadow: 2px 2px 0px #000000;
         }
 
         .profile-strength-box {
-          background: #16101c;
-          border: 1.5px solid #2f2536;
-          border-radius: 14px;
-          padding: 14px 16px;
-          margin-top: 16px;
+          background: #140d1e;
+          border: 2px solid rgba(255, 255, 255, 0.2);
+          border-radius: 12px;
+          padding: 16px 18px;
+          margin-top: 18px;
+          box-shadow: 3px 3px 0px #000000;
         }
 
         .strength-header {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
         }
 
         .strength-pct {
           font-family: var(--font-display), "Arial Black", sans-serif;
-          font-weight: 800;
+          font-weight: 900;
           font-size: 18px;
           color: white;
         }
 
         .strength-bar-track {
           width: 100%;
-          height: 6px;
-          background: rgba(255, 255, 255, 0.15);
+          height: 8px;
+          background: #08040f;
+          border: 1.5px solid #0a0a0a;
           border-radius: 999px;
           overflow: hidden;
         }
 
         .strength-bar-fill {
           height: 100%;
-          background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
+          background: linear-gradient(135deg, #ffd76f 0%, #ff9a3d 50%, #ff5ca8 100%);
           border-radius: 999px;
           transition: width 0.3s ease;
         }
 
         .strength-hint {
-          font-size: 12px;
+          font-family: var(--font-body, system-ui, sans-serif);
+          font-size: 12.5px;
           color: #d8cdd5;
-          margin: 6px 0 0;
+          margin: 8px 0 0;
         }
 
         .facts-grid {
           display: grid;
           grid-template-columns: repeat(2, 1fr);
           gap: 12px 16px;
-          margin: 16px 0 0;
-          padding: 14px 0 0;
-          border-top: 1px solid rgba(255, 255, 255, 0.1);
+          margin: 18px 0 0;
+          padding: 16px 0 0;
+          border-top: 2px solid rgba(255, 255, 255, 0.15);
         }
 
         .fact-item {
@@ -623,9 +696,19 @@ export default function AccountProfileView({
           gap: 2px;
         }
 
+        .fact-item dt {
+          font-family: var(--f-mono, monospace);
+          font-size: 11px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+          color: #ff9a3d;
+        }
+
         .fact-val {
+          font-family: var(--font-display), "Arial Black", sans-serif;
           font-size: 15px;
-          font-weight: 700;
+          font-weight: 800;
           color: white;
           margin: 0;
         }
@@ -635,39 +718,53 @@ export default function AccountProfileView({
           align-items: center;
           justify-content: center;
           gap: 8px;
-          height: 44px;
-          border-radius: 999px;
-          background: #1c0c14;
-          border: 2px solid #852230;
-          color: #ff8fa0;
-          font-family: var(--f-mono);
-          font-size: 13.5px;
-          font-weight: 700;
+          height: 46px;
+          border-radius: 10px;
+          background: #2a101d;
+          border: 2.5px solid #ef4444;
+          color: #fca5a5;
+          font-family: var(--f-mono, monospace);
+          font-size: 13px;
+          font-weight: 800;
           text-transform: uppercase;
+          letter-spacing: 0.08em;
           cursor: pointer;
-          transition: border-color 0.2s ease, background 0.2s ease;
+          box-shadow: 4px 4px 0px #000000;
+          transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .btn-danger:hover {
-          border-color: #ff8fa0;
-          background: #2a101d;
+          background: #3b1429;
+          border-color: #f87171;
+          color: #ffffff;
+          transform: translate(-2px, -2px);
+          box-shadow: 6px 6px 0px #000000;
+        }
+
+        .btn-danger:active {
+          transform: translate(2px, 2px);
+          box-shadow: 2px 2px 0px #000000;
         }
 
         .public-legend-line {
           display: flex;
           align-items: center;
-          gap: 6px;
-          font-size: 12.5px;
-          color: var(--text-muted);
-          margin-bottom: 16px;
-          padding-bottom: 12px;
-          border-bottom: 1px solid rgb(255 255 255 / 0.08);
+          gap: 8px;
+          font-family: var(--f-mono, monospace);
+          font-size: 11.5px;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          color: var(--text-muted, #a597bd);
+          margin-bottom: 20px;
+          padding-bottom: 14px;
+          border-bottom: 2px solid rgba(255, 255, 255, 0.15);
         }
 
         .sections-grid {
           display: grid;
           grid-template-columns: 1fr;
-          gap: 18px 20px;
+          gap: 20px 22px;
         }
 
         @media (min-width: 640px) {
@@ -679,7 +776,7 @@ export default function AccountProfileView({
         .section-block {
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 8px;
         }
 
         .section-head {
@@ -690,9 +787,10 @@ export default function AccountProfileView({
 
         .section-title {
           font-family: var(--font-display), "Arial Black", sans-serif;
-          font-weight: 700;
+          font-weight: 900;
           text-transform: uppercase;
-          font-size: 13px;
+          letter-spacing: 0.04em;
+          font-size: 13.5px;
           color: white;
           margin: 0;
         }
@@ -700,18 +798,23 @@ export default function AccountProfileView({
         .public-stamp {
           display: inline-flex;
           align-items: center;
-          gap: 3px;
-          font-family: var(--f-mono);
+          gap: 4px;
+          padding: 2px 8px;
+          border-radius: 999px;
+          border: 1.5px solid rgba(255, 255, 255, 0.25);
+          font-family: var(--f-mono, monospace);
           font-size: 10px;
+          font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-          color: var(--text-muted);
+          letter-spacing: 0.06em;
+          color: var(--text-muted, #a597bd);
         }
 
         .section-body {
-          font-size: 13.5px;
-          line-height: 1.45;
-          color: var(--text-body);
+          font-family: var(--font-body, system-ui, sans-serif);
+          font-size: 14px;
+          line-height: 1.55;
+          color: var(--text-body, #d8cdd5);
           margin: 0;
         }
 
@@ -720,7 +823,7 @@ export default function AccountProfileView({
           align-items: center;
           justify-content: space-between;
           font-size: 13px;
-          color: var(--text-muted);
+          color: var(--text-muted, #a597bd);
         }
 
         .add-link,
@@ -728,68 +831,82 @@ export default function AccountProfileView({
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: #18121d;
-          border: 1.5px solid rgba(255, 255, 255, 0.35);
-          border-radius: 9999px;
+          background: linear-gradient(135deg, #ffd76f 0%, #ff9a3d 100%);
+          border: 2px solid #0a0a0a;
+          border-radius: 8px;
           padding: 5px 14px;
           cursor: pointer;
-          color: #ffffff;
-          box-shadow: 2px 2px 0px #000000;
-          transition: all 0.18s ease;
+          color: #0a0a0a;
+          box-shadow: 2.5px 2.5px 0px #000000;
+          transition: all 0.15s ease;
         }
 
         .add-link:hover,
         .social-add-link:hover {
-          background: #251c2d;
-          border-color: rgba(255, 255, 255, 0.7);
-          color: #ffffff;
-          transform: translateY(-1px);
-          box-shadow: 3px 3px 0px #000000;
+          transform: translate(-1px, -1px);
+          box-shadow: 3.5px 3.5px 0px #000000;
+        }
+
+        .add-link:active,
+        .social-add-link:active {
+          transform: translate(1.5px, 1.5px);
+          box-shadow: 1px 1px 0px #000000;
         }
 
         .add-link-text {
           font-family: var(--f-mono, monospace);
           font-size: 11.5px;
-          font-weight: 700;
-          letter-spacing: 0.02em;
-          color: inherit;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: #0a0a0a;
         }
 
         .tags-flex {
           display: flex;
           flex-wrap: wrap;
-          gap: 6px;
+          gap: 8px;
         }
 
         .profile-tag {
-          height: 30px;
+          height: 32px;
           display: inline-flex;
           align-items: center;
-          padding: 0 12px;
-          border-radius: 999px;
-          background: #18121d;
-          border: 1.5px solid #3d2f47;
-          font-size: 12.5px;
-          font-weight: 600;
-          color: white;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+          padding: 0 14px;
+          border-radius: 8px;
+          background: linear-gradient(135deg, #ffd76f 0%, #ff9a3d 50%, #ff5ca8 100%);
+          border: 2px solid #0a0a0a;
+          font-family: var(--f-mono, monospace);
+          font-size: 12px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          color: #0a0a0a;
+          box-shadow: 2.5px 2.5px 0px #000000;
+          transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .profile-tag:hover {
+          transform: translate(-1px, -1px);
+          box-shadow: 3.5px 3.5px 0px #000000;
         }
 
         .social-links-col {
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 8px;
         }
 
         .social-link-row {
-          height: 42px;
+          height: 44px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 14px;
-          border-radius: 12px;
-          background: #16101c;
-          border: 1.5px solid #2f2536;
+          padding: 0 16px;
+          border-radius: 10px;
+          background: #140d1e;
+          border: 2px solid rgba(255, 255, 255, 0.18);
+          box-shadow: 3px 3px 0px #000000;
         }
 
         .social-link-left {
@@ -800,11 +917,14 @@ export default function AccountProfileView({
         }
 
         .social-name {
-          font-weight: 600;
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 800;
           font-size: 13px;
+          text-transform: uppercase;
         }
 
         .social-val {
+          font-family: var(--f-mono, monospace);
           font-size: 12px;
           color: #d8cdd5;
           max-width: 140px;
@@ -813,16 +933,24 @@ export default function AccountProfileView({
           white-space: nowrap;
         }
 
-
         .private-disclosure-btn {
           width: 100%;
-          min-height: 46px;
-          padding: 10px 16px;
+          min-height: 48px;
+          padding: 12px 18px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           cursor: pointer;
-          outline: none;
+          background: #0d0914;
+          border: 2.5px solid rgba(255, 255, 255, 0.35);
+          border-radius: 12px;
+          box-shadow: 6px 6px 0px #000000;
+          transition: all 0.15s ease;
+        }
+
+        .private-disclosure-btn:hover {
+          border-color: rgba(255, 255, 255, 0.6);
+          box-shadow: 8px 8px 0px #000000;
         }
 
         .disclosure-left {
@@ -833,23 +961,27 @@ export default function AccountProfileView({
 
         .disclosure-label {
           font-family: var(--font-display), "Arial Black", sans-serif;
-          font-weight: 700;
+          font-weight: 900;
           text-transform: uppercase;
-          font-size: 13px;
+          letter-spacing: 0.04em;
+          font-size: 13.5px;
           color: white;
         }
 
         .only-you-chip {
-          height: 20px;
+          height: 22px;
           display: inline-flex;
           align-items: center;
-          padding: 0 8px;
+          padding: 0 10px;
           border-radius: 999px;
-          border: 1px solid rgb(255 255 255 / 0.25);
-          font-family: var(--f-mono);
-          font-size: 10px;
+          background: linear-gradient(135deg, #ffd76f 0%, #ff9a3d 100%);
+          border: 1.5px solid #0a0a0a;
+          font-family: var(--f-mono, monospace);
+          font-size: 10.5px;
+          font-weight: 800;
           text-transform: uppercase;
-          color: var(--text-muted);
+          color: #0a0a0a;
+          box-shadow: 1.5px 1.5px 0px #000000;
         }
 
         :global(.disclosure-chevron) {
@@ -862,14 +994,18 @@ export default function AccountProfileView({
         }
 
         .private-disclosure-body {
-          margin-top: 6px;
-          padding: 16px;
+          margin-top: 8px;
+          padding: 18px;
+          background: #0d0914;
+          border: 2.5px solid rgba(255, 255, 255, 0.35);
+          border-radius: 12px;
+          box-shadow: 6px 6px 0px #000000;
         }
 
         .private-details-dl {
           display: grid;
           grid-template-columns: 1fr;
-          gap: 12px;
+          gap: 14px;
           margin: 0;
         }
 
@@ -880,16 +1016,34 @@ export default function AccountProfileView({
         }
 
         .private-val {
+          font-family: var(--f-mono, monospace);
           font-size: 14px;
-          font-weight: 600;
+          font-weight: 700;
           color: white;
-          margin: 2px 0 0;
+          margin: 4px 0 0;
         }
 
+        /* ── LIGHT THEME (Neo-Brutalist Paper & Crisp Ink) ── */
         :global(html[data-theme="light"]) .glass-panel {
           background: #ffffff;
           border: 2.5px solid #0a0a0a;
-          box-shadow: 6px 6px 0px #0a0a0a;
+          box-shadow: 8px 8px 0px #0a0a0a;
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .glass-panel:hover {
+          box-shadow: 10px 10px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .avatar-ring-wrapper {
+          box-shadow: 4px 4px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .avatar-inner {
+          background: #f4f4f2;
+        }
+
+        :global(html[data-theme="light"]) .avatar-initials {
           color: #0a0a0a;
         }
 
@@ -908,14 +1062,15 @@ export default function AccountProfileView({
 
         :global(html[data-theme="light"]) .chip-badge {
           background: #f4f4f2;
-          border: 1.5px solid #0a0a0a;
+          border: 2px solid #0a0a0a;
           color: #0a0a0a;
-          font-weight: 700;
+          box-shadow: 2px 2px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .profile-strength-box {
           background: #faf8fc;
           border: 2px solid #0a0a0a;
+          box-shadow: 3px 3px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .strength-pct {
@@ -928,11 +1083,15 @@ export default function AccountProfileView({
 
         :global(html[data-theme="light"]) .strength-bar-track {
           background: #e5e7eb;
-          border: 1px solid #0a0a0a;
+          border: 1.5px solid #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .facts-grid {
           border-top: 2px solid #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .fact-item dt {
+          color: #b45309;
         }
 
         :global(html[data-theme="light"]) .fact-val {
@@ -941,21 +1100,28 @@ export default function AccountProfileView({
 
         :global(html[data-theme="light"]) .btn-danger {
           background: #fee2e2;
-          border: 2px solid #dc2626;
+          border: 2.5px solid #dc2626;
           color: #991b1b;
+          box-shadow: 4px 4px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .btn-danger:hover {
           background: #fca5a5;
           border-color: #991b1b;
+          box-shadow: 6px 6px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .public-legend-line {
           color: #4b5563;
-          border-bottom: 2px solid #e5e7eb;
+          border-bottom: 2px solid #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .section-title {
+          color: #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .public-stamp {
+          border-color: #0a0a0a;
           color: #0a0a0a;
         }
 
@@ -964,21 +1130,22 @@ export default function AccountProfileView({
         }
 
         :global(html[data-theme="light"]) .profile-tag {
-          background: #ffffff;
-          border: 2px solid #0a0a0a;
-          color: #0a0a0a;
-          box-shadow: 2px 2px 0px #0a0a0a;
-          font-weight: 700;
+          border-color: #0a0a0a;
+          box-shadow: 2.5px 2.5px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .profile-tag:hover {
+          box-shadow: 3.5px 3.5px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .social-link-row {
           background: #f9f9f7;
           border: 2px solid #0a0a0a;
+          box-shadow: 3px 3px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .social-link-left {
           color: #0a0a0a;
-          font-weight: 700;
         }
 
         :global(html[data-theme="light"]) .social-val {
@@ -987,23 +1154,22 @@ export default function AccountProfileView({
 
         :global(html[data-theme="light"]) .add-link,
         :global(html[data-theme="light"]) .social-add-link {
-          background: #ffffff;
-          border: 2px solid #0a0a0a;
-          color: #0a0a0a;
-          box-shadow: 2px 2px 0px #0a0a0a;
+          box-shadow: 2.5px 2.5px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .add-link:hover,
         :global(html[data-theme="light"]) .social-add-link:hover {
-          background: #f4f4f2;
-          border-color: #0a0a0a;
-          color: #0a0a0a;
-          box-shadow: 3px 3px 0px #0a0a0a;
+          box-shadow: 3.5px 3.5px 0px #0a0a0a;
         }
 
-        :global(html[data-theme="light"]) .add-link-text {
-          color: #0a0a0a;
-          font-weight: 800;
+        :global(html[data-theme="light"]) .private-disclosure-btn {
+          background: #ffffff;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .private-disclosure-btn:hover {
+          box-shadow: 8px 8px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .disclosure-label {
@@ -1015,10 +1181,13 @@ export default function AccountProfileView({
         }
 
         :global(html[data-theme="light"]) .only-you-chip {
-          border: 1.5px solid #0a0a0a;
-          color: #0a0a0a;
-          background: #f4f4f2;
-          font-weight: 700;
+          box-shadow: 1.5px 1.5px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .private-disclosure-body {
+          background: #ffffff;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .private-val {
