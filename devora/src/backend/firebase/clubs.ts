@@ -64,26 +64,10 @@ export async function fetchClubsFromFirestore(): Promise<Club[]> {
       });
     });
 
-    // Merge any newer seeded clubs that are not yet in Firestore
+    // Seamlessly merge all directory clubs with any Firestore records
     for (const seeded of REAL_SEEDED_CLUBS) {
       if (!existingIds.has(seeded.id)) {
         clubs.push(seeded);
-        setDoc(
-          doc(db, CLUBS_COLLECTION, seeded.id),
-          {
-            name: seeded.name,
-            shortName: seeded.shortName,
-            description: seeded.description,
-            category: seeded.category,
-            meetingFrequency: seeded.meetingFrequency,
-            link: seeded.link || null,
-            followerCount: seeded.followerCount,
-            memberCount: seeded.memberCount,
-            latestPost: seeded.latestPost || null,
-            createdAt: serverTimestamp(),
-          },
-          { merge: true }
-        ).catch(() => {});
       }
     }
 

@@ -27,6 +27,7 @@ export default function ClubsFeed() {
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [togglingClubId, setTogglingClubId] = useState<string | null>(null);
+  const [visibleLimit, setVisibleLimit] = useState<number>(36);
 
   // Load clubs and user's followed clubs on mount
   useEffect(() => {
@@ -173,10 +174,17 @@ export default function ClubsFeed() {
     return { filteredClubs: sorted, featuredClubId: featuredId };
   }, [clubs, activeCategory, searchQuery]);
 
+  const displayedClubs = useMemo(() => {
+    if (searchQuery.trim()) {
+      return filteredClubs;
+    }
+    return filteredClubs.slice(0, visibleLimit);
+  }, [filteredClubs, searchQuery, visibleLimit]);
+
   if (loading) {
     return (
       <div className="py-20 text-center font-nb-mono text-xs uppercase tracking-wider text-nb-muted">
-        Loading CECS clubs…
+        Loading campus clubs & student organizations…
       </div>
     );
   }
@@ -187,7 +195,10 @@ export default function ClubsFeed() {
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between mb-8">
         <ClubCategoryFilter
           activeCategory={activeCategory}
-          onSelectCategory={setActiveCategory}
+          onSelectCategory={(cat) => {
+            setActiveCategory(cat);
+            setVisibleLimit(36);
+          }}
         />
 
         {/* Search input */}
@@ -215,30 +226,55 @@ export default function ClubsFeed() {
           <h2 className={`font-display text-lg font-bold uppercase tracking-wider ${
             isLight ? "text-[#0a0a0a]" : "text-white"
           }`}>
-            CECS Student Organizations
+            Campus Student Organizations
           </h2>
         </div>
         <span className={`font-mono text-xs font-bold ${
           isLight ? "text-[#575757]" : "text-neutral-400"
         }`}>
-          Showing {filteredClubs.length} of {clubs.length} clubs
+          {searchQuery.trim()
+            ? `Found ${filteredClubs.length} matching of ${clubs.length} clubs`
+            : displayedClubs.length < filteredClubs.length
+            ? `Showing ${displayedClubs.length} of ${filteredClubs.length} clubs (${clubs.length} total)`
+            : `Showing all ${filteredClubs.length} clubs`}
         </span>
       </div>
 
       {/* Grid of Club Cards */}
       {filteredClubs.length > 0 ? (
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {filteredClubs.map((club) => (
-            <ClubCard
-              key={club.id}
-              club={club}
-              isFollowed={followedClubIds.has(club.id)}
-              onToggleFollow={handleToggleFollow}
-              isToggling={togglingClubId === club.id}
-              isFeatured={club.id === featuredClubId}
-            />
-          ))}
-        </div>
+        <>
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {displayedClubs.map((club) => (
+              <ClubCard
+                key={club.id}
+                club={club}
+                isFollowed={followedClubIds.has(club.id)}
+                onToggleFollow={handleToggleFollow}
+                isToggling={togglingClubId === club.id}
+                isFeatured={club.id === featuredClubId}
+              />
+            ))}
+          </div>
+
+          {!searchQuery.trim() && displayedClubs.length < filteredClubs.length && (
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+              <button
+                type="button"
+                onClick={() => setVisibleLimit((prev) => prev + 36)}
+                className="h-11 px-6 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white bg-[#0a0a0a] dark:bg-white text-white dark:text-[#0a0a0a] font-mono text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_#fb923c] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+              >
+                Load 36 More Clubs ({filteredClubs.length - displayedClubs.length} remaining)
+              </button>
+              <button
+                type="button"
+                onClick={() => setVisibleLimit(filteredClubs.length)}
+                className="h-11 px-6 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/40 bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white font-mono text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_#0a0a0a] dark:shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+              >
+                Show All {filteredClubs.length} Clubs
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         /* Empty search state - STRICTLY NO EMOJIS */
         <div className={`rounded-[10px] border-[3px] border-dashed p-12 text-center ${
