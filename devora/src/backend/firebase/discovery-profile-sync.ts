@@ -61,6 +61,7 @@ function sanitizeUserLinks(links: UserLinks | undefined): UserLinks {
     github: sanitizeSocialProfileUrl(links?.github, "github"),
     linkedin: sanitizeSocialProfileUrl(links?.linkedin, "linkedin"),
     instagram: sanitizeSocialProfileUrl(links?.instagram, "instagram"),
+    discord: sanitizeSocialProfileUrl(links?.discord, "discord"),
   };
 }
 

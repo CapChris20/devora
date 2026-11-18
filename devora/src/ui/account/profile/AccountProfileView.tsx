@@ -23,6 +23,7 @@ import {
   GithubIcon,
   LinkedinIcon,
   InstagramIcon,
+  DiscordIcon,
 } from "@/ui/discovery/cards/DiscoverySocialIcons";
 import {
   formatJoinedDate,
@@ -76,6 +77,12 @@ export default function AccountProfileView({
       label: "Instagram",
       val: links.instagram,
       Icon: InstagramIcon,
+    },
+    {
+      key: "discord",
+      label: "Discord",
+      val: links.discord,
+      Icon: DiscordIcon,
     },
   ];
 

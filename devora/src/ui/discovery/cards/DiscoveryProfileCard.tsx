@@ -13,7 +13,7 @@ import { Check, Users } from "lucide-react";
 
 import type { DiscoveryProfile } from "../mock-profiles";
 import { getMockInitials } from "../mock-profiles";
-import { GithubIcon, InstagramIcon, LinkedinIcon } from "./DiscoverySocialIcons";
+import { GithubIcon, InstagramIcon, LinkedinIcon, DiscordIcon } from "./DiscoverySocialIcons";
 import { sanitizeSocialProfileUrl } from "@/backend/firebase/safe-http-url";
 
 // ===== TYPES =====
@@ -28,13 +28,14 @@ type DiscoveryProfileCardProps = {
 // ===== NAMED CONSTANTS =====
 
 const SOCIAL_LINK_META: Array<{
-  key: "github" | "linkedin" | "instagram";
+  key: "github" | "linkedin" | "instagram" | "discord";
   label: string;
   Icon: typeof GithubIcon;
 }> = [
   { key: "github", label: "GitHub", Icon: GithubIcon },
   { key: "linkedin", label: "LinkedIn", Icon: LinkedinIcon },
   { key: "instagram", label: "Instagram", Icon: InstagramIcon },
+  { key: "discord", label: "Discord", Icon: DiscordIcon },
 ];
 
 // ===== MAIN COMPONENT =====
@@ -110,6 +111,20 @@ export default function DiscoveryProfileCard({
       <p className="pmeta">
         <b>{profile.majorShort || profile.major}</b>, {profile.classRank}
       </p>
+
+      {/* Courses badges */}
+      {profile.courses && profile.courses.length > 0 && (
+        <div className="flex flex-wrap items-center justify-center gap-1 mt-1 mb-1">
+          {profile.courses.slice(0, 3).map((c) => (
+            <span
+              key={c}
+              className="inline-flex items-center px-1.5 py-0.5 rounded-[5px] border border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-mono text-[9.5px] font-black uppercase text-[#0a0a0a] dark:text-neutral-200 shadow-[1px_1px_0px_#0a0a0a] dark:shadow-[1px_1px_0px_#000000]"
+            >
+              {c}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* 5. Socials (40px ink-outlined circles, hover fills with family gradient) */}
       {availableSocials.length > 0 && (

@@ -41,6 +41,8 @@ export type DiscoveryProfile = {
   casualInterests: string[];
   lookingFor: string[];
   clubs: string[];
+  // Current CECS courses (e.g. CIS 350, ECE 270)
+  courses?: string[];
   // Only CIS / CIA students typically have this; others leave it blank
   concentration?: string;
   bio: string;
@@ -49,6 +51,7 @@ export type DiscoveryProfile = {
     github?: string;
     linkedin?: string;
     instagram?: string;
+    discord?: string;
   };
   accent: DiscoveryAccent;
   // Real Storage URL when the student uploaded one. Missing means initials, not a mock face.
@@ -84,12 +87,13 @@ function doesProfileMatchSearchText(profile: DiscoveryProfile, searchQuery: stri
     return true;
   }
 
-  // Search box stays on these fields only. Concentration and looking-for are pill filters, not search.
+  // Search box matches name, courses, major, bio, niches, interests, and clubs.
   const searchableProfileText = [
     profile.displayName,
     profile.major,
     profile.majorShort,
     profile.bio,
+    ...(profile.courses || []),
     ...profile.careerNiche,
     ...profile.casualInterests,
     ...profile.clubs,
@@ -164,6 +168,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     major: "Computer & Information Science",
     classRank: "Junior",
     concentration: "Computer Science",
+    courses: ["CIS 350", "CIS 200", "MATH 115"],
     careerNiche: ["Frontend", "Full Stack"],
     casualInterests: ["Hackathons", "Anime"],
     lookingFor: ["Friend", "Campus Events"],
@@ -178,6 +183,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     majorShort: "CompE",
     major: "Computer Engineering",
     classRank: "Sophomore",
+    courses: ["ECE 270", "ENGR 100", "PHYS 150"],
     careerNiche: ["Embedded Systems", "Robotics"],
     casualInterests: ["Hiking", "Sci-Fi"],
     lookingFor: ["Lab Partner", "Study Partner"],
@@ -192,6 +198,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     majorShort: "SE",
     major: "Software Engineering",
     classRank: "Senior",
+    courses: ["CIS 375", "CIS 350", "CIS 450"],
     careerNiche: ["Backend", "Cloud & DevOps"],
     casualInterests: ["Open Source", "Gaming — RPG"],
     lookingFor: ["Colleague", "Mentor"],
@@ -206,6 +213,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     majorShort: "DS",
     major: "Data Science",
     classRank: "Junior",
+    courses: ["CIS 350", "STAT 325", "IMSE 317"],
     careerNiche: ["AI / Machine Learning", "Data Engineering"],
     casualInterests: ["Chess", "K-Drama"],
     lookingFor: ["Study Partner", "Coffee Chat"],
@@ -221,6 +229,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     major: "Cybersecurity & Information Assurance",
     classRank: "Senior",
     concentration: "Digital Forensics",
+    courses: ["CIS 427", "CIS 350", "ECE 370"],
     careerNiche: ["Cybersecurity", "Systems Programming"],
     casualInterests: ["Podcasts", "Fitness / Gym"],
     lookingFor: ["Mentor", "Gym Buddy"],
@@ -235,6 +244,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     majorShort: "EE",
     major: "Electrical Engineering",
     classRank: "Sophomore",
+    courses: ["ECE 211", "ECE 270", "MATH 216"],
     careerNiche: ["IoT", "FPGA / Hardware"],
     casualInterests: ["Rock", "Photography"],
     lookingFor: ["Friend", "Coffee Chat"],
@@ -249,6 +259,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     majorShort: "Robotics",
     major: "Robotics Engineering",
     classRank: "Freshman",
+    courses: ["ENGR 100", "MATH 115", "PHYS 150"],
     careerNiche: ["Robotics", "Embedded Systems"],
     casualInterests: ["Basketball", "Marvel / DC"],
     lookingFor: ["Mentee", "Gaming Squad"],
@@ -263,6 +274,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     majorShort: "HCED",
     major: "Human-Centered Engineering Design",
     classRank: "Junior",
+    courses: ["HCED 300", "CIS 200", "ART 201"],
     careerNiche: ["UI/UX Design", "Frontend"],
     casualInterests: ["Art & Illustration", "Film Photography"],
     lookingFor: ["Friend", "Campus Events"],
@@ -277,6 +289,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     majorShort: "BME",
     major: "Bioengineering",
     classRank: "Graduate",
+    courses: ["BENG 370", "BIOL 140", "MATH 205"],
     careerNiche: ["AI / Machine Learning", "Data Engineering"],
     casualInterests: ["Reading", "Volunteering"],
     lookingFor: ["Coffee Chat", "Mentor"],
@@ -291,6 +304,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     majorShort: "ME",
     major: "Mechanical Engineering",
     classRank: "Junior",
+    courses: ["ME 265", "ME 230", "MATH 216"],
     careerNiche: ["FPGA / Hardware", "IoT"],
     casualInterests: ["Cars & Motorsports", "Fitness / Gym"],
     lookingFor: ["Gym Buddy", "Friend"],
@@ -305,6 +319,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     majorShort: "ISE",
     major: "Industrial & Systems Engineering",
     classRank: "Senior",
+    courses: ["IMSE 317", "IMSE 442", "CIS 200"],
     careerNiche: ["Cloud & DevOps", "UI/UX Design"],
     casualInterests: ["Entrepreneurship", "Jazz / Lo-Fi"],
     lookingFor: ["Colleague", "Coffee Chat"],
@@ -320,6 +335,7 @@ export const MOCK_PROFILES: DiscoveryProfile[] = [
     major: "Computer & Information Science",
     classRank: "Freshman",
     concentration: "Game Design",
+    courses: ["CIS 297", "CIS 200", "MATH 115"],
     careerNiche: ["Game Development", "AR / VR"],
     casualInterests: ["Gaming — Fighting", "Marvel / DC"],
     lookingFor: ["Gaming Squad", "Friend"],

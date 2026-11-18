@@ -26,6 +26,14 @@ const AVAILABLE_TAGS: Array<{ id: ActivityEventTag; label: string }> = [
   { id: "hangout", label: "Hangout" },
 ];
 
+const CAMPUS_LOCATIONS = [
+  "Library",
+  "ELB Study Room",
+  "Campus Lounge",
+  "Picasso Cafe",
+  "Zoom",
+];
+
 export default function PostEventModal() {
   const backdropRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLFormElement>(null);
@@ -354,6 +362,18 @@ export default function PostEventModal() {
                 placeholder="Room 1030 or Zoom link"
                 className="w-full h-8 px-2.5 rounded-[7px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-xs text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[1.5px_1.5px_0px_#0a0a0a] dark:shadow-[1.5px_1.5px_0px_#000000]"
               />
+              <div className="flex flex-wrap gap-1 pt-0.5">
+                {CAMPUS_LOCATIONS.map((loc) => (
+                  <button
+                    key={loc}
+                    type="button"
+                    onClick={() => setLocation(loc)}
+                    className="h-4.5 px-1.5 rounded-[4px] border border-[#0a0a0a]/30 dark:border-white/30 bg-white dark:bg-[#160e22] text-[#0a0a0a] dark:text-neutral-300 font-mono text-[8.5px] font-bold hover:bg-neutral-100 dark:hover:bg-[#201532] cursor-pointer"
+                  >
+                    + {loc}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Optional Link */}

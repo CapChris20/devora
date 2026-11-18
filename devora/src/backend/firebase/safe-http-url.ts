@@ -8,14 +8,15 @@
 const HTTPS_PROTOCOL = "https:";
 const EMPTY_URL = "";
 
-// Hosts we accept for the three social fields. www. is stripped before compare.
+// Hosts we accept for social fields. www. is stripped before compare.
 const GITHUB_HOSTS = ["github.com"] as const;
 const LINKEDIN_HOSTS = ["linkedin.com"] as const;
 const INSTAGRAM_HOSTS = ["instagram.com"] as const;
+const DISCORD_HOSTS = ["discord.com", "discord.gg", "discordapp.com"] as const;
 
 // ===== TYPES =====
 
-export type SocialLinkKind = "github" | "linkedin" | "instagram";
+export type SocialLinkKind = "github" | "linkedin" | "instagram" | "discord";
 
 // ===== HELPER FUNCTIONS =====
 
@@ -43,7 +44,10 @@ function readAllowedHostsForKind(kind: SocialLinkKind): readonly string[] {
   if (kind === "linkedin") {
     return LINKEDIN_HOSTS;
   }
-  return INSTAGRAM_HOSTS;
+  if (kind === "instagram") {
+    return INSTAGRAM_HOSTS;
+  }
+  return DISCORD_HOSTS;
 }
 
 // ===== MAIN FUNCTIONS =====

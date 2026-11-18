@@ -43,6 +43,7 @@ export type UserLinks = {
   github?: string;
   linkedin?: string;
   instagram?: string;
+  discord?: string;
 };
 
 // Who can DM this user once messaging exists.
@@ -161,6 +162,7 @@ function sanitizeUserLinks(links: UserLinks | undefined): UserLinks {
     github: sanitizeSocialProfileUrl(links?.github, "github"),
     linkedin: sanitizeSocialProfileUrl(links?.linkedin, "linkedin"),
     instagram: sanitizeSocialProfileUrl(links?.instagram, "instagram"),
+    discord: sanitizeSocialProfileUrl(links?.discord, "discord"),
   };
 }
 

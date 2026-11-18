@@ -63,6 +63,7 @@ function matchesSearch(profile: DiscoveryProfile, query: string): boolean {
     profile.majorShort,
     profile.concentration,
     profile.classRank,
+    ...(profile.courses || []),
     ...(profile.careerNiche || []),
     ...(profile.casualInterests || []),
     ...(profile.clubs || []),
@@ -321,8 +322,8 @@ export default function DiscoveryGridContent() {
           </span>
           <input
             type="search"
-            aria-label="Search by name, major, niche or club"
-            placeholder="Search by name, major, niche or club…"
+            aria-label="Search by name, course (e.g. CIS 350), major, or niche"
+            placeholder="Search by name, course (e.g. CIS 350), major, or niche…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />

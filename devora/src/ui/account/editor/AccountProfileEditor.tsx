@@ -97,6 +97,7 @@ type EditorDraft = {
   github: string;
   linkedin: string;
   instagram: string;
+  discord: string;
 };
 
 // ===== HELPER FUNCTIONS =====
@@ -261,6 +262,7 @@ function buildAccountProfileUpdate(draft: EditorDraft): AccountProfileUpdate {
       github: draft.github.trim(),
       linkedin: draft.linkedin.trim(),
       instagram: draft.instagram.trim(),
+      discord: draft.discord.trim(),
     },
   };
 }
@@ -323,6 +325,7 @@ export default function AccountProfileEditor({
   const [github, setGithub] = useState(profile.links?.github ?? "");
   const [linkedin, setLinkedin] = useState(profile.links?.linkedin ?? "");
   const [instagram, setInstagram] = useState(profile.links?.instagram ?? "");
+  const [discord, setDiscord] = useState(profile.links?.discord ?? "");
   // vocab: File | null = a new photo, or null to keep the current one
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -332,7 +335,7 @@ export default function AccountProfileEditor({
   const careerNicheOptions = getCareerNichesForMajor(major);
   const interestCount =
     casualInterests.length + countCommaSeparatedInterests(casualInterestsOther);
-  const linkCount = countFilledSocialLinks([github, linkedin, instagram]);
+  const linkCount = countFilledSocialLinks([github, linkedin, instagram, discord]);
   const canSave = isBioLengthValid(bio);
   const photoName = photoFile?.name ?? PHOTO_FILE_FALLBACK_LABEL;
 
@@ -352,6 +355,7 @@ export default function AccountProfileEditor({
     github,
     linkedin,
     instagram,
+    discord,
   };
 
   const applyMajorChange = (nextMajor: string) => {
@@ -621,6 +625,17 @@ export default function AccountProfileEditor({
                     placeholder="instagram.com/username"
                     value={instagram}
                     onChange={(event) => setInstagram(event.target.value)}
+                    disabled={isSaving}
+                  />
+                </div>
+                <div className="onboarding-link-field">
+                  <span className="onboarding-link-tag">DC</span>
+                  <input
+                    type="text"
+                    className="sign-in-input"
+                    placeholder="discord.com/users/... or username"
+                    value={discord}
+                    onChange={(event) => setDiscord(event.target.value)}
                     disabled={isSaving}
                   />
                 </div>

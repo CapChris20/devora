@@ -14,7 +14,7 @@ import { Check, MessageSquare, Send, UserPlus, X } from "lucide-react";
 
 import type { DiscoveryProfile } from "../mock-profiles";
 import { getMockInitials } from "../mock-profiles";
-import { GithubIcon, InstagramIcon, LinkedinIcon } from "./DiscoverySocialIcons";
+import { GithubIcon, InstagramIcon, LinkedinIcon, DiscordIcon } from "./DiscoverySocialIcons";
 import { sanitizeSocialProfileUrl } from "@/backend/firebase/safe-http-url";
 import { useTheme } from "@/ui/shared/theme/DarkLightMode";
 
@@ -32,13 +32,14 @@ type DiscoveryProfilePeekProps = {
 const MAX_NOTE_LENGTH = 280;
 
 const SOCIAL_LINK_META: Array<{
-  key: "github" | "linkedin" | "instagram";
+  key: "github" | "linkedin" | "instagram" | "discord";
   label: string;
   Icon: typeof GithubIcon;
 }> = [
   { key: "github", label: "GitHub", Icon: GithubIcon },
   { key: "linkedin", label: "LinkedIn", Icon: LinkedinIcon },
   { key: "instagram", label: "Instagram", Icon: InstagramIcon },
+  { key: "discord", label: "Discord", Icon: DiscordIcon },
 ];
 
 // ===== MAIN COMPONENT =====
@@ -213,6 +214,24 @@ export default function DiscoveryProfilePeek({
 
           {/* ── 3. Tags Grid ── */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t-2 border-[#e3e3df] dark:border-white/10">
+            {profile.courses && profile.courses.length > 0 && (
+              <div className="sm:col-span-2">
+                <span className="block font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#575757] dark:text-neutral-400 mb-1.5">
+                  Current Courses
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {profile.courses.map((course, i) => (
+                    <span
+                      key={i}
+                      className="inline-flex items-center px-2.5 py-1 rounded-[6px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-mono text-[11px] font-black text-[#0a0a0a] dark:text-white shadow-[1.5px_1.5px_0px_#0a0a0a] dark:shadow-[1.5px_1.5px_0px_#000000]"
+                    >
+                      {course}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {profile.careerNiche?.length > 0 && (
               <div>
                 <span className="block font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#575757] dark:text-neutral-400 mb-1.5">

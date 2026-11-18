@@ -20,6 +20,9 @@ const PREFERENCES: Array<{ id: MeetingPreference; label: string }> = [
   { id: "both", label: "Both" },
 ];
 
+const COMMON_COURSES = ["CIS 350", "CIS 200", "ECE 270", "ME 265", "MATH 115"];
+const COORDINATION_PRESETS = ["Discord", "WhatsApp", "In Person — Library", "In Person — ELB"];
+
 export default function CreateGroupModal() {
   const backdropRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLFormElement>(null);
@@ -213,6 +216,18 @@ export default function CreateGroupModal() {
                 onChange={(e) => setCourse(e.target.value.toUpperCase())}
                 className="w-full h-8 px-2.5 rounded-[7px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-mono text-xs text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[1.5px_1.5px_0px_#0a0a0a] dark:shadow-[1.5px_1.5px_0px_#000000]"
               />
+              <div className="flex flex-wrap gap-1 pt-0.5">
+                {COMMON_COURSES.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setCourse(c)}
+                    className="h-4.5 px-1.5 rounded-[4px] border border-[#0a0a0a]/30 dark:border-white/30 bg-white dark:bg-[#160e22] text-[#0a0a0a] dark:text-neutral-300 font-mono text-[8.5px] font-bold hover:bg-neutral-100 dark:hover:bg-[#201532] cursor-pointer"
+                  >
+                    + {c}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Field: Topic */}
@@ -286,6 +301,18 @@ export default function CreateGroupModal() {
                 onChange={(e) => setCoordinationMethod(e.target.value)}
                 className="w-full h-8 px-2.5 rounded-[7px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-xs text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[1.5px_1.5px_0px_#0a0a0a] dark:shadow-[1.5px_1.5px_0px_#000000]"
               />
+              <div className="flex flex-wrap gap-1 pt-0.5">
+                {COORDINATION_PRESETS.map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setCoordinationMethod(m)}
+                    className="h-4.5 px-1.5 rounded-[4px] border border-[#0a0a0a]/30 dark:border-white/30 bg-white dark:bg-[#160e22] text-[#0a0a0a] dark:text-neutral-300 font-mono text-[8.5px] font-bold hover:bg-neutral-100 dark:hover:bg-[#201532] cursor-pointer"
+                  >
+                    + {m}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Description */}
