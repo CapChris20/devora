@@ -23,7 +23,7 @@ export default function AccountPage() {
       <div className="relative z-10 flex flex-col flex-1 h-full min-h-screen lg:min-h-0 lg:max-h-screen lg:overflow-hidden">
         <NavBar activeItem="Account" />
 
-        <main className="flex-1 w-full max-w-[1240px] mx-auto px-4 sm:px-6 pt-[96px] sm:pt-[104px] pb-4 flex flex-col justify-start overflow-y-auto lg:overflow-hidden">
+        <main className="flex-1 w-full max-w-[1240px] mx-auto px-4 sm:px-6 pt-[92px] sm:pt-[98px] pb-12 sm:pb-16 flex flex-col justify-start overflow-y-auto lg:overflow-hidden">
           <AccountPageContent />
         </main>
       </div>

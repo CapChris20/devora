@@ -85,7 +85,7 @@ export default function SettingsPage() {
         }
 
         .settings-header-band {
-          padding-top: 104px;
+          padding-top: 96px;
           padding-bottom: 14px;
         }
 
@@ -99,7 +99,7 @@ export default function SettingsPage() {
           max-width: 1140px;
           margin-inline: auto;
           padding-inline: clamp(16px, 3vw, 32px);
-          padding-bottom: 12px;
+          padding-bottom: 56px;
           width: 100%;
         }
       `}</style>
