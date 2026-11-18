@@ -190,7 +190,20 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
             });
           });
 
-          setEvents(firestoreEvents.length > 0 ? firestoreEvents : INITIAL_EVENTS);
+          // Merge live Firestore user events with curated VictorsLink campus events
+          const mergedEvents = [
+            ...firestoreEvents,
+            ...INITIAL_EVENTS.filter(
+              (ie) =>
+                !firestoreEvents.some(
+                  (fe) =>
+                    fe.id === ie.id ||
+                    fe.title.trim().toLowerCase() === ie.title.trim().toLowerCase()
+                )
+            ),
+          ];
+
+          setEvents(mergedEvents);
           setIsEventsLoading(false);
         },
         (err) => {
