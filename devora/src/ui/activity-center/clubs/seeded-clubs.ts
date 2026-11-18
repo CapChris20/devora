@@ -290,5 +290,73 @@ export const REAL_SEEDED_CLUBS: Club[] = [
       timestamp: "4 days ago",
     },
   },
+  {
+    id: "anime-club",
+    name: "Japanese Animation & Manga Society",
+    shortName: "Anime Club",
+    description:
+      "UM-Dearborn's student community celebrating anime, manga, gaming culture, and Japanese media. Hosts weekly watch nights, manga swaps, cosplay workshops, and convention carpools.",
+    category: "Social",
+    meetingFrequency: "Weekly on Fridays at 6:00 PM in University Center",
+    link: "https://umdearborn.campuslabs.com/engage/organization/jams",
+    followerCount: 145,
+    memberCount: 92,
+    latestPost: {
+      text: "Studio Ghibli movie marathon + trivia night this Friday! Free snacks provided in UC 210.",
+      authorName: "Anime Club Execs",
+      timestamp: "1 day ago",
+    },
+  },
+  {
+    id: "esports-club",
+    name: "Dearborn Esports & Gaming Association",
+    shortName: "Esports",
+    description:
+      "Competitive and casual gaming community for UM-Dearborn students. Runs tournaments in Smash Bros, League of Legends, Valorant, Rocket League, and fighting games.",
+    category: "Competitive",
+    meetingFrequency: "Weekly open LAN nights on Saturdays at 5:00 PM",
+    link: "https://umdearborn.campuslabs.com/engage/organization/dega",
+    followerCount: 220,
+    memberCount: 130,
+    latestPost: {
+      text: "Spring Super Smash Bros. Ultimate tournament signups are open! Prize pool sponsored by student government.",
+      authorName: "DEGA Officers",
+      timestamp: "6 hours ago",
+    },
+  },
+  {
+    id: "robotics-club",
+    name: "UM-Dearborn Robotics Club",
+    shortName: "Robotics",
+    description:
+      "Designing, manufacturing, and programming autonomous and combat robots for collegiate national competitions. Open to mechanical, electrical, computer, and software engineering students.",
+    category: "Competitive",
+    meetingFrequency: "Weekly lab work sessions on Saturdays at 1:00 PM",
+    link: "https://umdearborn.campuslabs.com/engage/organization/robotics",
+    followerCount: 175,
+    memberCount: 85,
+    latestPost: {
+      text: "Combat robotics 3lb beetleweight build season has begun. Come to the ELB machine shop this Saturday!",
+      authorName: "Robotics Lead",
+      timestamp: "3 days ago",
+    },
+  },
+  {
+    id: "tabletop-gaming",
+    name: "Dearborn Tabletop & Board Game Club",
+    shortName: "Tabletop",
+    description:
+      "Welcoming campus community for board games, tabletop RPGs like Dungeons & Dragons, Magic: The Gathering, and strategy games. Beginners and experienced players always welcome.",
+    category: "Social",
+    meetingFrequency: "Weekly on Tuesdays at 6:00 PM in Mardigian Library",
+    link: "https://umdearborn.campuslabs.com/engage/organization/tabletop",
+    followerCount: 115,
+    memberCount: 70,
+    latestPost: {
+      text: "One-shot D&D campaign night this Tuesday! Character sheets and dice will be provided for new players.",
+      authorName: "D&D Guildmaster",
+      timestamp: "2 days ago",
+    },
+  },
 ];
 

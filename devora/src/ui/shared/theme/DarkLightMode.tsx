@@ -56,6 +56,13 @@ function applyThemeToDocument(theme: Theme): void {
   // vocab: document.documentElement = the <html> element
   // vocab: data-theme = custom attribute CSS selects with [data-theme="dark"]
   document.documentElement.setAttribute(DOCUMENT_THEME_ATTRIBUTE, theme);
+  if (theme === DARK_THEME) {
+    document.documentElement.classList.add("dark");
+    document.documentElement.classList.remove("light");
+  } else {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.classList.add("light");
+  }
   localStorage.setItem(THEME_STORAGE_KEY, theme);
 }
 

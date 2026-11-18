@@ -28,7 +28,7 @@ export default function ClubCategoryFilter({
     <div
       role="group"
       aria-label="Filter clubs by category"
-      className="flex flex-wrap gap-2.5 mb-8 sm:mb-10"
+      className="flex flex-wrap gap-2 sm:gap-2.5"
     >
       {FILTERS.map((item) => {
         const isSelected = activeCategory === item.id;

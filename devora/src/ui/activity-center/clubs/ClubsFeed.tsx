@@ -188,17 +188,17 @@ export default function ClubsFeed() {
         />
 
         {/* Search input */}
-        <div className="relative mb-6 lg:mb-0 min-w-[280px]">
+        <div className="relative min-w-[280px]">
           <Search
             size={16}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#575757] dark:text-neutral-400 pointer-events-none"
           />
           <input
             type="text"
             placeholder="Search clubs by name or skill..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full rounded-full border-2 border-[#0a0a0a] dark:border-white/25 bg-white dark:bg-[#161022] pl-10 pr-4 py-2.5 text-xs font-mono text-[#0a0a0a] dark:text-white placeholder:text-neutral-400 focus:border-[#fb923c] dark:focus:border-[#fb923c] focus:outline-none shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
+            className="w-full rounded-full border-[2.5px] border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#161022] pl-10 pr-4 py-2 text-xs font-mono text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:border-[#fb923c] dark:focus:border-[#fb923c] focus:outline-none shadow-[3px_3px_0px_#0a0a0a] dark:shadow-[3px_3px_0px_#000000]"
           />
         </div>
       </div>

@@ -180,10 +180,14 @@ export default function FAQAccordion() {
     <div className="w-full">
       {/* ── Page Header per Design Law (faqs.html) ── */}
       <header className="mb-8">
-        <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#575757] dark:text-neutral-400">
+        <span className={`font-mono text-xs font-bold uppercase tracking-[0.14em] ${
+          isLight ? "text-[#575757]" : "text-neutral-400"
+        }`}>
           CECS knowledge base
         </span>
-        <h1 className="mt-2 font-display uppercase font-normal text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[0.92] text-[#0a0a0a] dark:text-white">
+        <h1 className={`mt-2 font-display uppercase font-normal text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[0.92] ${
+          isLight ? "text-[#0a0a0a]" : "text-white"
+        }`}>
           Frequently asked
           <br />
           questions
@@ -336,12 +340,16 @@ export default function FAQAccordion() {
                 </div>
 
                 {/* Question Heading */}
-                <h2 className="mt-4 sm:mt-5 font-bold text-xl sm:text-2xl lg:text-[28px] leading-[1.18] tracking-tight text-[#0a0a0a] dark:text-white">
+                <h2 className={`mt-4 sm:mt-5 font-bold text-xl sm:text-2xl lg:text-[28px] leading-[1.18] tracking-tight ${
+                  isLight ? "text-[#0a0a0a]" : "text-white"
+                }`}>
                   {currentFaq.question}
                 </h2>
 
                 {/* Answer Paragraph */}
-                <p className="mt-4 font-body text-base sm:text-[17px] leading-[1.68] text-[#262626] dark:text-neutral-200">
+                <p className={`mt-4 font-body text-base sm:text-[17px] leading-[1.68] ${
+                  isLight ? "text-[#262626]" : "text-neutral-200"
+                }`}>
                   {currentFaq.answer}
                 </p>
 

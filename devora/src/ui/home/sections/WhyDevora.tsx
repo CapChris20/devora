@@ -300,20 +300,30 @@ export default function WhyDevora() {
                 }`}
               >
                 <div className="flex items-center gap-3.5">
-                  <div className="w-[54px] h-[54px] shrink-0 rounded-[12px] border-[3px] border-[#0a0a0a] dark:border-white/30 bg-[#0a0a0a] dark:bg-[#201730] text-white flex items-center justify-center font-display text-xl font-normal shadow-[2px_2px_0px_0px_#0a0a0a]">
+                  <div className={`w-[54px] h-[54px] shrink-0 rounded-[12px] border-[3px] flex items-center justify-center font-display text-xl font-normal shadow-[2px_2px_0px_0px_#0a0a0a] ${
+                    isLight
+                      ? "border-[#0a0a0a] bg-[#0a0a0a] text-white"
+                      : "border-white/30 bg-[#201730] text-white"
+                  }`}>
                     {activeTab.mark}
                   </div>
                   <div>
-                    <h3 className="font-display uppercase font-normal text-2xl sm:text-[26px] leading-tight m-0 text-[#0a0a0a] dark:text-white">
+                    <h3 className={`font-display uppercase font-normal text-2xl sm:text-[26px] leading-tight m-0 ${
+                      isLight ? "text-[#0a0a0a]" : "text-white"
+                    }`}>
                       {activeTab.name}
                     </h3>
-                    <small className="block mt-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] text-[#575757] dark:text-neutral-400">
+                    <small className={`block mt-1 font-mono text-[10px] font-bold uppercase tracking-[0.14em] ${
+                      isLight ? "text-[#575757]" : "text-neutral-400"
+                    }`}>
                       {activeTab.who}
                     </small>
                   </div>
                 </div>
 
-                <p className="mt-3 font-body text-lg sm:text-[19px] font-semibold leading-[1.4] text-[#262626] dark:text-neutral-200">
+                <p className={`mt-3 font-body text-lg sm:text-[19px] font-semibold leading-[1.4] ${
+                  isLight ? "text-[#0a0a0a]" : "text-neutral-200"
+                }`}>
                   {activeTab.quote}
                 </p>
 
@@ -322,10 +332,16 @@ export default function WhyDevora() {
                     isLight ? "border-[#0a0a0a]" : "border-white/20"
                   }`}
                 >
-                  <span className="font-mono text-[11px] font-bold uppercase tracking-[0.14em] text-[#575757] dark:text-neutral-400">
+                  <span className={`font-mono text-[11px] font-bold uppercase tracking-[0.14em] ${
+                    isLight ? "text-[#575757]" : "text-neutral-400"
+                  }`}>
                     Still good for:
                   </span>
-                  <span className="inline-block px-2.5 py-1 rounded-[6px] border-[2.5px] border-dashed border-[#0a0a0a] dark:border-white/40 font-mono text-xs font-bold uppercase tracking-wider bg-white dark:bg-[#1e152e] text-[#0a0a0a] dark:text-white">
+                  <span className={`inline-block px-2.5 py-1 rounded-[6px] border-[2.5px] border-dashed font-mono text-xs font-bold uppercase tracking-wider ${
+                    isLight
+                      ? "border-[#0a0a0a] bg-white text-[#0a0a0a]"
+                      : "border-white/40 bg-[#1e152e] text-white"
+                  }`}>
                     {activeTab.stillGoodFor}
                   </span>
                 </div>
