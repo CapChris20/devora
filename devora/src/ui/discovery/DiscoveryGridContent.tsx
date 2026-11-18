@@ -526,34 +526,34 @@ export default function DiscoveryGridContent() {
           display: flex;
           flex-wrap: wrap;
           align-items: center;
-          gap: 12px 16px;
-          padding: 8px 14px 8px 10px;
-          border-radius: 9999px;
+          gap: 8px 12px;
+          padding: 4px 10px;
+          border-radius: 10px;
           background: #0d0a11;
           border: 2px solid rgba(255, 255, 255, 0.3);
-          box-shadow: 6px 6px 0px #000000;
-          margin-bottom: 24px;
+          box-shadow: 3px 3px 0px #000000;
+          margin-bottom: 10px;
         }
 
         @media (max-width: 640px) {
           .dtools-dock {
-            border-radius: 20px;
-            padding: 12px;
+            border-radius: 10px;
+            padding: 8px;
           }
         }
 
         .dtools-filter-btn {
-          height: 48px;
+          height: 34px;
           display: inline-flex;
           align-items: center;
-          gap: 10px;
-          padding: 0 20px;
-          border-radius: 9999px;
+          gap: 6px;
+          padding: 0 14px;
+          border-radius: 8px;
           background: #18131f;
-          border: 2px solid #362a3f;
+          border: 1.5px solid #362a3f;
           color: #ffffff;
           font-family: var(--f-body, sans-serif);
-          font-size: 14.5px;
+          font-size: 12px;
           font-weight: 700;
           cursor: pointer;
           transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
@@ -578,37 +578,37 @@ export default function DiscoveryGridContent() {
         .dtools-badge {
           display: inline-grid;
           place-items: center;
-          min-width: 22px;
-          height: 22px;
-          padding: 0 6px;
+          min-width: 18px;
+          height: 18px;
+          padding: 0 4px;
           border-radius: 999px;
           background: var(--grad, linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%));
           color: #0d0b0e;
           font-family: var(--f-mono);
-          font-size: 11.5px;
+          font-size: 10px;
           font-weight: 800;
         }
 
         .dtools-search-pill {
-          flex: 1 1 300px;
+          flex: 1 1 240px;
           position: relative;
           display: flex;
           align-items: center;
-          min-height: 48px;
-          border-radius: 9999px;
+          min-height: 34px;
+          border-radius: 8px;
           background: #120e17;
-          border: 2px solid #362a3f;
+          border: 1.5px solid #362a3f;
           transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .dtools-search-pill:focus-within {
           border-color: rgba(255, 255, 255, 0.5);
-          box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+          box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1);
         }
 
         .dtools-search-icon {
           position: absolute;
-          left: 16px;
+          left: 10px;
           color: #fb923c;
           display: flex;
           align-items: center;
@@ -617,28 +617,28 @@ export default function DiscoveryGridContent() {
 
         .dtools-search-pill input {
           width: 100%;
-          height: 44px;
+          height: 32px;
           background: transparent;
           border: none;
           outline: none;
-          padding-left: 46px;
-          padding-right: 36px;
+          padding-left: 32px;
+          padding-right: 30px;
           color: #ffffff;
           font-family: var(--f-body, sans-serif);
-          font-size: 15px;
+          font-size: 12.5px;
           font-weight: 500;
         }
 
         .dtools-search-pill input::placeholder {
           color: #b5aab3;
-          font-size: 14px;
+          font-size: 12px;
         }
 
         .dtools-clear-query {
           position: absolute;
-          right: 12px;
-          width: 24px;
-          height: 24px;
+          right: 8px;
+          width: 20px;
+          height: 20px;
           border-radius: 50%;
           background: #251b2f;
           border: 1px solid #4a3858;
@@ -650,33 +650,34 @@ export default function DiscoveryGridContent() {
         }
 
         .dtools-clear-query:hover {
-          background: #ff5ca8;
+          background: #ffffff;
           color: #0d0b0e;
         }
 
         .dtools-count-chip {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          padding: 8px 18px;
-          border-radius: 999px;
+          gap: 6px;
+          padding: 4px 12px;
+          border-radius: 8px;
           background: #18131f;
           border: 1.5px solid #362a3f;
           color: #ffffff;
           font-family: var(--f-mono);
-          font-size: 13px;
+          font-size: 11px;
           font-weight: 700;
           letter-spacing: 0.04em;
           text-transform: uppercase;
           white-space: nowrap;
+          height: 34px;
         }
 
         .live-dot {
-          width: 8px;
-          height: 8px;
+          width: 6px;
+          height: 6px;
           border-radius: 50%;
-          background: #ff5ca8;
-          box-shadow: 0 0 8px #ff5ca8;
+          background: #fb923c;
+          box-shadow: 0 0 6px #fb923c;
         }
 
         .active-filters-bar {

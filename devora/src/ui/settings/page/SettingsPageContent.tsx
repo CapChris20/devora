@@ -10,7 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { onAuthStateChanged, type User } from "firebase/auth";
-import { LogOut, PenLine, AlertTriangle, Check } from "lucide-react";
+import { LogOut, PenLine, AlertTriangle, Check, Globe, Bell, Palette, Shield, User as UserIcon } from "lucide-react";
 import { motion } from "framer-motion";
 
 import {
@@ -488,11 +488,21 @@ function SettingsDangerZone({
   );
 }
 
+const SETTINGS_CATEGORIES = [
+  { id: "discovery", label: "Discovery Grid", icon: Globe },
+  { id: "notifications", label: "Notifications", icon: Bell },
+  { id: "appearance", label: "Appearance", icon: Palette },
+  { id: "privacy", label: "Privacy & Safety", icon: Shield },
+  { id: "account", label: "Account", icon: UserIcon },
+  { id: "danger", label: "Danger Zone", icon: AlertTriangle },
+] as const;
+
 // ===== MAIN COMPONENT =====
 
 export default function SettingsPageContent() {
   const router = useRouter();
 
+  const [activeCategory, setActiveCategory] = useState<string>("discovery");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -637,191 +647,306 @@ export default function SettingsPageContent() {
         </div>
       )}
 
-      <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
-        {/* Discovery Visibility */}
-        <SettingsCard title="Discovery Grid">
-          <SettingsRow
-            label="Public profile"
-            description={
-              isDeactivated ? HIDDEN_WHILE_DEACTIVATED_DESCRIPTION : PUBLIC_PROFILE_DESCRIPTION
-            }
-            checked={isPublic}
-            onChange={updateDiscoveryVisibility}
-            disabled={isSaving || isDeactivated}
-          />
-          <SettingsRow
-            label="Show interests"
-            checked={preferences.showInterests}
-            onChange={(value) => updatePreference(SHOW_INTERESTS_KEY, value)}
-            disabled={isSaving}
-          />
-          <SettingsRow
-            label="Show career focus &amp; skills"
-            checked={preferences.showSkills}
-            onChange={(value) => updatePreference(SHOW_SKILLS_KEY, value)}
-            disabled={isSaving}
-          />
-          <SettingsRow
-            label="Show class year"
-            checked={preferences.showClassYear}
-            onChange={(value) => updatePreference(SHOW_CLASS_YEAR_KEY, value)}
-            disabled={isSaving}
-          />
-        </SettingsCard>
-
-        {/* Notifications */}
-        <SettingsCard title="Notifications">
-          <SettingsRow
-            label="New messages"
-            checked={preferences.notifyMessages}
-            onChange={(value) => updatePreference(NOTIFY_MESSAGES_KEY, value)}
-            disabled={isSaving}
-          />
-          <SettingsRow
-            label="Connection requests"
-            checked={preferences.notifyConnectionRequests}
-            onChange={(value) => updatePreference(NOTIFY_CONNECTION_REQUESTS_KEY, value)}
-            disabled={isSaving}
-          />
-          <SettingsRow
-            label="Profile views"
-            checked={preferences.notifyProfileViews}
-            onChange={(value) => updatePreference(NOTIFY_PROFILE_VIEWS_KEY, value)}
-            disabled={isSaving}
-          />
-          <SettingsRow
-            label="Event invites"
-            checked={preferences.notifyEventInvites}
-            onChange={(value) => updatePreference(NOTIFY_EVENT_INVITES_KEY, value)}
-            disabled={isSaving}
-          />
-          <SettingsRow
-            label="Weekly digest email"
-            checked={preferences.notifyWeeklyDigest}
-            onChange={(value) => updatePreference(NOTIFY_WEEKLY_DIGEST_KEY, value)}
-            disabled={isSaving}
-          />
-
-          <div className="settings-select-card">
-            <div>
-              <span className="settings-select-title">
-                Allow messages from
-              </span>
-              <p className="settings-select-desc">
-                Who can start a conversation with you.
-              </p>
-            </div>
-
-            <select
-              className="settings-select-dropdown"
-              value={preferences.allowMessagesFrom}
-              onChange={(event) =>
-                updatePreference(ALLOW_MESSAGES_FROM_KEY, event.target.value as MessagePolicy)
-              }
-              disabled={isSaving}
-            >
-              <option value={MESSAGE_POLICY_EVERYONE}>Everyone on Devora</option>
-              <option value={MESSAGE_POLICY_CONNECTIONS}>Connections only</option>
-              <option value={MESSAGE_POLICY_NONE}>No one</option>
-            </select>
+      <div className="settings-split-layout">
+        {/* Category Navigation (left side on desktop, top pills on mobile) */}
+        <aside className="settings-nav-sidebar">
+          <div className="settings-nav-list">
+            {SETTINGS_CATEGORIES.map((cat) => {
+              const Icon = cat.icon;
+              const isActive = activeCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setActiveCategory(cat.id)}
+                  className={`settings-nav-btn ${isActive ? "is-active" : ""}`}
+                >
+                  <Icon size={14} />
+                  <span>{cat.label}</span>
+                </button>
+              );
+            })}
           </div>
-        </SettingsCard>
+        </aside>
 
-        {/* Appearance */}
-        <SettingsAppearanceCard />
+        {/* Active Panel (right side on desktop) */}
+        <div className="settings-active-panel-wrap">
+          {activeCategory === "discovery" && (
+            <SettingsCard title="Discovery Grid">
+              <SettingsRow
+                label="Public profile"
+                description={
+                  isDeactivated ? HIDDEN_WHILE_DEACTIVATED_DESCRIPTION : PUBLIC_PROFILE_DESCRIPTION
+                }
+                checked={isPublic}
+                onChange={updateDiscoveryVisibility}
+                disabled={isSaving || isDeactivated}
+              />
+              <SettingsRow
+                label="Show interests"
+                checked={preferences.showInterests}
+                onChange={(value) => updatePreference(SHOW_INTERESTS_KEY, value)}
+                disabled={isSaving}
+              />
+              <SettingsRow
+                label="Show career focus & skills"
+                checked={preferences.showSkills}
+                onChange={(value) => updatePreference(SHOW_SKILLS_KEY, value)}
+                disabled={isSaving}
+              />
+              <SettingsRow
+                label="Show class year"
+                checked={preferences.showClassYear}
+                onChange={(value) => updatePreference(SHOW_CLASS_YEAR_KEY, value)}
+                disabled={isSaving}
+              />
+            </SettingsCard>
+          )}
 
-        {/* Privacy & Safety */}
-        <SettingsCard title="Privacy & Safety">
-          <SettingsRow
-            label="Show online status"
-            checked={preferences.showOnlineStatus}
-            onChange={(value) => updatePreference(SHOW_ONLINE_STATUS_KEY, value)}
-            disabled={isSaving}
-          />
-          <SettingsRow
-            label="Read receipts"
-            checked={preferences.showReadReceipts}
-            onChange={(value) => updatePreference(SHOW_READ_RECEIPTS_KEY, value)}
-            disabled={isSaving}
-          />
-        </SettingsCard>
+          {activeCategory === "notifications" && (
+            <SettingsCard title="Notifications">
+              <SettingsRow
+                label="New messages"
+                checked={preferences.notifyMessages}
+                onChange={(value) => updatePreference(NOTIFY_MESSAGES_KEY, value)}
+                disabled={isSaving}
+              />
+              <SettingsRow
+                label="Connection requests"
+                checked={preferences.notifyConnectionRequests}
+                onChange={(value) => updatePreference(NOTIFY_CONNECTION_REQUESTS_KEY, value)}
+                disabled={isSaving}
+              />
+              <SettingsRow
+                label="Profile views"
+                checked={preferences.notifyProfileViews}
+                onChange={(value) => updatePreference(NOTIFY_PROFILE_VIEWS_KEY, value)}
+                disabled={isSaving}
+              />
+              <SettingsRow
+                label="Event invites"
+                checked={preferences.notifyEventInvites}
+                onChange={(value) => updatePreference(NOTIFY_EVENT_INVITES_KEY, value)}
+                disabled={isSaving}
+              />
+              <SettingsRow
+                label="Weekly digest email"
+                checked={preferences.notifyWeeklyDigest}
+                onChange={(value) => updatePreference(NOTIFY_WEEKLY_DIGEST_KEY, value)}
+                disabled={isSaving}
+              />
 
-        {/* Account Info & Actions */}
-        <SettingsCard title="Account">
-          <div className="settings-account-box">
-            <span className="settings-account-label">Signed in as</span>
-            <span className="settings-account-email">{profile.email}</span>
-          </div>
+              <div className="settings-select-card">
+                <div>
+                  <span className="settings-select-title">
+                    Allow messages from
+                  </span>
+                  <p className="settings-select-desc">
+                    Who can start a conversation with you.
+                  </p>
+                </div>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 12, paddingTop: 4 }}>
-            <Link href={ACCOUNT_PAGE_PATH} className="btn-primary">
-              <PenLine size={16} />
-              <span>Edit profile</span>
-            </Link>
+                <select
+                  className="settings-select-dropdown"
+                  value={preferences.allowMessagesFrom}
+                  onChange={(event) =>
+                    updatePreference(ALLOW_MESSAGES_FROM_KEY, event.target.value as MessagePolicy)
+                  }
+                  disabled={isSaving}
+                >
+                  <option value={MESSAGE_POLICY_EVERYONE}>Everyone on Devora</option>
+                  <option value={MESSAGE_POLICY_CONNECTIONS}>Connections only</option>
+                  <option value={MESSAGE_POLICY_NONE}>No one</option>
+                </select>
+              </div>
+            </SettingsCard>
+          )}
 
-            <button
-              type="button"
-              onClick={() => {
-                void signOutAndReturnToLogin(router);
+          {activeCategory === "appearance" && <SettingsAppearanceCard />}
+
+          {activeCategory === "privacy" && (
+            <SettingsCard title="Privacy & Safety">
+              <SettingsRow
+                label="Show online status"
+                checked={preferences.showOnlineStatus}
+                onChange={(value) => updatePreference(SHOW_ONLINE_STATUS_KEY, value)}
+                disabled={isSaving}
+              />
+              <SettingsRow
+                label="Read receipts"
+                checked={preferences.showReadReceipts}
+                onChange={(value) => updatePreference(SHOW_READ_RECEIPTS_KEY, value)}
+                disabled={isSaving}
+              />
+            </SettingsCard>
+          )}
+
+          {activeCategory === "account" && (
+            <SettingsCard title="Account">
+              <div className="settings-account-box">
+                <span className="settings-account-label">Signed in as</span>
+                <span className="settings-account-email">{profile.email}</span>
+              </div>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 10, paddingTop: 4 }}>
+                <Link href={ACCOUNT_PAGE_PATH} className="settings-edit-profile-btn">
+                  <PenLine size={15} />
+                  <span>Edit profile</span>
+                </Link>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    void signOutAndReturnToLogin(router);
+                  }}
+                  className="settings-signout-btn"
+                >
+                  <LogOut size={15} />
+                  <span>Sign out</span>
+                </button>
+              </div>
+            </SettingsCard>
+          )}
+
+          {activeCategory === "danger" && (
+            <SettingsDangerZone
+              isDeactivated={isDeactivated}
+              isSaving={isSaving}
+              dangerConfirm={dangerConfirm}
+              deletePhrase={deletePhrase}
+              setDangerConfirm={setDangerConfirm}
+              setDeletePhrase={setDeletePhrase}
+              setErrorMessage={setErrorMessage}
+              onReactivate={() => {
+                void reactivateAccountFromSettings(statusControls, setIsDeactivated, setIsPublic);
               }}
-              className="settings-signout-btn"
-            >
-              <LogOut size={16} />
-              <span>Sign out</span>
-            </button>
-          </div>
-        </SettingsCard>
-
-        {/* Danger zone */}
-        <SettingsDangerZone
-          isDeactivated={isDeactivated}
-          isSaving={isSaving}
-          dangerConfirm={dangerConfirm}
-          deletePhrase={deletePhrase}
-          setDangerConfirm={setDangerConfirm}
-          setDeletePhrase={setDeletePhrase}
-          setErrorMessage={setErrorMessage}
-          onReactivate={() => {
-            void reactivateAccountFromSettings(statusControls, setIsDeactivated, setIsPublic);
-          }}
-          onDeactivate={() => {
-            void deactivateAccountFromSettings(
-              statusControls,
-              setIsDeactivated,
-              setIsPublic,
-              setDangerConfirm
-            );
-          }}
-          onDelete={() => {
-            void deleteAccountAfterPhraseCheck(deletePhrase, statusControls);
-          }}
-        />
+              onDeactivate={() => {
+                void deactivateAccountFromSettings(
+                  statusControls,
+                  setIsDeactivated,
+                  setIsPublic,
+                  setDangerConfirm
+                );
+              }}
+              onDelete={() => {
+                void deleteAccountAfterPhraseCheck(deletePhrase, statusControls);
+              }}
+            />
+          )}
+        </div>
       </div>
 
       <style jsx>{`
+        .settings-split-layout {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 12px;
+          width: 100%;
+        }
+
+        @media (min-width: 1024px) {
+          .settings-split-layout {
+            grid-template-columns: 210px 1fr;
+            align-items: start;
+          }
+        }
+
+        .settings-nav-sidebar {
+          width: 100%;
+        }
+
+        .settings-nav-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+        }
+
+        @media (min-width: 1024px) {
+          .settings-nav-list {
+            flex-direction: column;
+            gap: 6px;
+          }
+        }
+
+        .settings-nav-btn {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          height: 36px;
+          padding: 0 12px;
+          border-radius: 8px;
+          font-family: var(--f-mono, monospace);
+          font-size: 11.5px;
+          font-weight: 800;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          cursor: pointer;
+          transition: all 0.15s ease;
+          background: #140d1e;
+          color: var(--text-muted, #a597bd);
+          border: 1.5px solid rgba(255, 255, 255, 0.2);
+          box-shadow: 2px 2px 0px #000000;
+          width: 100%;
+          text-align: left;
+        }
+
+        .settings-nav-btn:hover {
+          color: #ffffff;
+          border-color: rgba(255, 255, 255, 0.5);
+          transform: translate(-1px, -1px);
+          box-shadow: 3px 3px 0px #000000;
+        }
+
+        .settings-nav-btn.is-active {
+          background: #ffffff !important;
+          color: #0a0a0a !important;
+          border: 2px solid #ffffff !important;
+          box-shadow: 3px 3px 0px #000000 !important;
+        }
+
+        :global(html[data-theme="light"]) .settings-nav-btn {
+          background: #ffffff;
+          color: #4b5563;
+          border: 1.5px solid #0a0a0a;
+          box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .settings-nav-btn:hover {
+          color: #0a0a0a;
+          background: #f4f4f2;
+          box-shadow: 3px 3px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .settings-nav-btn.is-active {
+          background: #0a0a0a !important;
+          color: #ffffff !important;
+          border: 2px solid #0a0a0a !important;
+          box-shadow: 3px 3px 0px #0a0a0a !important;
+        }
+
         .settings-panel {
           background: #0e0918;
           border: 2px solid rgba(255, 255, 255, 0.25);
-          border-radius: 6px;
-          padding: clamp(24px, 3.5vw, 32px);
+          border-radius: 10px;
+          padding: 14px 18px;
           display: flex;
           flex-direction: column;
-          gap: 20px;
-          box-shadow: 6px 6px 0px 0px #000000;
+          gap: 12px;
+          box-shadow: 4px 4px 0px 0px #000000;
         }
 
         :global(html[data-theme="light"]) .settings-panel {
           background: #ffffff;
-          border: 2.5px solid #0a0a0a;
-          box-shadow: 6px 6px 0px 0px #0a0a0a;
+          border: 2px solid #0a0a0a;
+          box-shadow: 4px 4px 0px 0px #0a0a0a;
           color: #0a0a0a;
         }
 
         .settings-panel-head {
           display: flex;
           align-items: center;
-          gap: 16px;
-          padding-bottom: 12px;
+          gap: 12px;
+          padding-bottom: 8px;
           border-bottom: 1px solid rgba(255, 255, 255, 0.1);
         }
 
@@ -832,7 +957,7 @@ export default function SettingsPageContent() {
         .settings-panel-title {
           font-family: var(--font-display), "Arial Black", sans-serif;
           font-weight: 700;
-          font-size: 18px;
+          font-size: 15px;
           text-transform: uppercase;
           letter-spacing: -0.01em;
           color: #ffffff;
@@ -849,7 +974,7 @@ export default function SettingsPageContent() {
         .settings-panel-line {
           flex: 1;
           height: 1px;
-          background: linear-gradient(90deg, rgba(255, 92, 168, 0.4), transparent 75%);
+          background: linear-gradient(90deg, rgba(255, 255, 255, 0.3), transparent 75%);
         }
 
         :global(html[data-theme="light"]) .settings-panel-line {
@@ -859,16 +984,16 @@ export default function SettingsPageContent() {
         .settings-panel-body {
           display: flex;
           flex-direction: column;
-          gap: 18px;
+          gap: 10px;
         }
 
         .settings-row-item {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 16px;
-          padding: 14px 18px;
-          border-radius: 14px;
+          gap: 12px;
+          padding: 8px 12px;
+          border-radius: 8px;
           background: #15101a;
           border: 1.5px solid rgba(255, 255, 255, 0.08);
           transition: background 0.18s ease, border-color 0.18s ease;
@@ -876,8 +1001,35 @@ export default function SettingsPageContent() {
 
         :global(html[data-theme="light"]) .settings-row-item {
           background: #fafaf9;
-          border: 2px solid #0a0a0a;
+          border: 1.5px solid #0a0a0a;
           box-shadow: 2px 2px 0px #0a0a0a;
+        }
+
+        .settings-edit-profile-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          height: 34px;
+          padding: 0 14px;
+          border-radius: 8px;
+          background: #ffffff;
+          color: #0a0a0a;
+          border: 2px solid #ffffff;
+          box-shadow: 3px 3px 0px #000000;
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-size: 11px;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: 0.06em;
+          cursor: pointer;
+          transition: all 0.15s ease;
+        }
+
+        :global(html[data-theme="light"]) .settings-edit-profile-btn {
+          background: #0a0a0a;
+          color: #ffffff;
+          border-color: #0a0a0a;
+          box-shadow: 3px 3px 0px #0a0a0a;
         }
 
         .settings-row-text {

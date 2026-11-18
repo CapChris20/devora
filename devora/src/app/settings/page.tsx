@@ -6,21 +6,20 @@
 "use client";
 
 import NavBar from "@/ui/shared/navbar/NavBar";
-import Footer from "@/ui/shared/footer/Footer";
 import SettingsPageContent from "@/ui/settings/page/SettingsPageContent";
 import BackgroundPicture from "@/ui/shared/backgrounds/BackgroundPicture";
 
 export default function SettingsPage() {
   return (
     <div
-      className="min-h-screen flex flex-col relative"
+      className="min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden flex flex-col relative"
       style={{
         color: "var(--text, #fbf6f8)",
       }}
     >
       <BackgroundPicture variant="settings" />
 
-      <div className="relative z-10 flex flex-col min-h-screen">
+      <div className="relative z-10 flex flex-col flex-1 h-full min-h-screen lg:min-h-0 lg:max-h-screen lg:overflow-hidden">
         <NavBar activeItem="Settings" />
 
         {/* ── Page Header with solid overlay card ── */}
@@ -36,32 +35,32 @@ export default function SettingsPage() {
         </section>
 
         {/* ── Main Settings Panels ── */}
-        <main className="settings-main-wrap flex-1">
+        <main className="settings-main-wrap flex-1 flex flex-col overflow-y-auto lg:overflow-hidden">
           <SettingsPageContent />
         </main>
-
-        <Footer />
       </div>
 
       <style jsx>{`
         .settings-hero-card {
           background: #0d0a11;
           border: 2px solid rgba(255, 255, 255, 0.3);
-          border-radius: 24px;
-          padding: clamp(28px, 4vw, 40px);
-          box-shadow: 8px 8px 0px #000000;
+          border-radius: 10px;
+          padding: 8px 16px;
+          box-shadow: 4px 4px 0px #000000;
         }
 
         :global(html[data-theme="light"]) .settings-hero-card {
           background: #ffffff;
-          border: 2.5px solid #0a0a0a;
-          box-shadow: 6px 6px 0px #0a0a0a;
+          border: 2px solid #0a0a0a;
+          box-shadow: 4px 4px 0px #0a0a0a;
         }
 
         .settings-hero-title {
           margin: 0;
           color: #ffffff;
-          text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
+          font-size: clamp(18px, 1.8vw, 22px);
+          line-height: 1.1;
+          text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
         }
 
         :global(html[data-theme="light"]) .settings-hero-title {
@@ -70,9 +69,9 @@ export default function SettingsPage() {
         }
 
         .settings-hero-lead {
-          color: rgba(255, 255, 255, 0.92);
-          font-size: clamp(16px, 1.4vw, 19px);
-          margin-top: 12px;
+          color: rgba(255, 255, 255, 0.85);
+          font-size: 11.5px;
+          margin-top: 2px;
           margin-bottom: 0;
         }
 
@@ -81,21 +80,21 @@ export default function SettingsPage() {
         }
 
         .settings-header-band {
-          padding-top: clamp(100px, 11vw, 136px);
-          padding-bottom: 28px;
+          padding-top: 70px;
+          padding-bottom: 6px;
         }
 
         .settings-header-inner {
-          max-width: 1080px;
+          max-width: 1140px;
           margin-inline: auto;
-          padding-inline: clamp(20px, 4.5vw, 64px);
+          padding-inline: clamp(16px, 3vw, 32px);
         }
 
         .settings-main-wrap {
-          max-width: 1080px;
+          max-width: 1140px;
           margin-inline: auto;
-          padding-inline: clamp(20px, 4.5vw, 64px);
-          padding-bottom: 80px;
+          padding-inline: clamp(16px, 3vw, 32px);
+          padding-bottom: 12px;
           width: 100%;
         }
       `}</style>

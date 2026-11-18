@@ -257,16 +257,16 @@ export default function AccountPageContent() {
   return (
     <div className="account-page-content">
       {!isSignedIn ? (
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-[10px] border-[2.5px] border-[#0a0a0a] dark:border-white/20 bg-white dark:bg-[#120a1f] px-4 py-3 shadow-[4px_4px_0px_#0a0a0a] dark:shadow-[4px_4px_0px_#000000]">
-          <div className="flex items-center gap-2.5">
-            <span className="inline-flex h-3 w-3 rounded-full bg-gradient-to-r from-[#ffd76f] via-[#ff9a3d] to-[#ff5ca8] animate-pulse" />
-            <span className="font-mono text-xs font-bold uppercase tracking-wider text-[#0a0a0a] dark:text-neutral-200">
+        <div className="mb-2.5 flex flex-wrap items-center justify-between gap-2 rounded-[8px] border-[2px] border-[#0a0a0a] dark:border-white/20 bg-white dark:bg-[#120a1f] px-3 py-1.5 shadow-[3px_3px_0px_#0a0a0a] dark:shadow-[3px_3px_0px_#000000]">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex h-2.5 w-2.5 rounded-full bg-gradient-to-r from-[#ffd76f] via-[#ff9a3d] to-[#ff5ca8] animate-pulse" />
+            <span className="font-mono text-[11px] font-bold uppercase tracking-wider text-[#0a0a0a] dark:text-neutral-200">
               Account Profile Preview · Shane Voronoi Kaleidoscope Tunnel Shader Active
             </span>
           </div>
           <Link
             href={LOGIN_PATH}
-            className="inline-flex items-center gap-1.5 rounded-[6px] border-[2px] border-[#0a0a0a] dark:border-white bg-[#0a0a0a] dark:bg-white text-white dark:text-[#0a0a0a] px-3.5 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] transition-transform hover:-translate-y-0.5"
+            className="inline-flex items-center gap-1.5 rounded-[5px] border-[1.5px] border-[#0a0a0a] dark:border-white bg-[#0a0a0a] dark:bg-white text-white dark:text-[#0a0a0a] px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] transition-transform hover:-translate-y-0.5"
           >
             Sign In with UMich →
           </Link>
