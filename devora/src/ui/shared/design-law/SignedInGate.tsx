@@ -1,6 +1,6 @@
 // Keeps a page private: same rule as the Account and Discovery Grid pages.
 // Flow: wait for Firebase Auth → signed out? go to login → onboarding unfinished? go to onboarding → show page.
-// Used by DesignLawPage, so Activity Center, Messages and Connections are all signed-in only.
+// Used by DesignLawPage, so Campus Hub, Messages and Connections are all signed-in only.
 
 "use client";
 

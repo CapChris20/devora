@@ -1,4 +1,4 @@
-// Page frame for Design Law pages (Activity Center, Messages, Connections).
+// Page frame for Design Law pages (Campus Hub, Messages, Connections).
 // Flow: fonts + paper background → NavBar → eyebrow + ink title + accent strip → optional tabs
 // → SignedInGate → the page's content.
 
@@ -17,7 +17,7 @@ import SignedInGate from "./SignedInGate";
 /**
  * Shared frame. Black-and-white chrome like Coach Connect; the gradient strip is the only accent up top.
  * @param props.navLabel - Which NavBar link to highlight (must match a label in NavBar's navItems)
- * @param props.tabs - Optional tab row under the title (Activity Center passes TabNav)
+ * @param props.tabs - Optional tab row under the title (Campus Hub passes TabNav)
  */
 export default function DesignLawPage({
   navLabel,

@@ -85,7 +85,7 @@ const FAQS: FaqItem[] = [
     categoryLabel: "Features & Privacy",
     question: "What features make Devora different from LinkedIn or Discord?",
     answer:
-      "Unlike LinkedIn, there is zero recruiter spam, algorithmic feed noise, or corporate posturing. Unlike Discord, conversations and identities aren't buried inside 40 different disconnected servers. Devora provides a single searchable directory of verified students, an Activity Center with real campus clubs and study groups, and clear profiles that answer 'do we click?' before you message.",
+      "Unlike LinkedIn, there is zero recruiter spam, algorithmic feed noise, or corporate posturing. Unlike Discord, conversations and identities aren't buried inside 40 different disconnected servers. Devora provides a single searchable directory of verified students, a Campus Hub with real campus clubs and study groups, and clear profiles that answer 'do we click?' before you message.",
   },
   {
     id: "messaging-system",
@@ -420,7 +420,7 @@ export default function FAQAccordion() {
             Have a question not answered here?
           </b>
           <p className="mt-1 text-sm text-[#cfcfcf] font-body">
-            Drop a message in the Activity Center or connect directly with our student community.
+            Drop a message in the Campus Hub or connect directly with our student community.
           </p>
         </div>
 
@@ -428,7 +428,7 @@ export default function FAQAccordion() {
           href="/activity-center"
           className="inline-flex items-center justify-center shrink-0 min-h-[44px] px-5 rounded-[8px] border-2 border-white bg-gradient-to-r from-[#ff6b9d] to-[#fb923c] text-[#0a0a0a] font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#ffffff] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
         >
-          Explore Activity Center &rarr;
+          Explore Campus Hub &rarr;
         </Link>
       </div>
     </div>

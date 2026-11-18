@@ -1,4 +1,4 @@
-// Activity Center shared layout shell.
+// Campus Hub shared layout shell.
 // Combines App NavBar, Firebase Auth gate (SignedInGate), Hero with Bento WeekTiles,
 // infinite EventTicker, sticky TabNav with sliding pill, and tab page content.
 
@@ -27,8 +27,8 @@ function ActivityCenterInnerShell({ children }: { children: ReactNode }) {
     <div
       className={`${NB_FONT_CLASS_NAME} relative min-h-screen bg-nb-paper font-nb-body text-nb-ink antialiased selection:bg-nb-pink selection:text-nb-ink`}
     >
-      {/* Top application navbar with Activity Center highlighted */}
-      <NavBar activeItem="Activity Center" />
+      {/* Top application navbar with Campus Hub highlighted */}
+      <NavBar activeItem="Campus Hub" />
 
       {/* Main content body clearing top navbar */}
       <div className="w-full pt-16 sm:pt-20">

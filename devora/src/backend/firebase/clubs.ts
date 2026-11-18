@@ -1,4 +1,4 @@
-// Firestore integration for Activity Center CECS Clubs and Updates.
+// Firestore integration for Campus Hub CECS Clubs and Updates.
 // Collections:
 // - /clubs/{clubId}
 // - /clubs/{clubId}/posts/{postId}

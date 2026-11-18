@@ -209,7 +209,7 @@ export default function PostEventModal() {
               Post an Event
             </h3>
             <span className="font-mono text-[9px] font-black tracking-wider uppercase px-2 py-0.5 rounded-full border border-[#0a0a0a]/30 dark:border-white/30 text-[#0a0a0a]/60 dark:text-neutral-400">
-              Activity Center
+              Campus Hub
             </span>
           </div>
 

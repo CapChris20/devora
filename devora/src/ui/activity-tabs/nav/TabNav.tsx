@@ -1,4 +1,4 @@
-// Tab bar for the Activity Center (/activity/*). Lives in src/app/activity/layout.tsx.
+// Tab bar for the Campus Hub (/activity/*). Lives in src/app/activity/layout.tsx.
 // Flow: read the current URL → mark the matching tab active → a gradient pill slides under it.
 // On phones the row scrolls sideways instead of wrapping.
 
@@ -36,7 +36,7 @@ export default function TabNav() {
 
   return (
     <MotionConfig reducedMotion="user">
-      <nav aria-label="Activity Center sections" className="motion-safe:animate-nb-rise [animation-delay:80ms]">
+      <nav aria-label="Campus Hub sections" className="motion-safe:animate-nb-rise [animation-delay:80ms]">
         {/* vocab: overflow-x-auto = scroll sideways when the pills don't fit (phones).
             Padding right/bottom keeps the hard shadow from being clipped by the scroll box.
             [scrollbar-width:none] + the webkit rule hide the scrollbar. */}

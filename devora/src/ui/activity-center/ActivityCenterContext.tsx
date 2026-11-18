@@ -1,4 +1,4 @@
-// Activity Center state provider and hooks.
+// Campus Hub state provider and hooks.
 // Manages reactive state across the layout (Hero, Bento Tiles, TabNav, Toast) and tab sub-pages.
 // Keeps live counts in sync when events are saved, groups joined, requests resolved, and messages sent.
 

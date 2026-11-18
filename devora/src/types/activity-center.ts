@@ -1,4 +1,4 @@
-// Shared TypeScript types for Devora Activity Center (/activity-center/*).
+// Shared TypeScript types for Devora Campus Hub (/activity-center/*).
 // Mirrors the Firestore documents for events, study groups, connections, and messaging.
 // Marked with TODO(firestore) comments indicating future Firestore collection mappings.
 
@@ -96,7 +96,7 @@ export type ChatMessage = {
 
 // ===== SECTION: UI NAVIGATION & WEEKS =====
 
-// Primary tabs of the Activity Center
+// Primary tabs of the Campus Hub
 export type ActivityTab = "events" | "study-groups" | "connections" | "messaging";
 
 // Grouping calendar weeks for the event feed

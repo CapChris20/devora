@@ -20,8 +20,8 @@ const navItems = [
   { label: "Discovery Grid", href: "/find-students" },
   { label: "Settings", href: "/settings" },
   { label: "FAQs", href: "/faqs-page" },
-  // Activity Center = Events, Study Groups
-  { label: "Activity Center", href: "/activity-center" },
+  // Campus Hub = Events, Study Groups, Clubs
+  { label: "Campus Hub", href: "/activity-center" },
   { label: "Messages", href: "/messages" },
   { label: "Connections", href: "/connections" },
 ];
@@ -48,7 +48,12 @@ export default function NavBar({ activeItem }: NavBarProps) {
     (href: string, label: string) => {
       if (activeItem) return activeItem === label;
       if (href === "/home" && pathname === "/") return true;
-      if (href === "/activity-center" && pathname.startsWith("/activity-center")) return true;
+      if (
+        (href === "/activity-center" || href === "/campus-hub") &&
+        (pathname.startsWith("/activity-center") || pathname.startsWith("/campus-hub"))
+      ) {
+        return true;
+      }
       if (href === "/connections" && pathname.startsWith("/connections")) return true;
       if (href === "/messages" && pathname.startsWith("/messages")) return true;
       if (href === "/faqs-page" && (pathname === "/faqs" || pathname.startsWith("/faqs-page"))) return true;

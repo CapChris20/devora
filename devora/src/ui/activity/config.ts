@@ -1,7 +1,7 @@
 // Everything the second survey (OSL / ITS) might change lives here, not in the views.
 // Rename the section, change the time blocks, or change who can see hours in one place.
 
-export const ACTIVITY_CENTER_NAME = "Activity Center";
+export const ACTIVITY_CENTER_NAME = "Campus Hub";
 
 export const DAYS = [
   { id: "mon", short: "Mon", long: "Monday" },

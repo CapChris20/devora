@@ -1,4 +1,4 @@
-// Shared shapes for the Activity Center tabs (/activity/*).
+// Shared shapes for the Campus Hub tabs (/activity/*).
 // Each type mirrors the Firestore document it will eventually be read from.
 // The tabs use placeholder data with these shapes today, so swapping in real
 // Firestore reads later should not change any component props.

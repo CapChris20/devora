@@ -79,7 +79,7 @@ const TABS: TabData[] = [
       "One directory of every public CECS student, not forty servers",
       "Search by course, skill or club instead of scrolling channels",
       "Real names and majors, verified with a umich.edu account",
-      "Clubs, events and study groups in one Activity Center",
+      "Clubs, events and study groups in one Campus Hub",
       "Start a one-on-one chat from a profile in one click",
     ],
   },

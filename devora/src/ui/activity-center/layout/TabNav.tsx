@@ -1,4 +1,4 @@
-// Sticky navigation tab bar for Activity Center sections.
+// Sticky navigation tab bar for Campus Hub sections.
 // Displays the primary tabs: Events and Study Groups.
 // (Connections and Messages live in their own dedicated top-level nav links: /connections and /messages).
 // Sliding neo-brutalist gradient pill animates with GSAP back.out ease to track route changes.
@@ -103,7 +103,7 @@ export default function TabNav() {
   return (
     <nav
       ref={navContainerRef}
-      aria-label="Activity Center sections"
+      aria-label="Campus Hub sections"
       className="tabbar sticky top-0 z-40 bg-nb-paper border-b-nb border-nb-ink"
     >
       <div className="mx-auto w-full max-w-[1180px] px-4 sm:px-6 lg:px-8">

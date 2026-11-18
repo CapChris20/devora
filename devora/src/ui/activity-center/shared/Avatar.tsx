@@ -1,4 +1,4 @@
-// Avatar component for Devora Activity Center.
+// Avatar component for Devora Campus Hub.
 // Displays neo-brutalist square-rounded initials avatar with ink borders and gradient tones.
 // Handles size variants (xs for stacks, md for cards, lg for profiles) and user tones.
 

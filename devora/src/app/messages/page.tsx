@@ -1,4 +1,4 @@
-// /messages — 1:1 DMs. Own NavBar link (not an Activity Center tab).
+// /messages — 1:1 DMs. Own NavBar link (not an Campus Hub tab).
 // Thin route file; the UI lives in src/ui/messages/MessagesScreen.tsx.
 
 import type { Metadata } from "next";

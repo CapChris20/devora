@@ -1,4 +1,4 @@
-// Placeholder data for Devora Activity Center.
+// Placeholder data for Devora Campus Hub.
 // Typed sample rows matching the reference prototype and future Firestore collections.
 // Provides realistic initial states for events, study groups, connection requests, and messages.
 

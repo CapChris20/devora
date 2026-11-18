@@ -1,5 +1,5 @@
 // Design Law building blocks — the same neo-brutalist look as Coach Connect.
-// Flow: Activity Center tabs, Messages and Connections import NbCard / NbButton / TagPill / etc. from here.
+// Flow: Campus Hub tabs, Messages and Connections import NbCard / NbButton / TagPill / etc. from here.
 // Rules: black/white/gray chrome, 3px ink borders, hard ink shadows. Gradients only on small accents.
 
 // ===== IMPORTS =====

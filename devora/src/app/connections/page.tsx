@@ -1,4 +1,4 @@
-// /connections — students you're connected with. Own NavBar link (not an Activity Center tab).
+// /connections — students you're connected with. Own NavBar link (not an Campus Hub tab).
 // Thin route file; the UI lives in src/ui/connections/ConnectionsScreen.tsx.
 
 import type { Metadata } from "next";

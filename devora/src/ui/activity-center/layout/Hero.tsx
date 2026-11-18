@@ -1,4 +1,4 @@
-// Hero section for the Devora Activity Center.
+// Hero section for the Devora Campus Hub.
 // Displays the eyebrow, big letter-staggered display title, accent strip, lede, and WeekTiles.
 // Coordinates GSAP intro sequence on page mount, respecting reduced motion settings.
 
@@ -14,8 +14,8 @@ import WeekTiles from "./WeekTiles";
 
 // ===== NAMED CONSTANTS =====
 
-const TITLE_LINE_ONE = "Activity";
-const TITLE_LINE_TWO = "Center";
+const TITLE_LINE_ONE = "Campus";
+const TITLE_LINE_TWO = "Hub";
 
 // ===== MAIN COMPONENT =====
 
@@ -88,7 +88,7 @@ export default function Hero() {
           </p>
 
           <h1
-            aria-label="Activity Center"
+            aria-label="Campus Hub"
             className="font-nb-display font-normal uppercase text-[clamp(48px,9vw,104px)] leading-[0.88] tracking-[-0.03em] m-0 text-nb-ink"
           >
             <span className="block overflow-hidden pb-[0.04em]" aria-hidden="true">

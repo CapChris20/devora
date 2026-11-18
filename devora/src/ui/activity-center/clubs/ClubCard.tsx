@@ -1,4 +1,4 @@
-// Membership ticket card for a CECS student organization in Activity Center.
+// Membership ticket card for a CECS student organization in Campus Hub.
 // Top band: category gradient + category tag + shortName huge in Archivo Black.
 // Body: name, description (clamped 3 lines), meetings, Open feed link, official site.
 // Stub: perforation dashed border, ticket punch notches, member/follower counts, Follow button.

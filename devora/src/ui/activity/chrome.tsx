@@ -1,5 +1,5 @@
 // Devora app chrome copied from NavBar.tsx, PageLayout.tsx and Footer.tsx (same classes).
-// Links are inert in the mockup except Activity Center.
+// Links are inert in the mockup except Campus Hub.
 
 import { useEffect, useState } from "react";
 import { Sun } from "lucide-react";

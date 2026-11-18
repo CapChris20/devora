@@ -63,7 +63,7 @@ export default function EventTicker() {
             ) : (
               <span className="inline-flex items-center gap-6 pr-8 font-nb-mono text-[13px] font-bold tracking-[0.14em] uppercase text-nb-white">
                 <span className="text-nb-brand font-bold">{"//"}</span>
-                <span>Welcome to Devora Activity Center</span>
+                <span>Welcome to Devora Campus Hub</span>
                 <span className="text-nb-brand font-bold">{"//"}</span>
                 <span>Post an event to see it live across campus</span>
                 <span className="text-nb-brand font-bold">{"//"}</span>

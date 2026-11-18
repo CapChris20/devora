@@ -1,4 +1,4 @@
-// Types for CECS Clubs in the Activity Center.
+// Types for CECS Clubs in the Campus Hub.
 
 import type { Timestamp } from "firebase/firestore";
 
