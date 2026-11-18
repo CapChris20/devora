@@ -1,9 +1,11 @@
 // Category filter chips for Clubs tab (All, Professional, Academic, Social, Competitive).
-// Matches the neo-brutalist pill button style used in EventFilter.
+// Spacious Neo-Brutalist pill button style with generous horizontal padding,
+// bold typography, 2.5px ink borders, and hard offset shadows.
 
 "use client";
 
 import type { ClubCategory } from "@/types/clubs";
+import { useTheme } from "@/ui/shared/theme/DarkLightMode";
 
 export type FilterCategory = "all" | ClubCategory;
 
@@ -24,11 +26,14 @@ export default function ClubCategoryFilter({
   activeCategory,
   onSelectCategory,
 }: ClubCategoryFilterProps) {
+  const { theme } = useTheme();
+  const isLight = theme === "light";
+
   return (
     <div
       role="group"
       aria-label="Filter clubs by category"
-      className="flex flex-wrap gap-2 sm:gap-2.5"
+      className="flex flex-wrap items-center gap-2.5 sm:gap-3"
     >
       {FILTERS.map((item) => {
         const isSelected = activeCategory === item.id;
@@ -38,10 +43,14 @@ export default function ClubCategoryFilter({
             type="button"
             aria-pressed={isSelected}
             onClick={() => onSelectCategory(item.id)}
-            className={`min-h-[38px] px-4.5 rounded-full border-2 font-mono text-xs font-bold tracking-[0.08em] uppercase transition-all duration-120 cursor-pointer select-none active:translate-x-px active:translate-y-px ${
+            className={`min-h-[42px] px-5 sm:px-6 rounded-full border-[2.5px] font-mono text-xs sm:text-[13px] font-extrabold tracking-[0.06em] uppercase transition-all duration-150 cursor-pointer select-none active:translate-x-0.5 active:translate-y-0.5 ${
+              item.id === "all" ? "min-w-[68px]" : ""
+            } ${
               isSelected
-                ? "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] font-extrabold"
-                : "bg-white dark:bg-[#161022] text-[#0a0a0a] dark:text-neutral-300 border-[#0a0a0a] dark:border-white/20 shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] hover:-translate-y-0.5"
+                ? "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a]"
+                : isLight
+                ? "bg-white text-[#0a0a0a] border-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#0a0a0a]"
+                : "bg-[#161022] text-white border-white/30 shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#000000]"
             }`}
           >
             {item.label}
@@ -51,4 +60,3 @@ export default function ClubCategoryFilter({
     </div>
   );
 }
-

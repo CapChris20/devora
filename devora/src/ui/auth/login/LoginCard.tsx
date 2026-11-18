@@ -102,7 +102,7 @@ export default function LoginCard() {
         <h1 className="font-display logo-gradient text-2xl font-extrabold tracking-tight sm:text-3xl">
           {LOGIN_HEADING}
         </h1>
-        <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
+        <p className="sign-in-subheading mt-1.5">
           {LOGIN_SUBHEADING}
         </p>
       </header>
@@ -129,7 +129,7 @@ export default function LoginCard() {
       <div className="space-y-1.5 text-left">
         <label
           htmlFor="login-school-email"
-          className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+          className="sign-in-field-label"
         >
           {SCHOOL_EMAIL_LABEL}
         </label>
@@ -157,7 +157,7 @@ export default function LoginCard() {
       <div className="sign-in-hint-badge">
         <ShieldCheck className="h-4 w-4 shrink-0 text-sky-600 dark:text-cyan-400" />
         <span className="leading-snug">
-          <strong className="font-semibold text-slate-900 dark:text-white">@umich.edu</strong> only • Personal Gmail accounts are blocked
+          <strong>@umich.edu</strong> only • Personal Gmail accounts are blocked
         </span>
       </div>
 
@@ -165,7 +165,7 @@ export default function LoginCard() {
       <GoogleButton onClick={startGoogleSignIn} isLoading={isLoading} isDisabled={isLoading} />
 
       {/* Bottom Switch Link */}
-      <p className="text-center text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+      <p className="sign-in-footer-text text-center">
         Don&apos;t have an account?{" "}
         <Link
           href={SIGNUP_PATH}

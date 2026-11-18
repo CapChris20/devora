@@ -39,7 +39,7 @@ const CONSENT_CHECKBOX_ID = "signup-terms-consent";
 const CONSENT_ROW_CLASS = "flex items-start gap-3 text-left";
 const CONSENT_CHECKBOX_CLASS =
   "mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#ff5ca8] focus:ring-[#ff5ca8] dark:border-white/20 dark:bg-black/40 accent-[#ff5ca8] cursor-pointer";
-const CONSENT_TEXT_CLASS = "text-xs leading-relaxed text-slate-600 dark:text-slate-400 select-none cursor-pointer";
+const CONSENT_TEXT_CLASS = "sign-in-consent-text select-none cursor-pointer";
 const CONSENT_LINK_CLASS =
   "font-semibold text-[#ff5ca8] transition-colors hover:text-[#22d3ee] underline underline-offset-2";
 
@@ -157,7 +157,7 @@ export default function SignupCard() {
         <h1 className="font-display logo-gradient text-2xl font-extrabold tracking-tight sm:text-3xl">
           {SIGNUP_HEADING}
         </h1>
-        <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
+        <p className="sign-in-subheading mt-1.5">
           {SIGNUP_SUBHEADING}
         </p>
       </header>
@@ -185,7 +185,7 @@ export default function SignupCard() {
         <div className="space-y-1.5">
           <label
             htmlFor="signup-first-name"
-            className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+            className="sign-in-field-label"
           >
             {FIRST_NAME_LABEL}
           </label>
@@ -211,7 +211,7 @@ export default function SignupCard() {
         <div className="space-y-1.5">
           <label
             htmlFor="signup-last-name"
-            className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+            className="sign-in-field-label"
           >
             {LAST_NAME_LABEL}
           </label>
@@ -239,7 +239,7 @@ export default function SignupCard() {
       <div className="space-y-1.5 text-left">
         <label
           htmlFor="signup-school-email"
-          className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+          className="sign-in-field-label"
         >
           {SCHOOL_EMAIL_LABEL}
         </label>
@@ -267,7 +267,7 @@ export default function SignupCard() {
       <div className="sign-in-hint-badge">
         <ShieldCheck className="h-4 w-4 shrink-0 text-sky-600 dark:text-cyan-400" />
         <span className="leading-snug">
-          <strong className="font-semibold text-slate-900 dark:text-white">@umich.edu</strong> only • Personal Gmail accounts are blocked
+          <strong>@umich.edu</strong> only • Personal Gmail accounts are blocked
         </span>
       </div>
 
@@ -299,7 +299,7 @@ export default function SignupCard() {
       <GoogleButton type="submit" isLoading={isLoading} isDisabled={isLoading} />
 
       {/* Bottom Switch Link */}
-      <p className="text-center text-xs sm:text-sm text-slate-600 dark:text-slate-400">
+      <p className="sign-in-footer-text text-center">
         Already have an account?{" "}
         <Link
           href={LOGIN_PATH}

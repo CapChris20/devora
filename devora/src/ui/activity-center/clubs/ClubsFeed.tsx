@@ -15,9 +15,12 @@ import { REAL_SEEDED_CLUBS } from "./seeded-clubs";
 import ClubCard from "./ClubCard";
 import ClubCategoryFilter, { type FilterCategory } from "./ClubCategoryFilter";
 import { useActivityCenter } from "../ActivityCenterContext";
+import { useTheme } from "@/ui/shared/theme/DarkLightMode";
 
 export default function ClubsFeed() {
   const { showToast } = useActivityCenter();
+  const { theme } = useTheme();
+  const isLight = theme === "light";
   const [clubs, setClubs] = useState<Club[]>(REAL_SEEDED_CLUBS);
   const [followedClubIds, setFollowedClubIds] = useState<Set<string>>(new Set());
   const [activeCategory, setActiveCategory] = useState<FilterCategory>("all");
@@ -204,14 +207,20 @@ export default function ClubsFeed() {
       </div>
 
       {/* Header Info count */}
-      <div className="flex items-center justify-between mb-8 border-b-2 border-neutral-300 dark:border-white/20 pb-4">
+      <div className={`flex items-center justify-between mb-8 border-b-2 pb-4 ${
+        isLight ? "border-neutral-300" : "border-white/20"
+      }`}>
         <div className="flex items-center gap-2.5">
           <Compass size={20} className="text-[#fb923c]" />
-          <h2 className="font-display text-lg font-bold uppercase tracking-wider text-[#0a0a0a] dark:text-white">
+          <h2 className={`font-display text-lg font-bold uppercase tracking-wider ${
+            isLight ? "text-[#0a0a0a]" : "text-white"
+          }`}>
             CECS Student Organizations
           </h2>
         </div>
-        <span className="font-mono text-xs font-bold text-neutral-500 dark:text-neutral-400">
+        <span className={`font-mono text-xs font-bold ${
+          isLight ? "text-[#575757]" : "text-neutral-400"
+        }`}>
           Showing {filteredClubs.length} of {clubs.length} clubs
         </span>
       </div>
@@ -232,12 +241,18 @@ export default function ClubsFeed() {
         </div>
       ) : (
         /* Empty search state - STRICTLY NO EMOJIS */
-        <div className="rounded-xl border-2 border-dashed border-nb-ink bg-nb-white/50 p-12 text-center">
-          <AlertCircle size={32} className="mx-auto mb-3 text-nb-muted" />
-          <h3 className="font-nb-display text-base font-bold text-nb-ink">
+        <div className={`rounded-[10px] border-[3px] border-dashed p-12 text-center ${
+          isLight
+            ? "bg-white border-[#0a0a0a] text-[#0a0a0a]"
+            : "bg-[#140e22] border-white/30 text-white"
+        }`}>
+          <AlertCircle size={32} className="mx-auto mb-3 text-[#fb923c]" />
+          <h3 className="font-display text-base uppercase font-bold m-0">
             No matching clubs found
           </h3>
-          <p className="mt-1 font-nb-mono text-xs text-nb-muted">
+          <p className={`mt-1 font-mono text-xs ${
+            isLight ? "text-[#575757]" : "text-neutral-400"
+          }`}>
             Try adjusting your search query or switching categories.
           </p>
           <button
@@ -246,7 +261,11 @@ export default function ClubsFeed() {
               setActiveCategory("all");
               setSearchQuery("");
             }}
-            className="mt-4 rounded-lg border-2 border-nb-ink bg-nb-white px-4 py-2 font-nb-mono text-xs font-bold uppercase text-nb-ink shadow-nb-sm hover:bg-neutral-100"
+            className={`mt-4 px-4 py-2 rounded-[8px] border-2 font-mono text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              isLight
+                ? "border-[#0a0a0a] bg-white text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:bg-[#f2f2f0]"
+                : "border-white/30 bg-[#1e152e] text-white shadow-[2px_2px_0px_#000000]"
+            }`}
           >
             Clear filters
           </button>

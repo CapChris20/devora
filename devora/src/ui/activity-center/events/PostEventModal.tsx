@@ -1,19 +1,20 @@
 // Post Event modal dialog.
+// Neo-Brutalist Design Law styling:
+// Compact, centered modal (fits within 85vh, max-width 480px) with 3px ink borders and hard offset shadows.
 // Allows authenticated students to submit a new event with title, description,
 // date, time, location, tags, and an optional link.
-// Writes directly to /events/{eventId} in Firestore with createdBy: uid and createdAt: serverTimestamp.
 
 "use client";
 
 // ===== IMPORTS =====
 
-import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, useCallback, type FormEvent } from "react";
 import gsap from "gsap";
-import { useGSAP } from "@gsap/react";
+import { X, Calendar, Clock, MapPin, Link as LinkIcon, Tag } from "lucide-react";
 
 import type { ActivityEventTag } from "@/types/activity-center";
-
 import { useActivityCenter } from "../ActivityCenterContext";
+import { useTheme } from "@/ui/shared/theme/DarkLightMode";
 
 // ===== TAG OPTIONS =====
 
@@ -25,12 +26,12 @@ const AVAILABLE_TAGS: Array<{ id: ActivityEventTag; label: string }> = [
   { id: "hangout", label: "Hangout" },
 ];
 
-// ===== MAIN COMPONENT =====
-
 export default function PostEventModal() {
   const backdropRef = useRef<HTMLDivElement>(null);
   const modalRef = useRef<HTMLFormElement>(null);
   const titleInputRef = useRef<HTMLInputElement>(null);
+  const { theme } = useTheme();
+  const isLight = theme === "light";
 
   const { isPostEventModalOpen, closePostEventModal, postEvent } =
     useActivityCenter();
@@ -48,70 +49,32 @@ export default function PostEventModal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Focus title input when opened
-  useEffect(() => {
-    if (isPostEventModalOpen) {
-      setErrorMessage(null);
-      setTimeout(() => titleInputRef.current?.focus(), 60);
-    }
-  }, [isPostEventModalOpen]);
+  const resetForm = useCallback(() => {
+    setTitle("");
+    setDescription("");
+    setDate("");
+    setTime("");
+    setLocation("");
+    setSelectedTags(["academic"]);
+    setLink("");
+    setErrorMessage(null);
+    setIsSubmitting(false);
+  }, []);
 
-  // Handle escape key
-  useEffect(() => {
-    const onKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && isPostEventModalOpen) {
-        closePostEventModal();
-      }
-    };
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isPostEventModalOpen, closePostEventModal]);
-
-  // Entrance GSAP animation
-  useGSAP(
-    () => {
-      if (!isPostEventModalOpen) return;
-
-      const mm = gsap.matchMedia();
-      mm.add("(prefers-reduced-motion: no-preference)", () => {
-        if (backdropRef.current && modalRef.current) {
-          gsap.fromTo(
-            backdropRef.current,
-            { autoAlpha: 0 },
-            { autoAlpha: 1, duration: 0.2 }
-          );
-          gsap.fromTo(
-            modalRef.current,
-            { y: 40, scale: 0.92, rotation: -1.5 },
-            {
-              y: 0,
-              scale: 1,
-              rotation: 0,
-              duration: 0.5,
-              ease: "back.out(1.6)",
-              clearProps: "transform",
-            }
-          );
-        }
-      });
-    },
-    { dependencies: [isPostEventModalOpen] }
-  );
-
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     const mm = gsap.matchMedia();
     mm.add("(prefers-reduced-motion: no-preference)", () => {
       if (backdropRef.current && modalRef.current) {
         gsap.to(modalRef.current, {
-          y: 20,
+          y: 16,
           scale: 0.96,
           autoAlpha: 0,
-          duration: 0.2,
+          duration: 0.15,
           ease: "power2.in",
         });
         gsap.to(backdropRef.current, {
           autoAlpha: 0,
-          duration: 0.2,
+          duration: 0.15,
           onComplete: () => {
             closePostEventModal();
             resetForm();
@@ -130,24 +93,31 @@ export default function PostEventModal() {
       closePostEventModal();
       resetForm();
     }
-  };
+  }, [closePostEventModal, resetForm]);
 
-  const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setDate("");
-    setTime("");
-    setLocation("");
-    setSelectedTags(["academic"]);
-    setLink("");
-    setErrorMessage(null);
-    setIsSubmitting(false);
-  };
+  // Focus title input when opened
+  useEffect(() => {
+    if (isPostEventModalOpen) {
+      setErrorMessage(null);
+      setTimeout(() => titleInputRef.current?.focus(), 60);
+    }
+  }, [isPostEventModalOpen]);
+
+  // Handle escape key
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isPostEventModalOpen) {
+        handleClose();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [isPostEventModalOpen, handleClose]);
 
   const toggleTag = (tagId: ActivityEventTag) => {
     setSelectedTags((prev) => {
       if (prev.includes(tagId)) {
-        if (prev.length === 1) return prev; // Keep at least one tag
+        if (prev.length === 1) return prev;
         return prev.filter((t) => t !== tagId);
       }
       return [...prev, tagId];
@@ -210,22 +180,26 @@ export default function PostEventModal() {
       onClick={(e) => {
         if (e.target === backdropRef.current) handleClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-nb-ink/65 overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-[2px] overflow-y-auto"
     >
       <form
         ref={modalRef}
         onSubmit={handleSubmit}
-        className="relative w-full max-w-[560px] my-8 p-6 sm:p-7 bg-nb-paper border-nb border-nb-ink rounded-nb shadow-nb-card flex flex-col gap-5 text-left text-nb-ink will-change-transform"
+        className={`relative w-full max-w-[490px] my-auto max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-[12px] border-[3px] flex flex-col gap-3.5 text-left will-change-transform transition-all ${
+          isLight
+            ? "bg-white border-[#0a0a0a] shadow-[8px_8px_0px_#0a0a0a] text-[#0a0a0a]"
+            : "bg-[#140e22] border-2 border-white/30 shadow-[8px_8px_0px_#000000] text-white"
+        }`}
       >
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 border-b-nb border-nb-ink pb-4">
+        <div className="flex items-center justify-between gap-3 border-b-2 border-[#0a0a0a] dark:border-white/20 pb-3">
           <div>
-            <span className="font-nb-mono text-[11px] font-bold tracking-[0.16em] uppercase text-nb-muted">
-              Student Event
+            <span className="font-mono text-[10px] font-bold tracking-[0.14em] uppercase text-[#575757] dark:text-neutral-400">
+              Activity Center
             </span>
             <h3
               id="post-event-title"
-              className="m-0 text-2xl font-bold tracking-tight text-nb-ink"
+              className="m-0 font-display uppercase font-normal text-xl sm:text-2xl tracking-tight leading-tight text-[#0a0a0a] dark:text-white"
             >
               Post an Event
             </h3>
@@ -235,26 +209,26 @@ export default function PostEventModal() {
             type="button"
             onClick={handleClose}
             aria-label="Close dialog"
-            className="w-9 h-9 grid place-items-center rounded-full border-2 border-nb-ink bg-nb-white font-bold text-base transition-transform duration-100 hover:scale-105 active:scale-95"
+            className="w-8 h-8 rounded-full border-2 border-[#0a0a0a] bg-white text-[#0a0a0a] flex items-center justify-center font-bold text-sm shadow-[2px_2px_0px_#0a0a0a] hover:scale-105 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
           >
-            ✕
+            <X size={16} strokeWidth={2.5} />
           </button>
         </div>
 
         {/* Error alert */}
         {errorMessage && (
-          <div className="p-3 bg-nb-blush border-2 border-nb-ink rounded-nb text-xs font-bold text-nb-ink">
+          <div className="p-2.5 bg-[#fda4af] border-2 border-[#0a0a0a] rounded-[8px] font-mono text-xs font-bold text-[#0a0a0a]">
             {errorMessage}
           </div>
         )}
 
         {/* Title */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="event-title"
-            className="font-nb-mono text-xs font-bold tracking-[0.08em] uppercase text-nb-ink"
+            className="font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
           >
-            Title <span className="text-nb-brand">*</span>
+            Title *
           </label>
           <input
             ref={titleInputRef}
@@ -264,37 +238,38 @@ export default function PostEventModal() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Study & Boba Social, CIS 350 Midterm Review"
-            className="w-full h-11 px-3.5 rounded-nb border-2 border-nb-ink bg-nb-white font-medium text-sm text-nb-ink placeholder:text-nb-muted focus:outline-none focus:ring-2 focus:ring-nb-brand"
+            className="w-full h-9.5 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
           />
         </div>
 
         {/* Description */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="event-desc"
-            className="font-nb-mono text-xs font-bold tracking-[0.08em] uppercase text-nb-ink"
+            className="font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
           >
-            Description <span className="text-nb-brand">*</span>
+            Description *
           </label>
           <textarea
             id="event-desc"
             required
-            rows={3}
+            rows={2}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="What should attendees expect or bring? Add details about class, agenda, or snacks."
-            className="w-full p-3 rounded-nb border-2 border-nb-ink bg-nb-white font-medium text-sm text-nb-ink placeholder:text-nb-muted resize-y min-h-[72px] focus:outline-none focus:ring-2 focus:ring-nb-brand"
+            placeholder="What should attendees expect? Add details about class, agenda, or snacks."
+            className="w-full p-2.5 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
           />
         </div>
 
-        {/* Date and Time row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          <div className="flex flex-col gap-1.5">
+        {/* Date & Time Row */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          <div className="flex flex-col gap-1">
             <label
               htmlFor="event-date"
-              className="font-nb-mono text-xs font-bold tracking-[0.08em] uppercase text-nb-ink"
+              className="inline-flex items-center gap-1 font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
             >
-              Date <span className="text-nb-brand">*</span>
+              <Calendar size={12} className="text-[#fb923c]" />
+              <span>Date *</span>
             </label>
             <input
               id="event-date"
@@ -302,16 +277,17 @@ export default function PostEventModal() {
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full h-11 px-3.5 rounded-nb border-2 border-nb-ink bg-nb-white font-medium text-sm text-nb-ink focus:outline-none focus:ring-2 focus:ring-nb-brand"
+              className="w-full h-9.5 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-mono text-xs text-[#0a0a0a] dark:text-white focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
             />
           </div>
 
-          <div className="flex flex-col gap-1.5">
+          <div className="flex flex-col gap-1">
             <label
               htmlFor="event-time"
-              className="font-nb-mono text-xs font-bold tracking-[0.08em] uppercase text-nb-ink"
+              className="inline-flex items-center gap-1 font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
             >
-              Time
+              <Clock size={12} className="text-[#fb923c]" />
+              <span>Time</span>
             </label>
             <input
               id="event-time"
@@ -319,18 +295,19 @@ export default function PostEventModal() {
               value={time}
               onChange={(e) => setTime(e.target.value)}
               placeholder="e.g. 4:00–5:30 PM"
-              className="w-full h-11 px-3.5 rounded-nb border-2 border-nb-ink bg-nb-white font-medium text-sm text-nb-ink placeholder:text-nb-muted focus:outline-none focus:ring-2 focus:ring-nb-brand"
+              className="w-full h-9.5 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
             />
           </div>
         </div>
 
         {/* Location */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="event-location"
-            className="font-nb-mono text-xs font-bold tracking-[0.08em] uppercase text-nb-ink"
+            className="inline-flex items-center gap-1 font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
           >
-            Location <span className="text-nb-brand">*</span>
+            <MapPin size={12} className="text-[#fb923c]" />
+            <span>Location *</span>
           </label>
           <input
             id="event-location"
@@ -339,16 +316,17 @@ export default function PostEventModal() {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="e.g. Engineering Lab Building Rm 1030, or Zoom link"
-            className="w-full h-11 px-3.5 rounded-nb border-2 border-nb-ink bg-nb-white font-medium text-sm text-nb-ink placeholder:text-nb-muted focus:outline-none focus:ring-2 focus:ring-nb-brand"
+            className="w-full h-9.5 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
           />
         </div>
 
         {/* Tags */}
-        <div className="flex flex-col gap-1.5">
-          <label className="font-nb-mono text-xs font-bold tracking-[0.08em] uppercase text-nb-ink">
-            Tags (select all that apply) <span className="text-nb-brand">*</span>
-          </label>
-          <div className="flex flex-wrap gap-2 pt-1">
+        <div className="flex flex-col gap-1">
+          <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200">
+            <Tag size={12} className="text-[#fb923c]" />
+            <span>Tags (Select all that apply) *</span>
+          </span>
+          <div className="flex flex-wrap gap-1.5 pt-0.5">
             {AVAILABLE_TAGS.map((tag) => {
               const isSelected = selectedTags.includes(tag.id);
               return (
@@ -357,13 +335,14 @@ export default function PostEventModal() {
                   type="button"
                   onClick={() => toggleTag(tag.id)}
                   aria-pressed={isSelected}
-                  className={`min-h-[36px] px-3.5 rounded-full border-2 border-nb-ink font-nb-mono text-xs font-bold tracking-[0.08em] uppercase transition-all duration-120 ${
+                  className={`inline-flex items-center gap-1 min-h-[30px] px-3 rounded-full border-2 font-mono text-[10.5px] font-bold uppercase tracking-wider transition-all cursor-pointer select-none ${
                     isSelected
-                      ? "bg-nb-ink text-nb-white shadow-nb-sm -translate-y-0.5"
-                      : "bg-nb-white text-nb-ink hover:-translate-y-0.5"
+                      ? "bg-[#0a0a0a] text-white border-[#0a0a0a] shadow-[1.5px_1.5px_0px_#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white"
+                      : "bg-[#f2f2f0] dark:bg-[#1f1630] text-[#0a0a0a] dark:text-neutral-300 border-[#0a0a0a] dark:border-white/30 shadow-[1.5px_1.5px_0px_#0a0a0a] hover:bg-white"
                   }`}
                 >
-                  {isSelected ? `✓ ${tag.label}` : tag.label}
+                  {isSelected && <span>✓</span>}
+                  <span>{tag.label}</span>
                 </button>
               );
             })}
@@ -371,12 +350,13 @@ export default function PostEventModal() {
         </div>
 
         {/* Optional Link */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1">
           <label
             htmlFor="event-link"
-            className="font-nb-mono text-xs font-bold tracking-[0.08em] uppercase text-nb-ink"
+            className="inline-flex items-center gap-1 font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#575757] dark:text-neutral-400"
           >
-            Optional Link
+            <LinkIcon size={12} />
+            <span>Optional Link</span>
           </label>
           <input
             id="event-link"
@@ -384,17 +364,16 @@ export default function PostEventModal() {
             value={link}
             onChange={(e) => setLink(e.target.value)}
             placeholder="https://... (Discord, Zoom, RSVP, or Form)"
-            className="w-full h-11 px-3.5 rounded-nb border-2 border-nb-ink bg-nb-white font-medium text-sm text-nb-ink placeholder:text-nb-muted focus:outline-none focus:ring-2 focus:ring-nb-brand"
+            className="w-full h-9.5 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-mono text-xs text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
           />
         </div>
 
-        {/* Footer actions */}
-        <div className="flex items-center justify-end gap-3 pt-3 border-t-nb border-nb-ink">
+        {/* Action Buttons */}
+        <div className="pt-2 flex items-center justify-end gap-2.5 border-t-2 border-[#0a0a0a] dark:border-white/20">
           <button
             type="button"
             onClick={handleClose}
-            disabled={isSubmitting}
-            className="btn min-h-[44px] px-5 rounded-nb border-nb border-nb-ink bg-nb-white text-nb-ink font-bold text-sm tracking-normal shadow-nb hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5"
+            className="min-h-[38px] px-4 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white font-mono text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_#0a0a0a] hover:bg-neutral-100 cursor-pointer"
           >
             Cancel
           </button>
@@ -402,13 +381,12 @@ export default function PostEventModal() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="btn primary min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-[#0A0A0A] font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 disabled:opacity-50"
+            className="inline-flex items-center justify-center min-h-[38px] px-5 rounded-[8px] border-2 border-[#0a0a0a] bg-gradient-to-r from-[#ff6b9d] to-[#fb923c] text-[#0a0a0a] font-mono text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_#0a0a0a] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50 cursor-pointer"
           >
-            {isSubmitting ? "Posting..." : "Post Event"}
+            <span>{isSubmitting ? "Posting…" : "Post Event"}</span>
           </button>
         </div>
       </form>
     </div>
   );
 }
-
