@@ -85,8 +85,8 @@ export default function SettingsPage() {
         }
 
         .settings-header-band {
-          padding-top: 72px;
-          padding-bottom: 12px;
+          padding-top: 104px;
+          padding-bottom: 14px;
         }
 
         .settings-header-inner {

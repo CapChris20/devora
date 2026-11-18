@@ -5,28 +5,29 @@
 "use client";
 
 import NavBar from "@/ui/shared/navbar/NavBar";
+import Footer from "@/ui/shared/footer/Footer";
 import DiscoveryGridContent from "@/ui/discovery/DiscoveryGridContent";
 import BackgroundPicture from "@/ui/shared/backgrounds/BackgroundPicture";
 
 export default function DiscoveryGridPage() {
   return (
     <div
-      className="min-h-screen lg:h-screen lg:max-h-screen lg:overflow-hidden flex flex-col relative"
+      className="min-h-screen relative"
       style={{
         color: "var(--text, #fbf6f8)",
       }}
     >
       <BackgroundPicture variant="discovery" />
 
-      <div className="relative z-10 flex flex-col flex-1 h-full min-h-screen lg:min-h-0 lg:max-h-screen lg:overflow-hidden">
+      <div className="relative z-10 min-h-screen">
         <NavBar activeItem="Discovery Grid" />
 
         {/* ── Hero band with solid opaque overlay card ── */}
         <section
           aria-label="Discovery Grid hero"
           style={{
-            paddingTop: "70px",
-            paddingBottom: "6px",
+            paddingTop: "calc(clamp(72px, 8vw, 96px) + 52px)",
+            paddingBottom: 16,
             position: "relative",
           }}
         >
@@ -34,7 +35,7 @@ export default function DiscoveryGridPage() {
             style={{
               maxWidth: 1240,
               marginInline: "auto",
-              paddingInline: "clamp(16px, 3vw, 32px)",
+              paddingInline: "clamp(20px, 4.5vw, 64px)",
             }}
           >
             <div className="discovery-hero-card">
@@ -50,27 +51,27 @@ export default function DiscoveryGridPage() {
 
         {/* ── Main Grid Container ── */}
         <main
-          className="flex-1 flex flex-col overflow-hidden"
           style={{
             maxWidth: 1240,
-            width: "100%",
             marginInline: "auto",
-            paddingInline: "clamp(16px, 3vw, 32px)",
-            paddingBottom: 10,
-            paddingTop: 4,
+            paddingInline: "clamp(20px, 4.5vw, 64px)",
+            paddingBottom: 96,
+            paddingTop: 16,
           }}
         >
           <DiscoveryGridContent />
         </main>
+
+        <Footer />
       </div>
 
       <style jsx>{`
         .discovery-hero-card {
           background: #0d0a11;
-          border: 2.5px solid rgba(255, 255, 255, 0.35);
-          border-radius: 12px;
-          padding: 14px 22px;
-          box-shadow: 6px 6px 0px #000000;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          border-radius: 24px;
+          padding: clamp(28px, 4vw, 42px);
+          box-shadow: 8px 8px 0px #000000;
         }
 
         :global(html[data-theme="light"]) .discovery-hero-card {
@@ -81,14 +82,14 @@ export default function DiscoveryGridPage() {
 
         .discovery-hero-title {
           font-family: var(--font-display), "Arial Black", sans-serif;
-          font-weight: 900;
-          font-size: clamp(24px, 2.4vw, 30px);
-          line-height: 1.1;
-          letter-spacing: -0.02em;
+          font-weight: 800;
+          font-size: clamp(36px, 6.5vw, 84px);
+          line-height: 0.95;
+          letter-spacing: -0.035em;
           text-transform: uppercase;
           color: #ffffff;
           margin: 0;
-          text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
+          text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7);
         }
 
         :global(html[data-theme="light"]) .discovery-hero-title {
@@ -97,12 +98,13 @@ export default function DiscoveryGridPage() {
         }
 
         .discovery-hero-lead {
-          font-family: var(--font-body), system-ui, sans-serif;
-          font-size: 13.5px;
-          line-height: 1.4;
-          margin-top: 4px;
+          font-family: var(--font-mono), monospace;
+          font-size: clamp(16px, 1.4vw, 19px);
+          line-height: 1.55;
+          max-width: 46em;
+          margin-top: 16px;
           margin-bottom: 0;
-          color: rgba(255, 255, 255, 0.85);
+          color: rgba(255, 255, 255, 0.92);
         }
 
         :global(html[data-theme="light"]) .discovery-hero-lead {
