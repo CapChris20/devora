@@ -133,8 +133,8 @@ export default function ClubsFeed() {
   };
 
   // Filter and search
-  const filteredClubs = useMemo(() => {
-    return clubs.filter((club) => {
+  const { filteredClubs, featuredClubId } = useMemo(() => {
+    const list = clubs.filter((club) => {
       // Category check
       if (activeCategory !== "all" && club.category !== activeCategory) {
         return false;
@@ -151,6 +151,23 @@ export default function ClubsFeed() {
 
       return true;
     });
+
+    let featuredId: string | null = null;
+    if (list.length >= 3) {
+      let maxFollowers = -1;
+      for (const c of list) {
+        if (c.followerCount > maxFollowers) {
+          maxFollowers = c.followerCount;
+          featuredId = c.id;
+        }
+      }
+    }
+
+    const sorted = [...list].sort((a, b) => {
+      return (b.id === featuredId ? 1 : 0) - (a.id === featuredId ? 1 : 0);
+    });
+
+    return { filteredClubs: sorted, featuredClubId: featuredId };
   }, [clubs, activeCategory, searchQuery]);
 
   if (loading) {
@@ -209,6 +226,7 @@ export default function ClubsFeed() {
               isFollowed={followedClubIds.has(club.id)}
               onToggleFollow={handleToggleFollow}
               isToggling={togglingClubId === club.id}
+              isFeatured={club.id === featuredClubId}
             />
           ))}
         </div>

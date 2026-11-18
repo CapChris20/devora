@@ -1,20 +1,15 @@
-// FAQ deck for /faqs (DESIGN_SCOPE.md anti-patterns, DESIGN.md NOT list).
-// Search + category filters, then a 2-column deck of solid cards with neutral borders and hard shadows.
-// Open questions get .headline-grad; answers use the readable body sans (font-body), never monospace.
-// No colored accent rails, no emojis, no pink borders.
+// FAQ accordion for Devora — Coach Connect "Design Law" (faqs.html).
+// Left: numbered question index (q-list).
+// Right: one large answer card (sticky, spacious, big outlined number, Next/Prev navigation).
+// Stacks on mobile with smooth scroll to answer.
+// Search bar (max 80 chars) + category filter chips.
+// Zero emojis, zero pink borders, zero monochrome AI slop.
 
 "use client";
 
-import { useState, useMemo } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  Search,
-  X,
-  ChevronDown,
-  ChevronsUpDown,
-  HelpCircle,
-  ArrowRight,
-} from "lucide-react";
+import { useState, useMemo, useRef } from "react";
+import gsap from "gsap";
+import { Search, ArrowRight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "@/ui/shared/theme/DarkLightMode";
 
@@ -29,7 +24,7 @@ type FaqItem = {
 };
 
 const CATEGORIES: { id: FaqCategory; label: string }[] = [
-  { id: "all", label: "All Questions" },
+  { id: "all", label: "All" },
   { id: "about", label: "About Devora" },
   { id: "networking", label: "Networking & Career" },
   { id: "features", label: "Features & Privacy" },
@@ -102,37 +97,18 @@ const FAQS: FaqItem[] = [
   },
 ];
 
-// ===== CLASS NAME HELPERS =====
-// Each helper names one visual decision so the JSX below never needs nested ternaries.
-
-function getCategoryButtonClassName(isSelected: boolean, isLight: boolean): string {
-  if (isSelected && isLight) return "bg-[#0a0a0a] text-white border-[#0a0a0a] shadow-[3px_3px_0px_#FB923C]";
-  if (isSelected) return "bg-gradient-to-r from-[#ffd76f] via-[#ff9a3d] to-[#ff5ca8] text-[#0a0a0a] border-2 border-white shadow-[3px_3px_0px_#000000] font-black";
-  if (isLight) return "bg-white text-[#0a0a0a] border-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a]";
-  return "bg-[#161022] text-neutral-200 border-white/20 shadow-[3px_3px_0px_#000000] hover:border-white/45";
+function getCategoryTagStyle(category: FaqCategory): string {
+  switch (category) {
+    case "about":
+      return "bg-gradient-to-r from-[#ff6b9d] to-[#fb923c] text-[#0a0a0a]";
+    case "networking":
+      return "bg-gradient-to-r from-[#7dd3fc] to-[#a78bfa] text-[#0a0a0a]";
+    case "features":
+      return "bg-gradient-to-r from-[#a78bfa] to-[#e879f9] text-[#0a0a0a]";
+    default:
+      return "bg-white text-[#0a0a0a]";
+  }
 }
-
-function getCategoryCountClassName(isSelected: boolean, isLight: boolean): string {
-  if (isSelected) return "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a]";
-  if (isLight) return "bg-neutral-100 text-neutral-700";
-  return "bg-white/10 text-neutral-300";
-}
-
-function getChevronClassName(isExpanded: boolean, isLight: boolean): string {
-  const rotation = isExpanded ? "rotate-180" : "rotate-0";
-  if (isExpanded && isLight) return `${rotation} bg-[#0a0a0a] border-[#0a0a0a] text-white shadow-[2px_2px_0px_#fb923c]`;
-  if (isExpanded) return `${rotation} bg-gradient-to-r from-[#ffd76f] via-[#ff9a3d] to-[#ff5ca8] border-white text-[#0a0a0a] shadow-[2px_2px_0px_#000000]`;
-  if (isLight) return `${rotation} bg-white border-[#0a0a0a] text-[#0a0a0a]`;
-  return `${rotation} bg-white/5 border-white/25 text-white group-hover:border-white/50`;
-}
-
-function getQuestionClassName(isExpanded: boolean, isLight: boolean): string {
-  if (isExpanded && !isLight) return "bg-gradient-to-r from-[#ffd76f] via-[#ff9a3d] to-[#ff5ca8] bg-clip-text text-transparent font-black";
-  if (isLight) return "text-[#0a0a0a]";
-  return "text-white group-hover:text-[#ffd76f] transition-colors";
-}
-
-// ===== MAIN =====
 
 export default function FAQAccordion() {
   const { theme } = useTheme();
@@ -140,269 +116,311 @@ export default function FAQAccordion() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<FaqCategory>("all");
-  const [expandedIds, setExpandedIds] = useState<Set<string>>(
-    new Set(["origin", "not-tinder"])
-  );
+  const [selectedFaqId, setSelectedFaqId] = useState<string>(FAQS[0].id);
 
-  // Toggle single item
-  const toggleItem = (id: string) => {
-    setExpandedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
+  const answerRef = useRef<HTMLElement>(null);
+  const answerContentRef = useRef<HTMLDivElement>(null);
 
-  // Expand / collapse all
-  const areAllExpanded = expandedIds.size === FAQS.length;
-  const toggleAll = () => {
-    if (areAllExpanded) {
-      setExpandedIds(new Set());
-    } else {
-      setExpandedIds(new Set(FAQS.map((f) => f.id)));
-    }
-  };
-
-  // Filtered list
+  // Filter list
   const filteredFaqs = useMemo(() => {
     return FAQS.filter((faq) => {
       if (activeCategory !== "all" && faq.category !== activeCategory) {
         return false;
       }
       if (searchQuery.trim()) {
-        const q = searchQuery.toLowerCase();
-        const matchQ = faq.question.toLowerCase().includes(q);
-        const matchA = faq.answer.toLowerCase().includes(q);
-        const matchCat = faq.categoryLabel.toLowerCase().includes(q);
-        return matchQ || matchA || matchCat;
+        const q = searchQuery.toLowerCase().slice(0, 80);
+        return (
+          faq.question.toLowerCase().includes(q) ||
+          faq.answer.toLowerCase().includes(q) ||
+          faq.categoryLabel.toLowerCase().includes(q)
+        );
       }
       return true;
     });
   }, [activeCategory, searchQuery]);
 
-  return (
-    <div className="w-full space-y-8">
-      {/* ── Wide Spacious Search Bar ── */}
-      <div
-        className={`relative flex items-center w-full rounded-2xl border-2 transition-all duration-200 ${
-          isLight
-            ? "bg-white border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a]"
-            : "bg-[#0f0918] border-white/20 shadow-[5px_5px_0px_#000000]"
-        }`}
-      >
-        <Search
-          size={20}
-          className={`ml-5 mr-3 shrink-0 ${
-            isLight ? "text-neutral-500" : "text-neutral-400"
-          }`}
-        />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search by topic, question, or keyword (e.g. clubs, transfer, privacy)…"
-          className={`w-full py-4 pr-12 text-base font-body bg-transparent outline-none ${
-            isLight
-              ? "text-[#0a0a0a] placeholder:text-neutral-400"
-              : "text-white placeholder:text-neutral-500"
-          }`}
-        />
-        {searchQuery && (
-          <button
-            type="button"
-            onClick={() => setSearchQuery("")}
-            className={`absolute right-4 p-1.5 rounded-full hover:bg-black/10 transition-colors ${
-              isLight ? "text-neutral-700" : "text-neutral-300"
-            }`}
-            aria-label="Clear search"
-          >
-            <X size={18} />
-          </button>
-        )}
-      </div>
+  // Ensure selected FAQ is visible in filtered list
+  const activeIndex = useMemo(() => {
+    const idx = filteredFaqs.findIndex((f) => f.id === selectedFaqId);
+    return idx >= 0 ? idx : 0;
+  }, [filteredFaqs, selectedFaqId]);
 
-      {/* ── Category Filter Bar & Global Controls ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
-        {/* Category Pills */}
-        <div
-          role="group"
-          aria-label="Filter FAQ categories"
-          className="flex flex-wrap gap-3"
+  const currentFaq = filteredFaqs[activeIndex] || filteredFaqs[0];
+
+  const handleSelectFaq = (faq: FaqItem) => {
+    setSelectedFaqId(faq.id);
+
+    if (answerContentRef.current && !window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      gsap.fromTo(
+        answerContentRef.current,
+        { opacity: 0, y: 12 },
+        { opacity: 1, y: 0, duration: 0.35, ease: "power2.out" }
+      );
+    }
+
+    // Scroll into view on mobile
+    if (window.innerWidth < 900 && answerRef.current) {
+      answerRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+  const handlePrev = () => {
+    if (activeIndex > 0) {
+      handleSelectFaq(filteredFaqs[activeIndex - 1]);
+    }
+  };
+
+  const handleNext = () => {
+    if (activeIndex < filteredFaqs.length - 1) {
+      handleSelectFaq(filteredFaqs[activeIndex + 1]);
+    }
+  };
+
+  return (
+    <div className="w-full">
+      {/* ── Page Header per Design Law (faqs.html) ── */}
+      <header className="mb-8">
+        <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] text-[#575757] dark:text-neutral-400">
+          CECS knowledge base
+        </span>
+        <h1 className="mt-2 font-display uppercase font-normal text-4xl sm:text-5xl lg:text-6xl tracking-tight leading-[0.92] text-[#0a0a0a] dark:text-white">
+          Frequently asked
+          <br />
+          questions
+        </h1>
+        <div className="w-[130px] h-3 mt-4 rounded-full border-[3px] border-[#0a0a0a] dark:border-white/30 bg-gradient-to-r from-[#6206f1] via-[#eb2d85] to-[#ff6a1f]" />
+      </header>
+
+      {/* ── Controls Row: Search + Category Chips ── */}
+      <div className="flex flex-wrap items-center gap-3 sm:gap-4 mb-6">
+        {/* Search input */}
+        <label
+          htmlFor="faq-search"
+          className={`flex-1 min-w-[260px] h-12 flex items-center gap-2.5 px-3.5 rounded-[10px] border-[3px] transition-colors ${
+            isLight
+              ? "bg-white border-[#0a0a0a] shadow-[4px_4px_0px_#0a0a0a]"
+              : "bg-[#161022] border-white/30 shadow-[4px_4px_0px_#000000]"
+          }`}
         >
+          <Search size={18} className="text-[#575757] dark:text-neutral-400 shrink-0" />
+          <input
+            id="faq-search"
+            type="search"
+            maxLength={80}
+            placeholder="Search questions, like privacy or clubs"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 min-w-0 bg-transparent border-none outline-none font-body text-sm sm:text-base text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-500"
+          />
+        </label>
+
+        {/* Category filter chips */}
+        <div role="group" aria-label="Filter by category" className="flex flex-wrap gap-2">
           {CATEGORIES.map((cat) => {
             const isSelected = activeCategory === cat.id;
-            const categoryCount =
-              cat.id === "all"
-                ? FAQS.length
-                : FAQS.filter((f) => f.category === cat.id).length;
-
             return (
               <button
                 key={cat.id}
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => setActiveCategory(cat.id)}
-                className={`inline-flex items-center gap-2.5 h-11 px-5 sm:px-6 rounded-xl border-2 font-mono text-xs font-bold uppercase tracking-wider transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer select-none ${getCategoryButtonClassName(isSelected, isLight)}`}
+                className={`min-h-[40px] px-4 rounded-full border-2 border-[#0a0a0a] dark:border-white/30 font-mono text-xs font-bold uppercase tracking-[0.08em] transition-all duration-120 cursor-pointer select-none active:translate-x-0.5 active:translate-y-0.5 ${
+                  isSelected
+                    ? "bg-[#0a0a0a] text-white shadow-[2px_2px_0px_#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white"
+                    : isLight
+                    ? "bg-white text-[#0a0a0a] hover:shadow-[2px_2px_0px_#0a0a0a] hover:-translate-x-0.5 hover:-translate-y-0.5"
+                    : "bg-[#181124] text-neutral-300 hover:text-white hover:border-white/70"
+                }`}
               >
-                <span>{cat.label}</span>
-                <span
-                  className={`min-w-[22px] text-center text-[11px] px-1.5 py-0.5 rounded-md font-bold ${getCategoryCountClassName(isSelected, isLight)}`}
-                >
-                  {categoryCount}
-                </span>
+                {cat.label}
               </button>
             );
           })}
         </div>
-
-        {/* Expand / Collapse All Button */}
-        <button
-          type="button"
-          onClick={toggleAll}
-          className={`inline-flex items-center gap-2 self-start sm:self-auto h-11 px-5 rounded-xl font-mono text-xs font-bold uppercase tracking-wider border-2 transition-[transform,box-shadow] duration-150 hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer select-none ${
-            isLight
-              ? "bg-white border-[#0a0a0a] text-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a]"
-              : "bg-[#1b1428] border-white/25 text-neutral-200 hover:text-white shadow-[3px_3px_0px_#000000]"
-          }`}
-        >
-          <ChevronsUpDown size={14} />
-          <span>{areAllExpanded ? "Collapse All" : "Expand All"}</span>
-        </button>
       </div>
 
-      {/* ── FAQ Cards Grid: 2-Column Responsive Deck ── */}
+      {/* ── Two-Column FAQ Grid ── */}
       {filteredFaqs.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 items-start gap-6 lg:gap-7 pt-2">
-          {filteredFaqs.map((faq) => {
-            const isExpanded = expandedIds.has(faq.id);
-
-            return (
-              <div
-                key={faq.id}
-                className={`flex flex-col rounded-2xl overflow-hidden transition-[border-color] duration-200 ${
-                  isLight
-                    ? "bg-white border-[2.5px] border-[#0a0a0a] shadow-[6px_6px_0px_#0a0a0a]"
-                    : "bg-[#120c1c] border-2 border-white/20 shadow-[6px_6px_0px_#000000] hover:border-white/35"
-                }`}
-              >
-                {/* Header clickable question area */}
-                <button
-                  type="button"
-                  onClick={() => toggleItem(faq.id)}
-                  aria-expanded={isExpanded}
-                  className="w-full text-left p-6 sm:p-8 flex flex-col gap-4 cursor-pointer group select-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-4px] focus-visible:outline-current"
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] gap-6 items-start">
+          {/* 1. Left Question Index (q-list) */}
+          <ol
+            className={`list-none m-0 p-0 rounded-[10px] overflow-hidden border-[3px] transition-all ${
+              isLight
+                ? "bg-white border-[#0a0a0a] shadow-[5px_5px_0px_#0a0a0a]"
+                : "bg-[#120c1c] border-2 border-white/25 shadow-[6px_6px_0px_#000000]"
+            }`}
+          >
+            {filteredFaqs.map((faq, idx) => {
+              const isCurrent = currentFaq?.id === faq.id;
+              const formattedNumber = String(idx + 1).padStart(2, "0");
+              return (
+                <li
+                  key={faq.id}
+                  className={`border-t-[3px] first:border-t-0 ${
+                    isLight ? "border-[#0a0a0a]" : "border-white/20"
+                  }`}
                 >
-                  <div className="flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    aria-current={isCurrent}
+                    onClick={() => handleSelectFaq(faq)}
+                    className={`w-full grid grid-cols-[40px_minmax(0,1fr)_18px] items-center gap-3 p-3.5 sm:p-4 text-left transition-colors cursor-pointer select-none ${
+                      isCurrent
+                        ? isLight
+                          ? "bg-[#0a0a0a] text-white"
+                          : "bg-white text-[#0a0a0a]"
+                        : isLight
+                        ? "bg-white text-[#0a0a0a] hover:bg-[#f2f2f0]"
+                        : "bg-[#120c1c] text-neutral-200 hover:bg-[#1c142b]"
+                    }`}
+                  >
+                    {/* Number Box */}
                     <span
-                      className={`inline-block px-2.5 py-1 rounded-md font-mono text-[11px] font-bold uppercase tracking-wider ${
-                        isLight
-                          ? "bg-neutral-100 text-neutral-700 border border-neutral-300"
-                          : "bg-white/5 text-neutral-300 border border-white/10"
+                      className={`h-[30px] flex items-center justify-center rounded-[8px] font-mono text-xs font-bold border-2 transition-colors ${
+                        isCurrent
+                          ? "bg-gradient-to-r from-[#ff6b9d] to-[#fb923c] text-[#0a0a0a] border-white dark:border-[#0a0a0a]"
+                          : isLight
+                          ? "bg-white text-[#0a0a0a] border-[#0a0a0a]"
+                          : "bg-[#1f1630] text-neutral-300 border-white/30"
                       }`}
                     >
-                      {faq.categoryLabel}
+                      {formattedNumber}
                     </span>
 
-                    <span
-                      aria-hidden="true"
-                      className={`w-9 h-9 shrink-0 rounded-full border-2 flex items-center justify-center transition-[transform,background-color,color] duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${getChevronClassName(isExpanded, isLight)}`}
-                    >
-                      <ChevronDown size={17} strokeWidth={2.5} />
+                    {/* Question Title */}
+                    <span className="font-semibold text-[15px] leading-[1.35] line-clamp-2">
+                      {faq.question}
                     </span>
-                  </div>
 
-                  <h3
-                    className={`font-display text-lg sm:text-[22px] font-extrabold leading-[1.2] tracking-tight ${getQuestionClassName(isExpanded, isLight)}`}
+                    {/* Arrow */}
+                    <ArrowRight
+                      size={16}
+                      className={`transition-transform shrink-0 ${
+                        isCurrent ? "translate-x-1" : "opacity-60"
+                      }`}
+                    />
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
+
+          {/* 2. Right Large Sticky Answer Card */}
+          {currentFaq && (
+            <article
+              ref={answerRef}
+              aria-live="polite"
+              className={`lg:sticky lg:top-24 rounded-[10px] p-6 sm:p-8 min-h-[340px] flex flex-col border-[3px] transition-all ${
+                isLight
+                  ? "bg-white border-[#0a0a0a] shadow-[7px_7px_0px_#0a0a0a]"
+                  : "bg-[#120c1c] border-2 border-white/25 shadow-[8px_8px_0px_#000000]"
+              }`}
+            >
+              <div ref={answerContentRef} className="flex-1 flex flex-col">
+                {/* Tag & Big Outlined Number Row */}
+                <div className="flex items-center justify-between gap-3">
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full border-2 border-[#0a0a0a] font-mono text-[10px] font-bold uppercase tracking-[0.08em] shadow-[2px_2px_0px_#0a0a0a] ${getCategoryTagStyle(
+                      currentFaq.category
+                    )}`}
                   >
-                    {faq.question}
-                  </h3>
-                </button>
+                    {currentFaq.categoryLabel}
+                  </span>
 
-                {/* Collapsible Answer Body */}
-                <AnimatePresence initial={false}>
-                  {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2, ease: "easeOut" }}
-                      className="overflow-hidden"
-                    >
-                      <div
-                        className={`mx-6 sm:mx-8 pb-7 sm:pb-8 pt-5 border-t-2 ${
-                          isLight ? "border-[#0a0a0a]/10 text-neutral-700" : "border-white/10 text-neutral-200"
-                        }`}
-                      >
-                        <p className="font-body text-base sm:text-[17px] leading-[1.65] max-w-[62ch]">{faq.answer}</p>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                  <span
+                    aria-hidden="true"
+                    className="font-display font-normal text-5xl sm:text-6xl text-[#e3e3df] dark:text-[#251d33] [-webkit-text-stroke:2.5px_#0a0a0a] dark:[-webkit-text-stroke:2px_rgba(255,255,255,0.4)] select-none leading-none"
+                  >
+                    {String(activeIndex + 1).padStart(2, "0")}
+                  </span>
+                </div>
+
+                {/* Question Heading */}
+                <h2 className="mt-4 sm:mt-5 font-bold text-xl sm:text-2xl lg:text-[28px] leading-[1.18] tracking-tight text-[#0a0a0a] dark:text-white">
+                  {currentFaq.question}
+                </h2>
+
+                {/* Answer Paragraph */}
+                <p className="mt-4 font-body text-base sm:text-[17px] leading-[1.68] text-[#262626] dark:text-neutral-200">
+                  {currentFaq.answer}
+                </p>
+
+                {/* Prev / Next Navigation Row */}
+                <div
+                  className={`mt-auto pt-6 flex items-center justify-between gap-3 border-t-2 ${
+                    isLight ? "border-[#e3e3df]" : "border-white/10"
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={handlePrev}
+                    disabled={activeIndex <= 0}
+                    className={`inline-flex items-center gap-1.5 h-10 px-3.5 rounded-[8px] font-bold text-xs uppercase tracking-wider border-2 border-[#0a0a0a] dark:border-white/30 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed ${
+                      isLight
+                        ? "bg-white text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] hover:bg-[#f2f2f0]"
+                        : "bg-[#181124] text-white shadow-[2px_2px_0px_#000000]"
+                    }`}
+                  >
+                    <ArrowLeft size={14} />
+                    <span>Previous</span>
+                  </button>
+
+                  <span className="font-mono text-xs font-bold text-[#575757] dark:text-neutral-400">
+                    {activeIndex + 1} of {filteredFaqs.length}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={activeIndex >= filteredFaqs.length - 1}
+                    className="inline-flex items-center gap-1.5 h-10 px-3.5 rounded-[8px] font-bold text-xs uppercase tracking-wider border-2 border-[#0a0a0a] bg-[#0a0a0a] text-white shadow-[2px_2px_0px_#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed hover:bg-neutral-800"
+                  >
+                    <span>Next</span>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
               </div>
-            );
-          })}
+            </article>
+          )}
         </div>
       ) : (
-        /* Empty search state */
+        /* Empty Search State */
         <div
-          className={`rounded-xl border-2 border-dashed p-12 text-center ${
+          className={`p-10 text-center rounded-[10px] border-[3px] border-dashed ${
             isLight
-              ? "bg-white border-[#0a0a0a] text-[#0a0a0a]"
-              : "bg-[#140e20] border-white/20 text-white"
+              ? "bg-white border-[#0a0a0a]"
+              : "bg-[#120c1c] border-white/30 text-white"
           }`}
         >
-          <HelpCircle size={36} className="mx-auto mb-3 opacity-60" />
-          <h3 className="font-display text-lg font-bold">No questions matched</h3>
-          <p className="mt-2 font-body text-base opacity-80">
-            Try adjusting your search terms or picking another category.
+          <b className="block font-display text-xl uppercase mb-1 text-[#0a0a0a] dark:text-white">
+            No questions match
+          </b>
+          <p className="font-body text-sm text-[#575757] dark:text-neutral-400">
+            Try another word or pick &ldquo;All&rdquo; above.
           </p>
-          <button
-            type="button"
-            onClick={() => {
-              setSearchQuery("");
-              setActiveCategory("all");
-            }}
-            className="mt-5 h-11 px-5 rounded-xl font-mono text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[3px_3px_0px_#000000] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none cursor-pointer"
-          >
-            Reset Filters
-          </button>
         </div>
       )}
 
-      {/* ── Footer CTA Banner ── */}
+      {/* ── Help Banner Below Grid per Design Law ── */}
       <div
-        className={`p-6 sm:p-8 rounded-2xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-5 ${
-          isLight
-            ? "bg-white border-[#0a0a0a] shadow-[6px_6px_0px_#0a0a0a] text-[#0a0a0a]"
-            : "bg-[#120c1c] border-2 border-white/20 shadow-[6px_6px_0px_#000000] text-white"
+        className={`mt-10 p-6 sm:p-7 rounded-[10px] border-[3px] border-[#0a0a0a] bg-[#0a0a0a] text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 ${
+          isLight ? "shadow-[5px_5px_0px_#0a0a0a]" : "shadow-[6px_6px_0px_#000000]"
         }`}
       >
-        <div className="space-y-2">
-          <span className="font-mono text-xs font-bold uppercase tracking-[0.14em] opacity-70">
-            Need more help?
-          </span>
-          <h4 className="font-display text-xl sm:text-2xl font-extrabold uppercase tracking-tight">
+        <div>
+          <b className="font-display text-lg uppercase tracking-tight block">
             Have a question not answered here?
-          </h4>
-          <p
-            className={`font-body text-base leading-[1.6] ${
-              isLight ? "text-neutral-600" : "text-neutral-300"
-            }`}
-          >
-            Reach out directly to CECS leadership or connect with club leaders in the Activity Center.
+          </b>
+          <p className="mt-1 text-sm text-[#cfcfcf] font-body">
+            Drop a message in the Activity Center or connect directly with our student community.
           </p>
         </div>
 
         <Link
           href="/activity-center"
-          className="inline-flex items-center justify-center gap-2 shrink-0 h-12 px-6 rounded-xl font-mono text-xs sm:text-sm font-black uppercase tracking-wider bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0a0a0a] border-2 border-[#0a0a0a] shadow-[3px_3px_0px_#0a0a0a] hover:translate-x-[-1px] hover:translate-y-[-1px] hover:shadow-[4px_4px_0px_#0a0a0a] active:translate-x-0.5 active:translate-y-0.5 transition-all"
+          className="inline-flex items-center justify-center shrink-0 min-h-[44px] px-5 rounded-[8px] border-2 border-white bg-gradient-to-r from-[#ff6b9d] to-[#fb923c] text-[#0a0a0a] font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#ffffff] transition-all hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
         >
-          <span>Explore Activity Center</span>
-          <ArrowRight size={15} />
+          Explore Activity Center &rarr;
         </Link>
       </div>
     </div>
