@@ -150,6 +150,16 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
   const [eventFilter, setEventFilter] = useState<string>("all");
   const [isPostEventModalOpen, setIsPostEventModalOpen] = useState(false);
 
+  // Restore saved events from localStorage on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("devora_saved_events");
+      if (stored) {
+        setSavedEventIds(JSON.parse(stored));
+      }
+    } catch {}
+  }, []);
+
   const openPostEventModal = useCallback(() => {
     setIsPostEventModalOpen(true);
   }, []);
@@ -293,18 +303,22 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
   // Events actions
   const toggleSaveEvent = useCallback(
     (eventId: string) => {
-      // TODO(firestore): write to /users/{uid}/savedEvents/{eventId}
       setSavedEventIds((prev) => {
         const nextState = !prev[eventId];
+        const updated = { ...prev, [eventId]: nextState };
+        try {
+          localStorage.setItem("devora_saved_events", JSON.stringify(updated));
+        } catch {}
+
         const targetEvent = events.find((item) => item.id === eventId);
         if (targetEvent) {
           showToast(
             nextState
-              ? `Saved ${targetEvent.title} to your week`
-              : "Removed from your week"
+              ? `Saved "${targetEvent.title}" to your week`
+              : `Removed "${targetEvent.title}" from your week`
           );
         }
-        return { ...prev, [eventId]: nextState };
+        return updated;
       });
     },
     [events, showToast]

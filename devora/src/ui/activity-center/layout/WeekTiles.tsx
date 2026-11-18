@@ -23,6 +23,7 @@ export default function WeekTiles() {
     events,
     joinedGroupsCount,
     savedEventsCount,
+    setEventFilter,
   } = useActivityCenter();
 
   const nextEvent = events.length > 0 ? events[0] : null;
@@ -217,19 +218,32 @@ export default function WeekTiles() {
       {/* Saved events tile */}
       <button
         type="button"
-        onClick={() => router.push("/activity-center/events")}
-        className="bento-tile relative text-left flex flex-col justify-between gap-2.5 min-h-[108px] p-4 bg-nb-white border-nb border-nb-ink rounded-nb shadow-nb-card transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
+        onClick={() => {
+          setEventFilter("saved");
+          const el = document.getElementById("events-feed-anchor");
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth" });
+          } else {
+            router.push("/activity-center/events");
+          }
+        }}
+        className="bento-tile relative text-left flex flex-col justify-between gap-2.5 min-h-[108px] p-4 bg-nb-white border-nb border-nb-ink rounded-nb shadow-nb-card transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm cursor-pointer"
       >
-        <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] uppercase text-nb-ink">
-          Saved
-        </span>
+        <div className="flex items-center justify-between w-full">
+          <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] uppercase text-nb-ink">
+            Saved
+          </span>
+          <span className="font-mono text-[9px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 border border-emerald-400">
+            My Week
+          </span>
+        </div>
         <span
           ref={savedElRef}
           className="font-nb-display text-4xl sm:text-[40px] leading-none tabular-nums text-nb-ink"
         >
           {savedEventsCount}
         </span>
-        <span className="text-[13px] text-nb-muted">Events on your list</span>
+        <span className="text-[13px] text-nb-muted">Click to view your week</span>
       </button>
     </div>
   );

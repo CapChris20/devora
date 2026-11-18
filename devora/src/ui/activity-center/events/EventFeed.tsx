@@ -23,13 +23,21 @@ import PostEventModal from "./PostEventModal";
 
 export default function EventFeed() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const { events, eventFilter, openPostEventModal, isEventsLoading } =
-    useActivityCenter();
+  const {
+    events,
+    eventFilter,
+    setEventFilter,
+    savedEventIds,
+    openPostEventModal,
+    isEventsLoading,
+  } = useActivityCenter();
 
-  // Filter events based on active category chip
-  const filteredEvents = events.filter(
-    (e) => eventFilter === "all" || e.tags.includes(eventFilter as ActivityEventTag)
-  );
+  // Filter events based on active category chip or saved week
+  const filteredEvents = events.filter((e) => {
+    if (eventFilter === "all") return true;
+    if (eventFilter === "saved") return Boolean(savedEventIds[e.id]);
+    return e.tags.includes(eventFilter as ActivityEventTag);
+  });
 
   // Cascading entrance animation for all [data-in] elements
   useGSAP(
@@ -129,7 +137,9 @@ export default function EventFeed() {
       ) : filteredEvents.length === 0 ? (
         <EmptyState
           statusTag={
-            eventFilter === "all"
+            eventFilter === "saved"
+              ? "MY WEEK // 0_SAVED"
+              : eventFilter === "all"
               ? "EVENTS // 0_SCHEDULED"
               : `FILTER // 0_${eventFilter.toUpperCase()}`
           }
@@ -154,41 +164,55 @@ export default function EventFeed() {
             </svg>
           }
           title={
-            eventFilter === "all"
+            eventFilter === "saved"
+              ? "No events saved to your week yet"
+              : eventFilter === "all"
               ? "No events posted yet"
               : `No ${eventFilter} events found`
           }
           description={
-            eventFilter === "all"
+            eventFilter === "saved"
+              ? "Click '+ Save to my week' on any campus event ticket to organize your personal schedule here."
+              : eventFilter === "all"
               ? "Be the first student to post an exam review, club meeting, or campus meetup!"
               : `No events currently match "${eventFilter}". Select another tag or post one now.`
           }
           action={
-            <button
-              type="button"
-              onClick={openPostEventModal}
-              className="btn primary inline-flex items-center gap-2 min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-[#0A0A0A] font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
-            >
-              <svg
-                aria-hidden="true"
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+            eventFilter === "saved" ? (
+              <button
+                type="button"
+                onClick={() => setEventFilter("all")}
+                className="btn primary inline-flex items-center gap-2 min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-[#0A0A0A] font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
               >
-                <path d="M12 5v14M5 12h14" />
-              </svg>
-              <span>Post the first event</span>
-            </button>
+                <span>Browse all campus events</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={openPostEventModal}
+                className="btn primary inline-flex items-center gap-2 min-h-[44px] px-6 rounded-nb border-nb border-nb-ink bg-nb-brand text-[#0A0A0A] font-bold text-sm tracking-normal shadow-nb hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5"
+              >
+                <svg
+                  aria-hidden="true"
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 5v14M5 12h14" />
+                </svg>
+                <span>Post the first event</span>
+              </button>
+            )
           }
         />
       ) : (
-        /* Weeks groups */
-        <div className="flex flex-col gap-7.5">
+        /* Weeks groups with generous spacing */
+        <div id="events-feed-anchor" className="flex flex-col gap-10 sm:gap-12">
           {CALENDAR_WEEKS.map((week, weekIndex) => {
             const eventsInWeek = filteredEvents.filter((e) => {
               const w = typeof e.week === "number" ? e.week : 0;
@@ -200,28 +224,28 @@ export default function EventFeed() {
             if (eventsInWeek.length === 0) return null;
 
             return (
-              <section key={week.title}>
+              <section key={week.title} className="flex flex-col">
                 {/* Week section header with ink line divider */}
                 <div
                   data-in
-                  className="flex items-center gap-3 mb-3.5 after:content-[''] after:flex-1 after:h-[3px] after:bg-nb-ink after:rounded-[3px]"
+                  className="flex items-center gap-3.5 mb-4 after:content-[''] after:flex-1 after:h-[3px] after:bg-nb-ink/30 dark:after:bg-white/20 after:rounded-full"
                 >
-                  <h3 className="m-0 text-lg font-bold whitespace-nowrap text-nb-ink">
+                  <h3 className="m-0 text-xl font-display font-black whitespace-nowrap text-nb-ink dark:text-white tracking-tight">
                     {week.title}
                   </h3>
-                  <span className="font-nb-mono text-[11px] font-bold tracking-[0.14em] uppercase text-nb-muted whitespace-nowrap">
+                  <span className="font-nb-mono text-xs font-bold tracking-[0.16em] uppercase text-nb-muted whitespace-nowrap">
                     {week.range}
                   </span>
                 </div>
 
                 {week.note && (
-                  <p data-in className="-mt-1 mb-3.5 text-[13px] text-nb-muted">
+                  <p data-in className="-mt-1 mb-4 text-sm font-body text-nb-muted">
                     {week.note}
                   </p>
                 )}
 
-                {/* Tickets grid */}
-                <div className="grid gap-4.5">
+                {/* Tickets grid with spacious 24px vertical separation */}
+                <div className="grid gap-6 sm:gap-7">
                   {eventsInWeek.map((event) => (
                     <EventTicket key={event.id} event={event} />
                   ))}
