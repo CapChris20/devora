@@ -25,7 +25,7 @@ const LIGHT_THEME = "light";
 // Runs before React paints so the saved theme is on the page immediately.
 // Kept as one compact script on purpose: it has to run before the app loads.
 // vocab: localStorage = the browser's saved key/value store for this site
-const THEME_BOOT_SCRIPT = `(function(){try{var savedTheme=localStorage.getItem("${THEME_STORAGE_KEY}");document.documentElement.setAttribute("data-theme",savedTheme==="${LIGHT_THEME}"?"${LIGHT_THEME}":"${DEFAULT_THEME}");}catch(error){document.documentElement.setAttribute("data-theme","${DEFAULT_THEME}");}})();`;
+const THEME_BOOT_SCRIPT = `(function(){try{var s=localStorage.getItem("${THEME_STORAGE_KEY}");var isL=s==="${LIGHT_THEME}";document.documentElement.setAttribute("data-theme",isL?"${LIGHT_THEME}":"${DEFAULT_THEME}");document.documentElement.classList.toggle("dark",!isL);document.documentElement.classList.toggle("light",isL);}catch(e){document.documentElement.setAttribute("data-theme","${DEFAULT_THEME}");document.documentElement.classList.add("dark");}})();`;
 
 // vocab: next/font/google = Next.js helper that self-hosts Google fonts
 // These calls stay at the top of the file, with the weights and CSS names written out.

@@ -44,7 +44,10 @@ export async function fetchClubsFromFirestore(): Promise<Club[]> {
     }
 
     const clubs: Club[] = [];
+    const existingIds = new Set<string>();
+
     snapshot.forEach((docSnap) => {
+      existingIds.add(docSnap.id);
       const data = docSnap.data();
       clubs.push({
         id: docSnap.id,
@@ -60,6 +63,29 @@ export async function fetchClubsFromFirestore(): Promise<Club[]> {
         createdAt: data.createdAt || null,
       });
     });
+
+    // Merge any newer seeded clubs that are not yet in Firestore
+    for (const seeded of REAL_SEEDED_CLUBS) {
+      if (!existingIds.has(seeded.id)) {
+        clubs.push(seeded);
+        setDoc(
+          doc(db, CLUBS_COLLECTION, seeded.id),
+          {
+            name: seeded.name,
+            shortName: seeded.shortName,
+            description: seeded.description,
+            category: seeded.category,
+            meetingFrequency: seeded.meetingFrequency,
+            link: seeded.link || null,
+            followerCount: seeded.followerCount,
+            memberCount: seeded.memberCount,
+            latestPost: seeded.latestPost || null,
+            createdAt: serverTimestamp(),
+          },
+          { merge: true }
+        ).catch(() => {});
+      }
+    }
 
     return clubs;
   } catch (error) {
