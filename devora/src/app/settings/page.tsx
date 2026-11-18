@@ -43,22 +43,26 @@ export default function SettingsPage() {
       <style jsx>{`
         .settings-hero-card {
           background: #0d0a11;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-radius: 10px;
-          padding: 8px 16px;
-          box-shadow: 4px 4px 0px #000000;
+          border: 2.5px solid rgba(255, 255, 255, 0.35);
+          border-radius: 12px;
+          padding: 14px 22px;
+          box-shadow: 6px 6px 0px #000000;
         }
 
         :global(html[data-theme="light"]) .settings-hero-card {
           background: #ffffff;
-          border: 2px solid #0a0a0a;
-          box-shadow: 4px 4px 0px #0a0a0a;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px #0a0a0a;
         }
 
         .settings-hero-title {
           margin: 0;
           color: #ffffff;
-          font-size: clamp(18px, 1.8vw, 22px);
+          font-family: var(--font-display), "Arial Black", sans-serif;
+          font-weight: 900;
+          text-transform: uppercase;
+          letter-spacing: -0.02em;
+          font-size: clamp(24px, 2.4vw, 30px);
           line-height: 1.1;
           text-shadow: 0 1px 6px rgba(0, 0, 0, 0.7);
         }
@@ -70,8 +74,9 @@ export default function SettingsPage() {
 
         .settings-hero-lead {
           color: rgba(255, 255, 255, 0.85);
-          font-size: 11.5px;
-          margin-top: 2px;
+          font-family: var(--font-body), system-ui, sans-serif;
+          font-size: 13.5px;
+          margin-top: 4px;
           margin-bottom: 0;
         }
 
@@ -80,8 +85,8 @@ export default function SettingsPage() {
         }
 
         .settings-header-band {
-          padding-top: 70px;
-          padding-bottom: 6px;
+          padding-top: 72px;
+          padding-bottom: 12px;
         }
 
         .settings-header-inner {

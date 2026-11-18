@@ -67,22 +67,22 @@ export default function DiscoveryGridPage() {
       <style jsx>{`
         .discovery-hero-card {
           background: #0d0a11;
-          border: 2px solid rgba(255, 255, 255, 0.3);
-          border-radius: 10px;
-          padding: 8px 16px;
-          box-shadow: 4px 4px 0px #000000;
+          border: 2.5px solid rgba(255, 255, 255, 0.35);
+          border-radius: 12px;
+          padding: 14px 22px;
+          box-shadow: 6px 6px 0px #000000;
         }
 
         :global(html[data-theme="light"]) .discovery-hero-card {
           background: #ffffff;
-          border: 2px solid #0a0a0a;
-          box-shadow: 4px 4px 0px #0a0a0a;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px #0a0a0a;
         }
 
         .discovery-hero-title {
           font-family: var(--font-display), "Arial Black", sans-serif;
-          font-weight: 800;
-          font-size: clamp(18px, 1.8vw, 22px);
+          font-weight: 900;
+          font-size: clamp(24px, 2.4vw, 30px);
           line-height: 1.1;
           letter-spacing: -0.02em;
           text-transform: uppercase;
@@ -98,9 +98,9 @@ export default function DiscoveryGridPage() {
 
         .discovery-hero-lead {
           font-family: var(--font-body), system-ui, sans-serif;
-          font-size: 11.5px;
+          font-size: 13.5px;
           line-height: 1.4;
-          margin-top: 2px;
+          margin-top: 4px;
           margin-bottom: 0;
           color: rgba(255, 255, 255, 0.85);
         }

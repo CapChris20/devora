@@ -871,74 +871,74 @@ export default function SettingsPageContent() {
         .settings-nav-btn {
           display: flex;
           align-items: center;
-          gap: 8px;
-          height: 36px;
-          padding: 0 12px;
-          border-radius: 8px;
+          gap: 10px;
+          height: 46px;
+          padding: 0 16px;
+          border-radius: 10px;
           font-family: var(--f-mono, monospace);
-          font-size: 11.5px;
+          font-size: 13px;
           font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.05em;
+          letter-spacing: 0.06em;
           cursor: pointer;
           transition: all 0.15s ease;
           background: #140d1e;
           color: var(--text-muted, #a597bd);
-          border: 1.5px solid rgba(255, 255, 255, 0.2);
-          box-shadow: 2px 2px 0px #000000;
+          border: 2px solid rgba(255, 255, 255, 0.25);
+          box-shadow: 3.5px 3.5px 0px #000000;
           width: 100%;
           text-align: left;
         }
 
         .settings-nav-btn:hover {
           color: #ffffff;
-          border-color: rgba(255, 255, 255, 0.5);
+          border-color: rgba(255, 255, 255, 0.6);
           transform: translate(-1px, -1px);
-          box-shadow: 3px 3px 0px #000000;
+          box-shadow: 4.5px 4.5px 0px #000000;
         }
 
         .settings-nav-btn.is-active {
           background: #ffffff !important;
           color: #0a0a0a !important;
-          border: 2px solid #ffffff !important;
-          box-shadow: 3px 3px 0px #000000 !important;
+          border: 2.5px solid #ffffff !important;
+          box-shadow: 4px 4px 0px #000000 !important;
         }
 
         :global(html[data-theme="light"]) .settings-nav-btn {
           background: #ffffff;
           color: #4b5563;
-          border: 1.5px solid #0a0a0a;
-          box-shadow: 2px 2px 0px #0a0a0a;
+          border: 2px solid #0a0a0a;
+          box-shadow: 3.5px 3.5px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .settings-nav-btn:hover {
           color: #0a0a0a;
           background: #f4f4f2;
-          box-shadow: 3px 3px 0px #0a0a0a;
+          box-shadow: 4.5px 4.5px 0px #0a0a0a;
         }
 
         :global(html[data-theme="light"]) .settings-nav-btn.is-active {
           background: #0a0a0a !important;
           color: #ffffff !important;
-          border: 2px solid #0a0a0a !important;
-          box-shadow: 3px 3px 0px #0a0a0a !important;
+          border: 2.5px solid #0a0a0a !important;
+          box-shadow: 4px 4px 0px #0a0a0a !important;
         }
 
         .settings-panel {
           background: #0e0918;
-          border: 2px solid rgba(255, 255, 255, 0.25);
-          border-radius: 10px;
-          padding: 14px 18px;
+          border: 2.5px solid rgba(255, 255, 255, 0.35);
+          border-radius: 12px;
+          padding: 22px 26px;
           display: flex;
           flex-direction: column;
-          gap: 12px;
-          box-shadow: 4px 4px 0px 0px #000000;
+          gap: 16px;
+          box-shadow: 6px 6px 0px 0px #000000;
         }
 
         :global(html[data-theme="light"]) .settings-panel {
           background: #ffffff;
-          border: 2px solid #0a0a0a;
-          box-shadow: 4px 4px 0px 0px #0a0a0a;
+          border: 2.5px solid #0a0a0a;
+          box-shadow: 6px 6px 0px 0px #0a0a0a;
           color: #0a0a0a;
         }
 
@@ -946,8 +946,8 @@ export default function SettingsPageContent() {
           display: flex;
           align-items: center;
           gap: 12px;
-          padding-bottom: 8px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          padding-bottom: 10px;
+          border-bottom: 1.5px solid rgba(255, 255, 255, 0.15);
         }
 
         :global(html[data-theme="light"]) .settings-panel-head {
@@ -956,8 +956,8 @@ export default function SettingsPageContent() {
 
         .settings-panel-title {
           font-family: var(--font-display), "Arial Black", sans-serif;
-          font-weight: 700;
-          font-size: 15px;
+          font-weight: 800;
+          font-size: 17px;
           text-transform: uppercase;
           letter-spacing: -0.01em;
           color: #ffffff;
@@ -984,40 +984,42 @@ export default function SettingsPageContent() {
         .settings-panel-body {
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          gap: 12px;
         }
 
         .settings-row-item {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 12px;
-          padding: 8px 12px;
-          border-radius: 8px;
+          gap: 16px;
+          padding: 12px 18px;
+          min-height: 56px;
+          border-radius: 10px;
           background: #15101a;
-          border: 1.5px solid rgba(255, 255, 255, 0.08);
+          border: 2px solid rgba(255, 255, 255, 0.15);
+          box-shadow: 3px 3px 0px #000000;
           transition: background 0.18s ease, border-color 0.18s ease;
         }
 
         :global(html[data-theme="light"]) .settings-row-item {
           background: #fafaf9;
-          border: 1.5px solid #0a0a0a;
-          box-shadow: 2px 2px 0px #0a0a0a;
+          border: 2px solid #0a0a0a;
+          box-shadow: 3px 3px 0px #0a0a0a;
         }
 
         .settings-edit-profile-btn {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          height: 34px;
-          padding: 0 14px;
+          height: 38px;
+          padding: 0 16px;
           border-radius: 8px;
           background: #ffffff;
           color: #0a0a0a;
           border: 2px solid #ffffff;
-          box-shadow: 3px 3px 0px #000000;
+          box-shadow: 3.5px 3.5px 0px #000000;
           font-family: var(--font-display), "Arial Black", sans-serif;
-          font-size: 11px;
+          font-size: 11.5px;
           font-weight: 900;
           text-transform: uppercase;
           letter-spacing: 0.06em;
@@ -1029,20 +1031,27 @@ export default function SettingsPageContent() {
           background: #0a0a0a;
           color: #ffffff;
           border-color: #0a0a0a;
-          box-shadow: 3px 3px 0px #0a0a0a;
+          box-shadow: 3.5px 3.5px 0px #0a0a0a;
         }
 
         .settings-row-text {
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 3px;
         }
 
         .settings-row-label {
-          font-size: 16px;
+          font-size: 15px;
           font-weight: 700;
           color: #ffffff;
           letter-spacing: -0.01em;
+        }
+
+        .settings-row-desc {
+          font-size: 12.5px;
+          color: var(--text-muted, #a597bd);
+          margin: 0;
+          line-height: 1.4;
         }
 
         :global(html[data-theme="light"]) .settings-row-label {
