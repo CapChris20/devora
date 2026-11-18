@@ -41,6 +41,7 @@ import type {
 import {
   INITIAL_CONNECTIONS,
   INITIAL_CONVERSATION_ORDER,
+  INITIAL_EVENTS,
   INITIAL_MESSAGES,
   INITIAL_PEOPLE,
   INITIAL_REQUESTS,
@@ -142,9 +143,9 @@ function formatTimestamp(): string {
 export function ActivityCenterProvider({ children }: { children: ReactNode }) {
   const router = useRouter();
 
-  // Events state (pure real data from Firestore, no fake mock items)
-  const [events, setEvents] = useState<ActivityEvent[]>([]);
-  const [isEventsLoading, setIsEventsLoading] = useState(true);
+  // Events state (live Firestore data with verified campus events fallback)
+  const [events, setEvents] = useState<ActivityEvent[]>(INITIAL_EVENTS);
+  const [isEventsLoading, setIsEventsLoading] = useState(false);
   const [savedEventIds, setSavedEventIds] = useState<Record<string, boolean>>({});
   const [eventFilter, setEventFilter] = useState<string>("all");
   const [isPostEventModalOpen, setIsPostEventModalOpen] = useState(false);
@@ -189,17 +190,19 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
             });
           });
 
-          setEvents(firestoreEvents);
+          setEvents(firestoreEvents.length > 0 ? firestoreEvents : INITIAL_EVENTS);
           setIsEventsLoading(false);
         },
         (err) => {
           console.warn("Firestore events onSnapshot listener:", err);
+          setEvents(INITIAL_EVENTS);
           setIsEventsLoading(false);
         }
       );
       return () => unsubscribe();
     } catch (err) {
       console.warn("Could not attach events listener:", err);
+      setEvents(INITIAL_EVENTS);
       setIsEventsLoading(false);
     }
   }, []);
