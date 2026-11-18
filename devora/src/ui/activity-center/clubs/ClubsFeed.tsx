@@ -257,18 +257,18 @@ export default function ClubsFeed() {
           </div>
 
           {!searchQuery.trim() && displayedClubs.length < filteredClubs.length && (
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5">
               <button
                 type="button"
                 onClick={() => setVisibleLimit((prev) => prev + 36)}
-                className="h-11 px-6 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white bg-[#0a0a0a] dark:bg-white text-white dark:text-[#0a0a0a] font-mono text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_#fb923c] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+                className="min-h-[48px] sm:min-h-[50px] px-7 rounded-[11px] border-[2.5px] border-[#0a0a0a] dark:border-white bg-[#0a0a0a] dark:bg-white text-white dark:text-[#0a0a0a] font-mono text-xs sm:text-sm font-black uppercase tracking-wider shadow-[4px_4px_0px_#fb923c] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
               >
                 Load 36 More Clubs ({filteredClubs.length - displayedClubs.length} remaining)
               </button>
               <button
                 type="button"
                 onClick={() => setVisibleLimit(filteredClubs.length)}
-                className="h-11 px-6 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/40 bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white font-mono text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_#0a0a0a] dark:shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+                className="min-h-[48px] sm:min-h-[50px] px-7 rounded-[11px] border-[2.5px] border-[#0a0a0a] dark:border-white/40 bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white font-mono text-xs sm:text-sm font-black uppercase tracking-wider shadow-[4px_4px_0px_#0a0a0a] dark:shadow-[4px_4px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
               >
                 Show All {filteredClubs.length} Clubs
               </button>

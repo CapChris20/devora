@@ -106,9 +106,9 @@ export default function GroupFeed() {
         <button
           type="button"
           onClick={openCreateGroupModal}
-          className="btn min-h-[46px] px-4.5 rounded-nb border-nb border-nb-ink bg-nb-ink text-nb-white font-bold text-[15px] shadow-nb transition-all duration-120 hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
+          className="inline-flex items-center gap-2 min-h-[48px] sm:min-h-[50px] px-6 sm:px-7 rounded-[11px] border-[2.5px] border-nb-ink bg-nb-ink text-nb-white font-mono text-sm sm:text-[15px] font-black uppercase tracking-wider shadow-[4px_4px_0px_#0a0a0a] transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0a0a0a] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
         >
-          + New group
+          <span>+ New group</span>
         </button>
       </div>
 
@@ -118,7 +118,7 @@ export default function GroupFeed() {
           data-in
           role="group"
           aria-label="Filter by course"
-          className="flex flex-wrap gap-2 mb-8 sm:mb-10"
+          className="flex flex-wrap gap-2.5 mb-8 sm:mb-10"
         >
           {["All", ...dynamicCourses].map((courseCode) => {
             const isSelected = courseFilter === courseCode;
@@ -128,10 +128,10 @@ export default function GroupFeed() {
                 type="button"
                 aria-pressed={isSelected}
                 onClick={() => setCourseFilter(courseCode)}
-                className={`min-h-[38px] px-4 rounded-full border-2 border-nb-ink font-nb-mono text-xs font-bold tracking-[0.08em] uppercase transition-all duration-120 hover:-translate-x-px hover:-translate-y-px hover:shadow-nb-sm active:translate-x-px active:translate-y-px ${
+                className={`min-h-[44px] px-5 sm:px-6 rounded-full border-[2.5px] border-nb-ink font-mono text-xs sm:text-[13px] font-black tracking-[0.08em] uppercase transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[3.5px_3.5px_0px_#0a0a0a] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
                   isSelected
-                    ? "bg-nb-ink text-nb-white"
-                    : "bg-nb-white text-nb-ink"
+                    ? "bg-nb-ink text-nb-white shadow-[3px_3px_0px_#0a0a0a]"
+                    : "bg-nb-white text-nb-ink shadow-[2.5px_2.5px_0px_#0a0a0a]"
                 }`}
               >
                 {courseCode}

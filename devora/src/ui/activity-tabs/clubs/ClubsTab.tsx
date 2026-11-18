@@ -36,11 +36,24 @@ export default function ClubsTab() {
             <NbCard interactive className="flex h-full flex-col overflow-hidden">
               {/* Gradient header band. Manipulate here: NB_TONE_CYCLE order sets the colors */}
               <div
-                className={`flex items-center justify-between gap-2 border-b-nb border-nb-ink px-5 py-4 ${
+                className={`flex items-center justify-between gap-3 border-b-nb border-nb-ink px-5 py-4 ${
                   NB_TONE[NB_TONE_CYCLE[index % NB_TONE_CYCLE.length]]
                 }`}
               >
-                <span className="font-nb-display text-2xl tracking-[-0.01em]">{club.shortName}</span>
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-[9px] border-2 border-nb-ink bg-white p-1 shadow-[2px_2px_0px_#0a0a0a] overflow-hidden flex items-center justify-center shrink-0">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`/clubs/logos/${club.id}.png`}
+                      alt={`${club.name} logo`}
+                      className="w-full h-full object-contain"
+                      onError={(e) => {
+                        (e.currentTarget.parentElement as HTMLElement)?.style.setProperty("display", "none");
+                      }}
+                    />
+                  </div>
+                  <span className="font-nb-display text-2xl tracking-[-0.01em]">{club.shortName}</span>
+                </div>
                 {club.verified ? null : <TagPill tone="white">To verify</TagPill>}
               </div>
 
@@ -62,9 +75,10 @@ export default function ClubsTab() {
                           href={club.link}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="font-bold underline decoration-nb-pink decoration-2 underline-offset-4"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-[7px] border-2 border-nb-ink bg-white font-mono text-xs font-black uppercase tracking-wider text-nb-ink shadow-[2.5px_2.5px_0px_#0a0a0a] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all"
                         >
-                          Visit {club.shortName}
+                          <span>View Official Page</span>
+                          <span aria-hidden="true">↗</span>
                         </a>
                       ) : (
                         club.contactNote

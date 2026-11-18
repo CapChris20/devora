@@ -27,6 +27,7 @@ export type Club = {
   category: ClubCategory;
   meetingFrequency: string;
   link?: string;
+  logoUrl?: string;
   followerCount: number;
   memberCount: number;
   latestPost?: {

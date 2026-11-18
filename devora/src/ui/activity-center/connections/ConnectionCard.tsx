@@ -44,7 +44,7 @@ export default function ConnectionCard({ uid }: ConnectionCardProps) {
       <button
         type="button"
         onClick={() => openChatWithUser(uid)}
-        className="btn sm ghost flex-shrink-0 min-h-[40px] px-3.5 rounded-nb border-nb border-nb-ink bg-nb-white text-nb-ink font-bold text-sm shadow-nb transition-all duration-120 hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
+        className="flex-shrink-0 min-h-[44px] px-5 rounded-[9px] border-2 border-nb-ink bg-nb-white text-nb-ink font-mono text-xs sm:text-sm font-black uppercase tracking-wider shadow-[3px_3px_0px_#0a0a0a] transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4px_4px_0px_#0a0a0a] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
       >
         Message
       </button>

@@ -49,16 +49,18 @@ export async function fetchClubsFromFirestore(): Promise<Club[]> {
     snapshot.forEach((docSnap) => {
       existingIds.add(docSnap.id);
       const data = docSnap.data();
+      const seeded = REAL_SEEDED_CLUBS.find((c) => c.id === docSnap.id);
       clubs.push({
         id: docSnap.id,
-        name: data.name || "",
-        shortName: data.shortName || data.name || "",
-        description: data.description || "",
-        category: data.category || "Academic",
-        meetingFrequency: data.meetingFrequency || "Bi-weekly",
-        link: data.link || undefined,
-        followerCount: typeof data.followerCount === "number" ? data.followerCount : 0,
-        memberCount: typeof data.memberCount === "number" ? data.memberCount : 0,
+        name: data.name || seeded?.name || "",
+        shortName: data.shortName || seeded?.shortName || data.name || "",
+        description: data.description || seeded?.description || "",
+        category: data.category || seeded?.category || "Academic",
+        meetingFrequency: data.meetingFrequency || seeded?.meetingFrequency || "Bi-weekly",
+        link: data.link || seeded?.link || undefined,
+        logoUrl: data.logoUrl || seeded?.logoUrl || `/clubs/logos/${docSnap.id}.png`,
+        followerCount: typeof data.followerCount === "number" ? data.followerCount : (seeded?.followerCount || 0),
+        memberCount: typeof data.memberCount === "number" ? data.memberCount : (seeded?.memberCount || 0),
         latestPost: data.latestPost || null,
         createdAt: data.createdAt || null,
       });
@@ -94,6 +96,7 @@ export async function seedClubsInFirestore(): Promise<void> {
           category: club.category,
           meetingFrequency: club.meetingFrequency,
           link: club.link || null,
+          logoUrl: club.logoUrl || null,
           followerCount: club.followerCount,
           memberCount: club.memberCount,
           latestPost: club.latestPost || null,
@@ -169,16 +172,18 @@ export async function fetchClubById(clubId: string): Promise<Club | null> {
     const snap = await getDoc(clubRef);
     if (snap.exists()) {
       const data = snap.data();
+      const seeded = REAL_SEEDED_CLUBS.find((c) => c.id === snap.id);
       return {
         id: snap.id,
-        name: data.name || "",
-        shortName: data.shortName || data.name || "",
-        description: data.description || "",
-        category: data.category || "Academic",
-        meetingFrequency: data.meetingFrequency || "Bi-weekly",
-        link: data.link || undefined,
-        followerCount: typeof data.followerCount === "number" ? data.followerCount : 0,
-        memberCount: typeof data.memberCount === "number" ? data.memberCount : 0,
+        name: data.name || seeded?.name || "",
+        shortName: data.shortName || seeded?.shortName || data.name || "",
+        description: data.description || seeded?.description || "",
+        category: data.category || seeded?.category || "Academic",
+        meetingFrequency: data.meetingFrequency || seeded?.meetingFrequency || "Bi-weekly",
+        link: data.link || seeded?.link || undefined,
+        logoUrl: data.logoUrl || seeded?.logoUrl || `/clubs/logos/${snap.id}.png`,
+        followerCount: typeof data.followerCount === "number" ? data.followerCount : (seeded?.followerCount || 0),
+        memberCount: typeof data.memberCount === "number" ? data.memberCount : (seeded?.memberCount || 0),
         latestPost: data.latestPost || null,
         createdAt: data.createdAt || null,
       };

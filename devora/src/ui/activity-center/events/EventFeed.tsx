@@ -101,12 +101,12 @@ export default function EventFeed() {
           <button
             type="button"
             onClick={openPostEventModal}
-            className="btn primary inline-flex items-center gap-2 min-h-[44px] px-5 rounded-nb border-nb border-nb-ink bg-nb-brand text-[#0A0A0A] font-bold text-sm tracking-normal shadow-nb transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm"
+            className="inline-flex items-center gap-2.5 min-h-[48px] sm:min-h-[50px] px-6 sm:px-7 rounded-[11px] border-[2.5px] border-nb-ink bg-nb-brand text-[#0A0A0A] font-mono text-sm sm:text-[15px] font-black uppercase tracking-wider shadow-[4px_4px_0px_#0a0a0a] transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[5px_5px_0px_#0a0a0a] active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
           >
             <svg
               aria-hidden="true"
-              width="16"
-              height="16"
+              width="17"
+              height="17"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"

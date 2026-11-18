@@ -195,10 +195,10 @@ export default function EventTicket({ event }: EventTicketProps) {
           type="button"
           onClick={handleSaveClick}
           aria-pressed={isSaved}
-          className={`min-h-[42px] px-4 rounded-[8px] border-2 font-mono text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
+          className={`min-h-[48px] px-5 sm:px-6 py-2.5 rounded-[10px] border-[2.5px] font-mono text-xs sm:text-sm font-black uppercase tracking-wider whitespace-nowrap transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
             isSaved
-              ? "bg-[#10b981] text-white border-[#0A0A0A] shadow-[2px_2px_0px_#0A0A0A]"
-              : "bg-white dark:bg-[#1f1530] text-nb-ink dark:text-white border-nb-ink dark:border-white shadow-[2.5px_2.5px_0px_#0A0A0A] dark:shadow-[2.5px_2.5px_0px_#000000]"
+              ? "bg-[#10b981] text-white border-[#0A0A0A] shadow-[3px_3px_0px_#0A0A0A]"
+              : "bg-white dark:bg-[#1f1530] text-nb-ink dark:text-white border-nb-ink dark:border-white shadow-[3.5px_3.5px_0px_#0A0A0A] dark:shadow-[3.5px_3.5px_0px_#000000]"
           }`}
         >
           {isSaved ? "✓ Saved to week" : "+ Save to my week"}

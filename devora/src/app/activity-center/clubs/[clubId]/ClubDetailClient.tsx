@@ -251,15 +251,31 @@ export default function ClubDetailClient() {
             </button>
           </div>
 
-          <div>
-            <h1 className="font-display uppercase font-normal text-4xl sm:text-5xl text-[#0a0a0a] leading-[0.88] tracking-tight m-0">
-              {club.shortName}
-            </h1>
-            {club.shortName !== club.name && (
-              <p className="font-body text-base font-semibold text-[#0a0a0a]/80 mt-2 m-0">
-                {club.name}
-              </p>
+          <div className="flex items-center gap-4">
+            {(club.logoUrl || club.id) && (
+              <div className="shrink-0 w-16 h-16 sm:w-20 sm:h-20 rounded-[12px] border-[2.5px] border-[#0a0a0a] bg-white p-2 shadow-[3px_3px_0px_#0a0a0a] overflow-hidden flex items-center justify-center">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={club.logoUrl || `/clubs/logos/${club.id}.png`}
+                  alt={`${club.name} logo`}
+                  className="w-full h-full object-contain"
+                  onError={(e) => {
+                    // Hide container if image fails to load
+                    (e.currentTarget.parentElement as HTMLElement)?.style.setProperty("display", "none");
+                  }}
+                />
+              </div>
             )}
+            <div>
+              <h1 className="font-display uppercase font-normal text-4xl sm:text-5xl text-[#0a0a0a] leading-[0.88] tracking-tight m-0">
+                {club.shortName}
+              </h1>
+              {club.shortName !== club.name && (
+                <p className="font-body text-base font-semibold text-[#0a0a0a]/80 mt-2 m-0">
+                  {club.name}
+                </p>
+              )}
+            </div>
           </div>
         </div>
 
@@ -298,7 +314,7 @@ export default function ClubDetailClient() {
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#1f1630] px-3.5 py-2 font-mono text-xs font-bold text-[#0a0a0a] dark:text-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] hover:underline"
               >
-                <span>Official site</span>
+                <span>View Official Page</span>
                 <ExternalLink size={12} />
               </a>
             )}

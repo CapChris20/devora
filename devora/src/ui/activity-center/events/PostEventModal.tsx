@@ -188,28 +188,28 @@ export default function PostEventModal() {
       onClick={(e) => {
         if (e.target === backdropRef.current) handleClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-[5px] overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 bg-black/80 backdrop-blur-[5px] overflow-y-auto"
     >
       <form
         ref={modalRef}
         onSubmit={handleSubmit}
-        className={`relative w-full max-w-[520px] my-auto max-h-[92vh] overflow-y-auto rounded-[16px] border-[3px] p-6 sm:p-7 flex flex-col gap-4 text-left will-change-transform transition-all ${
+        className={`relative w-[94vw] max-w-[880px] max-h-[92vh] overflow-y-auto rounded-[14px] border-[3px] p-4 sm:p-5 flex flex-col gap-3 text-left will-change-transform transition-all shadow-[8px_8px_0px_#0a0a0a] ${
           isLight
-            ? "bg-white border-[#0a0a0a] shadow-[8px_8px_0px_#0a0a0a] text-[#0a0a0a]"
+            ? "bg-white border-[#0a0a0a] text-[#0a0a0a]"
             : "bg-[#0d0914] border-white/40 shadow-[8px_8px_0px_#000000] text-white"
         }`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b-2 border-[#0a0a0a] dark:border-white/20 pb-3">
+        {/* Header - Compact & Sleek */}
+        <div className="flex items-center justify-between gap-3 border-b-2 border-[#0a0a0a] dark:border-white/20 pb-2.5">
           <div className="flex items-center gap-2.5">
             <h3
               id="post-event-title"
-              className="m-0 font-display uppercase font-black text-xl sm:text-2xl tracking-tight leading-none text-[#0a0a0a] dark:text-white"
+              className="m-0 font-display uppercase font-black text-lg sm:text-xl tracking-tight leading-none text-[#0a0a0a] dark:text-white"
             >
               Post an Event
             </h3>
-            <span className="font-mono text-[9.5px] font-black tracking-wider uppercase px-2.5 py-1 rounded-full border border-[#0a0a0a]/30 dark:border-white/30 text-[#0a0a0a]/70 dark:text-neutral-400">
-              Campus Hub
+            <span className="font-mono text-[10px] font-black tracking-wider uppercase px-2 py-0.5 rounded-full border border-[#0a0a0a] dark:border-white/40 bg-gradient-to-r from-[#ff6b9d] to-[#fb923c] text-[#0a0a0a]">
+              Campus Hub // Event Maker
             </span>
           </div>
 
@@ -217,7 +217,7 @@ export default function PostEventModal() {
             type="button"
             onClick={handleClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white flex items-center justify-center font-bold text-sm shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+            className="w-8 h-8 rounded-[7px] border-2 border-[#0a0a0a] dark:border-white bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white flex items-center justify-center font-black shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
           >
             <X size={16} strokeWidth={2.5} />
           </button>
@@ -225,180 +225,185 @@ export default function PostEventModal() {
 
         {/* Error alert */}
         {errorMessage && (
-          <div className="p-2.5 px-3 bg-[#fda4af] border-2 border-[#0a0a0a] rounded-[8px] font-mono text-xs font-bold text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a]">
+          <div className="p-2 px-3 bg-[#fda4af] border-2 border-[#0a0a0a] rounded-[8px] font-mono text-xs font-bold text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a]">
             {errorMessage}
           </div>
         )}
 
-        {/* Form Body: Spacious Clean Flow */}
-        <div className="flex flex-col gap-3.5">
-          {/* Title */}
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="event-title"
-              className="font-mono text-xs font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
-            >
-              Title *
-            </label>
-            <input
-              ref={titleInputRef}
-              id="event-title"
-              type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Study & Boba Social, CIS 350 Midterm Review"
-              className="w-full h-11 px-3.5 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
-            />
-          </div>
-
-          {/* Description */}
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="event-desc"
-              className="font-mono text-xs font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
-            >
-              Description *
-            </label>
-            <textarea
-              id="event-desc"
-              required
-              rows={3}
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="What should attendees expect? Add details about class, agenda, or snacks."
-              className="w-full p-3 rounded-[9px] min-h-[88px] max-h-[140px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] resize-y"
-            />
-          </div>
-
-          {/* Date & Time Row */}
-          <div className="grid grid-cols-2 gap-3">
+        {/* 2-Column Wide Landscape Grid: Wide width, short height, zero vertical cutoff */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5 gap-y-2.5">
+          {/* Left Column: Title, Description, Link */}
+          <div className="flex flex-col gap-2.5">
+            {/* Title */}
             <div className="flex flex-col gap-1">
               <label
-                htmlFor="event-date"
-                className="inline-flex items-center gap-1.5 font-mono text-xs font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
+                htmlFor="event-title"
+                className="font-mono text-[11px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
               >
-                <Calendar size={13} className="opacity-80" />
-                <span>Date *</span>
+                Title *
               </label>
               <input
-                id="event-date"
-                type="date"
-                required
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                className="w-full h-11 px-3 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-mono text-xs text-[#0a0a0a] dark:text-white focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
-              />
-            </div>
-
-            <div className="flex flex-col gap-1">
-              <label
-                htmlFor="event-time"
-                className="inline-flex items-center gap-1.5 font-mono text-xs font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
-              >
-                <Clock size={13} className="opacity-80" />
-                <span>Time</span>
-              </label>
-              <input
-                id="event-time"
+                ref={titleInputRef}
+                id="event-title"
                 type="text"
-                value={time}
-                onChange={(e) => setTime(e.target.value)}
-                placeholder="e.g. 4:00–5:30 PM"
-                className="w-full h-11 px-3 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
+                required
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. Study & Boba Social, CIS 350 Midterm Review"
+                className="w-full h-9 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#fb923c] shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
+              />
+            </div>
+
+            {/* Description */}
+            <div className="flex flex-col gap-1">
+              <label
+                htmlFor="event-desc"
+                className="font-mono text-[11px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
+              >
+                Description *
+              </label>
+              <textarea
+                id="event-desc"
+                required
+                rows={2}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="What should attendees expect? Add agenda, details, or snacks."
+                className="w-full p-2 rounded-[8px] h-[58px] min-h-[52px] max-h-[80px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-xs text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#fb923c] shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] resize-none"
+              />
+            </div>
+
+            {/* Optional Link */}
+            <div className="flex flex-col gap-1">
+              <label
+                htmlFor="event-link"
+                className="inline-flex items-center gap-1 font-mono text-[11px] font-black tracking-[0.08em] uppercase text-[#0a0a0a]/70 dark:text-neutral-400"
+              >
+                <LinkIcon size={12} />
+                <span>Optional Link</span>
+              </label>
+              <input
+                id="event-link"
+                type="url"
+                value={link}
+                onChange={(e) => setLink(e.target.value)}
+                placeholder="https://... (Discord, Zoom, RSVP, or Form)"
+                className="w-full h-9 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-mono text-xs text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#fb923c] shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
               />
             </div>
           </div>
 
-          {/* Location */}
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="event-location"
-              className="inline-flex items-center gap-1.5 font-mono text-xs font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
-            >
-              <MapPin size={13} className="opacity-80" />
-              <span>Location *</span>
-            </label>
-            <input
-              id="event-location"
-              type="text"
-              required
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              placeholder="e.g. Engineering Lab Building Rm 1030, or Zoom link"
-              className="w-full h-11 px-3.5 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
-            />
-            {/* Location quick chips */}
-            <div className="flex flex-wrap items-center gap-1.5 pt-1">
-              <span className="font-mono text-[10px] text-neutral-500 uppercase tracking-wider mr-1">Presets:</span>
-              {CAMPUS_LOCATIONS.map((loc) => (
-                <button
-                  key={loc}
-                  type="button"
-                  onClick={() => setLocation(loc)}
-                  className="h-6 px-2 rounded-[5px] border border-[#0a0a0a]/30 dark:border-white/30 bg-[#f4f4f5] dark:bg-[#1a1226] text-[#0a0a0a] dark:text-neutral-300 font-mono text-[9.5px] font-bold hover:bg-neutral-200 dark:hover:bg-[#251a36] cursor-pointer transition-colors"
+          {/* Right Column: Date & Time, Location, Presets, Tags */}
+          <div className="flex flex-col gap-2.5">
+            {/* Date & Time Row */}
+            <div className="grid grid-cols-2 gap-2.5">
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="event-date"
+                  className="inline-flex items-center gap-1 font-mono text-[11px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
                 >
-                  + {loc}
-                </button>
-              ))}
-            </div>
-          </div>
+                  <Calendar size={12} className="opacity-80" />
+                  <span>Date *</span>
+                </label>
+                <input
+                  id="event-date"
+                  type="date"
+                  required
+                  value={date}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="w-full h-9 px-2 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-mono text-xs text-[#0a0a0a] dark:text-white focus:outline-none focus:border-[#fb923c] shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
+                />
+              </div>
 
-          {/* Tags */}
-          <div className="flex flex-col gap-1.5">
-            <span className="inline-flex items-center gap-1.5 font-mono text-xs font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200">
-              <Tag size={13} className="opacity-80" />
-              <span>Tags (select all that apply) *</span>
-            </span>
-            <div className="flex flex-wrap gap-2 pt-0.5">
-              {AVAILABLE_TAGS.map((tag) => {
-                const isSelected = selectedTags.includes(tag.id);
-                return (
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="event-time"
+                  className="inline-flex items-center gap-1 font-mono text-[11px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
+                >
+                  <Clock size={12} className="opacity-80" />
+                  <span>Time</span>
+                </label>
+                <input
+                  id="event-time"
+                  type="text"
+                  value={time}
+                  onChange={(e) => setTime(e.target.value)}
+                  placeholder="e.g. 4:00–5:30 PM"
+                  className="w-full h-9 px-2.5 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-xs text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#fb923c] shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
+                />
+              </div>
+            </div>
+
+            {/* Location + Quick Presets */}
+            <div className="flex flex-col gap-1">
+              <label
+                htmlFor="event-location"
+                className="inline-flex items-center gap-1 font-mono text-[11px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
+              >
+                <MapPin size={12} className="opacity-80" />
+                <span>Location *</span>
+              </label>
+              <input
+                id="event-location"
+                type="text"
+                required
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="e.g. Engineering Lab Building Rm 1030, or Zoom"
+                className="w-full h-9 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#fb923c] shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
+              />
+              <div className="flex flex-wrap items-center gap-1 pt-0.5">
+                <span className="font-mono text-[9px] text-neutral-500 uppercase tracking-wider">Presets:</span>
+                {CAMPUS_LOCATIONS.map((loc) => (
                   <button
-                    key={tag.id}
+                    key={loc}
                     type="button"
-                    onClick={() => toggleTag(tag.id)}
-                    aria-pressed={isSelected}
-                    className={`inline-flex items-center gap-1.5 h-8 px-3.5 rounded-[7px] border-2 font-mono text-xs font-black uppercase tracking-wider transition-all cursor-pointer select-none ${
-                      isSelected
-                        ? "bg-[#0a0a0a] text-white border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white dark:shadow-[2px_2px_0px_#000000]"
-                        : "bg-white dark:bg-[#181026] text-[#0a0a0a] dark:text-neutral-300 border-[#0a0a0a]/40 dark:border-white/30 shadow-[1.5px_1.5px_0px_#0a0a0a] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-neutral-100 dark:hover:bg-[#221636]"
-                    }`}
+                    onClick={() => setLocation(loc)}
+                    className="min-h-[22px] px-2 rounded-[5px] border border-[#0a0a0a]/30 dark:border-white/30 bg-[#f4f4f5] dark:bg-[#1a1226] text-[#0a0a0a] dark:text-neutral-300 font-mono text-[9.5px] font-bold hover:bg-neutral-200 dark:hover:bg-[#251a36] cursor-pointer transition-colors"
                   >
-                    {isSelected && <span>✓</span>}
-                    <span>{tag.label}</span>
+                    + {loc}
                   </button>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Optional Link */}
-          <div className="flex flex-col gap-1">
-            <label
-              htmlFor="event-link"
-              className="inline-flex items-center gap-1.5 font-mono text-xs font-black tracking-[0.08em] uppercase text-[#0a0a0a]/70 dark:text-neutral-400"
-            >
-              <LinkIcon size={13} />
-              <span>Optional Link</span>
-            </label>
-            <input
-              id="event-link"
-              type="url"
-              value={link}
-              onChange={(e) => setLink(e.target.value)}
-              placeholder="https://... (Discord, Zoom, RSVP, or Form)"
-              className="w-full h-11 px-3.5 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-mono text-xs text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
-            />
+            {/* Tags Selection */}
+            <div className="flex flex-col gap-1">
+              <span className="inline-flex items-center gap-1 font-mono text-[11px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200">
+                <Tag size={12} className="opacity-80" />
+                <span>Tags (select all that apply) *</span>
+              </span>
+              <div className="flex flex-wrap gap-1.5 pt-0.5">
+                {AVAILABLE_TAGS.map((tag) => {
+                  const isSelected = selectedTags.includes(tag.id);
+                  return (
+                    <button
+                      key={tag.id}
+                      type="button"
+                      onClick={() => toggleTag(tag.id)}
+                      aria-pressed={isSelected}
+                      className={`inline-flex items-center gap-1 min-h-[30px] px-2.5 rounded-[7px] border-2 font-mono text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer select-none active:translate-x-0.5 active:translate-y-0.5 ${
+                        isSelected
+                          ? "bg-[#0a0a0a] text-white border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white dark:shadow-[2px_2px_0px_#000000]"
+                          : "bg-white dark:bg-[#181026] text-[#0a0a0a] dark:text-neutral-300 border-[#0a0a0a]/40 dark:border-white/30 shadow-[1.5px_1.5px_0px_#0a0a0a] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-neutral-100 dark:hover:bg-[#221636]"
+                      }`}
+                    >
+                      {isSelected && <span>✓</span>}
+                      <span>{tag.label}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="pt-3 flex items-center justify-end gap-3 border-t-2 border-[#0a0a0a] dark:border-white/20 mt-1">
+        {/* Action Buttons: Pinned at bottom, always fully visible without scrolling */}
+        <div className="pt-2 flex items-center justify-end gap-3 border-t-2 border-[#0a0a0a] dark:border-white/20">
           <button
             type="button"
             onClick={handleClose}
-            className="min-h-[42px] px-5 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/40 bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white font-mono text-xs font-black uppercase tracking-wider shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+            className="min-h-[42px] px-5 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/40 bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white font-mono text-xs font-black uppercase tracking-wider shadow-[2.5px_2.5px_0px_#0a0a0a] dark:shadow-[2.5px_2.5px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
           >
             Cancel
           </button>
@@ -406,7 +411,7 @@ export default function PostEventModal() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center justify-center min-h-[42px] px-7 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white bg-[#0a0a0a] dark:bg-white text-white dark:text-[#0a0a0a] font-mono text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_#fb923c] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center justify-center min-h-[42px] px-7 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white bg-gradient-to-r from-[#ff6b9d] to-[#fb923c] text-[#0a0a0a] font-mono text-xs sm:text-sm font-black uppercase tracking-wider shadow-[3.5px_3.5px_0px_#0a0a0a] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50 cursor-pointer"
           >
             <span>{isSubmitting ? "Posting…" : "Post Event"}</span>
           </button>

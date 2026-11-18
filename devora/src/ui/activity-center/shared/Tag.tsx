@@ -21,7 +21,7 @@ export default function Tag({ children, tone = "default", className = "" }: TagP
 
   return (
     <span
-      className={`inline-flex items-center px-2.5 py-0.5 rounded-full border-2 border-nb-ink font-nb-mono text-[10px] font-bold tracking-[0.08em] uppercase whitespace-nowrap ${toneClass} ${className}`}
+      className={`inline-flex items-center px-3.5 sm:px-4 py-1 sm:py-1.5 rounded-full border-2 border-[#0A0A0A] dark:border-white/40 font-mono text-xs sm:text-[13px] font-black tracking-wider uppercase whitespace-nowrap shadow-[2px_2px_0px_#0A0A0A] dark:shadow-[2px_2px_0px_#000000] ${toneClass} ${className}`}
     >
       {children}
     </span>

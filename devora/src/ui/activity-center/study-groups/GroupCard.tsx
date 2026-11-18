@@ -168,7 +168,7 @@ export default function GroupCard({
         <button
           type="button"
           onClick={handleJoinClick}
-          className={`btn sm min-h-[40px] px-3.5 rounded-nb border-nb border-nb-ink font-bold text-sm shadow-nb transition-all duration-120 hover:-translate-x-px hover:-translate-y-px active:translate-x-0.5 active:translate-y-0.5 active:shadow-nb-sm whitespace-nowrap ${
+          className={`min-h-[46px] px-5 sm:px-6 rounded-[10px] border-[2.5px] border-nb-ink font-mono text-xs sm:text-sm font-black uppercase tracking-wider shadow-[3.5px_3.5px_0px_#0A0A0A] transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-[4.5px_4.5px_0px_#0A0A0A] active:translate-x-0.5 active:translate-y-0.5 whitespace-nowrap cursor-pointer ${
             isJoined ? "bg-nb-white text-nb-ink" : "bg-nb-ink text-nb-white"
           }`}
         >
