@@ -20,7 +20,9 @@ import { useRouter } from "next/navigation";
 import {
   collection,
   doc,
+  limit,
   onSnapshot,
+  query,
   serverTimestamp,
   setDoc,
 } from "firebase/firestore";
@@ -155,10 +157,10 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
     setIsPostEventModalOpen(false);
   }, []);
 
-  // Sync real-time events from Firestore
+  // Sync real-time events from Firestore (capped at 100 for high-concurrency scale)
   useEffect(() => {
     try {
-      const q = collection(db, "events");
+      const q = query(collection(db, "events"), limit(100));
       const unsubscribe = onSnapshot(
         q,
         (snapshot) => {
@@ -209,10 +211,10 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
   const [courseFilter, setCourseFilter] = useState<string>("All");
   const [isCreateGroupModalOpen, setIsCreateGroupModalOpen] = useState(false);
 
-  // Sync real-time study groups from Firestore
+  // Sync real-time study groups from Firestore (capped at 100 for high-concurrency scale)
   useEffect(() => {
     try {
-      const q = collection(db, "studyGroups");
+      const q = query(collection(db, "studyGroups"), limit(100));
       const unsubscribe = onSnapshot(
         q,
         (snapshot) => {

@@ -172,7 +172,9 @@ service cloud.firestore {
     match /studyGroups/{groupId} {
       allow read: if request.auth != null;
       allow create: if request.auth != null;
-      allow update, delete: if request.auth != null;
+      allow update: if request.auth != null;
+      allow delete: if request.auth != null
+        && (resource.data.creatorUid == request.auth.uid || request.auth.uid == 'admin');
     }
 
     // Student clubs and club feeds.
