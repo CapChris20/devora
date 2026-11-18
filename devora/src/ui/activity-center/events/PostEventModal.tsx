@@ -180,26 +180,26 @@ export default function PostEventModal() {
       onClick={(e) => {
         if (e.target === backdropRef.current) handleClose();
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/65 backdrop-blur-[2px] overflow-y-auto"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-[4px] overflow-y-auto"
     >
       <form
         ref={modalRef}
         onSubmit={handleSubmit}
-        className={`relative w-full max-w-[490px] my-auto max-h-[90vh] overflow-y-auto p-5 sm:p-6 rounded-[12px] border-[3px] flex flex-col gap-3.5 text-left will-change-transform transition-all ${
+        className={`relative w-full max-w-[620px] my-auto max-h-[90vh] overflow-y-auto p-6 sm:p-8 rounded-[14px] border-[3px] flex flex-col gap-4 text-left will-change-transform transition-all ${
           isLight
-            ? "bg-white border-[#0a0a0a] shadow-[8px_8px_0px_#0a0a0a] text-[#0a0a0a]"
-            : "bg-[#140e22] border-2 border-white/30 shadow-[8px_8px_0px_#000000] text-white"
+            ? "bg-white border-[#0a0a0a] shadow-[10px_10px_0px_#0a0a0a] text-[#0a0a0a]"
+            : "bg-[#0d0914] border-[2.5px] border-white/40 shadow-[10px_10px_0px_#000000] text-white"
         }`}
       >
         {/* Header */}
-        <div className="flex items-center justify-between gap-3 border-b-2 border-[#0a0a0a] dark:border-white/20 pb-3">
+        <div className="flex items-center justify-between gap-3 border-b-2 border-[#0a0a0a] dark:border-white/20 pb-4">
           <div>
-            <span className="font-mono text-[10px] font-bold tracking-[0.14em] uppercase text-[#575757] dark:text-neutral-400">
+            <span className="font-mono text-[11px] font-black tracking-[0.14em] uppercase text-[#0a0a0a]/60 dark:text-neutral-400">
               Activity Center
             </span>
             <h3
               id="post-event-title"
-              className="m-0 font-display uppercase font-normal text-xl sm:text-2xl tracking-tight leading-tight text-[#0a0a0a] dark:text-white"
+              className="m-0 font-display uppercase font-black text-2xl sm:text-3xl tracking-tight leading-tight text-[#0a0a0a] dark:text-white"
             >
               Post an Event
             </h3>
@@ -209,24 +209,24 @@ export default function PostEventModal() {
             type="button"
             onClick={handleClose}
             aria-label="Close dialog"
-            className="w-8 h-8 rounded-full border-2 border-[#0a0a0a] bg-white text-[#0a0a0a] flex items-center justify-center font-bold text-sm shadow-[2px_2px_0px_#0a0a0a] hover:scale-105 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+            className="w-9 h-9 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white flex items-center justify-center font-bold text-sm shadow-[2.5px_2.5px_0px_#0a0a0a] dark:shadow-[2.5px_2.5px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
           >
-            <X size={16} strokeWidth={2.5} />
+            <X size={18} strokeWidth={2.5} />
           </button>
         </div>
 
         {/* Error alert */}
         {errorMessage && (
-          <div className="p-2.5 bg-[#fda4af] border-2 border-[#0a0a0a] rounded-[8px] font-mono text-xs font-bold text-[#0a0a0a]">
+          <div className="p-3 bg-[#fda4af] border-2 border-[#0a0a0a] rounded-[9px] font-mono text-xs font-bold text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a]">
             {errorMessage}
           </div>
         )}
 
         {/* Title */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label
             htmlFor="event-title"
-            className="font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
+            className="font-mono text-[12px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
           >
             Title *
           </label>
@@ -238,37 +238,37 @@ export default function PostEventModal() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="e.g. Study & Boba Social, CIS 350 Midterm Review"
-            className="w-full h-9.5 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
+            className="w-full h-11 sm:h-11.5 px-3.5 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
           />
         </div>
 
         {/* Description */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label
             htmlFor="event-desc"
-            className="font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
+            className="font-mono text-[12px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
           >
             Description *
           </label>
           <textarea
             id="event-desc"
             required
-            rows={2}
+            rows={3}
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             placeholder="What should attendees expect? Add details about class, agenda, or snacks."
-            className="w-full p-2.5 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
+            className="w-full p-3 rounded-[9px] min-h-[85px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
           />
         </div>
 
         {/* Date & Time Row */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-          <div className="flex flex-col gap-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="flex flex-col gap-1.5">
             <label
               htmlFor="event-date"
-              className="inline-flex items-center gap-1 font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
+              className="inline-flex items-center gap-1.5 font-mono text-[12px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
             >
-              <Calendar size={12} className="text-[#fb923c]" />
+              <Calendar size={14} className="opacity-80" />
               <span>Date *</span>
             </label>
             <input
@@ -277,16 +277,16 @@ export default function PostEventModal() {
               required
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full h-9.5 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-mono text-xs text-[#0a0a0a] dark:text-white focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
+              className="w-full h-11 sm:h-11.5 px-3.5 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-mono text-xs text-[#0a0a0a] dark:text-white focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
             />
           </div>
 
-          <div className="flex flex-col gap-1">
+          <div className="flex flex-col gap-1.5">
             <label
               htmlFor="event-time"
-              className="inline-flex items-center gap-1 font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
+              className="inline-flex items-center gap-1.5 font-mono text-[12px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
             >
-              <Clock size={12} className="text-[#fb923c]" />
+              <Clock size={14} className="opacity-80" />
               <span>Time</span>
             </label>
             <input
@@ -295,18 +295,18 @@ export default function PostEventModal() {
               value={time}
               onChange={(e) => setTime(e.target.value)}
               placeholder="e.g. 4:00–5:30 PM"
-              className="w-full h-9.5 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
+              className="w-full h-11 sm:h-11.5 px-3.5 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
             />
           </div>
         </div>
 
         {/* Location */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label
             htmlFor="event-location"
-            className="inline-flex items-center gap-1 font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
+            className="inline-flex items-center gap-1.5 font-mono text-[12px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200"
           >
-            <MapPin size={12} className="text-[#fb923c]" />
+            <MapPin size={14} className="opacity-80" />
             <span>Location *</span>
           </label>
           <input
@@ -316,17 +316,17 @@ export default function PostEventModal() {
             value={location}
             onChange={(e) => setLocation(e.target.value)}
             placeholder="e.g. Engineering Lab Building Rm 1030, or Zoom link"
-            className="w-full h-9.5 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-body text-xs sm:text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
+            className="w-full h-11 sm:h-11.5 px-3.5 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-body text-sm text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
           />
         </div>
 
         {/* Tags */}
-        <div className="flex flex-col gap-1">
-          <span className="inline-flex items-center gap-1 font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200">
-            <Tag size={12} className="text-[#fb923c]" />
+        <div className="flex flex-col gap-1.5">
+          <span className="inline-flex items-center gap-1.5 font-mono text-[12px] font-black tracking-[0.08em] uppercase text-[#0a0a0a] dark:text-neutral-200">
+            <Tag size={14} className="opacity-80" />
             <span>Tags (Select all that apply) *</span>
           </span>
-          <div className="flex flex-wrap gap-1.5 pt-0.5">
+          <div className="flex flex-wrap gap-2 pt-0.5">
             {AVAILABLE_TAGS.map((tag) => {
               const isSelected = selectedTags.includes(tag.id);
               return (
@@ -335,10 +335,10 @@ export default function PostEventModal() {
                   type="button"
                   onClick={() => toggleTag(tag.id)}
                   aria-pressed={isSelected}
-                  className={`inline-flex items-center gap-1 min-h-[30px] px-3 rounded-full border-2 font-mono text-[10.5px] font-bold uppercase tracking-wider transition-all cursor-pointer select-none ${
+                  className={`inline-flex items-center gap-1.5 min-h-[34px] px-3.5 rounded-[8px] border-2 font-mono text-[11.5px] font-black uppercase tracking-wider transition-all cursor-pointer select-none ${
                     isSelected
-                      ? "bg-[#0a0a0a] text-white border-[#0a0a0a] shadow-[1.5px_1.5px_0px_#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white"
-                      : "bg-[#f2f2f0] dark:bg-[#1f1630] text-[#0a0a0a] dark:text-neutral-300 border-[#0a0a0a] dark:border-white/30 shadow-[1.5px_1.5px_0px_#0a0a0a] hover:bg-white"
+                      ? "bg-[#0a0a0a] text-white border-[#0a0a0a] shadow-[2.5px_2.5px_0px_#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white dark:shadow-[2.5px_2.5px_0px_#000000]"
+                      : "bg-white dark:bg-[#181026] text-[#0a0a0a] dark:text-neutral-300 border-[#0a0a0a] dark:border-white/30 shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] hover:bg-neutral-100 dark:hover:bg-[#221636]"
                   }`}
                 >
                   {isSelected && <span>✓</span>}
@@ -350,12 +350,12 @@ export default function PostEventModal() {
         </div>
 
         {/* Optional Link */}
-        <div className="flex flex-col gap-1">
+        <div className="flex flex-col gap-1.5">
           <label
             htmlFor="event-link"
-            className="inline-flex items-center gap-1 font-mono text-[11px] font-bold tracking-[0.08em] uppercase text-[#575757] dark:text-neutral-400"
+            className="inline-flex items-center gap-1.5 font-mono text-[12px] font-black tracking-[0.08em] uppercase text-[#0a0a0a]/70 dark:text-neutral-400"
           >
-            <LinkIcon size={12} />
+            <LinkIcon size={14} />
             <span>Optional Link</span>
           </label>
           <input
@@ -364,16 +364,16 @@ export default function PostEventModal() {
             value={link}
             onChange={(e) => setLink(e.target.value)}
             placeholder="https://... (Discord, Zoom, RSVP, or Form)"
-            className="w-full h-9.5 px-3 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-[#faf8f5] dark:bg-[#1a1328] font-mono text-xs text-[#0a0a0a] dark:text-white placeholder:text-[#575757] dark:placeholder:text-neutral-400 focus:outline-none focus:border-[#fb923c] shadow-[1.5px_1.5px_0px_#0a0a0a]"
+            className="w-full h-11 sm:h-11.5 px-3.5 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#120a1f] font-mono text-xs text-[#0a0a0a] dark:text-white placeholder:text-[#737373] dark:placeholder:text-neutral-500 focus:outline-none focus:border-[#0a0a0a] dark:focus:border-white shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000]"
           />
         </div>
 
         {/* Action Buttons */}
-        <div className="pt-2 flex items-center justify-end gap-2.5 border-t-2 border-[#0a0a0a] dark:border-white/20">
+        <div className="pt-3 flex items-center justify-end gap-3 border-t-2 border-[#0a0a0a] dark:border-white/20">
           <button
             type="button"
             onClick={handleClose}
-            className="min-h-[38px] px-4 rounded-[8px] border-2 border-[#0a0a0a] dark:border-white/30 bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white font-mono text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_#0a0a0a] hover:bg-neutral-100 cursor-pointer"
+            className="min-h-[42px] px-5 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white/40 bg-white dark:bg-[#1a1328] text-[#0a0a0a] dark:text-white font-mono text-xs font-black uppercase tracking-wider shadow-[3px_3px_0px_#0a0a0a] dark:shadow-[3px_3px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
           >
             Cancel
           </button>
@@ -381,7 +381,7 @@ export default function PostEventModal() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="inline-flex items-center justify-center min-h-[38px] px-5 rounded-[8px] border-2 border-[#0a0a0a] bg-gradient-to-r from-[#ff6b9d] to-[#fb923c] text-[#0a0a0a] font-mono text-xs font-bold uppercase tracking-wider shadow-[3px_3px_0px_#0a0a0a] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50 cursor-pointer"
+            className="inline-flex items-center justify-center min-h-[42px] px-6 rounded-[9px] border-2 border-[#0a0a0a] dark:border-white bg-[#0a0a0a] dark:bg-white text-white dark:text-[#0a0a0a] font-mono text-xs font-black uppercase tracking-wider shadow-[3.5px_3.5px_0px_#0a0a0a] dark:shadow-[3.5px_3.5px_0px_#000000] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 transition-all disabled:opacity-50 cursor-pointer"
           >
             <span>{isSubmitting ? "Posting…" : "Post Event"}</span>
           </button>
