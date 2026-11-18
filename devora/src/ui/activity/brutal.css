@@ -511,8 +511,8 @@
 }
 
 .nb-fit[data-fit="online"] {
-  border-color: var(--nb-pink);
-  color: var(--nb-pink);
+  border-color: rgba(255, 255, 255, 0.4);
+  color: var(--nb-violet-soft);
 }
 
 .nb-fit[data-fit="after"] {

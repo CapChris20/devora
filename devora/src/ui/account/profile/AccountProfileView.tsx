@@ -90,7 +90,7 @@ export default function AccountProfileView({
           </p>
         </div>
 
-        <button type="button" onClick={onEdit} className="btn-primary">
+        <button type="button" onClick={onEdit} className="account-edit-profile-btn">
           <PenLine size={16} />
           <span>Edit profile</span>
         </button>
@@ -130,7 +130,7 @@ export default function AccountProfileView({
             <div className="chips-row">
               {isVerified && (
                 <div className="chip-badge">
-                  <BadgeCheck size={13} color="#ff5ca8" />
+                  <BadgeCheck size={13} className="text-amber-500 dark:text-amber-400" />
                   <span>Verified @umich.edu</span>
                 </div>
               )}
@@ -196,7 +196,7 @@ export default function AccountProfileView({
           <div className="glass-panel">
             {/* Legend line */}
             <div className="public-legend-line">
-              <Globe size={14} color="#ff5ca8" />
+              <Globe size={14} className="opacity-70" />
               <span>Sections marked public show on the Discovery Grid.</span>
             </div>
 
@@ -377,7 +377,7 @@ export default function AccountProfileView({
               aria-expanded={isPrivateOpen}
             >
               <div className="disclosure-left">
-                <Lock size={15} color="#ff5ca8" />
+                <Lock size={15} className="opacity-70" />
                 <span className="disclosure-label">Private details</span>
                 <span className="only-you-chip">Only you</span>
               </div>
@@ -435,7 +435,7 @@ export default function AccountProfileView({
           color: #4b5563;
         }
 
-        .btn-primary {
+        .account-edit-profile-btn {
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -443,9 +443,9 @@ export default function AccountProfileView({
           height: 48px;
           padding: 0 24px;
           border-radius: 10px;
-          background: linear-gradient(120deg, #ffd76f 0%, #ff9a3d 50%, #ff5ca8 100%);
-          color: #0a0a0a;
-          border: 2.5px solid #0a0a0a;
+          background: #ffffff !important;
+          color: #0a0a0a !important;
+          border: 2.5px solid #ffffff !important;
           box-shadow: 4px 4px 0px #000000;
           font-family: var(--font-display), "Arial Black", sans-serif;
           font-size: 13px;
@@ -456,23 +456,27 @@ export default function AccountProfileView({
           transition: all 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        .btn-primary:hover {
+        .account-edit-profile-btn:hover {
+          background: #e5e5e5 !important;
           transform: translate(-2px, -2px);
           box-shadow: 6px 6px 0px #000000;
         }
 
-        .btn-primary:active {
+        .account-edit-profile-btn:active {
           transform: translate(2px, 2px);
           box-shadow: 2px 2px 0px #000000;
         }
 
-        :global(html[data-theme="light"]) .btn-primary {
-          border-color: #0a0a0a;
-          box-shadow: 4px 4px 0px #0a0a0a;
+        :global(html[data-theme="light"]) .account-edit-profile-btn {
+          background: #0a0a0a !important;
+          color: #ffffff !important;
+          border: 2.5px solid #0a0a0a !important;
+          box-shadow: 4px 4px 0px #0a0a0a !important;
         }
 
-        :global(html[data-theme="light"]) .btn-primary:hover {
-          box-shadow: 6px 6px 0px #0a0a0a;
+        :global(html[data-theme="light"]) .account-edit-profile-btn:hover {
+          background: #262626 !important;
+          box-shadow: 6px 6px 0px #0a0a0a !important;
         }
 
         .account-page-head {
@@ -624,14 +628,14 @@ export default function AccountProfileView({
           height: 28px;
           padding: 0 12px;
           border-radius: 999px;
-          background: linear-gradient(120deg, rgba(255, 215, 111, 0.12) 0%, rgba(255, 154, 61, 0.12) 50%, rgba(255, 92, 168, 0.12) 100%);
-          border: 2px solid rgba(255, 154, 61, 0.6);
+          background: #181220;
+          border: 2px solid rgba(255, 255, 255, 0.35);
           font-family: var(--f-mono, monospace);
           font-size: 11px;
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.06em;
-          color: #ffd76f;
+          color: #ffffff;
           box-shadow: 2px 2px 0px #000000;
         }
 
@@ -702,7 +706,7 @@ export default function AccountProfileView({
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.12em;
-          color: #ff9a3d;
+          color: var(--text-muted, #a597bd);
         }
 
         .fact-val {
@@ -831,18 +835,20 @@ export default function AccountProfileView({
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          background: linear-gradient(135deg, #ffd76f 0%, #ff9a3d 100%);
-          border: 2px solid #0a0a0a;
+          background: #181220;
+          border: 2px solid rgba(255, 255, 255, 0.35);
           border-radius: 8px;
           padding: 5px 14px;
           cursor: pointer;
-          color: #0a0a0a;
+          color: #ffffff;
           box-shadow: 2.5px 2.5px 0px #000000;
           transition: all 0.15s ease;
         }
 
         .add-link:hover,
         .social-add-link:hover {
+          background: #251c33;
+          border-color: rgba(255, 255, 255, 0.6);
           transform: translate(-1px, -1px);
           box-shadow: 3.5px 3.5px 0px #000000;
         }
@@ -859,6 +865,24 @@ export default function AccountProfileView({
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.04em;
+          color: #ffffff;
+        }
+
+        :global(html[data-theme="light"]) .add-link,
+        :global(html[data-theme="light"]) .social-add-link {
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 2.5px 2.5px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .add-link:hover,
+        :global(html[data-theme="light"]) .social-add-link:hover {
+          background: #f4f4f2;
+          box-shadow: 3.5px 3.5px 0px #0a0a0a;
+        }
+
+        :global(html[data-theme="light"]) .add-link-text {
           color: #0a0a0a;
         }
 
@@ -874,16 +898,23 @@ export default function AccountProfileView({
           align-items: center;
           padding: 0 14px;
           border-radius: 8px;
-          background: linear-gradient(135deg, #ffd76f 0%, #ff9a3d 50%, #ff5ca8 100%);
-          border: 2px solid #0a0a0a;
+          background: #181220;
+          border: 2px solid rgba(255, 255, 255, 0.35);
           font-family: var(--f-mono, monospace);
           font-size: 12px;
           font-weight: 800;
           text-transform: uppercase;
           letter-spacing: 0.04em;
-          color: #0a0a0a;
+          color: #ffffff;
           box-shadow: 2.5px 2.5px 0px #000000;
           transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        :global(html[data-theme="light"]) .profile-tag {
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          color: #0a0a0a;
+          box-shadow: 2.5px 2.5px 0px #0a0a0a;
         }
 
         .profile-tag:hover {

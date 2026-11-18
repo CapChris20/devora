@@ -68,10 +68,10 @@ export default function DiscoveryGridPage() {
       <style jsx>{`
         .discovery-hero-card {
           background: #0d0a11;
-          border: 2px solid rgba(255, 92, 168, 0.35);
+          border: 2px solid rgba(255, 255, 255, 0.3);
           border-radius: 24px;
           padding: clamp(28px, 4vw, 42px);
-          box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.75), 0 0 24px -8px rgba(255, 92, 168, 0.2);
+          box-shadow: 8px 8px 0px #000000;
         }
 
         :global(html[data-theme="light"]) .discovery-hero-card {

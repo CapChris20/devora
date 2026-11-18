@@ -55,10 +55,10 @@ html {
   --surface-elevated: #160e24;
   --surface-input: #120c1e;
   --surface-page-accent: #1a0a2e;
-  --border-subtle: #ff5ca8;
-  --border-faint: rgba(255, 92, 168, 0.4);
+  --border-subtle: rgba(255, 255, 255, 0.35);
+  --border-faint: rgba(255, 255, 255, 0.15);
   --border-divider: #281838;
-  --border-chip: #ff5ca8;
+  --border-chip: rgba(255, 255, 255, 0.3);
   --sky-overlay: rgba(11, 5, 24, 0.55);
   --btn-3d-depth: 4px;
   --btn-3d-depth-hover: 6px;
@@ -744,7 +744,7 @@ html[data-theme="light"] {
     padding: 1rem;
     border-radius: 1.5rem;
     background: rgba(255, 92, 168, 0.06);
-    border: 1px solid rgba(255, 92, 168, 0.14);
+    border: 1px solid rgba(10, 10, 10, 0.14);
     transform: translateY(0);
     box-shadow: var(--card-3d-stack-pink);
     transition:
@@ -801,7 +801,7 @@ html[data-theme="light"] {
 
   .hero-action-outline {
     background: rgba(255, 255, 255, 0.05);
-    border: 2px solid rgba(255, 92, 168, 0.85);
+    border: 2px solid rgba(10, 10, 10, 0.85);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: 3px 3px 0px rgba(0, 0, 0, 0.95);
@@ -809,7 +809,7 @@ html[data-theme="light"] {
 
   .hero-action-outline:hover {
     transform: translate(-1px, -1px);
-    border-color: #ff5ca8;
+    border-color: rgba(255, 255, 255, 0.7);
     box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.95);
   }
 
@@ -887,7 +887,7 @@ html[data-theme="light"] {
     cursor: pointer;
     user-select: none;
     background: rgba(26, 10, 46, 0.55);
-    border: 2px solid rgba(255, 92, 168, 0.75);
+    border: 2px solid rgba(10, 10, 10, 0.75);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     box-shadow: var(--btn-3d-stack);
@@ -929,7 +929,7 @@ html[data-theme="light"] {
     display: inline-flex;
     align-items: center;
     border-radius: 9999px;
-    border: 1px solid rgba(255, 92, 168, 0.4);
+    border: 1px solid rgba(10, 10, 10, 0.4);
     background: var(--surface-glass-subtle);
     padding: 0.5rem 1.25rem;
     font-size: 0.75rem;
@@ -993,17 +993,15 @@ html[data-theme="light"] {
     gap: 0.5rem;
     padding: 0.75rem 1.5rem 0.65rem;
     border-radius: 9999px;
-    border: 2px solid #ff5ca8;
+    border: 2px solid rgba(255, 255, 255, 0.4);
     background: rgba(18, 12, 22, 0.88);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     cursor: pointer;
     user-select: none;
-    color: #ff5ca8;
+    color: #ffffff;
     transform: translate(0, 0);
-    box-shadow:
-      4px 4px 0px rgba(0, 0, 0, 0.95),
-      5px 5px 0px #ff5ca8;
+    box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.95);
     transition:
       transform 0.18s var(--btn-3d-ease),
       border-color 0.2s ease,
@@ -1013,11 +1011,9 @@ html[data-theme="light"] {
 
   .hero-scroll-hint-btn:hover {
     transform: translate(-2px, -2px);
-    border-color: #ff5ca8;
+    border-color: #ffffff;
     background: rgba(26, 16, 32, 0.95);
-    box-shadow:
-      6px 6px 0px rgba(0, 0, 0, 0.95),
-      7px 7px 0px #ff5ca8;
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.95);
   }
 
   .hero-scroll-hint-btn:active {
@@ -1101,12 +1097,10 @@ html[data-theme="light"] {
     padding: clamp(0.85rem, 2vw, 1.35rem) clamp(1.1rem, 2.8vw, 2rem);
     border-radius: 6px;
     background: #0e0918;
-    border: 2.5px solid #ff5ca8;
+    border: 2.5px solid rgba(255, 255, 255, 0.4);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    box-shadow:
-      5px 5px 0px rgba(0, 0, 0, 0.95),
-      6px 6px 0px #ff5ca8;
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.95);
     transform: translate(0, 0);
     transition:
       transform 0.2s var(--card-3d-ease),
@@ -1116,10 +1110,8 @@ html[data-theme="light"] {
 
   .hero-devora-glass:hover {
     transform: translate(-2px, -2px);
-    box-shadow:
-      7px 7px 0px rgba(0, 0, 0, 0.95),
-      8px 8px 0px #ff5ca8;
-    border-color: #ff5ca8;
+    box-shadow: 8px 8px 0px rgba(0, 0, 0, 0.95);
+    border-color: #ffffff;
   }
 
   .hero-devora-glass .hero-devora-title {
@@ -1183,7 +1175,7 @@ html[data-theme="light"] {
     padding: 0.875rem 1.125rem;
     border-radius: 1.25rem;
     background: rgba(18, 12, 22, 0.85);
-    border: 2px solid rgba(255, 92, 168, 0.85);
+    border: 2px solid rgba(10, 10, 10, 0.85);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     transform: translate(0, 0);
@@ -1199,10 +1191,8 @@ html[data-theme="light"] {
 
   .hero-credits-block:hover {
     transform: translate(-2px, -2px);
-    box-shadow:
-      6px 6px 0px rgba(0, 0, 0, 0.95),
-      7px 7px 0px #ff5ca8;
-    border-color: #ff5ca8;
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.95);
+    border-color: #ffffff;
   }
 
   @media (min-width: 640px) {
@@ -1436,7 +1426,7 @@ html[data-theme="light"] .hero-credits-block:hover {
 
   .neon-card {
     background: var(--surface-card);
-    border: 1px solid rgba(255, 92, 168, 0.22);
+    border: 1px solid rgba(10, 10, 10, 0.22);
     transform: translateY(0);
     box-shadow: var(--card-3d-stack-pink);
     transition:
@@ -1709,7 +1699,7 @@ body.nav-menu-open {
   max-width: 42rem;
   padding: 1.15rem 1.75rem 1.25rem;
   border-radius: 6px;
-  border: 2.5px solid #ff5ca8;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
   background: var(--surface-glass-strong);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -2006,7 +1996,7 @@ html[data-theme="light"] .soft-violet {
 .faq-search-input {
   width: 100%;
   border-radius: 6px;
-  border: 2px solid #ff5ca8;
+  border: 2px solid rgba(255, 255, 255, 0.35);
   background: var(--surface-glass-strong);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -2027,13 +2017,13 @@ html[data-theme="light"] .soft-violet {
 }
 
 .faq-search-input:focus {
-  border-color: #22d3ee;
-  box-shadow: 4px 4px 0px #000000, 5px 5px 0px #22d3ee;
+  border-color: #ffffff;
+  box-shadow: 4px 4px 0px #000000;
 }
 
 .faq-empty {
   border-radius: 6px;
-  border: 2px solid #ff5ca8;
+  border: 2px solid rgba(255, 255, 255, 0.35);
   background: var(--surface-glass);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -2050,14 +2040,11 @@ html[data-theme="light"] .soft-violet {
   padding: 0;
   display: grid;
   grid-template-columns: 1fr;
-  /* align-items: start = a tall open answer doesn't stretch its closed neighbor */
   align-items: start;
   gap: 0.75rem;
 }
 
 @media (min-width: 768px) {
-  /* Two questions per row.
-     Manipulate here: gap = space between the pair */
   .faq-list {
     grid-template-columns: 1fr 1fr;
     gap: 0.85rem 1rem;
@@ -2069,7 +2056,7 @@ html[data-theme="light"] .soft-violet {
   min-width: 0;
   overflow: hidden;
   border-radius: 6px;
-  border: 2px solid #2f1e44;
+  border: 2px solid rgba(255, 255, 255, 0.25);
   background: var(--surface-glass);
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
@@ -2082,20 +2069,20 @@ html[data-theme="light"] .soft-violet {
 }
 
 .faq-item:hover {
-  border-color: #ff5ca8;
+  border-color: rgba(255, 255, 255, 0.6);
   transform: translate(-2px, -2px);
   box-shadow: var(--card-3d-stack-hover);
 }
 
 .faq-item-open {
-  border-color: #ff5ca8;
+  border-color: #ffffff;
   background: var(--surface-glass-strong);
-  box-shadow: var(--card-3d-stack-pink);
+  box-shadow: 6px 6px 0px #000000;
 }
 
 .faq-item-open:hover {
   transform: translate(-2px, -2px);
-  box-shadow: var(--card-3d-stack-pink-hover);
+  box-shadow: 8px 8px 0px #000000;
 }
 
 .faq-trigger {
@@ -2160,7 +2147,7 @@ html[data-theme="light"] .soft-violet {
   width: 2.15rem;
   height: 2.15rem;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 92, 168, 0.35);
+  border: 1px solid rgba(10, 10, 10, 0.35);
   background: rgba(255, 92, 168, 0.08);
   color: #ff5ca8;
   box-shadow: var(--raised-3d-stack);
@@ -2173,7 +2160,7 @@ html[data-theme="light"] .soft-violet {
 
 .faq-item-open .faq-chevron-wrap {
   background: rgba(255, 92, 168, 0.18);
-  border-color: rgba(255, 92, 168, 0.55);
+  border-color: rgba(10, 10, 10, 0.55);
   box-shadow: var(--raised-3d-stack-hover);
 }
 
@@ -2200,11 +2187,11 @@ html[data-theme="light"] .soft-violet {
   flex-direction: column;
   overflow: hidden;
   border-radius: 6px;
-  border: 2.5px solid #ff5ca8;
+  border: 2.5px solid rgba(255, 255, 255, 0.4);
   background: #0e0918;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  box-shadow: 8px 8px 0px #000000, 9px 9px 0px #ff5ca8;
+  box-shadow: 8px 8px 0px #000000;
 }
 
 .faq-dialog-header {
@@ -2214,7 +2201,7 @@ html[data-theme="light"] .soft-violet {
   justify-content: space-between;
   gap: 1rem;
   padding: 1.15rem 1.15rem 1rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 92, 168, 0.18);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
 }
 
 .faq-dialog-heading {
@@ -2242,7 +2229,7 @@ html[data-theme="light"] .soft-violet {
   width: 2.15rem;
   height: 2.15rem;
   border-radius: 9999px;
-  border: 1px solid rgba(255, 92, 168, 0.35);
+  border: 1px solid rgba(10, 10, 10, 0.35);
   background: rgba(255, 92, 168, 0.08);
   color: #ff5ca8;
   font-size: 1.45rem;
@@ -2258,7 +2245,7 @@ html[data-theme="light"] .soft-violet {
 
 .faq-dialog-close:hover {
   background: rgba(255, 92, 168, 0.16);
-  border-color: rgba(255, 92, 168, 0.55);
+  border-color: rgba(10, 10, 10, 0.55);
   box-shadow: var(--raised-3d-stack-hover);
   transform: translateY(-1px);
 }
@@ -2326,12 +2313,12 @@ html[data-theme="light"] .faq-search-input,
 html[data-theme="light"] .faq-item,
 html[data-theme="light"] .faq-empty {
   background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 92, 168, 0.28);
+  border-color: rgba(10, 10, 10, 0.28);
 }
 
 html[data-theme="light"] .faq-item-open {
   background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(255, 92, 168, 0.42);
+  border-color: rgba(10, 10, 10, 0.42);
 }
 
 html[data-theme="light"] .faq-trigger:hover,
@@ -2355,11 +2342,11 @@ html[data-theme="light"] .faq-backdrop {
 
 html[data-theme="light"] .faq-dialog {
   background: rgba(255, 255, 255, 0.96);
-  border-color: rgba(255, 92, 168, 0.32);
+  border-color: rgba(10, 10, 10, 0.32);
 }
 
 html[data-theme="light"] .faq-dialog-header {
-  border-bottom-color: rgba(255, 92, 168, 0.16);
+  border-bottom-color: rgba(10, 10, 10, 0.16);
 }
 
 html[data-theme="light"] .faq-dialog-close {
@@ -2420,7 +2407,7 @@ html[data-theme="light"] .faq-answer a:hover {
   /* scroll-margin = leave room under the fixed navbar when jumping here via scrollIntoView */
   /* Manipulate here: raise if the What is Devora title still sits under the nav after jump */
   scroll-margin-top: 6.5rem;
-  border: 1px solid rgba(255, 92, 168, 0.28);
+  border: 1px solid rgba(10, 10, 10, 0.28);
   background: linear-gradient(
     145deg,
     rgba(255, 215, 111, 0.1) 0%,
@@ -2455,8 +2442,8 @@ html[data-theme="light"] .faq-answer a:hover {
 .what-is-corner-br {
   right: 1rem;
   bottom: 1rem;
-  border-right: 2px solid rgba(255, 92, 168, 0.65);
-  border-bottom: 2px solid rgba(255, 92, 168, 0.65);
+  border-right: 2px solid rgba(10, 10, 10, 0.65);
+  border-bottom: 2px solid rgba(10, 10, 10, 0.65);
 }
 
 .what-is-panel-inner {
@@ -2638,7 +2625,7 @@ html[data-theme="light"] .faq-answer a:hover {
 
 .what-is-claim:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 92, 168, 0.4);
+  border-color: rgba(10, 10, 10, 0.4);
   box-shadow: var(--raised-3d-stack-hover);
 }
 
@@ -2772,7 +2759,7 @@ html[data-theme="light"] .step-stop-title {
   width: 100%;
   max-width: 420px;
   border-radius: 1.35rem;
-  border: 1px solid rgba(255, 92, 168, 0.35);
+  border: 1px solid rgba(10, 10, 10, 0.35);
   background: rgba(10, 4, 20, 0.45);
   padding: 0.75rem;
   transform: rotate(1.25deg);
@@ -2860,7 +2847,7 @@ html[data-theme="light"] .step-stop-title {
 
 .key-info-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(255, 92, 168, 0.5);
+  border-color: rgba(10, 10, 10, 0.5);
   box-shadow: var(--card-3d-stack-hover);
 }
 
@@ -3035,7 +3022,7 @@ html[data-theme="light"] .key-info-icon-well {
 
 .landing-surface-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(255, 92, 168, 0.42);
+  border-color: rgba(10, 10, 10, 0.42);
   box-shadow:
     var(--card-3d-stack-hover),
     inset 0 1px 0 rgba(255, 215, 111, 0.18),
@@ -3253,13 +3240,13 @@ html[data-theme="light"] .use-cases-panel {
 }
 
 .step-accent-devora .step-beacon {
-  border-color: rgba(255, 92, 168, 0.55);
+  border-color: rgba(10, 10, 10, 0.55);
   background: transparent;
   box-shadow: none;
 }
 
 .step-accent-pink .step-beacon {
-  border-color: rgba(255, 43, 214, 0.5);
+  border-color: rgba(10, 10, 10, 0.5);
   background: transparent;
   box-shadow: none;
 }
@@ -3328,7 +3315,7 @@ html[data-theme="light"] .use-cases-panel {
 }
 
 .step-accent-devora .step-stop-card {
-  border-color: rgba(255, 92, 168, 0.45);
+  border-color: rgba(10, 10, 10, 0.45);
   background: linear-gradient(
     145deg,
     rgba(255, 154, 46, 0.14) 0%,
@@ -3347,7 +3334,7 @@ html[data-theme="light"] .use-cases-panel {
 }
 
 .step-accent-pink .step-stop-card {
-  border-color: rgba(255, 43, 214, 0.42);
+  border-color: rgba(10, 10, 10, 0.42);
   background: linear-gradient(
     145deg,
     rgba(255, 92, 168, 0.16) 0%,
@@ -3681,7 +3668,7 @@ html[data-theme="light"] .use-cases-panel {
 
 .why-matchup:hover {
   transform: translateY(-4px);
-  border-color: rgba(255, 92, 168, 0.48);
+  border-color: rgba(10, 10, 10, 0.48);
   box-shadow: var(--card-3d-stack-hover);
 }
 
@@ -3722,7 +3709,7 @@ html[data-theme="light"] .use-cases-panel {
   height: 0.62rem;
   padding: 0;
   border-radius: 999px;
-  border: 1px solid rgba(255, 92, 168, 0.5);
+  border: 1px solid rgba(10, 10, 10, 0.5);
   background: rgba(255, 255, 255, 0.16);
   cursor: pointer;
   transition:
@@ -3735,7 +3722,7 @@ html[data-theme="light"] .use-cases-panel {
 .why-matchup-dot:hover,
 .use-cases-dot:hover {
   transform: scale(1.12);
-  border-color: rgba(255, 92, 168, 0.85);
+  border-color: rgba(10, 10, 10, 0.85);
 }
 
 .why-matchup-dot-active,
@@ -3938,7 +3925,7 @@ html[data-theme="light"] .card-cycle-seg {
   width: 100%;
   max-width: 200px;
   border-radius: 1.25rem;
-  border: 1px solid rgba(255, 92, 168, 0.35);
+  border: 1px solid rgba(10, 10, 10, 0.35);
   background: rgba(10, 4, 20, 0.5);
   padding: 0.5rem;
   box-shadow:
@@ -4121,7 +4108,7 @@ html[data-theme="light"] .use-cases-dot-active {
     rgba(10, 4, 20, 0.62) 42%,
     rgba(123, 47, 247, 0.12) 100%
   );
-  border-color: rgba(255, 92, 168, 0.36);
+  border-color: rgba(10, 10, 10, 0.36);
   box-shadow:
     var(--card-3d-stack-pink),
     inset 0 1px 0 rgba(255, 92, 168, 0.12);
@@ -4137,7 +4124,7 @@ html[data-theme="light"] .use-cases-dot-active {
 }
 
 .benefit-card-headline:hover {
-  border-color: rgba(255, 92, 168, 0.52);
+  border-color: rgba(10, 10, 10, 0.52);
 }
 
 .benefit-card-featured {
@@ -4155,7 +4142,7 @@ html[data-theme="light"] .use-cases-dot-active {
 }
 
 .benefit-card-headline.benefit-card-featured {
-  border-color: rgba(255, 92, 168, 0.52);
+  border-color: rgba(10, 10, 10, 0.52);
   background: linear-gradient(
     155deg,
     rgba(255, 92, 168, 0.16) 0%,
@@ -4210,7 +4197,7 @@ html[data-theme="light"] .use-cases-dot-active {
 }
 
 .benefit-icon-wrap-headline {
-  border-color: rgba(255, 92, 168, 0.4);
+  border-color: rgba(10, 10, 10, 0.4);
   background: rgba(123, 47, 247, 0.08);
 }
 
@@ -4467,7 +4454,7 @@ html[data-theme="light"] .interactive-grid-bg::after {
 
 html[data-theme="light"] .neon-card {
   background: rgba(255, 255, 255, 0.82);
-  border-color: rgba(255, 92, 168, 0.28);
+  border-color: rgba(10, 10, 10, 0.28);
   box-shadow: var(--card-3d-stack);
 }
 
@@ -4791,7 +4778,7 @@ html[data-theme="light"] .btn-neon {
 }
 
 html[data-theme="light"] .neon-card .border-b {
-  border-color: rgba(255, 92, 168, 0.2);
+  border-color: rgba(10, 10, 10, 0.2);
 }
 
 html[data-theme="light"] .glow-line {
@@ -5053,14 +5040,14 @@ html[data-theme="light"] .marquee-track span.text-outline {
 }
 
 .page-pill-pink {
-  border-color: rgba(255, 92, 168, 0.35);
+  border-color: rgba(10, 10, 10, 0.35);
   background: rgba(255, 92, 168, 0.06);
 }
 
 .page-pill-pink:hover,
 .page-pill-pink.page-pill-active {
   transform: translateY(-2px);
-  border-color: rgba(255, 92, 168, 0.7);
+  border-color: rgba(10, 10, 10, 0.7);
   background: rgba(255, 92, 168, 0.14);
   box-shadow:
     0 var(--btn-3d-depth-hover) 0 var(--btn-3d-shadow-pink),
@@ -5492,7 +5479,7 @@ html[data-theme="light"] .page-tab-active {
 /* ── Sign-in pages ── */
 .surface-panel {
   border-radius: 1.25rem;
-  border: 1px solid rgba(255, 92, 168, 0.28);
+  border: 1px solid rgba(10, 10, 10, 0.28);
   background: var(--surface-glass);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -5526,7 +5513,7 @@ html[data-theme="light"] .page-tab-active {
   position: relative;
   border-radius: 24px;
   background: rgba(14, 9, 24, 0.82);
-  border: 1px solid rgba(255, 92, 168, 0.28);
+  border: 1px solid rgba(10, 10, 10, 0.28);
   backdrop-filter: blur(28px) saturate(180%);
   -webkit-backdrop-filter: blur(28px) saturate(180%);
   box-shadow:
@@ -5543,7 +5530,7 @@ html[data-theme="light"] .page-tab-active {
 
 .sign-in-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 92, 168, 0.45);
+  border-color: rgba(10, 10, 10, 0.45);
   box-shadow:
     0 30px 70px -12px rgba(0, 0, 0, 0.8),
     0 0 45px -6px rgba(255, 92, 168, 0.28),
@@ -5579,7 +5566,7 @@ html[data-theme="light"] .page-tab-active {
 .sign-in-tab-btn.active {
   background: rgba(255, 92, 168, 0.22);
   color: #ffffff;
-  border: 1px solid rgba(255, 92, 168, 0.4);
+  border: 1px solid rgba(10, 10, 10, 0.4);
   box-shadow: 0 2px 10px rgba(255, 92, 168, 0.2);
 }
 
@@ -5651,11 +5638,11 @@ html[data-theme="light"] .page-tab-active {
 }
 
 .sign-in-back-btn:hover {
-  border-color: #ff5ca8;
-  background: rgba(255, 92, 168, 0.14);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px -2px rgba(255, 92, 168, 0.28);
+  box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.5);
 }
 
 .app-secondary-btn {
@@ -5688,8 +5675,8 @@ html[data-theme="light"] .page-tab-active {
 }
 
 .app-secondary-btn:hover {
-  border-color: #ff5ca8;
-  background: rgba(255, 92, 168, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
   transform: translateY(-2px);
   box-shadow: var(--btn-3d-stack-hover);
@@ -5728,7 +5715,7 @@ html[data-theme="light"] .page-tab-active {
 }
 
 .sign-in-input:hover {
-  border-color: rgba(255, 92, 168, 0.4);
+  border-color: rgba(255, 255, 255, 0.4);
   background-color: rgba(18, 12, 30, 0.88);
 }
 
@@ -5737,11 +5724,10 @@ html[data-theme="light"] .page-tab-active {
 }
 
 .sign-in-input:focus {
-  border-color: #ff5ca8;
+  border-color: rgba(255, 255, 255, 0.6);
   background-color: rgba(18, 12, 30, 0.96);
   box-shadow:
-    0 0 0 3.5px rgba(255, 92, 168, 0.22),
-    0 0 16px rgba(255, 92, 168, 0.15),
+    0 0 0 3px rgba(255, 255, 255, 0.2),
     inset 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 
@@ -5788,7 +5774,7 @@ select.sign-in-input {
 .sign-in-google-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 92, 168, 0.55);
+  border-color: rgba(10, 10, 10, 0.55);
   box-shadow:
     0 8px 24px -4px rgba(255, 92, 168, 0.3),
     0 0 16px rgba(255, 92, 168, 0.2),
@@ -5865,8 +5851,8 @@ select.sign-in-input {
 
 .onboarding-pill:hover {
   transform: translateY(-2px);
-  border-color: #ff5ca8;
-  background: rgba(255, 92, 168, 0.16);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .onboarding-pill:active {
@@ -5912,22 +5898,22 @@ select.sign-in-input {
   align-items: center;
   gap: 0.75rem;
   border-radius: 0.75rem;
-  border: 1px dashed rgba(255, 92, 168, 0.45);
-  background: rgba(255, 92, 168, 0.06);
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.04);
   padding: 0.85rem 1rem;
   cursor: pointer;
   transition: border-color 0.2s ease, background 0.2s ease, transform 0.18s var(--spring);
 }
 
 .sign-in-file-picker:hover {
-  border-color: #ff5ca8;
-  background: rgba(255, 92, 168, 0.12);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.08);
   transform: translateY(-1px);
 }
 
 .sign-in-file-picker:focus-within {
-  border-color: #ff5ca8;
-  box-shadow: 0 0 0 3px rgba(255, 92, 168, 0.25);
+  border-color: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.2);
   transform: translateY(-1px);
 }
 
@@ -5987,7 +5973,7 @@ select.sign-in-input {
 }
 
 .onboarding-link-group:focus-within {
-  border-color: rgba(255, 92, 168, 0.45);
+  border-color: rgba(10, 10, 10, 0.45);
 }
 
 .onboarding-link-field {
@@ -6043,10 +6029,8 @@ html[data-theme="light"] .sign-in-input::placeholder {
 }
 
 html[data-theme="light"] .sign-in-input:focus {
-  border-color: #ff5ca8;
-  box-shadow:
-    0 0 0 3.5px rgba(255, 92, 168, 0.16),
-    0 2px 6px rgba(255, 92, 168, 0.1);
+  border-color: #0a0a0a;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
   background-color: #ffffff;
 }
 
@@ -6062,7 +6046,7 @@ html[data-theme="light"] .sign-in-google-btn {
 html[data-theme="light"] .sign-in-google-btn:hover:not(:disabled) {
   transform: translateY(-2px);
   background: #ffffff;
-  border-color: rgba(255, 92, 168, 0.45);
+  border-color: rgba(10, 10, 10, 0.45);
   color: #0f172a;
   box-shadow:
     0 8px 20px -4px rgba(255, 92, 168, 0.2),
@@ -6126,7 +6110,7 @@ html[data-theme="light"] .sign-in-card {
 
 html[data-theme="light"] .sign-in-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 92, 168, 0.32);
+  border-color: rgba(10, 10, 10, 0.32);
   box-shadow:
     0 28px 60px -12px rgba(15, 23, 42, 0.16),
     0 12px 30px -4px rgba(255, 92, 168, 0.16),
@@ -6188,7 +6172,7 @@ html[data-theme="light"] .sign-in-back-btn {
 }
 
 html[data-theme="light"] .sign-in-back-btn:hover {
-  border-color: rgba(255, 92, 168, 0.45);
+  border-color: rgba(10, 10, 10, 0.45);
   background: #ffffff;
   color: #0f172a;
   box-shadow: 0 6px 18px -2px rgba(255, 92, 168, 0.18);
@@ -6208,7 +6192,7 @@ html[data-theme="light"] .onboarding-pill {
 }
 
 html[data-theme="light"] .onboarding-pill:hover {
-  border-color: #ff5ca8;
+  border-color: #0a0a0a;
   background: rgba(255, 255, 255, 1);
 }
 
@@ -6663,7 +6647,7 @@ html[data-theme="light"] .account-section-eyebrow {
 
 .account-discovery-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 92, 168, 0.32);
+  border-color: rgba(10, 10, 10, 0.32);
   box-shadow: var(--card-3d-stack-pink-hover);
 }
 
@@ -7135,7 +7119,7 @@ html[data-theme="light"] .account-private-list dt {
 }
 
 .account-profile-editor .onboarding-pill:hover {
-  border-color: #ff5ca8;
+  border-color: rgba(255, 255, 255, 0.6);
   transform: translateY(-1px);
 }
 
@@ -7236,17 +7220,18 @@ html[data-theme="light"] .account-profile-editor .account-hero-name {
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  background: linear-gradient(120deg, #ffd76f 0%, #ff9a3d 50%, #ff5ca8 100%);
-  color: #0a0a0a;
+  background: #0a0a0a;
+  color: #ffffff;
   border: 2.5px solid #0a0a0a;
-  box-shadow: 4px 4px 0px #000000;
+  box-shadow: 4px 4px 0px #0a0a0a;
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .account-editor-save-btn:hover:not(:disabled) {
+  background: #262626;
   transform: translate(-2px, -2px);
-  box-shadow: 6px 6px 0px #000000;
+  box-shadow: 6px 6px 0px #0a0a0a;
 }
 
 .account-editor-save-btn:disabled {
@@ -7269,8 +7254,15 @@ html[data-theme="dark"] .account-editor-cancel-btn:hover {
 }
 
 html[data-theme="dark"] .account-editor-save-btn {
-  border: 2.5px solid #0a0a0a;
+  background: #ffffff;
+  color: #0a0a0a;
+  border: 2.5px solid #ffffff;
   box-shadow: 4px 4px 0px #000000;
+}
+
+html[data-theme="dark"] .account-editor-save-btn:hover:not(:disabled) {
+  background: #e5e5e5;
+  box-shadow: 6px 6px 0px #000000;
 }
 
 html[data-theme="light"] .account-profile-editor .account-section-eyebrow {
@@ -7350,7 +7342,7 @@ html[data-theme="light"] .account-editor-section-toggle[aria-expanded="true"] {
 
 html[data-theme="light"] .app-secondary-btn {
   background: rgba(255, 255, 255, 0.9);
-  border-color: rgba(255, 92, 168, 0.35);
+  border-color: rgba(10, 10, 10, 0.35);
   color: #1a0a2e;
 }
 
@@ -7519,7 +7511,7 @@ html[data-theme="light"] .account-social-missing {
 .settings-select {
   min-width: 11rem;
   border-radius: 0.65rem;
-  border: 1px solid rgba(255, 92, 168, 0.35);
+  border: 1px solid rgba(10, 10, 10, 0.35);
   background-color: var(--surface-glass-strong);
   color: var(--text-primary);
   padding: 0.55rem 0.75rem;
@@ -7660,7 +7652,7 @@ html[data-theme="light"] .account-social-missing {
 
 .devora-mode-btn:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 92, 168, 0.45);
+  border-color: rgba(10, 10, 10, 0.45);
   background: rgba(255, 92, 168, 0.08);
   box-shadow: var(--btn-3d-stack-hover);
 }
@@ -7671,7 +7663,7 @@ html[data-theme="light"] .account-social-missing {
 }
 
 .devora-mode-btn--active {
-  border-color: rgba(255, 92, 168, 0.55);
+  border-color: rgba(10, 10, 10, 0.55);
   background: rgba(255, 92, 168, 0.1);
   box-shadow: var(--btn-3d-stack-pink);
 }
@@ -7717,7 +7709,7 @@ html[data-theme="light"] .account-social-missing {
   inset: 0;
   z-index: -1;
   border-radius: inherit;
-  border: 1px solid rgba(255, 92, 168, 0.45);
+  border: 1px solid rgba(10, 10, 10, 0.45);
   background: var(--surface-glass-subtle);
   box-shadow: var(--btn-3d-stack);
   transition:
@@ -7753,7 +7745,7 @@ html[data-theme="light"] .settings-saving-hint {
 html[data-theme="light"] .settings-select {
   background-color: rgba(255, 255, 255, 0.95);
   color: #1a0a2e;
-  border-color: rgba(255, 92, 168, 0.3);
+  border-color: rgba(10, 10, 10, 0.3);
 }
 
 html[data-theme="light"] .settings-danger-confirm {
@@ -7801,7 +7793,7 @@ html[data-theme="light"] .site-footer-bar {
 
 html[data-theme="light"] .hero-info-card {
   background: rgba(255, 255, 255, 0.82);
-  border-color: rgba(255, 92, 168, 0.28);
+  border-color: rgba(10, 10, 10, 0.28);
   box-shadow: var(--card-3d-stack-pink);
 }
 
@@ -7859,7 +7851,7 @@ html[data-theme="light"] .benefit-card-headline.benefit-card-featured {
 html[data-theme="light"] .landing-surface-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--card-3d-stack-hover);
-  border-color: rgba(255, 92, 168, 0.45);
+  border-color: rgba(10, 10, 10, 0.45);
 }
 
 html[data-theme="light"] .benefit-icon-wrap {
@@ -7909,7 +7901,7 @@ html[data-theme="light"] .devora-toggle--on {
 
 html[data-theme="light"] .sign-in-file-picker {
   background: var(--surface-elevated);
-  border-color: rgba(255, 92, 168, 0.3);
+  border-color: rgba(10, 10, 10, 0.3);
 }
 
 html[data-theme="light"] .onboarding-link-group {
@@ -7919,7 +7911,7 @@ html[data-theme="light"] .onboarding-link-group {
 
 html[data-theme="light"] .surface-panel {
   background: rgba(255, 255, 255, 0.85);
-  border-color: rgba(255, 92, 168, 0.28);
+  border-color: rgba(10, 10, 10, 0.28);
   box-shadow: var(--card-3d-stack-pink);
 }
 
@@ -8806,7 +8798,7 @@ html[data-theme="light"] .surface-panel {
 }
 
 .discovery-peek-actions .page-btn-outline:hover::before {
-  border-color: rgba(255, 92, 168, 0.5);
+  border-color: rgba(10, 10, 10, 0.5);
   background: rgba(255, 154, 61, 0.08);
 }
 
@@ -8879,7 +8871,7 @@ html[data-theme="light"] .surface-panel {
 
 .discovery-filters .page-pill-pink:hover,
 .discovery-filters .page-pill-pink.page-pill-active {
-  border-color: rgba(255, 92, 168, 0.55);
+  border-color: rgba(10, 10, 10, 0.55);
   background: linear-gradient(180deg, rgba(255, 154, 61, 0.14), rgba(255, 92, 168, 0.12));
 }
 
@@ -9306,7 +9298,7 @@ html[data-theme="light"] .discovery-peek-backdrop {
   --nb-muted: #b3a7be;
   --nb-pink: #ff5ca8;
   --nb-orange: #ff9a3d;
-  --nb-border: #ff5ca8;
+  --nb-border: rgba(255, 255, 255, 0.35);
   --nb-shadow: #000000;
   --night: #0d0b0e;
   --surface: #1c181c;
@@ -9711,8 +9703,8 @@ html[data-theme="light"],
 }
 
 .dsearch input:focus {
-  border-color: var(--pink-ink);
-  outline: 3px solid var(--pink-ink);
+  border-color: rgba(255, 255, 255, 0.6);
+  outline: 2px solid rgba(255, 255, 255, 0.4);
   outline-offset: 2px;
 }
 
@@ -9763,7 +9755,7 @@ html[data-theme="light"],
 }
 
 .fchip:hover {
-  border-color: var(--pink-ink);
+  border-color: rgba(255, 255, 255, 0.6);
 }
 
 .fchip svg.lucide {
@@ -10618,8 +10610,8 @@ html[data-theme="light"] .danger-confirm-input {
   padding: clamp(18px, 2.2vw, 32px);
   border-radius: 24px;
   background: #0e0918 !important;
-  border: 2.5px solid #ff5ca8 !important;
-  box-shadow: 6px 6px 0px 0px #ff5ca8 !important;
+  border: 2.5px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 6px 6px 0px 0px #000000 !important;
 }
 
 html[data-theme="light"] .what-is-poster-panel {
@@ -10654,7 +10646,7 @@ html[data-theme="light"] .what-is-lead strong {
 
 .claim-row {
   background: #18121d !important;
-  border: 1.5px solid rgba(255, 92, 168, 0.4) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.25) !important;
   box-shadow: 3px 3px 0 0 rgba(0, 0, 0, 0.8) !important;
 }
 

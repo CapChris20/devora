@@ -1233,7 +1233,7 @@ export default function SettingsPageContent() {
           padding: 0 16px;
           border-radius: 10px;
           background: #160a0f;
-          border: 2px solid #ff8fa0;
+          border: 2px solid #ef4444;
           color: #ffffff;
           font-size: 15px;
           outline: none;

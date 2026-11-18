@@ -266,7 +266,7 @@ export default function AccountPageContent() {
           </div>
           <Link
             href={LOGIN_PATH}
-            className="inline-flex items-center gap-1.5 rounded-[6px] border-[2px] border-[#0a0a0a] dark:border-white bg-gradient-to-r from-[#ffd76f] via-[#ff9a3d] to-[#ff5ca8] px-3 py-1 font-mono text-[11px] font-bold uppercase tracking-wider text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] transition-transform hover:-translate-y-0.5"
+            className="inline-flex items-center gap-1.5 rounded-[6px] border-[2px] border-[#0a0a0a] dark:border-white bg-[#0a0a0a] dark:bg-white text-white dark:text-[#0a0a0a] px-3.5 py-1.5 font-mono text-[11px] font-bold uppercase tracking-wider shadow-[2px_2px_0px_#0a0a0a] dark:shadow-[2px_2px_0px_#000000] transition-transform hover:-translate-y-0.5"
           >
             Sign In with UMich →
           </Link>

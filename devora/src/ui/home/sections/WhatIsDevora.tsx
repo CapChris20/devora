@@ -166,14 +166,18 @@ export default function WhatIsDevora() {
         .corner-mark-tl {
           top: 14px;
           left: 14px;
-          border-top: 3px solid var(--orange);
-          border-left: 3px solid var(--orange);
+          border-top: 3px solid rgba(255, 255, 255, 0.4);
+          border-left: 3px solid rgba(255, 255, 255, 0.4);
         }
         .corner-mark-br {
           bottom: 14px;
           right: 14px;
-          border-bottom: 3px solid var(--magenta);
-          border-right: 3px solid var(--magenta);
+          border-bottom: 3px solid rgba(255, 255, 255, 0.4);
+          border-right: 3px solid rgba(255, 255, 255, 0.4);
+        }
+        :global(html[data-theme="light"]) .corner-mark-tl,
+        :global(html[data-theme="light"]) .corner-mark-br {
+          border-color: #0a0a0a;
         }
 
         .prompt-line {
@@ -312,8 +316,12 @@ export default function WhatIsDevora() {
         }
 
         .claim-row:hover {
-          border-color: #ff5ca8;
+          border-color: rgba(255, 255, 255, 0.4);
           translate: 4px 0;
+        }
+
+        :global(html[data-theme="light"]) .claim-row:hover {
+          border-color: #0d0b0e;
         }
 
         .claim-code {

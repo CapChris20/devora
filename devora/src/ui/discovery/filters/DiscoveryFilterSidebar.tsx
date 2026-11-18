@@ -126,8 +126,8 @@ export default function DiscoveryFilterSidebar({
         }
 
         .filter-pill:hover {
-          background: rgb(255 92 168 / 0.16);
-          border-color: #ff5ca8;
+          background: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.5);
           transform: translateY(-1px);
         }
 

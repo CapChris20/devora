@@ -38,10 +38,10 @@ const SCHOOL_EMAIL_LABEL = "School Email";
 const CONSENT_CHECKBOX_ID = "signup-terms-consent";
 const CONSENT_ROW_CLASS = "flex items-start gap-3 text-left";
 const CONSENT_CHECKBOX_CLASS =
-  "mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-[#ff5ca8] focus:ring-[#ff5ca8] dark:border-white/20 dark:bg-black/40 accent-[#ff5ca8] cursor-pointer";
+  "mt-1 h-4 w-4 shrink-0 rounded border-gray-300 text-white focus:ring-white dark:border-white/40 dark:bg-black/60 accent-[#0a0a0a] dark:accent-white cursor-pointer";
 const CONSENT_TEXT_CLASS = "sign-in-consent-text select-none cursor-pointer";
 const CONSENT_LINK_CLASS =
-  "font-semibold text-[#ff5ca8] transition-colors hover:text-[#22d3ee] underline underline-offset-2";
+  "font-semibold text-white underline underline-offset-2 hover:opacity-80 transition-opacity";
 
 // ===== HELPER FUNCTIONS =====
 
