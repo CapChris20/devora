@@ -1,53 +1,63 @@
-// Last-resort error page when even the root layout crashes. It renders its own html and body.
-// Flow: root layout failed → this file supplies html/body → show the message → reset retries.
+// Full-document error screen used when the root layout crashes.
+// Styled per Coach Connect Neo-Brutalist Design Law.
 
 "use client";
 
-// ===== IMPORTS =====
-
+import Link from "next/link";
+import { RefreshCw, Home } from "lucide-react";
 import "@/ui/globals.css";
-
-// ===== NAMED CONSTANTS =====
 
 const ERROR_HEADING = "Something went wrong";
 const FALLBACK_ERROR_MESSAGE = "An unexpected error occurred.";
 const TRY_AGAIN_LABEL = "Try again";
 const DOCUMENT_LANGUAGE = "en";
 
-// Manipulate here: crash color used when AppWrapper and the theme never load.
-const CRASH_BODY_CLASS = "m-0 bg-[#1a0a2e] text-white";
-
-// ===== TYPES =====
-
 type GlobalErrorPageProps = {
-  // vocab: digest = optional Next.js error id, useful in production logs
   error: Error & { digest?: string };
-  // vocab: reset = try rendering again after a root-layout crash
   reset: () => void;
 };
 
-// ===== MAIN COMPONENT =====
-
-/**
- * Full-document error screen used when the root layout itself crashes.
- * It includes html and body because nothing else is wrapping the page.
- * @param props.error - The error Next caught at the root
- * @param props.reset - Call this to try rendering again
- */
 export default function GlobalError({ error, reset }: GlobalErrorPageProps) {
-  // vocab: GlobalError = Next.js special file that replaces the whole document on a crash
   const errorMessage = error.message || FALLBACK_ERROR_MESSAGE;
 
   return (
     <html lang={DOCUMENT_LANGUAGE}>
-      <body className={CRASH_BODY_CLASS}>
-        <div className="flex min-h-screen flex-col items-center justify-center gap-4 p-8">
-          <div className="surface-panel flex max-w-md flex-col items-center gap-4">
-            <h2 className="text-xl font-semibold">{ERROR_HEADING}</h2>
-            <p className="text-center text-sm text-white/60">{errorMessage}</p>
-            <button type="button" onClick={reset} className="devora-btn-outline">
-              {TRY_AGAIN_LABEL}
-            </button>
+      <body className="m-0 bg-[#faf8f5] text-[#0a0a0a] font-mono">
+        <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6">
+          <div
+            role="alert"
+            className="w-full max-w-[500px] p-8 sm:p-10 rounded-[12px] border-[3px] border-[#0a0a0a] bg-white text-center flex flex-col items-center gap-4 shadow-[8px_8px_0px_#0a0a0a]"
+          >
+            <span className="inline-flex items-center px-3 py-1 rounded-full border-2 border-[#0a0a0a] bg-gradient-to-r from-[#ff6b9d] to-[#fb923c] font-mono text-[10px] font-bold uppercase tracking-wider text-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a]">
+              System Notice
+            </span>
+
+            <h2 className="m-0 font-display uppercase font-normal text-3xl sm:text-4xl leading-tight">
+              {ERROR_HEADING}
+            </h2>
+
+            <p className="font-body text-sm sm:text-[15px] leading-relaxed text-[#575757] max-w-[42ch] m-0">
+              {errorMessage}
+            </p>
+
+            <div className="mt-4 flex flex-wrap items-center justify-center gap-3 w-full">
+              <button
+                type="button"
+                onClick={reset}
+                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 rounded-[8px] border-[2.5px] border-[#0a0a0a] bg-[#0a0a0a] text-white font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#0a0a0a] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
+              >
+                <RefreshCw size={14} />
+                <span>{TRY_AGAIN_LABEL}</span>
+              </button>
+
+              <Link
+                href="/home"
+                className="inline-flex items-center justify-center gap-2 min-h-[44px] px-5 rounded-[8px] border-[2.5px] border-[#0a0a0a] bg-white text-[#0a0a0a] font-bold text-xs uppercase tracking-wider shadow-[3px_3px_0px_#0a0a0a] hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer"
+              >
+                <Home size={14} />
+                <span>Home</span>
+              </Link>
+            </div>
           </div>
         </div>
       </body>

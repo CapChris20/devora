@@ -9,6 +9,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { AlertCircle, Mail, ShieldCheck } from "lucide-react";
 
 import { isUmichEmail } from "@/backend/firebase";
 import DevoraLogo from "@/ui/shared/logo/DevoraLogo";
@@ -22,9 +23,9 @@ import {
 // ===== NAMED CONSTANTS =====
 
 const LOGIN_HEADING = "Welcome to Devora!";
-const LOGIN_SUBHEADING = "Please Log in Here!";
-const SCHOOL_EMAIL_PLACEHOLDER = "School email (@umich.edu)";
-const MICHIGAN_EMAIL_HINT = "Michigan school email only. Personal Gmail accounts are blocked.";
+const LOGIN_SUBHEADING = "Sign in to connect with Michigan students";
+const SCHOOL_EMAIL_LABEL = "School Email";
+const SCHOOL_EMAIL_PLACEHOLDER = "uniqname@umich.edu";
 const SIGNUP_PATH = "/auth/signup";
 const LOGIN_MODE = "login" as const;
 
@@ -85,41 +86,91 @@ export default function LoginCard() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <header className="text-center">
-        <h1 className="font-display logo-gradient text-2xl font-bold sm:text-3xl">
+    <div className="flex flex-col gap-5 sm:gap-6">
+      {/* Brand Header */}
+      <header className="flex flex-col items-center text-center">
+        <div className="relative mb-2 flex items-center justify-center">
+          <div
+            className="absolute -inset-2 rounded-2xl bg-gradient-to-tr from-[#ff5ca8]/35 via-[#22d3ee]/25 to-[#a855f7]/30 blur-md opacity-70"
+            aria-hidden
+          />
+          <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl border border-white/20 bg-white/10 p-2 shadow-inner backdrop-blur-md dark:border-white/15 dark:bg-black/35">
+            <DevoraLogo size="nav" />
+          </div>
+        </div>
+
+        <h1 className="font-display logo-gradient text-2xl font-extrabold tracking-tight sm:text-3xl">
           {LOGIN_HEADING}
         </h1>
-        <div className="mx-auto mt-4 flex justify-center">
-          <DevoraLogo size="nav" />
-        </div>
-        <p className="theme-muted mt-4 font-mono text-sm font-semibold">{LOGIN_SUBHEADING}</p>
+        <p className="mt-1 text-xs sm:text-sm font-medium text-slate-600 dark:text-slate-300">
+          {LOGIN_SUBHEADING}
+        </p>
       </header>
 
-      {errorMessage ? <div className="sign-in-error">{errorMessage}</div> : null}
+      {/* Segmented Mode Switcher */}
+      <nav aria-label="Auth tabs" className="sign-in-tab-nav grid grid-cols-2 gap-1">
+        <span className="sign-in-tab-btn active cursor-default" aria-current="page">
+          Log In
+        </span>
+        <Link href={SIGNUP_PATH} className="sign-in-tab-btn">
+          Sign Up
+        </Link>
+      </nav>
 
-      {/* Manipulate here: change the placeholder if the email field wording changes */}
-      <input
-        type="email"
-        name="schoolEmail"
-        placeholder={SCHOOL_EMAIL_PLACEHOLDER}
-        className="sign-in-input"
-        value={schoolEmail}
-        onChange={(event) => setSchoolEmail(event.target.value)}
-        autoComplete="email"
-        inputMode="email"
-        disabled={isLoading}
-      />
+      {/* Error Banner */}
+      {errorMessage ? (
+        <div className="sign-in-error" role="alert">
+          <AlertCircle className="h-4 w-4 shrink-0 text-red-500 dark:text-red-400" />
+          <span className="flex-1 font-medium">{errorMessage}</span>
+        </div>
+      ) : null}
 
-      <p className="theme-muted text-center text-xs">{MICHIGAN_EMAIL_HINT}</p>
+      {/* School Email Field */}
+      <div className="space-y-1.5 text-left">
+        <label
+          htmlFor="login-school-email"
+          className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-slate-300"
+        >
+          {SCHOOL_EMAIL_LABEL}
+        </label>
+        <div className="relative">
+          <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
+            <Mail className="h-4 w-4" />
+          </div>
+          <input
+            id="login-school-email"
+            type="email"
+            name="schoolEmail"
+            placeholder={SCHOOL_EMAIL_PLACEHOLDER}
+            className="sign-in-input pl-10"
+            value={schoolEmail}
+            onChange={(event) => setSchoolEmail(event.target.value)}
+            autoComplete="email"
+            inputMode="email"
+            disabled={isLoading}
+            required
+          />
+        </div>
+      </div>
 
-      {/* Login uses onClick. Signup uses a form submit instead. */}
+      {/* Michigan Email Notice Callout */}
+      <div className="sign-in-hint-badge">
+        <ShieldCheck className="h-4 w-4 shrink-0 text-sky-600 dark:text-cyan-400" />
+        <span className="leading-snug">
+          <strong className="font-semibold text-slate-900 dark:text-white">@umich.edu</strong> only • Personal Gmail accounts are blocked
+        </span>
+      </div>
+
+      {/* Google Action Button */}
       <GoogleButton onClick={startGoogleSignIn} isLoading={isLoading} isDisabled={isLoading} />
 
-      {/* Manipulate here: change SIGNUP_PATH if the signup route moves */}
-      <p className="theme-muted text-center text-sm">
+      {/* Bottom Switch Link */}
+      <p className="text-center text-xs sm:text-sm text-slate-600 dark:text-slate-400">
         Don&apos;t have an account?{" "}
-        <Link href={SIGNUP_PATH} className="font-semibold text-[#ff5ca8] hover:text-[#22d3ee]">
+        <Link
+          href={SIGNUP_PATH}
+          className="font-semibold text-[#ff5ca8] transition-colors hover:text-[#22d3ee] underline underline-offset-2"
+        >
           Sign up
         </Link>
       </p>

@@ -15,10 +15,10 @@ import PyramidShaderBackgroundClient from "@/ui/shared/backgrounds/PyramidShader
 
 const HOME_PATH = "/home";
 const EMPTY_NAV_ACTIVE_ITEM = "";
-const BACK_TO_HOME_LABEL = "← Back to home";
+const BACK_TO_HOME_LABEL = "Back to home";
 const WIDE_CARD_MAX_WIDTH_CLASS = "max-w-2xl";
 const DEFAULT_CARD_MAX_WIDTH_CLASS = "max-w-md";
-const CARD_SHELL_CLASS_NAME = "sign-in-card glass-card w-full rounded-md p-6 sm:p-8";
+const CARD_SHELL_CLASS_NAME = "sign-in-card w-full p-6 sm:p-8";
 
 // ===== TYPES =====
 
@@ -56,12 +56,20 @@ export default function SignInPageLayout({
       <NavBar activeItem={EMPTY_NAV_ACTIVE_ITEM} />
 
       {/* Centered column: glass card (children) plus a back-to-home link */}
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-28 sm:px-6">
-        <div className={`${CARD_SHELL_CLASS_NAME} ${cardWidthClassName}`}>{children}</div>
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-24 sm:px-6">
+        <div className={`relative w-full ${cardWidthClassName}`}>
+          {/* Subtle atmospheric ambient glow behind the card */}
+          <div
+            className="pointer-events-none absolute -inset-1.5 rounded-[32px] bg-gradient-to-r from-[#ff5ca8]/25 via-[#a855f7]/20 to-[#22d3ee]/25 opacity-70 blur-xl transition-opacity duration-500 dark:opacity-45"
+            aria-hidden
+          />
+          <div className={CARD_SHELL_CLASS_NAME}>{children}</div>
+        </div>
 
         {/* Manipulate here: change HOME_PATH if the marketing homepage route moves */}
-        <Link href={HOME_PATH} className="app-secondary-btn mt-8">
-          {BACK_TO_HOME_LABEL}
+        <Link href={HOME_PATH} className="sign-in-back-btn mt-7 group">
+          <span className="inline-block transition-transform duration-200 group-hover:-translate-x-1">←</span>
+          <span>{BACK_TO_HOME_LABEL}</span>
         </Link>
       </div>
     </main>

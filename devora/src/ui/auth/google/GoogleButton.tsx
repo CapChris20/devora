@@ -82,7 +82,7 @@ export default function GoogleButton({
       disabled={shouldBlockClicks}
     >
       {isLoading ? <span className={SPINNER_CLASS_NAME} aria-hidden /> : <GoogleIcon />}
-      {CONTINUE_WITH_GOOGLE_LABEL}
+      <span className="font-semibold">{CONTINUE_WITH_GOOGLE_LABEL}</span>
     </button>
   );
 }
