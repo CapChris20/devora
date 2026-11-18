@@ -1,5 +1,5 @@
 // Styled on/off switch per DESIGN.md.
-// Active state uses the signature gradient (--grad: orange to pink to magenta).
+// On: the Design Law brand pair (pink to orange) as a small accent fill. Borders stay neutral white, never pink.
 // Accessible with role="switch" and aria-checked.
 
 "use client";
@@ -30,16 +30,14 @@ export default function GradientToggle({
         height: 32,
         borderRadius: 9999,
         background: checked
-          ? "linear-gradient(120deg, #ff9a3d 0%, #ff5ca8 52%, #ff2bd6 100%)"
-          : "#261d2b",
-        border: checked ? "2px solid #ffffff" : "2px solid rgba(255, 255, 255, 0.25)",
+          ? "linear-gradient(120deg, #FF6B9D 0%, #FB923C 100%)"
+          : "#1b1428",
+        border: checked ? "2px solid rgba(255, 255, 255, 0.9)" : "2px solid rgba(255, 255, 255, 0.3)",
         position: "relative",
         display: "flex",
         alignItems: "center",
         padding: "2px 4px",
-        boxShadow: checked
-          ? "0 2px 8px rgba(0, 0, 0, 0.5)"
-          : "inset 0 2px 4px rgba(0, 0, 0, 0.4)",
+        boxShadow: "2px 2px 0px #000000",
         cursor: disabled ? "not-allowed" : "pointer",
         opacity: disabled ? 0.5 : 1,
         outline: "none",

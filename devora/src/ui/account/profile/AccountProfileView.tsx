@@ -438,10 +438,10 @@ export default function AccountProfileView({
           gap: 16px;
           margin-bottom: 24px;
           background: #0d0a11;
-          border: 2px solid rgba(255, 92, 168, 0.35);
+          border: 2px solid rgba(255, 255, 255, 0.25);
           border-radius: 20px;
           padding: 24px 28px;
-          box-shadow: 0 14px 36px -10px rgba(0, 0, 0, 0.75), 0 0 20px -8px rgba(255, 92, 168, 0.2);
+          box-shadow: 6px 6px 0px #000000;
         }
 
         :global(html[data-theme="light"]) .account-page-head {
@@ -464,8 +464,8 @@ export default function AccountProfileView({
         }
 
         .glass-panel {
-          background: #0f0b13;
-          border: 2.5px solid rgba(255, 255, 255, 0.25);
+          background: #120c1c;
+          border: 2px solid rgba(255, 255, 255, 0.25);
           border-radius: 12px;
           padding: 24px;
           box-shadow: 6px 6px 0px #000000;
@@ -649,7 +649,7 @@ export default function AccountProfileView({
         }
 
         .btn-danger:hover {
-          border-color: #ff5ca8;
+          border-color: #ff8fa0;
           background: #2a101d;
         }
 

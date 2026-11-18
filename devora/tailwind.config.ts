@@ -12,6 +12,8 @@ const config: Config = {
         sans: ["var(--font-mono)", "monospace"],
         mono: ["var(--font-mono)", "monospace"],
         display: ["var(--font-display)", "sans-serif"],
+        // Body copy: paragraphs, answers, descriptions (never raw monospace)
+        body: ["var(--font-body)", "system-ui", "sans-serif"],
         pixel: ["var(--font-pixel)", "monospace"],
         // Design Law (neo-brutalist) fonts — loaded in src/ui/shared/design-law/nb-fonts.ts
         "nb-display": ["var(--font-nb-display)", "Arial Black", "sans-serif"],

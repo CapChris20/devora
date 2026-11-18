@@ -55,8 +55,8 @@ export default function FaqsPage() {
               </div>
 
               <h1
-                className={`m-0 font-display font-extrabold text-[clamp(36px,5.5vw,72px)] leading-[0.96] tracking-[-0.03em] uppercase ${
-                  isLight ? "text-[#0a0a0a]" : "text-white"
+                className={`m-0 font-display font-black text-[clamp(36px,5.5vw,72px)] leading-[0.96] tracking-[-0.03em] uppercase ${
+                  isLight ? "text-[#0a0a0a]" : "bg-gradient-to-r from-white via-[#ffd76f] to-[#ff9a3d] bg-clip-text text-transparent"
                 }`}
               >
                 Frequently Asked Questions

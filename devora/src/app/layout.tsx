@@ -6,7 +6,7 @@
 
 import type { Metadata } from "next";
 
-import { Press_Start_2P, Space_Mono, Unbounded } from "next/font/google";
+import { Press_Start_2P, Space_Grotesk, Space_Mono, Unbounded } from "next/font/google";
 import AppWrapper from "@/ui/shared/theme/AppWrapper";
 import "@/ui/globals.css";
 
@@ -43,13 +43,20 @@ const unbounded = Unbounded({
   variable: "--font-display",
 });
 
+// Readable sans for paragraphs and answers (Space Mono stays for short labels and chips)
+const spaceGrotesk = Space_Grotesk({
+  weight: ["400", "500", "600", "700"],
+  subsets: ["latin"],
+  variable: "--font-body",
+});
+
 const pressStart = Press_Start_2P({
   weight: "400",
   subsets: ["latin"],
   variable: "--font-pixel",
 });
 
-const APP_FONT_CLASS_NAME = `${spaceMono.variable} ${unbounded.variable} ${pressStart.variable}`;
+const APP_FONT_CLASS_NAME = `${spaceMono.variable} ${spaceGrotesk.variable} ${unbounded.variable} ${pressStart.variable}`;
 
 // ===== MAIN =====
 

@@ -7,6 +7,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import gsap from "gsap";
 import { Check, Hash } from "lucide-react";
 import { GithubIcon, LinkedinIcon } from "@/ui/discovery/cards/DiscoverySocialIcons";
 import TornEdge from "@/ui/shared/TornEdge";
@@ -88,8 +89,55 @@ export default function WhyDevora() {
   const [isPaused, setIsPaused] = useState(false);
   const passesRef = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const devoraCardRef = useRef<HTMLDivElement>(null);
 
   const activeTab = TABS[activeTabIdx];
+
+  // GSAP animation when active tab changes
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (!devoraCardRef.current) return;
+
+    gsap.fromTo(
+      devoraCardRef.current,
+      { y: 16, opacity: 0.85 },
+      { y: 0, opacity: 1, duration: 0.45, ease: "power2.out" }
+    );
+
+    gsap.fromTo(
+      ".devora-win-row",
+      { x: -14, opacity: 0 },
+      { x: 0, opacity: 1, duration: 0.4, stagger: 0.05, ease: "back.out(1.4)" }
+    );
+  }, [activeTabIdx]);
+
+  // GSAP 3D Interactive Tilt on mouse move
+  const handleCardMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const card = devoraCardRef.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    gsap.to(card, {
+      rotateY: x * 0.025,
+      rotateX: -y * 0.025,
+      duration: 0.25,
+      ease: "power1.out",
+      transformPerspective: 800,
+      transformOrigin: "center center",
+    });
+  };
+
+  const handleCardMouseLeave = () => {
+    if (!devoraCardRef.current) return;
+    gsap.to(devoraCardRef.current, {
+      rotateY: 0,
+      rotateX: 0,
+      duration: 0.5,
+      ease: "power2.out",
+    });
+  };
 
   const handleSelectTab = useCallback(
     (index: number, manual = true) => {
@@ -235,24 +283,36 @@ export default function WhyDevora() {
                 <div className="vs-disc">VS</div>
               </div>
 
-              {/* Devora (ink poster, white text) */}
-              <div className="poster poster-devora">
+              {/* Devora (futuristic neo-brutalist card with 3D tilt & second-degree gradient) */}
+              <div
+                ref={devoraCardRef}
+                onMouseMove={handleCardMouseMove}
+                onMouseLeave={handleCardMouseLeave}
+                className="poster poster-devora"
+              >
                 <div className="devora-header">
-                  <h3 className="t-card text-[clamp(22px,2.2vw,30px)] text-white">
-                    Devora
-                  </h3>
-                  <span className="devora-wins-stamp">5 wins</span>
+                  <div className="flex items-center gap-3">
+                    <h3 className="t-card text-[clamp(24px,2.4vw,34px)] font-black uppercase tracking-tight bg-gradient-to-r from-[#ffd76f] via-[#ff9a3d] to-[#ff5ca8] bg-clip-text text-transparent">
+                      Devora
+                    </h3>
+                  </div>
+                  <div className="devora-wins-stamp">
+                    <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse inline-block mr-1.5" />
+                    <span>5 WINS // ZERO NOISE</span>
+                  </div>
                 </div>
 
                 <div className="devora-wins-list">
                   {activeTab.wins.map((win, i) => (
-                    <div key={i} className="devora-win-row">
+                    <div key={i} className="devora-win-row group/win">
                       <div className="win-check">
-                        <Check size={18} color="#ff9a3d" strokeWidth={3} />
+                        <Check size={15} color="#0a0a0a" strokeWidth={3.5} aria-hidden="true" />
                       </div>
-                      <span className="text-[15.5px] leading-[1.45] text-white">
-                        {win}
-                      </span>
+                      <div className="flex flex-col">
+                        <span className="win-text">
+                          {win}
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -399,12 +459,19 @@ export default function WhyDevora() {
         .poster-devora {
           background: #0d0914 !important;
           color: #ffffff !important;
-          border: 2.5px solid rgba(255, 255, 255, 0.8) !important;
-          border-radius: 16px;
+          border: 2.5px solid rgba(255, 255, 255, 0.4) !important;
+          border-radius: 18px;
           box-shadow: 8px 8px 0px 0px #000000 !important;
           padding: clamp(28px, 3.5vw, 44px);
           display: flex;
           flex-direction: column;
+          will-change: transform;
+          transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .poster-devora:hover {
+          border-color: rgba(255, 255, 255, 0.7) !important;
+          box-shadow: 10px 10px 0px 0px #000000 !important;
         }
 
         :global(html[data-theme="light"]) .poster-devora {
@@ -412,6 +479,10 @@ export default function WhyDevora() {
           color: #0a0a0a !important;
           border: 2.5px solid #0a0a0a !important;
           box-shadow: 8px 8px 0px 0px #0a0a0a !important;
+        }
+
+        :global(html[data-theme="light"]) .poster-devora:hover {
+          box-shadow: 10px 10px 0px 0px #0a0a0a !important;
         }
 
         .devora-header {
@@ -430,23 +501,23 @@ export default function WhyDevora() {
         .devora-wins-stamp {
           display: inline-flex;
           align-items: center;
-          padding: 4px 14px;
+          padding: 5px 14px;
           border-radius: 999px;
           border: 2px solid #0a0a0a;
-          background: #fb923c;
+          background: linear-gradient(120deg, #ffd76f 0%, #ff9a3d 50%, #ff5ca8 100%);
           color: #0a0a0a;
           font-family: var(--f-mono);
-          font-size: 12px;
+          font-size: 11.5px;
           font-weight: 800;
           text-transform: uppercase;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.1em;
           box-shadow: 2px 2px 0px #0a0a0a;
         }
 
         .devora-wins-list {
           display: flex;
           flex-direction: column;
-          gap: 16px;
+          gap: 18px;
         }
 
         .devora-win-row {
@@ -456,39 +527,46 @@ export default function WhyDevora() {
           background: transparent !important;
           border: none !important;
           border-radius: 0;
-          padding: 0;
+          padding: 6px 8px;
           box-shadow: none !important;
+          border-radius: 10px;
+          transition: background 0.15s ease, transform 0.15s ease;
         }
 
-        .devora-win-row span {
-          color: #ffffff !important;
-          font-family: var(--f-body, system-ui, sans-serif);
-          font-size: 15.5px;
+        .devora-win-row:hover {
+          background: rgba(255, 255, 255, 0.04) !important;
+          transform: translateX(4px);
+        }
+
+        :global(html[data-theme="light"]) .devora-win-row:hover {
+          background: rgba(0, 0, 0, 0.03) !important;
+        }
+
+        .win-text {
+          color: #ffffff;
+          font-family: var(--font-body, var(--f-body, system-ui, sans-serif));
+          font-size: 16px;
           font-weight: 500;
           line-height: 1.5;
         }
 
-        :global(html[data-theme="light"]) .devora-win-row span {
-          color: #0a0a0a !important;
+        :global(html[data-theme="light"]) .win-text {
+          color: #0a0a0a;
           font-weight: 600;
         }
 
         .win-check {
           flex-shrink: 0;
-          margin-top: 2px;
-          width: 24px;
-          height: 24px;
+          margin-top: 1px;
+          width: 26px;
+          height: 26px;
           border-radius: 999px;
-          background: rgba(251, 146, 60, 0.18);
-          border: 1.5px solid #fb923c;
+          background: linear-gradient(135deg, #ffd76f 0%, #ff9a3d 60%, #ff5ca8 100%);
+          border: 2px solid #0a0a0a;
           display: flex;
           align-items: center;
           justify-content: center;
-        }
-
-        :global(html[data-theme="light"]) .win-check {
-          background: #ffedd5;
-          border: 1.5px solid #c2410c;
+          box-shadow: 1.5px 1.5px 0px #0a0a0a;
         }
       `}</style>
     </section>
