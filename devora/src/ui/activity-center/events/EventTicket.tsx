@@ -54,7 +54,7 @@ export default function EventTicket({ event }: EventTicketProps) {
     <article
       data-in
       data-event={event.id}
-      className="card lift bg-nb-white dark:bg-[#120a1f] border-nb border-nb-ink dark:border-white/30 rounded-[12px] shadow-nb-card transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg grid grid-cols-[80px_minmax(0,1fr)] sm:grid-cols-[105px_minmax(0,1fr)_205px] overflow-hidden"
+      className="card lift bg-nb-white dark:bg-[#120a1f] border-nb border-nb-ink dark:border-white/30 rounded-[12px] shadow-nb-card transition-all duration-150 hover:-translate-x-0.5 hover:-translate-y-0.5 hover:shadow-nb-lg grid grid-cols-[80px_minmax(0,1fr)] sm:grid-cols-[105px_minmax(0,1fr)_240px] overflow-hidden"
     >
       {/* Date block */}
       <div
@@ -169,7 +169,7 @@ export default function EventTicket({ event }: EventTicketProps) {
       </div>
 
       {/* Perforated Stub */}
-      <div className="relative col-span-2 sm:col-span-1 flex flex-row sm:flex-col justify-between items-center sm:items-stretch gap-3.5 p-4 sm:p-5 bg-nb-paper dark:bg-[#181026] border-t-nb sm:border-t-0 sm:border-l-3 sm:border-dashed sm:border-nb-ink dark:sm:border-white/20">
+      <div className="relative col-span-2 sm:col-span-1 flex flex-row sm:flex-col justify-between items-center sm:items-stretch gap-3 p-3.5 sm:p-4.5 bg-nb-paper dark:bg-[#181026] border-t-nb sm:border-t-0 sm:border-l-3 sm:border-dashed sm:border-nb-ink dark:sm:border-white/20">
         {/* Semicircle notches on desktop perforated line */}
         <span
           aria-hidden="true"
@@ -195,13 +195,13 @@ export default function EventTicket({ event }: EventTicketProps) {
           type="button"
           onClick={handleSaveClick}
           aria-pressed={isSaved}
-          className={`min-h-[48px] px-5 sm:px-6 py-2.5 rounded-[10px] border-[2.5px] font-mono text-xs sm:text-sm font-black uppercase tracking-wider whitespace-nowrap transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer ${
+          className={`w-full min-h-[44px] px-3.5 py-2 rounded-[9px] border-[2.5px] font-body text-xs sm:text-[13px] font-extrabold whitespace-nowrap transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer flex items-center justify-center gap-1.5 ${
             isSaved
               ? "bg-[#10b981] text-white border-[#0A0A0A] shadow-[3px_3px_0px_#0A0A0A]"
-              : "bg-white dark:bg-[#1f1530] text-nb-ink dark:text-white border-nb-ink dark:border-white shadow-[3.5px_3.5px_0px_#0A0A0A] dark:shadow-[3.5px_3.5px_0px_#000000]"
+              : "bg-white dark:bg-[#1f1530] text-nb-ink dark:text-white border-nb-ink dark:border-white shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000]"
           }`}
         >
-          {isSaved ? "✓ Saved to week" : "+ Save to my week"}
+          {isSaved ? "Saved to week ✓" : "+ Save to my week"}
         </button>
       </div>
     </article>
