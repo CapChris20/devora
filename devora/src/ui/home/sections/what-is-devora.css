@@ -1,0 +1,224 @@
+/* "What is Devora?" section (WhatIsDevora.tsx) in the hero's rounded poster style.
+   Ink outlines, hard zero-blur shadows, pill shapes, tilted rounded slabs; gradients only as accents.
+   Dark is the default; html[data-theme="light"] swaps surfaces. Every class starts with wi-. */
+
+/* ===== TOKENS ===== */
+/* Manipulate here: change once and the whole section follows */
+.wi-section {
+  --wi-ink: #0a0a0a;
+  --wi-surface: #16131b;
+  --wi-text: #ffffff;
+  --wi-muted: #c9c4d4;
+  --wi-line: rgba(255, 255, 255, 0.55);
+  --wi-shadow: #000000;
+  --wi-dots: rgba(10, 10, 10, 0.18);
+  --wi-brand: linear-gradient(120deg, #ff6b9d 0%, #fb923c 100%);
+  --wi-orchid: linear-gradient(120deg, #a78bfa 0%, #e879f9 100%);
+  --wi-sky: linear-gradient(120deg, #7dd3fc 0%, #a78bfa 100%);
+  --wi-display: var(--font-nb-display), "Arial Black", sans-serif;
+  --wi-body: var(--font-nb-body), system-ui, sans-serif;
+  --wi-mono: var(--font-nb-mono), ui-monospace, monospace;
+
+  position: relative;
+  background: var(--night);
+  color: var(--wi-text);
+  font-family: var(--wi-body);
+}
+
+html[data-theme="light"] .wi-section {
+  --wi-surface: #ffffff;
+  --wi-text: #0a0a0a;
+  --wi-muted: #55554f;
+  --wi-line: #0a0a0a;
+  --wi-shadow: #0a0a0a;
+}
+
+.wi-tone-brand { background: var(--wi-brand); }
+.wi-tone-orchid { background: var(--wi-orchid); }
+.wi-tone-sky { background: var(--wi-sky); }
+
+.wi-wrap { max-width: 1400px; }
+
+/* ===== PROMPT + HEADLINE ===== */
+.wi-prompt {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 8px 16px;
+  border: 3px solid var(--wi-line);
+  border-radius: 999px;
+  background: var(--wi-surface);
+  color: var(--wi-muted);
+  font-family: var(--wi-mono);
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 3px 3px 0 var(--wi-shadow);
+}
+.wi-prompt-angle { color: #ff6b9d; }
+.wi-prompt-caret { width: 9px; height: 16px; border-radius: 2px; background: #ff6b9d; animation: wi-blink 1s steps(1) infinite; }
+@keyframes wi-blink { 0%, 50% { opacity: 1; } 50.1%, 100% { opacity: 0; } }
+
+.wi-headline {
+  margin: 22px 0 0;
+  font-family: var(--wi-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(42px, 7vw, 108px);
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+}
+/* Sticker lettering: white letters, thick ink outline, hard ink drop (same as the hero) */
+.wi-word {
+  display: inline-block;
+  white-space: nowrap;
+  color: #ffffff;
+  -webkit-text-stroke: 0.1em var(--wi-ink);
+  paint-order: stroke fill;
+  text-shadow: 0.05em 0.06em 0 var(--wi-ink);
+}
+.wi-ch { display: inline-block; -webkit-text-stroke: inherit; paint-order: stroke fill; }
+
+.wi-band-word { position: relative; z-index: 0; display: inline-block; padding: 0 0.16em 0.02em; }
+.wi-band {
+  position: absolute;
+  inset: 0.06em -0.02em -0.04em;
+  z-index: -1;
+  border: 3px solid var(--wi-ink);
+  border-radius: 22px;
+  background: var(--wi-orchid);
+  box-shadow: 6px 6px 0 var(--wi-shadow);
+  transform: rotate(-1.5deg);
+  transform-origin: left center;
+}
+.wi-band-word .wi-word { color: var(--wi-ink); -webkit-text-stroke: 0; text-shadow: none; }
+
+/* ===== TWO COLUMNS ===== */
+.wi-columns { margin-top: 44px; display: grid; grid-template-columns: 1fr; gap: 64px; align-items: center; }
+@media (min-width: 980px) { .wi-columns { grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr); gap: 56px; } }
+
+/* Left: animation on a tilted slab with a dotted sky backer */
+.wi-stage { position: relative; padding: 10px 10px 34px; }
+.wi-backer { position: absolute; inset: 26px -10px 8px 24px; border: 3px solid var(--wi-ink); border-radius: 36px; background: var(--wi-sky); transform: rotate(-5deg); }
+.wi-backer::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background-image: radial-gradient(var(--wi-dots) 2px, transparent 2.5px); background-size: 16px 16px; }
+.wi-slab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 26px 18px;
+  border: 3px solid var(--wi-line);
+  border-radius: 36px;
+  background: #0e0918;
+  box-shadow: 8px 8px 0 var(--wi-shadow);
+  transform: rotate(2deg);
+}
+html[data-theme="light"] .wi-slab { background: #fff7f2; }
+
+/* Classmates → Friends sticker stuck on the slab's bottom edge */
+.wi-connector {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 18px;
+  border: 3px solid var(--wi-ink);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--wi-ink);
+  font-family: var(--wi-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 4px 4px 0 var(--wi-shadow);
+  translate: -50% 0;
+  rotate: -3deg;
+}
+.wi-connector-ball { width: 32px; height: 32px; display: grid; place-items: center; border: 2.5px solid var(--wi-ink); border-radius: 50%; background: var(--wi-brand); }
+
+/* Right: lead plate, claims, CTA */
+.wi-right { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.wi-lead {
+  margin: 0;
+  padding: 18px 22px;
+  border: 3px solid var(--wi-line);
+  border-radius: 24px;
+  background: var(--wi-surface);
+  font-size: clamp(17px, 1.4vw, 20px);
+  font-weight: 500;
+  line-height: 1.45;
+  box-shadow: 4px 4px 0 var(--wi-shadow);
+}
+.wi-lead strong { font-weight: 700; background: linear-gradient(transparent 62%, rgba(255, 107, 157, 0.45) 62%); }
+
+.wi-claims { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.wi-claim {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 18px 14px 14px;
+  border: 3px solid var(--wi-line);
+  border-radius: 999px;
+  background: var(--wi-surface);
+  box-shadow: 4px 4px 0 var(--wi-shadow);
+  /* Hover uses the separate translate property so it never fights GSAP's transform tweens */
+  transition: translate 0.15s, box-shadow 0.15s;
+}
+.wi-claim:hover { translate: -2px -2px; box-shadow: 6px 6px 0 var(--wi-shadow); }
+.wi-claim-chip {
+  width: 52px;
+  height: 52px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--wi-ink);
+  border-radius: 50%;
+  color: var(--wi-ink);
+  font-family: var(--wi-display);
+  font-size: 17px;
+}
+.wi-claim-title { margin: 0; font-family: var(--wi-display); font-weight: 400; font-size: 17px; text-transform: uppercase; letter-spacing: -0.01em; }
+.wi-claim-text { margin: 3px 0 0; color: var(--wi-muted); font-size: 15px; line-height: 1.45; }
+
+.wi-cta {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  margin-top: 6px;
+  padding: 0 28px;
+  border: 3px solid var(--wi-ink);
+  border-radius: 999px;
+  background: var(--wi-brand);
+  color: var(--wi-ink);
+  font-family: var(--wi-display);
+  font-size: 15px;
+  text-transform: uppercase;
+  text-decoration: none;
+  box-shadow: 4px 4px 0 var(--wi-shadow);
+  transition: translate 0.12s, box-shadow 0.12s;
+}
+.wi-cta:hover { translate: -2px -2px; box-shadow: 6px 6px 0 var(--wi-shadow); }
+.wi-cta:active { translate: 2px 2px; box-shadow: 2px 2px 0 var(--wi-shadow); }
+
+/* ===== PHONE ===== */
+@media (max-width: 560px) {
+  .wi-headline { font-size: clamp(38px, 11.5vw, 60px); }
+  .wi-band { border-radius: 16px; box-shadow: 4px 4px 0 var(--wi-shadow); }
+  .wi-columns { gap: 48px; }
+  .wi-claim { border-radius: 24px; align-items: flex-start; }
+  .wi-claim-chip { width: 44px; height: 44px; font-size: 15px; }
+  .wi-cta { align-self: stretch; justify-content: center; padding: 0 16px; }
+  .wi-connector { font-size: 11px; gap: 8px; padding: 5px 12px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wi-prompt-caret { animation: none; }
+  .wi-claim, .wi-cta { transition: none; }
+}

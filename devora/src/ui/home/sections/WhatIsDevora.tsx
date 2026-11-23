@@ -1,389 +1,214 @@
-// Section 01 — “What is Devora?” per DESIGN.md § 5.1A.
-// Night field, mouse-lit grid, chapter rail ("The platform").
-// Panel with orange/pink corner marks, blinking prompt, Lottie frame,
-// three claim rows, and footer row linking to /find-students.
+// Section 01 — “What is Devora?” in the same rounded poster style as the homepage hero.
+// Layout: chapter rail ("The platform") → prompt pill + giant sticker headline with "Devora?" on a band →
+// left: the laptop animation on a tilted slab with a Classmates → Friends sticker;
+// right: the lead line on a plate, three numbered claim cards, and the Discovery Grid pill.
+// Motion: GSAP plays once when the section scrolls into view. Styles: what-is-devora.css (wi- classes).
 
 "use client";
 
+// ===== IMPORTS =====
+
+import { useRef } from "react";
 import Link from "next/link";
+import gsap from "gsap";
+import { useGSAP } from "@gsap/react";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { LayoutGrid, ArrowRight } from "lucide-react";
+
 import whatIsDevoraAnimation from "@/ui/shared/assets/lottie-animations/recolored/what-is-devora.json";
+import { NB_FONT_CLASS_NAME } from "@/ui/shared/design-law/nb-fonts";
 import MovingAnimation from "./MovingAnimation";
 import MouseGridBackground from "./MouseGridBackground";
 import ChapterRail from "./ChapterRail";
+import "./what-is-devora.css";
 
+// vocab: registerPlugin = tell GSAP about ScrollTrigger once so tweens can wait for scrolling
+gsap.registerPlugin(ScrollTrigger);
+
+// ===== NAMED CONSTANTS =====
+
+const HEADLINE_FIRST_PART = "What is";
+const HEADLINE_BAND_PART = "Devora?";
+
+// Three claims. toneClass picks the round number chip's gradient.
+// Manipulate here: edit titles/text, or swap wi-tone-* to recolor a chip
 const CLAIMS = [
   {
     code: "01",
     title: "100% CECS verified",
-    text: "UM\u2011Dearborn only. No recruiters, no bots, no off-campus noise.",
+    text: "UM‑Dearborn only. No recruiters, no bots, no off-campus noise.",
+    toneClass: "wi-tone-brand",
   },
   {
     code: "02",
     title: "Every major and track",
     text: "CIS, CE, SE, DS and the rest of the building in one searchable grid.",
+    toneClass: "wi-tone-sky",
   },
   {
     code: "03",
     title: "Find your people",
     text: "Friends, colleagues and study crews in your career niche.",
+    toneClass: "wi-tone-orchid",
   },
-];
+] as const;
+
+// vocab: matchMedia query = GSAP only runs the block when this CSS media query is true
+const MOTION_ALLOWED_QUERY = "(prefers-reduced-motion: no-preference)";
+// Manipulate here: "top 75%" = start when the section's top reaches 75% down the screen
+const SCROLL_START_POINT = "top 75%";
+
+// ===== HELPER FUNCTIONS =====
+
+// Inline-block letter spans swallow normal spaces, so spaces become non-breaking ones.
+// vocab: \u00a0 = non-breaking space (always takes up room, never collapses)
+function toVisibleLetter(letter: string): string {
+  if (letter === " ") return "\u00a0";
+  return letter;
+}
+
+// One word group, split into letter spans so the letters can rise.
+// vocab: aria-label = what a screen reader says instead of reading each letter span
+function SplitLetters({ text }: { text: string }) {
+  return (
+    <span className="wi-word" aria-label={text} role="text">
+      {Array.from(text).map((letter, index) => (
+        <span key={`${letter}-${index}`} className="wi-ch" aria-hidden="true">
+          {toVisibleLetter(letter)}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+// Intro timeline that waits until ScrollTrigger sees the section.
+// vocab: timeline = tweens played in order; "-=0.3" = start 0.3s before the previous one ends
+function playIntro(sectionElement: HTMLElement) {
+  const intro = gsap.timeline({
+    defaults: { ease: "power3.out" },
+    // vocab: once = play the first time it scrolls into view, never rewind
+    scrollTrigger: { trigger: sectionElement, start: SCROLL_START_POINT, once: true },
+  });
+
+  // 1. Prompt pill, letters rise, band wipes in behind "Devora?"
+  intro
+    .from(".wi-prompt", { y: 16, autoAlpha: 0, duration: 0.45 })
+    .from(".wi-ch", { yPercent: 110, rotate: 8, autoAlpha: 0, duration: 0.55, stagger: 0.03 }, "-=0.2")
+    .from(".wi-band", { scaleX: 0, duration: 0.7, ease: "expo.out" }, "-=0.4");
+
+  // 2. Animation slab deals in from below; sticker pops onto it
+  intro
+    .from(".wi-backer", { x: -60, rotate: -16, autoAlpha: 0, duration: 0.7, ease: "back.out(1.4)" }, 0.4)
+    .from(".wi-slab", { y: 80, rotate: 10, autoAlpha: 0, duration: 0.8, ease: "back.out(1.3)" }, 0.5)
+    .from(".wi-connector", { scale: 0, duration: 0.6, ease: "back.out(2.2)" }, 1.0);
+
+  // 3. Right column: lead plate, claim cards deal in one by one, number chips spin in, CTA rises
+  intro
+    .from(".wi-lead", { y: 24, autoAlpha: 0, duration: 0.5 }, 0.6)
+    .from(".wi-claim", { x: 50, rotate: 2, autoAlpha: 0, duration: 0.55, stagger: 0.1, ease: "back.out(1.5)" }, 0.75)
+    .from(".wi-claim-chip", { scale: 0, rotate: -140, duration: 0.6, stagger: 0.1, ease: "back.out(2.6)" }, 0.85)
+    .from(".wi-cta", { y: 20, autoAlpha: 0, duration: 0.45 }, 1.2);
+}
+
+// ===== MAIN COMPONENT =====
 
 export default function WhatIsDevora() {
+  const sectionRef = useRef<HTMLElement>(null);
+
+  // GSAP setup. scope = only look for .wi-* classes inside this section; cleans up on unmount.
+  useGSAP(
+    () => {
+      const media = gsap.matchMedia();
+      media.add(MOTION_ALLOWED_QUERY, () => {
+        if (!sectionRef.current) return;
+        playIntro(sectionRef.current);
+      });
+      return () => media.revert();
+    },
+    { scope: sectionRef }
+  );
+
   return (
     <section
+      ref={sectionRef}
       id="what-is-devora"
-      className="scene scene-night"
-      style={{
-        background: "var(--night)",
-        color: "var(--text)",
-        position: "relative",
-      }}
+      className={`scene scene-night wi-section ${NB_FONT_CLASS_NAME}`}
     >
       <MouseGridBackground as="div">
-        <div className="wrap what-is-wrap">
+        <div className="wrap wi-wrap">
           <div className="chapter-grid">
-            {/* Sticky chapter rail */}
+            {/* 1. Sticky chapter rail */}
             <ChapterRail label="The platform" field="night" />
 
-            {/* Main Section Content */}
             <div>
-              {/* Panel */}
-              <div className="what-is-poster-panel">
-                {/* Corner marks: 28px L-shape 3px border. Orange top-left, pink bottom-right */}
-                <span className="corner-mark corner-mark-tl" aria-hidden="true" />
-                <span className="corner-mark corner-mark-br" aria-hidden="true" />
+              {/* 2. Prompt pill with blinking caret */}
+              <p className="wi-prompt">
+                <span className="wi-prompt-angle" aria-hidden="true">&gt;</span>
+                peers.find(friends &amp;&amp; niche)
+                <span className="wi-prompt-caret" aria-hidden="true" />
+              </p>
 
-                {/* 1. Prompt line: pink >, peers.find(friends && niche), blinking caret */}
-                <div className="prompt-line">
-                  <span className="prompt-angle">&gt;</span>
-                  <span className="prompt-text">peers.find(friends &amp;&amp; niche)</span>
-                  <span className="prompt-caret" aria-hidden="true" />
+              {/* 3. Giant headline: "What is" in sticker letters, "Devora?" on the tilted band */}
+              <h2 className="wi-headline">
+                <SplitLetters text={HEADLINE_FIRST_PART} />{" "}
+                <span className="wi-band-word">
+                  <span className="wi-band" aria-hidden="true" />
+                  <SplitLetters text={HEADLINE_BAND_PART} />
+                </span>
+              </h2>
+
+              <div className="wi-columns">
+                {/* 4. Left: laptop animation on a tilted slab + Classmates → Friends sticker */}
+                <div className="wi-stage">
+                  <div className="wi-backer" aria-hidden="true" />
+                  <div className="wi-slab">
+                    <MovingAnimation
+                      animationData={whatIsDevoraAnimation}
+                      ariaLabel="What is Devora animation"
+                      className="w-full h-full max-w-[440px] mx-auto aspect-[16/10]"
+                    />
+                  </div>
+                  <div className="wi-connector">
+                    <span>Classmates</span>
+                    <span className="wi-connector-ball" aria-hidden="true">
+                      <ArrowRight size={18} strokeWidth={3} />
+                    </span>
+                    <span>Friends</span>
+                  </div>
                 </div>
 
-                {/* 2. Headline */}
-                <h2 className="t-title what-is-headline">
-                  What is Devora?
-                </h2>
+                {/* 5. Right: lead plate, claims, CTA */}
+                <div className="wi-right">
+                  <p className="wi-lead">
+                    The official hub for <strong>networking</strong>,{" "}
+                    <strong>CECS events</strong> and{" "}
+                    <strong>finding your people</strong>, built only for
+                    Computer Engineering and Computer Science students at
+                    UM&#8209;Dearborn.
+                  </p>
 
-                {/* 3. Two-column grid */}
-                <div className="what-is-columns">
-                  {/* Left: Lottie frame */}
-                  <div className="lottie-frame">
-                    <div className="lottie-glow" aria-hidden="true" />
-                    <div className="lottie-inner">
-                      <MovingAnimation
-                        animationData={whatIsDevoraAnimation}
-                        ariaLabel="What is Devora animation"
-                        className="w-full h-full max-w-[420px] max-h-[250px] mx-auto aspect-[16/10]"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Right column */}
-                  <div className="claims-column">
-                    <p className="lead what-is-lead">
-                      The official hub for <strong>networking</strong>,{" "}
-                      <strong>CECS events</strong> and{" "}
-                      <strong>finding your people</strong>, built only for
-                      Computer Engineering and Computer Science students at
-                      UM&#8209;Dearborn.
-                    </p>
-
-                    {/* Three claim rows */}
-                    <div className="claims-grid">
-                      {CLAIMS.map((c) => (
-                        <div key={c.code} className="claim-row">
-                          <span className="claim-code">{c.code}</span>
-                          <div className="claim-content">
-                            <span className="claim-title">{c.title}:</span>{" "}
-                            <span className="claim-text">{c.text}</span>
-                          </div>
+                  <ol className="wi-claims">
+                    {CLAIMS.map((claim) => (
+                      <li key={claim.code} className="wi-claim">
+                        <span className={`wi-claim-chip ${claim.toneClass}`}>{claim.code}</span>
+                        <div>
+                          <h3 className="wi-claim-title">{claim.title}</h3>
+                          <p className="wi-claim-text">{claim.text}</p>
                         </div>
-                      ))}
-                    </div>
+                      </li>
+                    ))}
+                  </ol>
 
-                    {/* Footer row */}
-                    <div className="what-is-footer-row">
-                      <div className="concept-connector">
-                        <span className="mono what-is-connector-label">Classmates</span>
-                        <div className="connector-arrow">
-                          <ArrowRight size={22} color="#ff5ca8" />
-                        </div>
-                        <span className="mono what-is-connector-label">Friends</span>
-                      </div>
-
-                      <Link href="/find-students" className="btn-primary">
-                        <LayoutGrid size={20} />
-                        <span>Open the Discovery Grid</span>
-                      </Link>
-                    </div>
-                  </div>
+                  <Link href="/find-students" className="wi-cta">
+                    <LayoutGrid size={20} strokeWidth={2.6} />
+                    Open the Discovery Grid
+                  </Link>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </MouseGridBackground>
-
-      <style jsx>{`
-        .what-is-wrap {
-          max-width: 1400px;
-        }
-
-        .what-is-poster-panel {
-          position: relative;
-          padding: clamp(18px, 2.2vw, 32px);
-          border-radius: 24px;
-          background: linear-gradient(180deg, rgb(28 24 28 / .95), rgb(18 15 18 / .95));
-          border: 2px solid var(--edge);
-          transition: background 0.25s ease, border-color 0.25s ease;
-        }
-
-        :global(html[data-theme="light"]) .what-is-poster-panel {
-          background: #ffffff;
-          border: 3px solid #0d0b0e;
-          box-shadow: 6px 6px 0 0 #0d0b0e;
-        }
-
-        .what-is-poster-panel::before {
-          content: "";
-          position: absolute;
-          inset: 0;
-          border-radius: 24px;
-          background: var(--grad);
-          translate: 8px 8px;
-          z-index: -1;
-        }
-
-        .corner-mark {
-          position: absolute;
-          width: 28px;
-          height: 28px;
-          pointer-events: none;
-        }
-        .corner-mark-tl {
-          top: 14px;
-          left: 14px;
-          border-top: 3px solid rgba(255, 255, 255, 0.4);
-          border-left: 3px solid rgba(255, 255, 255, 0.4);
-        }
-        .corner-mark-br {
-          bottom: 14px;
-          right: 14px;
-          border-bottom: 3px solid rgba(255, 255, 255, 0.4);
-          border-right: 3px solid rgba(255, 255, 255, 0.4);
-        }
-        :global(html[data-theme="light"]) .corner-mark-tl,
-        :global(html[data-theme="light"]) .corner-mark-br {
-          border-color: #0a0a0a;
-        }
-
-        .prompt-line {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-family: var(--f-mono);
-          font-size: 13.5px;
-          margin-bottom: 12px;
-        }
-        .prompt-angle {
-          background: var(--grad);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          font-weight: 700;
-        }
-        .prompt-text {
-          color: var(--text-muted);
-        }
-        :global(html[data-theme="light"]) .prompt-text {
-          color: #574a50;
-        }
-        .prompt-caret {
-          display: inline-block;
-          width: 9px;
-          height: 16px;
-          background: #ff5ca8;
-          animation: blink 1s steps(1) infinite;
-        }
-
-        @keyframes blink {
-          0%, 50% { opacity: 1; }
-          50.1%, 100% { opacity: 0; }
-        }
-
-        .what-is-headline {
-          color: var(--text);
-          margin-bottom: 18px;
-        }
-        :global(html[data-theme="light"]) .what-is-headline {
-          color: #0d0b0e;
-        }
-
-        .what-is-columns {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 24px;
-          align-items: stretch;
-        }
-
-        @media (min-width: 980px) {
-          .what-is-columns {
-            grid-template-columns: 1fr 1.15fr;
-            gap: 32px;
-          }
-        }
-
-        .lottie-frame {
-          position: relative;
-          border-radius: 18px;
-          background: var(--night);
-          border: 2px solid var(--edge);
-          min-height: 220px;
-          max-height: 280px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          overflow: hidden;
-          padding: 12px;
-        }
-        :global(html[data-theme="light"]) .lottie-frame {
-          background: #faf6f8;
-          border: 2.5px solid #0d0b0e;
-        }
-
-        .lottie-glow {
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(circle at 40% 40%, rgba(255, 92, 168, 0.35), transparent 60%),
-                      radial-gradient(circle at 70% 70%, rgba(255, 154, 61, 0.25), transparent 50%);
-          pointer-events: none;
-        }
-
-        .lottie-inner {
-          position: relative;
-          z-index: 1;
-          width: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-        }
-
-        .claims-column {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-
-        .what-is-lead {
-          color: var(--text-body);
-          font-size: clamp(15px, 1.3vw, 17.5px);
-          line-height: 1.45;
-        }
-        :global(html[data-theme="light"]) .what-is-lead {
-          color: #2a2226;
-        }
-
-        .what-is-lead strong {
-          color: var(--text);
-          font-weight: 700;
-        }
-        :global(html[data-theme="light"]) .what-is-lead strong {
-          color: #0d0b0e;
-        }
-
-        .claims-grid {
-          display: grid;
-          grid-template-columns: 1fr;
-          gap: 10px;
-        }
-
-        .claim-row {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          background: var(--surface-2);
-          border-radius: 12px;
-          padding: 10px 14px;
-          border: 2px solid transparent;
-          transition: border-color 0.2s ease, translate 0.2s var(--spring);
-        }
-        :global(html[data-theme="light"]) .claim-row {
-          background: #f7f2f5;
-          border: 2px solid #0d0b0e;
-          box-shadow: 3px 3px 0 0 #0d0b0e;
-        }
-
-        .claim-row:hover {
-          border-color: rgba(255, 255, 255, 0.4);
-          translate: 4px 0;
-        }
-
-        :global(html[data-theme="light"]) .claim-row:hover {
-          border-color: #0d0b0e;
-        }
-
-        .claim-code {
-          font-family: var(--f-mono);
-          font-size: 14px;
-          font-weight: 700;
-          background: var(--grad);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          flex-shrink: 0;
-          margin-top: 1px;
-        }
-
-        .claim-content {
-          font-size: 15.5px;
-          line-height: 1.45;
-        }
-
-        .claim-title {
-          font-weight: 700;
-          color: var(--text);
-        }
-        :global(html[data-theme="light"]) .claim-title {
-          color: #0d0b0e;
-        }
-
-        .claim-text {
-          color: var(--text-muted);
-        }
-        :global(html[data-theme="light"]) .claim-text {
-          color: #4a3e45;
-        }
-
-        .what-is-connector-label {
-          color: var(--text);
-          font-weight: 700;
-        }
-        :global(html[data-theme="light"]) .what-is-connector-label {
-          color: #0d0b0e;
-        }
-
-        .what-is-footer-row {
-          margin-top: auto;
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          justify-content: space-between;
-          gap: 20px;
-          padding-top: 16px;
-        }
-
-        .concept-connector {
-          display: inline-flex;
-          align-items: center;
-          gap: 12px;
-        }
-
-        .connector-arrow {
-          display: flex;
-          align-items: center;
-        }
-      `}</style>
     </section>
   );
 }
