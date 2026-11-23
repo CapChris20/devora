@@ -9,7 +9,7 @@ export const topSectionText = {
   },
   // One-line pitch under the headline
   subheading:
-    "The premier networking platform for CECS students at UM-Dearborn.",
+    "The official campus hub for CECS students at UM-Dearborn: the Discovery Grid, clubs, events, study groups and messages in one place.",
   // Legacy single CTA label (kept for older layouts that still read ctaPrimary)
   ctaPrimary: "Start Networking Now",
   // Non-card hero: one outline button (HeroCardActions without variant="card")
