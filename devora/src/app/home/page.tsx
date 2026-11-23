@@ -1,6 +1,6 @@
 // Marketing homepage (/home). Renders all landing sections in order.
 // Flow: mount Lenis smooth scroll → stack nav + hero + feature sections top to bottom.
-// Hero (TopSection) is untouched per instruction.
+// Hero (TopSection) = poster layout over the pyramid shader.
 
 "use client";
 
@@ -44,7 +44,7 @@ export default function LandingPage() {
   return (
     <main className="page-shell min-h-screen">
       <NavBar activeItem="Home" />
-      {/* Hero section untouched per user instruction */}
+      {/* Hero: poster layout over the pyramid shader (src/ui/home/hero) */}
       <TopSection />
       {/* Redesigned sections per DESIGN.md § 5.1 */}
       {/* 1. What is Devora (night) */}

@@ -1,26 +1,28 @@
-// Sponsor and creator credits under the DEVORA title.
-// CECS sponsorship line, then Chris + Dr. Maxim on the meta row.
-// Styles: hero-credits-* in globals.css.
+// Creator credits plate under the homepage hero: "Created by Chris Shina · Proctored by Dr. Bruce Maxim".
+// The sponsor line moved onto the spinning seal (HeroSponsorSeal.tsx).
+// Words live in top-section-text.ts → credits. Styles: hp-credits* in hero-poster.css.
+
+// ===== IMPORTS =====
+
+import { topSectionText } from "./top-section-text";
+
+// ===== MAIN COMPONENT =====
 
 export default function HeroCredits() {
   return (
-    // Block under the glass DEVORA wordmark
-    <div className="hero-credits-block">
-      <p className="hero-credits-label">Sponsored by</p>
-      {/* Sponsor name — CECS stays theme text (white / dark), not a colored fill. */}
-      {/* vocab: font-display = the display typeface from globals.css (not the pixel font) */}
-      <p className="hero-credits-sponsor font-display">
-        <span className="hero-credits-body">University of Michigan-Dearborn </span>
-        {/* Theme text — white in dark, dark in light. Not a pink/violet fill. */}
-        <span className="theme-heading font-bold">CECS Department</span>
-      </p>
-      {/* Creator + proctor on one line, separated by a middle dot.
-          Manipulate here: edit the names/labels if credits change */}
-      <p className="hero-credits-meta font-display">
-        Created by <span className="hero-credits-name">Chris Shina</span>
-        <span className="hero-credits-sep"> · </span>
-        Proctored by <span className="hero-credits-name">Dr. Bruce Maxim</span>
-      </p>
+    // Rounded plate so the names stay readable over the pyramid shader
+    <div className="hp-credits">
+      {/* vocab: .map = make one label/name pair per credit entry */}
+      {topSectionText.credits.map((credit, index) => (
+        <div key={credit.label} className="hp-credit-group">
+          {/* Small round dot between the two credits (skip before the first one) */}
+          {index > 0 && <span className="hp-credit-sep" aria-hidden="true" />}
+          <p className="hp-credit">
+            <span className="hp-credit-label">{credit.label}</span>
+            <span className="hp-credit-name">{credit.name}</span>
+          </p>
+        </div>
+      ))}
     </div>
   );
 }

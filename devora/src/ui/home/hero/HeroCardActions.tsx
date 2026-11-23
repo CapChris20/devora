@@ -1,42 +1,58 @@
-// Hero call-to-action buttons — "View Grid" and "Sign Up" on the card, or a single outline link elsewhere.
+// Hero call-to-action buttons — "Find people" and "Sign Up" pills, or a single outline link elsewhere.
 // Labels and hrefs live in top-section-text.ts so copy can change without touching layout.
 // Manipulate here: edit topSectionText.cardActions / cta — not this file — to change destinations.
+
+// ===== IMPORTS =====
 
 import Link from "next/link";
 import { topSectionText } from "./top-section-text";
 
+// ===== TYPES =====
+
 type HeroCardActionsProps = {
-  // "card" = two side-by-side buttons inside the hero info card; omit for the single outline CTA
+  // "card" = the two side-by-side hero pills; omit for the single outline CTA
   variant?: "card";
 };
 
+type ActionStyle = (typeof topSectionText.cardActions)[number]["style"];
+
+// ===== HELPER FUNCTIONS =====
+
+// Pick the pill classes for one action. Look lives in hero-poster.css (hp-btn*).
+// Manipulate here: add a new style name here and in top-section-text.ts
+function pickActionClassName(style: ActionStyle): string {
+  if (style === "primary") return "hp-btn hp-btn-primary";
+  return "hp-btn";
+}
+
+// Arrow on the primary pill — decorative only
+function ArrowRight() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M5 12h14M13 6l6 6-6 6" />
+    </svg>
+  );
+}
+
+// ===== MAIN COMPONENT =====
+
 export default function HeroCardActions({ variant }: HeroCardActionsProps) {
-  // Card layout — two buttons side by side (outline + primary)
+  // 1. Hero layout — two pills side by side (outline + primary with arrow)
   if (variant === "card") {
     return (
-      <div className="hero-action-wrap">
+      <div className="hp-actions">
         {/* vocab: Link = Next.js client navigation (no full page reload) */}
         {topSectionText.cardActions.map((action) => (
-          <Link
-            key={action.label}
-            href={action.href}
-            className={
-              // style comes from top-section-text ("primary" | "outline").
-              // vocab/symbol: ? : = ternary — pick primary classes or outline classes
-              // Manipulate here: hero-action-* look lives in globals.css
-              action.style === "primary"
-                ? "hero-action hero-action-primary"
-                : "hero-action hero-action-outline"
-            }
-          >
+          <Link key={action.label} href={action.href} className={pickActionClassName(action.style)}>
             {action.label}
+            {action.style === "primary" && <ArrowRight />}
           </Link>
         ))}
       </div>
     );
   }
 
-  // Non-card layout — one outline CTA with a ">" affordance
+  // 2. Non-card layout — one outline CTA with a ">" affordance
   const { label, href } = topSectionText.cta;
 
   return (

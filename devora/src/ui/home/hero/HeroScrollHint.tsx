@@ -1,4 +1,4 @@
-// Bouncing "Scroll for more" button on the homepage hero.
+// Round "Scroll for more" pill on the homepage hero.
 // Click → find the target section by id → Lenis smoothScroller.scrollTo if present,
 // else native scrollIntoView. Default target is the What is Devora platform card.
 
@@ -79,23 +79,19 @@ export default function HeroScrollHint({ targetId = "what-is-devora" }: HeroScro
   };
 
   return (
-    <div className="hero-scroll-hint">
-      <button
-        type="button"
-        onClick={scrollToMore}
-        // pointer-events-auto = ensure clicks work even if a parent uses pointer-events-none
-        className="hero-scroll-hint-btn pointer-events-auto"
-        // Visible label + accessible name both come from shared copy
-        aria-label={topSectionText.scrollHint}
-      >
-        <span className="hero-scroll-hint-label">{topSectionText.scrollHint}</span>
-        {/* Two chevrons; CSS delays the second for a bounce feel.
-            Manipulate here: hero-scroll-hint-chevron* keyframes live in globals.css */}
-        <span className="hero-scroll-hint-chevrons" aria-hidden="true">
-          <ChevronDown className="hero-scroll-hint-chevron" />
-          <ChevronDown className="hero-scroll-hint-chevron hero-scroll-hint-chevron-delay" />
-        </span>
-      </button>
-    </div>
+    <button
+      type="button"
+      onClick={scrollToMore}
+      // Pill with a round gradient ball holding the chevron. Look: hp-scroll* in hero-poster.css
+      className="hp-scroll pointer-events-auto"
+      // Visible label + accessible name both come from shared copy
+      aria-label={topSectionText.scrollHint}
+    >
+      {/* hp-scroll-ball bobs up and down (GSAP in TopSection) */}
+      <span className="hp-scroll-ball" aria-hidden="true">
+        <ChevronDown />
+      </span>
+      {topSectionText.scrollHint}
+    </button>
   );
 }

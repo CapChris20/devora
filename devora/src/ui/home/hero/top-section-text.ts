@@ -26,5 +26,21 @@ export const topSectionText = {
   ],
   // Label on the bouncing scroll hint button (also used as aria-label)
   scrollHint: "Scroll for more information",
+  // Small campus pill above the headline
+  eyebrow: "CECS · University of Michigan–Dearborn",
+  // Brand word on the tilted slab
+  wordmark: "DEVORA",
+  // Sponsor seal: the ring text spins; the full sentence is read to screen readers.
+  // Manipulate here: ringText must stay short enough to fit once around the seal
+  sponsor: {
+    sentence: "Sponsored by University of Michigan-Dearborn CECS Department",
+    ringText: "Sponsored by · University of Michigan-Dearborn · ",
+    centerLines: ["CECS", "Dept."],
+  },
+  // Creator + proctor plate under the hero
+  credits: [
+    { label: "Created by", name: "Chris Shina" },
+    { label: "Proctored by", name: "Dr. Bruce Maxim" },
+  ],
 } as const;
 // vocab: as const = freeze these strings as exact literals (safer autocomplete in TypeScript)
