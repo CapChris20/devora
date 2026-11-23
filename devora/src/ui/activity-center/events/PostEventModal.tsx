@@ -193,11 +193,10 @@ export default function PostEventModal() {
       <form
         ref={modalRef}
         onSubmit={handleSubmit}
-        className={`relative w-[94vw] max-w-[880px] max-h-[92vh] overflow-y-auto rounded-[14px] border-[3px] p-4 sm:p-5 flex flex-col gap-3 text-left will-change-transform transition-all shadow-[8px_8px_0px_#0a0a0a] ${
-          isLight
+        className={`relative w-[94vw] max-w-[880px] max-h-[92vh] overflow-y-auto rounded-[14px] border-[3px] p-4 sm:p-5 flex flex-col gap-3 text-left will-change-transform transition-all shadow-[8px_8px_0px_#0a0a0a] ${isLight
             ? "bg-white border-[#0a0a0a] text-[#0a0a0a]"
             : "bg-[#0d0914] border-white/40 shadow-[8px_8px_0px_#000000] text-white"
-        }`}
+          }`}
       >
         {/* Header - Compact & Sleek */}
         <div className="flex items-center justify-between gap-3 border-b-2 border-[#0a0a0a] dark:border-white/20 pb-2.5">
@@ -382,11 +381,10 @@ export default function PostEventModal() {
                       type="button"
                       onClick={() => toggleTag(tag.id)}
                       aria-pressed={isSelected}
-                      className={`inline-flex items-center gap-1 min-h-[30px] px-2.5 rounded-[7px] border-2 font-mono text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer select-none active:translate-x-0.5 active:translate-y-0.5 ${
-                        isSelected
+                      className={`inline-flex items-center gap-1 min-h-[30px] px-2.5 rounded-[7px] border-2 font-mono text-[11px] font-black uppercase tracking-wider transition-all cursor-pointer select-none active:translate-x-0.5 active:translate-y-0.5 ${isSelected
                           ? "bg-[#0a0a0a] text-white border-[#0a0a0a] shadow-[2px_2px_0px_#0a0a0a] dark:bg-white dark:text-[#0a0a0a] dark:border-white dark:shadow-[2px_2px_0px_#000000]"
                           : "bg-white dark:bg-[#181026] text-[#0a0a0a] dark:text-neutral-300 border-[#0a0a0a]/40 dark:border-white/30 shadow-[1.5px_1.5px_0px_#0a0a0a] dark:shadow-[1.5px_1.5px_0px_#000000] hover:bg-neutral-100 dark:hover:bg-[#221636]"
-                      }`}
+                        }`}
                     >
                       {isSelected && <span>✓</span>}
                       <span>{tag.label}</span>

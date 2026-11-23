@@ -31,7 +31,7 @@ export default function EventFilter() {
       role="group"
       aria-label="Filter events"
       data-in
-      className="flex flex-wrap items-center gap-3 sm:gap-3.5 mb-8 sm:mb-10"
+      className="flex flex-wrap items-center gap-2.5 sm:gap-3 mb-8 sm:mb-10 w-full"
     >
       {filters.map((item) => {
         const isSelected = eventFilter === item.id;
@@ -41,17 +41,17 @@ export default function EventFilter() {
             type="button"
             aria-pressed={isSelected}
             onClick={() => setEventFilter(item.id)}
-            className={`min-h-[48px] sm:min-h-[50px] px-6 sm:px-7 rounded-full border-[2.5px] font-body text-sm sm:text-[15px] font-extrabold tracking-wide transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer flex items-center gap-2 select-none ${
+            className={`min-h-[40px] sm:min-h-[42px] px-4 sm:px-5 py-1.5 sm:py-2 rounded-full border-2 font-mono text-xs sm:text-[12.5px] font-black uppercase tracking-wider transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer flex items-center gap-1.5 select-none ${
               isSelected
                 ? item.isSpecial
-                  ? "bg-gradient-to-r from-[#34d399] to-[#10b981] text-[#0A0A0A] border-[#0A0A0A] shadow-[4px_4px_0px_#0A0A0A]"
-                  : "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0A0A0A] border-[#0A0A0A] shadow-[4px_4px_0px_#0A0A0A]"
+                  ? "bg-gradient-to-r from-[#34d399] to-[#10b981] text-[#0A0A0A] border-[#0A0A0A] shadow-[3px_3px_0px_#0A0A0A]"
+                  : "bg-gradient-to-r from-[#FF6B9D] to-[#FB923C] text-[#0A0A0A] border-[#0A0A0A] shadow-[3px_3px_0px_#0A0A0A]"
                 : item.isSpecial && savedEventsCount > 0
-                ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-600 shadow-[3px_3px_0px_#0A0A0A]"
-                : "bg-white dark:bg-[#181026] text-[#0A0A0A] dark:text-white border-[#0A0A0A] dark:border-white/40 shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000] hover:bg-neutral-50 dark:hover:bg-[#221636] hover:shadow-[4px_4px_0px_#0A0A0A] dark:hover:shadow-[4px_4px_0px_#000000]"
+                ? "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-600 shadow-[2.5px_2.5px_0px_#0A0A0A]"
+                : "bg-white dark:bg-[#181026] text-[#0A0A0A] dark:text-white border-[#0A0A0A] dark:border-white/40 shadow-[2.5px_2.5px_0px_#0A0A0A] dark:shadow-[2.5px_2.5px_0px_#000000] hover:bg-neutral-50 dark:hover:bg-[#221636] hover:shadow-[3px_3px_0px_#0A0A0A] dark:hover:shadow-[3px_3px_0px_#000000]"
             }`}
           >
-            {item.isSpecial && <span>★</span>}
+            {item.isSpecial && <span className="text-[11px]">★</span>}
             <span>{item.label}</span>
           </button>
         );

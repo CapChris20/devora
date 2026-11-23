@@ -74,7 +74,7 @@ export default function EventFeed() {
       {/* Feed header */}
       <div
         data-in
-        className="flex flex-wrap items-end justify-between gap-4 sm:gap-6 mb-8 sm:mb-10"
+        className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 sm:gap-6 mb-8 sm:mb-9"
       >
         <div className="min-w-0">
           <p className="flex items-center gap-2 mb-2 font-nb-mono text-[11px] font-bold tracking-[0.18em] uppercase text-nb-muted">

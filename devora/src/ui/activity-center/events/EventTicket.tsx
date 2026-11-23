@@ -195,13 +195,13 @@ export default function EventTicket({ event }: EventTicketProps) {
           type="button"
           onClick={handleSaveClick}
           aria-pressed={isSaved}
-          className={`w-full min-h-[44px] px-3.5 py-2 rounded-[9px] border-[2.5px] font-body text-xs sm:text-[13px] font-extrabold whitespace-nowrap transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer flex items-center justify-center gap-1.5 ${
+          className={`w-full min-h-[42px] px-3.5 py-2 rounded-[9px] border-[2.5px] font-body text-xs sm:text-[13px] font-black tracking-normal whitespace-nowrap overflow-hidden text-ellipsis transition-all duration-120 hover:-translate-x-0.5 hover:-translate-y-0.5 active:translate-x-0.5 active:translate-y-0.5 cursor-pointer flex items-center justify-center gap-1.5 select-none ${
             isSaved
-              ? "bg-[#10b981] text-white border-[#0A0A0A] shadow-[3px_3px_0px_#0A0A0A]"
-              : "bg-white dark:bg-[#1f1530] text-nb-ink dark:text-white border-nb-ink dark:border-white shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000]"
+              ? "bg-[#10b981] text-[#0A0A0A] border-[#0A0A0A] shadow-[3px_3px_0px_#0A0A0A]"
+              : "bg-white dark:bg-[#1f1530] text-[#0A0A0A] dark:text-white border-nb-ink dark:border-white shadow-[3px_3px_0px_#0A0A0A] dark:shadow-[3px_3px_0px_#000000]"
           }`}
         >
-          {isSaved ? "Saved to week ✓" : "+ Save to my week"}
+          {isSaved ? "Saved to week ✓" : "Save to my week"}
         </button>
       </div>
     </article>
