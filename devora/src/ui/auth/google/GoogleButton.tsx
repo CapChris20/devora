@@ -27,11 +27,13 @@ type GoogleButtonProps = {
   isDisabled?: boolean;
   // True while the Google popup or redirect is in progress
   isLoading?: boolean;
+  // Optional class swap. The poster auth card passes "au-google-btn".
+  className?: string;
 };
 
 // ===== HELPER FUNCTIONS =====
 
-function GoogleIcon() {
+export function GoogleIcon() {
   return (
     <svg className={GOOGLE_ICON_CLASS_NAME} viewBox="0 0 24 24" aria-hidden>
       <path
@@ -70,13 +72,14 @@ export default function GoogleButton({
   type = DEFAULT_BUTTON_TYPE,
   isDisabled = false,
   isLoading = false,
+  className = GOOGLE_BUTTON_CLASS_NAME,
 }: GoogleButtonProps) {
   const shouldBlockClicks = isDisabled || isLoading;
 
   return (
     <button
       type={type}
-      className={GOOGLE_BUTTON_CLASS_NAME}
+      className={className}
       onClick={onClick}
       // Block a second click while the popup is already open
       disabled={shouldBlockClicks}

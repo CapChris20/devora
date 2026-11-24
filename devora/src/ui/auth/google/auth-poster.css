@@ -1,0 +1,228 @@
+/* One-click Google auth card (GoogleAuthCard.tsx) in the homepage's rounded poster style.
+   Ink outlines, hard zero-blur shadows, pills, a tilted dotted backer. Every class starts with au-.
+   Dark is the default; html[data-theme="light"] swaps surfaces. */
+
+/* ===== TOKENS ===== */
+/* Manipulate here: change once and the whole card follows */
+.au-stage {
+  --au-ink: #0a0a0a;
+  --au-surface: #16131b;
+  --au-text: #ffffff;
+  --au-muted: #c9c4d4;
+  --au-line: rgba(255, 255, 255, 0.6);
+  --au-shadow: #000000;
+  --au-brand: linear-gradient(120deg, #ff6b9d 0%, #fb923c 100%);
+  --au-orchid: linear-gradient(120deg, #a78bfa 0%, #e879f9 100%);
+  --au-sky: linear-gradient(120deg, #7dd3fc 0%, #a78bfa 100%);
+  --au-display: var(--font-nb-display), "Arial Black", sans-serif;
+  --au-body: var(--font-nb-body), system-ui, sans-serif;
+  --au-mono: var(--font-nb-mono), ui-monospace, monospace;
+
+  position: relative;
+  padding: 18px 8px 8px;
+  color: var(--au-text);
+  font-family: var(--au-body);
+}
+html[data-theme="light"] .au-stage {
+  --au-surface: #ffffff;
+  --au-text: #0a0a0a;
+  --au-muted: #55554f;
+  --au-line: #0a0a0a;
+  --au-shadow: #0a0a0a;
+}
+
+/* ===== BACKER + CARD ===== */
+.au-backer {
+  position: absolute;
+  inset: 34px -6px -6px 18px;
+  border: 3px solid var(--au-ink);
+  border-radius: 36px;
+  background: var(--au-sky);
+  transform: rotate(-3.5deg);
+}
+.au-backer::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: radial-gradient(rgba(10, 10, 10, 0.18) 2px, transparent 2.5px);
+  background-size: 16px 16px;
+}
+.au-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 40px 28px 26px;
+  border: 3px solid var(--au-line);
+  border-radius: 32px;
+  background: var(--au-surface);
+  box-shadow: 8px 8px 0 var(--au-shadow);
+}
+
+.au-sticker {
+  position: absolute;
+  top: -18px;
+  left: 50%;
+  translate: -50% 0;
+  rotate: -3deg;
+  padding: 6px 16px;
+  border: 3px solid var(--au-ink);
+  border-radius: 999px;
+  background: var(--au-brand);
+  color: var(--au-ink);
+  font-family: var(--au-mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: 3px 3px 0 var(--au-shadow);
+}
+
+/* ===== HEADER ===== */
+.au-header { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; }
+.au-logo {
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  border: 3px solid var(--au-ink);
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 4px 4px 0 var(--au-shadow);
+  rotate: 6deg;
+}
+.au-headline {
+  margin: 4px 0 0;
+  font-family: var(--au-display);
+  font-weight: 400;
+  text-transform: uppercase;
+  font-size: clamp(34px, 8vw, 46px);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+/* Sticker lettering: white letters, thick ink outline, hard ink drop */
+.au-word {
+  display: inline-block;
+  color: #ffffff;
+  -webkit-text-stroke: 0.1em var(--au-ink);
+  paint-order: stroke fill;
+  text-shadow: 0.05em 0.06em 0 var(--au-ink);
+}
+.au-band-word { position: relative; z-index: 0; display: inline-block; padding: 0 0.18em 0.04em; }
+.au-band {
+  position: absolute;
+  inset: 0.02em -0.02em -0.04em;
+  z-index: -1;
+  border: 3px solid var(--au-ink);
+  border-radius: 16px;
+  background: var(--au-orchid);
+  box-shadow: 4px 4px 0 var(--au-shadow);
+  transform: rotate(-2deg);
+}
+.au-band-word .au-word { color: var(--au-ink); -webkit-text-stroke: 0; text-shadow: none; }
+.au-sub { margin: 0; max-width: 34ch; color: var(--au-muted); font-size: 15px; line-height: 1.5; }
+
+/* ===== TABS ===== */
+.au-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  padding: 4px;
+  border: 3px solid var(--au-line);
+  border-radius: 999px;
+}
+.au-tab {
+  display: grid;
+  place-items: center;
+  min-height: 40px;
+  border-radius: 999px;
+  color: var(--au-muted);
+  font-family: var(--au-display);
+  font-size: 14px;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.au-tab:hover { color: var(--au-text); }
+.au-tab-current { background: var(--au-text); color: var(--au-surface); }
+.au-tab-current:hover { color: var(--au-surface); }
+
+/* ===== ERROR ===== */
+.au-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  border: 3px solid var(--au-ink);
+  border-radius: 18px;
+  background: #fecaca;
+  color: var(--au-ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  box-shadow: 3px 3px 0 var(--au-shadow);
+}
+.au-error svg { flex-shrink: 0; margin-top: 1px; color: #b91c1c; }
+
+/* ===== GOOGLE BUTTON ===== */
+.au-google-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 62px;
+  width: 100%;
+  padding: 0 22px;
+  border: 3px solid var(--au-ink);
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--au-ink);
+  font-family: var(--au-display);
+  font-size: 17px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 5px 5px 0 var(--au-shadow);
+  transition: translate 0.12s, box-shadow 0.12s;
+}
+.au-google-btn svg { width: 24px; height: 24px; }
+.au-google-btn:hover:not(:disabled) { translate: -2px -2px; box-shadow: 7px 7px 0 var(--au-shadow); }
+.au-google-btn:active:not(:disabled) { translate: 3px 3px; box-shadow: 2px 2px 0 var(--au-shadow); }
+.au-google-btn:disabled { cursor: wait; opacity: 0.85; }
+.au-google-btn:focus-visible { outline: 3px solid #ff6b9d; outline-offset: 3px; }
+.au-google-btn .sign-in-spinner { border-color: rgba(10, 10, 10, 0.25); border-top-color: var(--au-ink); }
+
+/* ===== CHIPS + FOOTER ===== */
+.au-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.au-chip {
+  padding: 5px 12px;
+  border: 2px solid var(--au-line);
+  border-radius: 999px;
+  color: var(--au-muted);
+  font-family: var(--au-mono);
+  font-size: 12px;
+  font-weight: 700;
+}
+.au-terms { margin: 0; text-align: center; color: var(--au-muted); font-size: 13px; line-height: 1.5; }
+.au-terms a { color: var(--au-text); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
+.au-switch { margin: 0; text-align: center; color: var(--au-muted); font-size: 14px; }
+.au-switch-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #ff6b9d;
+  font-weight: 700;
+  text-decoration: none;
+}
+.au-switch-link:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+/* ===== PHONE ===== */
+@media (max-width: 480px) {
+  .au-card { padding: 36px 18px 22px; gap: 18px; }
+  .au-google-btn { font-size: 14px; min-height: 58px; padding: 0 14px; gap: 10px; white-space: nowrap; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .au-google-btn, .au-tab { transition: none; }
+}

@@ -37,15 +37,20 @@ const FALLBACK_FIRST_NAME = "Student";
 // "login" skips the name save unless the profile is missing. "signup" requires both names.
 export type SignInMode = "login" | "signup";
 
+// schoolEmail is optional: the one-click Google cards send none, and Google's own account
+// picker plus the Michigan check in signInWithGoogle do the gatekeeping instead.
 type SignInOptions = {
   firstName?: string;
   lastName?: string;
-  schoolEmail: string;
+  schoolEmail?: string;
 };
 
 // ===== HELPER FUNCTIONS =====
 
 function assertSchoolEmailIsMichigan(schoolEmail: string): void {
+  // No typed email (one-click Google): the Google account itself is checked after the popup.
+  if (!schoolEmail) return;
+
   // Why before Google? A Gmail address should fail here instead of opening a wasted popup.
   // Manipulate here: domain rules live in isUmichEmail, not in this message alone
   if (!isUmichEmail(schoolEmail)) {
@@ -174,15 +179,16 @@ export async function handleGoogleSignIn(
   options: SignInOptions
 ) {
   // vocab: AppRouterInstance = Next.js router object (has .push / .replace)
-  // vocab: .trim() = remove spaces so " alex@umich.edu " still counts
-  const schoolEmail = options.schoolEmail.trim();
+  // vocab: ?.trim() = remove spaces so " alex@umich.edu " still counts; missing email becomes ""
+  const schoolEmail = options.schoolEmail?.trim() ?? "";
   assertSchoolEmailIsMichigan(schoolEmail);
   assertSignupIncludesBothNames(mode, options);
 
   try {
     // vocab: await = pause until the Google popup finishes
     // vocab: signInWithGoogle = Firebase popup. The result includes .user
-    const signInResult = await signInWithGoogle(schoolEmail);
+    // vocab: || undefined = an empty email means "no hint", so Google shows the plain account picker
+    const signInResult = await signInWithGoogle(schoolEmail || undefined);
     const signedInUser = signInResult.user;
     // vocab: ?? = if email is missing, use an empty string
     const googleEmail = signedInUser.email ?? "";

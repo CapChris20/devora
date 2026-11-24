@@ -28,6 +28,7 @@ import {
 } from "firebase/firestore";
 
 import { auth, db, getUserProfile } from "@/backend/firebase";
+import { keepUpcomingEvents, sortEventsSoonestFirst } from "@/ui/shared/dates/event-dates";
 import type {
   ActivityEvent,
   ActivityEventTag,
@@ -589,13 +590,27 @@ export function ActivityCenterProvider({ children }: { children: ReactNode }) {
     () => Object.values(joinedGroupIds).filter(Boolean).length,
     [joinedGroupIds]
   );
+  // Re-check the date every few minutes so a tab left open drops yesterday's events after midnight.
+  // Manipulate here: CLOCK_CHECK_INTERVAL_MS controls how often "today" is refreshed
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+  useEffect(() => {
+    const CLOCK_CHECK_INTERVAL_MS = 5 * 60 * 1000;
+    const clockTimer = window.setInterval(() => setCurrentTime(new Date()), CLOCK_CHECK_INTERVAL_MS);
+    return () => window.clearInterval(clockTimer);
+  }, []);
+  // Past events (any day before today) never reach the feed, ticker, or week tiles.
+  const upcomingEvents = useMemo(
+    () => sortEventsSoonestFirst(keepUpcomingEvents(events, currentTime), currentTime),
+    [events, currentTime]
+  );
+
   const savedEventsCount = useMemo(
     () => Object.values(savedEventIds).filter(Boolean).length,
     [savedEventIds]
   );
 
   const contextValue: ActivityCenterContextValue = {
-    events,
+    events: upcomingEvents,
     isEventsLoading,
     savedEventIds,
     eventFilter,

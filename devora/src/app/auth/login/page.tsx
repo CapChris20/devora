@@ -1,5 +1,5 @@
 // Login route. The shared auth chrome wraps the Google sign-in card.
-// Flow: render SignInPageLayout → LoginCard (email field + Google button).
+// Flow: render SignInPageLayout (bare) → LoginCard (one-click Google poster card).
 
 // ===== IMPORTS =====
 
@@ -14,7 +14,7 @@ import LoginCard from "@/ui/auth/login/LoginCard";
 export default function LoginPage() {
   // vocab: page.tsx = the Next.js file that owns this URL
   return (
-    <SignInPageLayout>
+    <SignInPageLayout bare>
       <LoginCard />
     </SignInPageLayout>
   );

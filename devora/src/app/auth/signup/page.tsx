@@ -1,5 +1,5 @@
-// Sign-up route. Collects a name and Michigan email before Google account creation.
-// Flow: render SignInPageLayout → SignupCard (name, email, Google button).
+// Sign-up route. One click on Google creates the account; names come from the Google profile.
+// Flow: render SignInPageLayout (bare) → SignupCard (one-click Google poster card).
 
 // ===== IMPORTS =====
 
@@ -13,7 +13,7 @@ import SignupCard from "@/ui/auth/signup/SignupCard";
  */
 export default function SignupPage() {
   return (
-    <SignInPageLayout>
+    <SignInPageLayout bare>
       <SignupCard />
     </SignInPageLayout>
   );

@@ -8,6 +8,7 @@ import { LINKS } from "../config";
 import type { Availability } from "../useAvailability";
 import { FIT_ORDER } from "../useAvailability";
 import type { CampusEvent } from "../sample-data";
+import { keepUpcomingEvents } from "@/ui/shared/dates/event-dates";
 import { ASCII_WEEK, Ascii, FitChip, SectionHeader } from "../primitives";
 import { useFlipList } from "../motion";
 import { Modal } from "../Modal";
@@ -30,8 +31,10 @@ export const CampusSection = ({ availability, events }: CampusSectionProps) => {
   const [openId, setOpenId] = useState<string | null>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  const visible = events.filter(passesFilter).sort((a, b) => FIT_ORDER[getFit(a)] - FIT_ORDER[getFit(b)]);
-  const hidden = events.length - visible.length;
+  // Events from days before today are dropped first, so they never show or count as hidden.
+  const upcomingEvents = keepUpcomingEvents(events);
+  const visible = upcomingEvents.filter(passesFilter).sort((a, b) => FIT_ORDER[getFit(a)] - FIT_ORDER[getFit(b)]);
+  const hidden = upcomingEvents.length - visible.length;
   useFlipList(listRef, visible.map((e) => e.id).join("|"));
 
   const toggle = (id: string) =>
